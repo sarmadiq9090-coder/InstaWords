@@ -64,7 +64,7 @@ const t = createTafqit(myUnitsJson);
 | `prefix` / `suffix` | `""` | نص حر قبل النتيجة وبعدها |
 | `decimals` | `"round"` | الخانات الزائدة عن دقة العملة: تقريب نصفي للأعلى، أو `"error"` |
 
-**Excel:** استورد `vba/Tafqit.bas` (من Alt+F11 ثم File ثم Import File) واحفظ المصنف بصيغة `.xlsm`. التفاصيل في [`vba/README.md`](vba/README.md).
+**Excel:** استورد `vba/Tafqit.bas` (من Alt+F11 ثم File ثم Import File؛ اسم الوحدة داخله `TafqitLib`) واحفظ المصنف بصيغة `.xlsm`، ثم اكتب `=TAFQIT(A1; "ريال سعودي"; "مائة"; "فقط"; "لا غير")`. المعامل السادس الاختياري `"round"` أو `"error"`، و`=TAFQIT_CLEAN(A1)` يعيد الرقم بعد التنقية. مخرجات VBA مختبرة آلياً لتطابق النواة على قرابة 30 ألف حالة. التفاصيل في [`vba/README.md`](vba/README.md).
 
 ### إضافة وحدة
 
@@ -95,7 +95,9 @@ npm run build:site  # يبني الموقع في _site/
 
 ### النشر
 
-المجلد `_site/` موقع ثابت كامل بمسارات نسبية، فيُرفع إلى أي استضافة ثابتة (GitHub Pages، أو Cloudflare Pages، أو Netlify، أو خادمك) في الجذر أو في مسار فرعي. وفي المستودع سير عمل جاهز للنشر على GitHub Pages: [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
+النسخة الرسمية تُنشر على **https://fastkiwi.app/tafqit/** عبر Cloudflare Worker ([`wrangler.jsonc`](wrangler.jsonc)، [`cloudflare/worker.js`](cloudflare/worker.js)). يبني سير العمل [`.github/workflows/cloudflare.yml`](.github/workflows/cloudflare.yml) الموقع ويختبره وينشره عند كل دفع إلى الفرع الافتراضي، ويحتاج سرّين في المستودع: `CLOUDFLARE_API_TOKEN` و`CLOUDFLARE_ACCOUNT_ID`. وللنشر اليدوي: `npm run deploy:cf`.
+
+والمجلد `_site/` (من `npm run build:site`) موقع ثابت كامل بمسارات نسبية، فيُرفع إلى أي استضافة ثابتة في الجذر أو في مسار فرعي.
 
 ### الترخيص
 
@@ -146,6 +148,8 @@ npm run test:site  # browser smoke test (Playwright)
 npm run build:site # deployable static site in _site/
 ```
 
-Deploy `_site/` to any static host, at the root or a sub-path. A GitHub Pages workflow is included.
+Production: **https://fastkiwi.app/tafqit/**, served by a Cloudflare Worker (`wrangler.jsonc`) and deployed by `.github/workflows/cloudflare.yml` (needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets; manual: `npm run deploy:cf`). `_site/` also works on any static host, at the root or a sub-path.
+
+Excel: import `vba/Tafqit.bas` (module `TafqitLib`), then `=TAFQIT(A1, "ريال سعودي", "مائة", "فقط", "لا غير", "round")`. VBA output is verified against the core on ~30,000 inputs via a VBA-subset harness.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md). License: MIT.

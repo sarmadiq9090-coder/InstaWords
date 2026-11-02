@@ -262,10 +262,10 @@ function testsModule() {
     const L = [`Private Sub LoadCases${p + 1}()`];
     for (const c of cases.slice(p * CASES_PER_PROC, (p + 1) * CASES_PER_PROC)) {
       L.push("    mCount = mCount + 1");
-      L.push(...assign("mId(mCount)", c.id), ...assign("mIn(mCount)", c.input), ...assign("mUnit(mCount)", c.unit));
-      L.push(...assign("mHf(mCount)", c.hundredsForm ?? ""), ...assign("mPre(mCount)", c.prefix ?? ""));
-      L.push(...assign("mSuf(mCount)", c.suffix ?? ""), ...assign("mDec(mCount)", c.decimals ?? ""));
-      L.push(...assign("mExp(mCount)", c.expected), ...assign("mClean(mCount)", c.cleaned));
+      L.push(...assign("mCaseId(mCount)", c.id), ...assign("mCaseIn(mCount)", c.input), ...assign("mCaseUnit(mCount)", c.unit));
+      L.push(...assign("mCaseHf(mCount)", c.hundredsForm ?? ""), ...assign("mCasePre(mCount)", c.prefix ?? ""));
+      L.push(...assign("mCaseSuf(mCount)", c.suffix ?? ""), ...assign("mCaseDec(mCount)", c.decimals ?? ""));
+      L.push(...assign("mCaseExp(mCount)", c.expected), ...assign("mCaseClean(mCount)", c.cleaned));
     }
     L.push("End Sub");
     procs.push(L.join("\n"));
@@ -280,15 +280,15 @@ function testsModule() {
 Option Explicit
 
 Private mCount As Long
-Private mId() As String
-Private mIn() As String
-Private mUnit() As String
-Private mHf() As String
-Private mPre() As String
-Private mSuf() As String
-Private mDec() As String
-Private mExp() As String
-Private mClean() As String
+Private mCaseId() As String
+Private mCaseIn() As String
+Private mCaseUnit() As String
+Private mCaseHf() As String
+Private mCasePre() As String
+Private mCaseSuf() As String
+Private mCaseDec() As String
+Private mCaseExp() As String
+Private mCaseClean() As String
 
 Public Sub TafqitSelfTest()
     Dim failed As Long, msg As String
@@ -308,17 +308,17 @@ Public Function TafqitGoldenFailures() As Long
     LoadCases
     failed = 0
     For i = 1 To mCount
-        got = TAFQIT(mIn(i), mUnit(i), mHf(i), mPre(i), mSuf(i), mDec(i))
-        cleaned = TAFQIT_CLEAN(mIn(i))
-        If Not SameText(got, mExp(i)) Then
+        got = TAFQIT(mCaseIn(i), mCaseUnit(i), mCaseHf(i), mCasePre(i), mCaseSuf(i), mCaseDec(i))
+        cleaned = TAFQIT_CLEAN(mCaseIn(i))
+        If Not SameText(got, mCaseExp(i)) Then
             failed = failed + 1
-            Debug.Print "FAIL " & mId(i) & " TAFQIT"
-            Debug.Print "  expected: " & CodePoints(mExp(i))
+            Debug.Print "FAIL " & mCaseId(i) & " TAFQIT"
+            Debug.Print "  expected: " & CodePoints(mCaseExp(i))
             Debug.Print "  got:      " & CodePoints(got)
-        ElseIf Not SameText(cleaned, mClean(i)) Then
+        ElseIf Not SameText(cleaned, mCaseClean(i)) Then
             failed = failed + 1
-            Debug.Print "FAIL " & mId(i) & " TAFQIT_CLEAN"
-            Debug.Print "  expected: " & CodePoints(mClean(i))
+            Debug.Print "FAIL " & mCaseId(i) & " TAFQIT_CLEAN"
+            Debug.Print "  expected: " & CodePoints(mCaseClean(i))
             Debug.Print "  got:      " & CodePoints(cleaned)
         End If
     Next i
@@ -372,15 +372,15 @@ End Function
 
 Private Sub LoadCases()
     mCount = 0
-    ReDim mId(1 To ${cases.length})
-    ReDim mIn(1 To ${cases.length})
-    ReDim mUnit(1 To ${cases.length})
-    ReDim mHf(1 To ${cases.length})
-    ReDim mPre(1 To ${cases.length})
-    ReDim mSuf(1 To ${cases.length})
-    ReDim mDec(1 To ${cases.length})
-    ReDim mExp(1 To ${cases.length})
-    ReDim mClean(1 To ${cases.length})
+    ReDim mCaseId(1 To ${cases.length})
+    ReDim mCaseIn(1 To ${cases.length})
+    ReDim mCaseUnit(1 To ${cases.length})
+    ReDim mCaseHf(1 To ${cases.length})
+    ReDim mCasePre(1 To ${cases.length})
+    ReDim mCaseSuf(1 To ${cases.length})
+    ReDim mCaseDec(1 To ${cases.length})
+    ReDim mCaseExp(1 To ${cases.length})
+    ReDim mCaseClean(1 To ${cases.length})
 ${procs.map((_, p) => `    LoadCases${p + 1}`).join("\n")}
 End Sub
 
