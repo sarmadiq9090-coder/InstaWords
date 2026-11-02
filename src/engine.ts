@@ -1,10 +1,10 @@
 // Tafqit rules, docs/SPEC.md §3–§11.
 import { TafqitError } from "./errors.ts";
 import {
-  COMPOUND_ONES, DECIMAL_POINT_WORD, HUNDREDS, ONES, SCALES, TEENS, TENS, WAW, ZERO,
+  COMPOUND_ONES, DECIMAL_POINT_WORD, HUNDREDS, MAX_INTEGER_DIGITS, ONES, SCALES, TEENS, TENS, WAW, ZERO,
 } from "./lexicon.ts";
 import { normalizeNumber } from "./normalize.ts";
-import type { Gender, HundredsForm, NormalizedNumber, NounForms, Unit } from "./types.ts";
+import type { DecimalsPolicy, Gender, HundredsForm, NormalizedNumber, NounForms, Unit } from "./types.ts";
 
 /** Split digit string into 3-digit groups, least significant first. */
 function splitGroups(digits: string): number[] {
@@ -20,7 +20,7 @@ function lastTwo(digits: string): number {
   return parseInt(digits.slice(-2), 10);
 }
 
-/** §3 — words for 1..999. `construct`: 200 exactly is followed directly by a noun. */
+/** §3 — words for 1..999. `construct`: 200 exactly is followed directly by a scale word. */
 function groupWords(g: number, gender: Gender, hf: HundredsForm, construct: boolean): string {
   const h = Math.floor(g / 100);
   const r = g % 100;
@@ -43,7 +43,7 @@ function groupWords(g: number, gender: Gender, hf: HundredsForm, construct: bool
 function scaleTerm(g: number, k: number, hf: HundredsForm, construct: boolean): string {
   const s = SCALES[k]!;
   if (g === 1) return s.singular;
-  if (g === 2) return construct ? s.dualConstruct : s.dual;
+  if (g === 2) return s.dual; // ألفان ريال (accounting usage, R2)
   const r = g % 100;
   let noun: string;
   if (r <= 2) noun = s.singular;
@@ -64,7 +64,7 @@ function integerWords(digits: string, gender: Gender, hf: HundredsForm, nounFoll
     const isLast = groups.slice(0, k).every((x) => x === 0);
     parts.push(scaleTerm(g, k, hf, isLast && nounFollows));
   }
-  if (groups[0]! > 0) parts.push(groupWords(groups[0]!, gender, hf, nounFollows));
+  if (groups[0]! > 0) parts.push(groupWords(groups[0]!, gender, hf, false)); // مائتان ريال (R2)
   return parts.join(WAW);
 }
 
@@ -94,11 +94,32 @@ export interface PhraseInput {
   number: NormalizedNumber;
   unit: Unit;
   hundredsForm: HundredsForm;
+  decimals: DecimalsPolicy;
+}
+
+/** Add one to a digit string. */
+function incrementDigits(digits: string): string {
+  const a = digits.split("");
+  let i = a.length - 1;
+  while (i >= 0 && a[i] === "9") a[i--] = "0";
+  if (i < 0) a.unshift("1");
+  else a[i] = String(Number(a[i]) + 1);
+  return a.join("");
+}
+
+/** §8 / P1 — round half-up to `d` fraction digits on strings. Returns [integer, subunit digits]. */
+export function roundHalfUp(integer: string, fraction: string, d: number): [string, string] {
+  let digits = integer + fraction.slice(0, d).padEnd(d, "0");
+  if ((fraction[d] ?? "0") >= "5") digits = incrementDigits(digits);
+  const int = digits.slice(0, digits.length - d).replace(/^0+/, "") || "0";
+  if (int.length > MAX_INTEGER_DIGITS) throw new TafqitError("TOO_LARGE");
+  return [int, digits.slice(digits.length - d)];
 }
 
 /** Full phrase without prefix/suffix. */
-export function phrase({ number, unit, hundredsForm: hf }: PhraseInput): string {
-  const { integer, fraction } = number;
+export function phrase({ number, unit, hundredsForm: hf, decimals }: PhraseInput): string {
+  let { integer } = number;
+  const { fraction } = number;
 
   if (unit.forms === null) {
     const intText = integerWords(integer, "m", hf, false);
@@ -111,8 +132,12 @@ export function phrase({ number, unit, hundredsForm: hf }: PhraseInput): string 
   if (fraction) {
     if (!unit.subunit) throw new TafqitError("FRACTION_NOT_SUPPORTED", unit.label);
     const d = String(unit.subunit.ratio).length - 1;
-    if (fraction.length > d) throw new TafqitError("TOO_MANY_DECIMALS", `${unit.label}: ${d}`);
-    sub = fraction.padEnd(d, "0").replace(/^0+/, "") || "0";
+    let subDigits = fraction.padEnd(d, "0");
+    if (fraction.length > d) {
+      if (decimals === "error") throw new TafqitError("TOO_MANY_DECIMALS", `${unit.label}: ${d}`);
+      [integer, subDigits] = roundHalfUp(integer, fraction, d);
+    }
+    sub = subDigits.replace(/^0+/, "") || "0";
   }
 
   if (sub === "0") return countPhrase(integer, unit.forms, hf);

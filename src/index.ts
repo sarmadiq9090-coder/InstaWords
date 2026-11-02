@@ -38,7 +38,9 @@ export function createTafqit(catalogData: UnitCatalog = defaultCatalogData): Taf
     const unit = catalog.get(options.unit);
     const hundredsForm = resolveHundreds(options.hundredsForm);
     const number = normalizeNumber(input);
-    const text = phrase({ number, unit, hundredsForm });
+    const decimals = options.decimals ?? "round";
+    if (decimals !== "round" && decimals !== "error") throw new TafqitError("INVALID_OPTION", `decimals=${decimals}`);
+    const text = phrase({ number, unit, hundredsForm, decimals });
     return [options.prefix?.trim(), text, options.suffix?.trim()].filter(Boolean).join(" ");
   };
 

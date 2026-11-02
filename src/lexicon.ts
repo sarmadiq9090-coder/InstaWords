@@ -29,7 +29,7 @@ export const TENS: readonly string[] = ["", "", "عشرون", "ثلاثون", "�
 interface HundredsTable {
   /** index = hundreds digit (standalone forms). */
   words: readonly string[];
-  /** 200 in construct (إضافة). */
+  /** 200 directly before a scale word (مائتا ألف). */
   dualConstruct: string;
 }
 
@@ -48,7 +48,6 @@ export const HUNDREDS: Record<HundredsForm, HundredsTable> = {
 export interface ScaleWord {
   singular: string;
   dual: string;
-  dualConstruct: string;
   plural: string;
   accusative: string;
 }
@@ -56,10 +55,10 @@ export interface ScaleWord {
 /** Scales (§2.5), index = k (1 = thousands … 4 = trillions). */
 export const SCALES: readonly (ScaleWord | null)[] = [
   null,
-  { singular: "ألف", dual: "ألفان", dualConstruct: "ألفا", plural: "آلاف", accusative: "ألفاً" },
-  { singular: "مليون", dual: "مليونان", dualConstruct: "مليونا", plural: "ملايين", accusative: "مليوناً" },
-  { singular: "مليار", dual: "ملياران", dualConstruct: "مليارا", plural: "مليارات", accusative: "ملياراً" },
-  { singular: "تريليون", dual: "تريليونان", dualConstruct: "تريليونا", plural: "تريليونات", accusative: "تريليوناً" },
+  { singular: "ألف", dual: "ألفان", plural: "آلاف", accusative: "ألفاً" },
+  { singular: "مليون", dual: "مليونان", plural: "ملايين", accusative: "مليوناً" },
+  { singular: "مليار", dual: "ملياران", plural: "مليارات", accusative: "ملياراً" },
+  { singular: "تريليون", dual: "تريليونان", plural: "تريليونات", accusative: "تريليوناً" },
 ];
 
 export const MAX_INTEGER_DIGITS = 15;

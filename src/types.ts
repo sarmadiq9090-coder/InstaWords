@@ -2,6 +2,9 @@ export type Gender = "m" | "f";
 
 export type HundredsForm = "مائة" | "مئة";
 
+/** What to do when a fraction has more digits than the subunit allows. */
+export type DecimalsPolicy = "round" | "error";
+
 export interface NounForms {
   singular: string;
   dual: string;
@@ -55,6 +58,8 @@ export interface TafqitOptions {
   hundredsForm?: HundredsForm;
   prefix?: string;
   suffix?: string;
+  /** Extra fraction digits: "round" half-up to the subunit (default) or "error". */
+  decimals?: DecimalsPolicy;
 }
 
 export interface NormalizedNumber {

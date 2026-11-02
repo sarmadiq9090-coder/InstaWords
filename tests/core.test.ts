@@ -33,7 +33,7 @@ describe("hundreds form", () => {
     );
   });
   test("construct with مئة", () => {
-    assert.equal(r("200", "riyal", { hundredsForm: "مئة" }), "مئتا ريال");
+    assert.equal(r("200", "riyal", { hundredsForm: "مئة" }), "مئتان ريال");
     assert.equal(tafqit("200000", { hundredsForm: "مئة" }), "مئتا ألف");
   });
   test("invalid form", () => throwsCode(() => tafqit("1", { hundredsForm: "x" as never }), "INVALID_OPTION"));
@@ -45,10 +45,10 @@ describe("counted noun (masculine)", () => {
     ["102", "مائة واثنان ريال"], ["103", "مائة وثلاثة ريالات"], ["110", "مائة وعشرة ريالات"],
     ["111", "مائة وأحد عشر ريالاً"], ["250", "مائتان وخمسون ريالاً"], ["300", "ثلاثمائة ريال"],
     ["1001", "ألف وواحد ريال"], ["2005", "ألفان وخمسة ريالات"], ["10000", "عشرة آلاف ريال"],
-    ["12000", "اثنا عشر ألف ريال"], ["100000", "مائة ألف ريال"], ["2000000", "مليونا ريال"],
-    ["3000000", "ثلاثة ملايين ريال"], ["11000000", "أحد عشر مليون ريال"], ["1000200", "مليون ومائتا ريال"],
+    ["12000", "اثنا عشر ألف ريال"], ["100000", "مائة ألف ريال"], ["2000000", "مليونان ريال"],
+    ["3000000", "ثلاثة ملايين ريال"], ["11000000", "أحد عشر مليون ريال"], ["1000200", "مليون ومائتان ريال"],
     ["1011000", "مليون وأحد عشر ألف ريال"], ["11000001", "أحد عشر مليوناً وواحد ريال"],
-    ["2000000000", "مليارا ريال"], ["2000000000000", "تريليونا ريال"],
+    ["2000000000", "ملياران ريال"], ["2000000000000", "تريليونان ريال"], ["200200", "مائتا ألف ومائتان ريال"],
   ];
   for (const [n, want] of cases) test(n, () => assert.equal(r(n), want));
 });
@@ -71,11 +71,22 @@ describe("fractions", () => {
   test("SAR 0.00", () => assert.equal(r("0.00", "SAR"), "صفر ريال سعودي"));
   test("KWD 0.001", () => assert.equal(r("0.001", "KWD"), "فلس واحد"));
   test("KWD 0.002", () => assert.equal(r("0.002", "KWD"), "فلسان"));
-  test("KWD 1.2", () => assert.equal(r("1.2", "KWD"), "دينار كويتي واحد ومائتا فلس"));
+  test("KWD 1.2", () => assert.equal(r("1.2", "KWD"), "دينار كويتي واحد ومائتان فلس"));
   test("BHD 3.011", () => assert.equal(r("3.011", "BHD"), "ثلاثة دنانير بحرينية وأحد عشر فلساً"));
   test("JOD 2.5", () => assert.equal(r("2.5", "JOD"), "ديناران أردنيان وخمسمائة فلس"));
   test("OMR 1.001", () => assert.equal(r("1.001", "OMR"), "ريال عماني واحد وبيسة واحدة"));
-  test("too many decimals", () => throwsCode(() => r("10.125", "SAR"), "TOO_MANY_DECIMALS"));
+  test("too many decimals: error policy", () => throwsCode(() => r("10.125", "SAR", { decimals: "error" }), "TOO_MANY_DECIMALS"));
+  test("rounding half-up (default)", () => {
+    assert.equal(r("10.124", "SAR"), "عشرة ريالات سعودية واثنتا عشرة هللة");
+    assert.equal(r("10.125", "SAR"), "عشرة ريالات سعودية وثلاث عشرة هللة");
+    assert.equal(r("1.995", "SAR"), "ريالان سعوديان");
+    assert.equal(r("0.004", "SAR"), "صفر ريال سعودي");
+    assert.equal(r("0.005", "SAR"), "هللة واحدة");
+    assert.equal(r("9.9999", "KWD"), "عشرة دنانير كويتية");
+    assert.equal(tafqit(0.1 + 0.2, { unit: "SAR" }), "ثلاثون هللة");
+    throwsCode(() => r("999999999999999.995", "SAR"), "TOO_LARGE");
+    throwsCode(() => r("1", "SAR", { decimals: "x" }), "INVALID_OPTION");
+  });
   test("trailing zeros beyond precision are fine", () => assert.equal(r("10.12000", "SAR"), "عشرة ريالات سعودية واثنتا عشرة هللة"));
   test("fraction on unit without subunit", () => throwsCode(() => r("2.5", "piece"), "FRACTION_NOT_SUPPORTED"));
   test("zero fraction on unit without subunit", () => assert.equal(r("2.0", "piece"), "قطعتان"));
@@ -119,14 +130,14 @@ describe("API", () => {
   test("unknown unit", () => throwsCode(() => tafqit("1", { unit: "xyz" }), "UNKNOWN_UNIT"));
   test("tryTafqit", () => {
     assert.deepEqual(tryTafqit("١٢", { unit: "riyal" }), { ok: true, result: "اثنا عشر ريالاً", cleaned: "12" });
-    const bad = tryTafqit("10.125", { unit: "SAR" });
+    const bad = tryTafqit("10.125", { unit: "SAR", decimals: "error" });
     assert.equal(bad.ok, false);
     if (!bad.ok) { assert.equal(bad.error.code, "TOO_MANY_DECIMALS"); assert.equal(bad.cleaned, "10.125"); }
     const bad2 = tryTafqit("x");
     assert.ok(!bad2.ok && bad2.cleaned === undefined);
   });
   test("convert()", () => {
-    assert.deepEqual(convert({ the_number: "200", unit: "riyal", hundreds_form: "مئة" }), { result: "مئتا ريال" });
+    assert.deepEqual(convert({ the_number: "200", unit: "riyal", hundreds_form: "مئة" }), { result: "مئتان ريال" });
     assert.deepEqual(convert({ the_number: 7 }), { result: "سبعة" });
   });
   test("units list contains none and is non-empty", () => {

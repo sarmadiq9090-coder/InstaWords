@@ -19,7 +19,7 @@
 ### المزايا
 
 - **تذكير وتأنيث صحيحان** للعدد والمعدود (ثلاثة ريالات، ثلاث ليرات، إحدى عشرة هللة).
-- **الإضافة الفصيحة**: مائتا ريال، ألفا ريال، أحد عشر ألف ريال.
+- **صيغ مطابقة لعرف المالية والحسابات**: مائتان ريال، ألفان ريال، أحد عشر ألف ريال، مائتا ألف ريال.
 - **أجزاء العملة** بأي نسبة من قوى العشرة: 100 هللة، و1000 فلس للدينار العراقي والكويتي والبحريني والأردني والريال العماني.
 - **يقبل** الأرقام الهندية (١٢٣) والفارسية والغربية، وفواصل الآلاف (`,` `٬`) والفاصلة العشرية العربية (`٫`).
 - **دقة كاملة**: الأرقام تُعالج نصوصاً ولا تُستعمل الأعداد العشرية (float)، حتى 999 تريليون.
@@ -42,10 +42,13 @@ tafqit("1250.75", { unit: "SAR" });
 // "ألف ومائتان وخمسون ريالاً سعودياً وخمس وسبعون هللة"
 
 tafqit("٢٠٠", { unit: "ريال", hundredsForm: "مئة", prefix: "فقط", suffix: "لا غير" });
-// "فقط مئتا ريال لا غير"
+// "فقط مئتان ريال لا غير"
 
-tryTafqit("10.125", { unit: "SAR" });
-// { ok: false, error: { code: "TOO_MANY_DECIMALS", message: "…" }, cleaned: "10.125" }
+tryTafqit("abc");
+// { ok: false, error: { code: "INVALID_FORMAT", message: "صيغة الرقم غير صحيحة." } }
+
+tafqit("10.125", { unit: "SAR" });              // تقريب: «عشرة ريالات سعودية وثلاث عشرة هللة»
+tafqit("10.125", { unit: "SAR", decimals: "error" }); // خطأ TOO_MANY_DECIMALS
 
 convert({ the_number: "12", unit: "riyal", hundreds_form: "مائة" });
 // { result: "اثنا عشر ريالاً" }
@@ -59,6 +62,7 @@ const t = createTafqit(myUnitsJson);
 | `unit` | `"none"` | معرّف الوحدة، أو رمزها، أو اسمها، أو أحد أسمائها البديلة |
 | `hundredsForm` | `"مائة"` | `"مائة"` أو `"مئة"` |
 | `prefix` / `suffix` | `""` | نص حر قبل النتيجة وبعدها |
+| `decimals` | `"round"` | الخانات الزائدة عن دقة العملة: تقريب نصفي للأعلى، أو `"error"` |
 
 **Excel:** استورد `vba/Tafqit.bas` (من Alt+F11 ثم File ثم Import File) واحفظ المصنف بصيغة `.xlsm`. التفاصيل في [`vba/README.md`](vba/README.md).
 
@@ -107,7 +111,7 @@ MIT. انظر [`LICENSE`](LICENSE). كُتب المشروع بأسلوب «ال�
 
 ### Features
 
-- Correct masculine/feminine agreement, dual and plural forms, and construct (إضافة) forms (مائتا ريال، ألفا ريال).
+- Correct masculine/feminine agreement, dual and plural forms, following common finance/accounting usage (مائتان ريال، ألفان ريال، أحد عشر ألف ريال).
 - Subunits with any power-of-ten ratio (100 halalas; 1000 fils for IQD/KWD/BHD/JOD, 1000 baisa for OMR).
 - Accepts Arabic-Indic, Persian and Western digits, thousands separators and the Arabic decimal separator.
 - Exact: numbers are processed as strings, never floats. Up to 999 trillion.
@@ -127,7 +131,7 @@ tryTafqit("abc");                          // { ok: false, error: { code: "INVAL
 convert({ the_number: "2", unit: "SAR" }); // { result: "ريالان سعوديان" }
 ```
 
-Options: `unit` (id, code, label or alias; default `"none"`), `hundredsForm` (`"مائة"` | `"مئة"`), `prefix`, `suffix`.
+Options: `unit` (id, code, label or alias; default `"none"`), `hundredsForm` (`"مائة"` | `"مئة"`), `prefix`, `suffix`, `decimals` (`"round"` half-up to the subunit — default — or `"error"`).
 Error codes: `EMPTY`, `INVALID_FORMAT`, `NEGATIVE`, `TOO_LARGE`, `TOO_MANY_DECIMALS`, `FRACTION_NOT_SUPPORTED`, `UNKNOWN_UNIT`, `INVALID_OPTION`, `INVALID_CATALOG`.
 
 The full linguistic specification is in [`docs/SPEC.md`](docs/SPEC.md). §16 lists the cases awaiting linguistic review. Excel instructions are in [`vba/README.md`](vba/README.md).
