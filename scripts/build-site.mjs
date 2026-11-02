@@ -58,7 +58,10 @@ else {
     if (!name.endsWith(".html")) continue;
     const p = join(out, name);
     const html = readFileSync(p, "utf8");
-    const stripped = html.replace(/^[ \t]*<li><a href="excel\.html"[^\n]*<\/li>\r?\n/gm, "");
+    // Remove one-line list items linking to the page, and any line marked data-excel-only.
+    const stripped = html
+      .replace(/^[ \t]*<li><a href="excel\.html"[^\n]*<\/li>\r?\n/gm, "")
+      .replace(/^[^\n]*data-excel-only[^\n]*\r?\n/gm, "");
     if (stripped.includes('href="excel.html"')) fail(`${name}: could not remove the link to excel.html`);
     writeFileSync(p, stripped);
   }
