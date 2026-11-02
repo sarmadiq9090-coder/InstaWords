@@ -71,7 +71,7 @@ function integerWords(digits: string, gender: Gender, hf: HundredsForm, nounFoll
 /** §5 — number + counted noun. */
 function countPhrase(digits: string, forms: NounForms, hf: HundredsForm): string {
   if (digits === "0") return ZERO + " " + forms.singular;
-  if (digits === "1") return forms.singular + " " + ONES[forms.gender][1];
+  if (digits === "1") return forms.one ?? forms.singular + " " + ONES[forms.gender][1];
   if (digits === "2") return forms.dual;
   const r = lastTwo(digits);
   let noun: string;

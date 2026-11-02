@@ -143,6 +143,10 @@ describe("custom catalogs", () => {
       { id: "box", category: "count", label: "صندوق", forms: { singular: "صندوق", dual: "صندوقان", plural: "صناديق", accusative: "صندوقاً", gender: "m" } },
     ],
   };
+  test("optional `one` form", () => {
+    assert.equal(tafqit("1", { unit: "km_per_hour" }), "كيلومتر واحد في الساعة");
+    assert.equal(tafqit("21", { unit: "km_per_hour" }), "واحد وعشرون كيلومتراً في الساعة");
+  });
   test("extends without code changes", () => {
     const t = createTafqit(base);
     assert.equal(t.tafqit("15", { unit: "box" }), "خمسة عشر صندوقاً");

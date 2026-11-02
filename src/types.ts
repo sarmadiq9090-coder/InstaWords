@@ -8,6 +8,8 @@ export interface NounForms {
   plural: string;
   accusative: string;
   gender: Gender;
+  /** Optional phrase for exactly 1 (default: singular + واحد/واحدة). */
+  one?: string;
 }
 
 export interface SubunitForms extends NounForms {

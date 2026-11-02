@@ -11,6 +11,9 @@ function checkForms(f: NounForms, where: string): void {
       throw new TafqitError("INVALID_CATALOG", `${where}.${k}`);
     }
   }
+  if (f.one !== undefined && (typeof f.one !== "string" || f.one.trim() === "" || f.one !== f.one.trim())) {
+    throw new TafqitError("INVALID_CATALOG", `${where}.one`);
+  }
   if (f.gender !== "m" && f.gender !== "f") throw new TafqitError("INVALID_CATALOG", `${where}.gender`);
 }
 
