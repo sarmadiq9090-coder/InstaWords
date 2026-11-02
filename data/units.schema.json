@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/sarmadiq9090-coder/tafket/blob/main/data/units.schema.json",
+  "title": "Tafqit units catalog",
+  "description": "Catalog of counted nouns (currencies, measures, counts). Every grammatical form is stored explicitly; the engine never derives forms.",
+  "type": "object",
+  "required": ["schemaVersion", "units"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "units": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/unit" }
+    }
+  },
+  "$defs": {
+    "arabicText": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S(.*\\S)?$"
+    },
+    "gender": {
+      "description": "m = masculine, f = feminine (of the singular noun).",
+      "enum": ["m", "f"]
+    },
+    "forms": {
+      "type": "object",
+      "required": ["singular", "dual", "plural", "accusative", "gender"],
+      "additionalProperties": false,
+      "properties": {
+        "singular":   { "$ref": "#/$defs/arabicText", "description": "Singular (also used genitive after 100s/1000s and with 1): ريال سعودي" },
+        "dual":       { "$ref": "#/$defs/arabicText", "description": "Nominative dual used alone for 2: ريالان سعوديان" },
+        "plural":     { "$ref": "#/$defs/arabicText", "description": "Plural used with 3–10: ريالات سعودية" },
+        "accusative": { "$ref": "#/$defs/arabicText", "description": "Indefinite accusative singular used with 11–99: ريالاً سعودياً" },
+        "gender":     { "$ref": "#/$defs/gender" }
+      }
+    },
+    "subunit": {
+      "type": "object",
+      "required": ["singular", "dual", "plural", "accusative", "gender", "ratio"],
+      "additionalProperties": false,
+      "properties": {
+        "singular":   { "$ref": "#/$defs/arabicText" },
+        "dual":       { "$ref": "#/$defs/arabicText" },
+        "plural":     { "$ref": "#/$defs/arabicText" },
+        "accusative": { "$ref": "#/$defs/arabicText" },
+        "gender":     { "$ref": "#/$defs/gender" },
+        "ratio": {
+          "description": "How many subunits make one unit. Must be a power of ten.",
+          "type": "integer",
+          "enum": [10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000]
+        }
+      }
+    },
+    "unit": {
+      "type": "object",
+      "required": ["id", "category", "label", "forms"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Stable identifier. Unique across the catalog (checked by the engine).",
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+        },
+        "category": {
+          "enum": [
+            "currency-arab",
+            "currency-world",
+            "crypto",
+            "generic-currency",
+            "weight",
+            "volume",
+            "length",
+            "area",
+            "time",
+            "count",
+            "data",
+            "speed",
+            "none"
+          ]
+        },
+        "label": { "$ref": "#/$defs/arabicText" },
+        "code": {
+          "description": "ISO 4217 code or crypto ticker, if any.",
+          "type": "string",
+          "pattern": "^[A-Z0-9]{2,10}$"
+        },
+        "aliases": {
+          "description": "Alternative lookup names (Arabic or Latin). Unique across the catalog (checked by the engine).",
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/arabicText" }
+        },
+        "forms": {
+          "oneOf": [
+            { "$ref": "#/$defs/forms" },
+            { "type": "null" }
+          ]
+        },
+        "subunit": { "$ref": "#/$defs/subunit" },
+        "note": {
+          "description": "Reviewer note. Never affects output.",
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "forms": { "type": "null" } } },
+          "then": {
+            "properties": { "category": { "const": "none" } },
+            "not": { "required": ["subunit"] }
+          }
+        },
+        {
+          "if": { "properties": { "category": { "const": "none" } } },
+          "then": { "properties": { "forms": { "type": "null" } } }
+        }
+      ]
+    }
+  }
+}

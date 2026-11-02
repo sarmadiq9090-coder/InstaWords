@@ -1,0 +1,209 @@
+{
+  "$schema": "./units.schema.json",
+  "schemaVersion": 1,
+  "units": [
+    {
+      "id": "none",
+      "category": "none",
+      "label": "بدون وحدة",
+      "aliases": ["بدون", "none"],
+      "forms": null
+    },
+    {
+      "id": "SAR",
+      "category": "currency-arab",
+      "label": "ريال سعودي",
+      "code": "SAR",
+      "aliases": ["ريال سعودي"],
+      "forms": {
+        "singular": "ريال سعودي",
+        "dual": "ريالان سعوديان",
+        "plural": "ريالات سعودية",
+        "accusative": "ريالاً سعودياً",
+        "gender": "m"
+      },
+      "subunit": {
+        "singular": "هللة",
+        "dual": "هللتان",
+        "plural": "هللات",
+        "accusative": "هللة",
+        "gender": "f",
+        "ratio": 100
+      }
+    },
+    {
+      "id": "KWD",
+      "category": "currency-arab",
+      "label": "دينار كويتي",
+      "code": "KWD",
+      "aliases": ["دينار كويتي"],
+      "forms": {
+        "singular": "دينار كويتي",
+        "dual": "ديناران كويتيان",
+        "plural": "دنانير كويتية",
+        "accusative": "ديناراً كويتياً",
+        "gender": "m"
+      },
+      "subunit": {
+        "singular": "فلس",
+        "dual": "فلسان",
+        "plural": "فلوس",
+        "accusative": "فلساً",
+        "gender": "m",
+        "ratio": 1000
+      },
+      "note": "R8: plural of فلس"
+    },
+    {
+      "id": "IQD",
+      "category": "currency-arab",
+      "label": "دينار عراقي",
+      "code": "IQD",
+      "aliases": ["دينار عراقي"],
+      "forms": {
+        "singular": "دينار عراقي",
+        "dual": "ديناران عراقيان",
+        "plural": "دنانير عراقية",
+        "accusative": "ديناراً عراقياً",
+        "gender": "m"
+      },
+      "subunit": {
+        "singular": "فلس",
+        "dual": "فلسان",
+        "plural": "فلوس",
+        "accusative": "فلساً",
+        "gender": "m",
+        "ratio": 1000
+      },
+      "note": "R8: plural of فلس"
+    },
+    {
+      "id": "BHD",
+      "category": "currency-arab",
+      "label": "دينار بحريني",
+      "code": "BHD",
+      "aliases": ["دينار بحريني"],
+      "forms": {
+        "singular": "دينار بحريني",
+        "dual": "ديناران بحرينيان",
+        "plural": "دنانير بحرينية",
+        "accusative": "ديناراً بحرينياً",
+        "gender": "m"
+      },
+      "subunit": {
+        "singular": "فلس",
+        "dual": "فلسان",
+        "plural": "فلوس",
+        "accusative": "فلساً",
+        "gender": "m",
+        "ratio": 1000
+      },
+      "note": "R8: plural of فلس"
+    },
+    {
+      "id": "JOD",
+      "category": "currency-arab",
+      "label": "دينار أردني",
+      "code": "JOD",
+      "aliases": ["دينار أردني"],
+      "forms": {
+        "singular": "دينار أردني",
+        "dual": "ديناران أردنيان",
+        "plural": "دنانير أردنية",
+        "accusative": "ديناراً أردنياً",
+        "gender": "m"
+      },
+      "subunit": {
+        "singular": "فلس",
+        "dual": "فلسان",
+        "plural": "فلوس",
+        "accusative": "فلساً",
+        "gender": "m",
+        "ratio": 1000
+      },
+      "note": "R8: plural of فلس. R13: subunit choice (فلس/1000 vs قرش/100)"
+    },
+    {
+      "id": "OMR",
+      "category": "currency-arab",
+      "label": "ريال عماني",
+      "code": "OMR",
+      "aliases": ["ريال عماني"],
+      "forms": {
+        "singular": "ريال عماني",
+        "dual": "ريالان عمانيان",
+        "plural": "ريالات عمانية",
+        "accusative": "ريالاً عمانياً",
+        "gender": "m"
+      },
+      "subunit": {
+        "singular": "بيسة",
+        "dual": "بيستان",
+        "plural": "بيسات",
+        "accusative": "بيسة",
+        "gender": "f",
+        "ratio": 1000
+      }
+    },
+    {
+      "id": "riyal",
+      "category": "generic-currency",
+      "label": "ريال",
+      "aliases": ["ريال"],
+      "forms": {
+        "singular": "ريال",
+        "dual": "ريالان",
+        "plural": "ريالات",
+        "accusative": "ريالاً",
+        "gender": "m"
+      }
+    },
+    {
+      "id": "lira",
+      "category": "generic-currency",
+      "label": "ليرة",
+      "aliases": ["ليرة"],
+      "forms": {
+        "singular": "ليرة",
+        "dual": "ليرتان",
+        "plural": "ليرات",
+        "accusative": "ليرة",
+        "gender": "f"
+      }
+    },
+    {
+      "id": "kilogram",
+      "category": "weight",
+      "label": "كيلوغرام",
+      "aliases": ["كيلوغرام", "كغ", "kg"],
+      "forms": {
+        "singular": "كيلوغرام",
+        "dual": "كيلوغرامان",
+        "plural": "كيلوغرامات",
+        "accusative": "كيلوغراماً",
+        "gender": "m"
+      },
+      "subunit": {
+        "singular": "غرام",
+        "dual": "غرامان",
+        "plural": "غرامات",
+        "accusative": "غراماً",
+        "gender": "m",
+        "ratio": 1000
+      }
+    },
+    {
+      "id": "piece",
+      "category": "count",
+      "label": "قطعة",
+      "aliases": ["قطعة"],
+      "forms": {
+        "singular": "قطعة",
+        "dual": "قطعتان",
+        "plural": "قطع",
+        "accusative": "قطعة",
+        "gender": "f"
+      }
+    }
+  ]
+}
