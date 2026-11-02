@@ -1,0 +1,48 @@
+{
+  "name": "tafket",
+  "version": "1.0.0",
+  "description": "Free, open-source Arabic tafqit (numbers to Arabic words) for cheques, invoices and accounting documents. Zero dependencies, browser + Node, Excel VBA module.",
+  "type": "module",
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./csv": {
+      "types": "./dist/csv.d.ts",
+      "default": "./dist/csv.js"
+    },
+    "./units.json": "./data/units.json"
+  },
+  "files": [
+    "dist",
+    "data",
+    "vba",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "gen": "node scripts/gen-units.mjs",
+    "build": "npm run gen && tsc -p tsconfig.build.json",
+    "typecheck": "npm run gen && tsc -p tsconfig.json --noEmit",
+    "test": "npm run gen && node --test \"tests/**/*.test.ts\""
+  },
+  "keywords": [
+    "arabic",
+    "tafqit",
+    "تفقيط",
+    "number-to-words",
+    "cheque",
+    "invoice"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "5.9.3"
+  }
+}

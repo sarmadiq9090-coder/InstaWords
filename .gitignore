@@ -1,0 +1,6 @@
+node_modules/
+dist/
+site/lib/
+*.log
+.DS_Store
+src/generated/
