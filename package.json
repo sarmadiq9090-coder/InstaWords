@@ -31,7 +31,12 @@
     "gen": "node scripts/gen-units.mjs",
     "build": "npm run gen && tsc -p tsconfig.build.json",
     "typecheck": "npm run gen && tsc -p tsconfig.json --noEmit",
-    "test": "npm run gen && node --test \"tests/**/*.test.ts\""
+    "test": "npm run gen && node --test \"tests/**/*.test.ts\"",
+    "build:site": "npm run build && node scripts/build-site.mjs",
+    "test:site": "npm run build:site && node tests/site/smoke.mjs",
+    "build:vba": "node scripts/build-vba.mjs",
+    "test:vba": "npm run build && npm run build:vba && node --test \"tests/vba/**/*.test.mjs\"",
+    "test:all": "npm test && npm run test:vba && npm run test:site"
   },
   "keywords": [
     "arabic",

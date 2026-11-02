@@ -4,3 +4,4 @@ site/lib/
 *.log
 .DS_Store
 src/generated/
+_site/
