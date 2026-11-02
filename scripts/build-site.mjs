@@ -66,8 +66,8 @@ const version = hash.digest("hex").slice(0, 16);
 
 let sw = readFileSync(swPath, "utf8");
 const before = sw;
-sw = sw.replace(/^const VERSION = .*;$/m, `const VERSION = ${JSON.stringify(version)};`);
-sw = sw.replace(/^const ASSETS = .*;$/m, `const ASSETS = ${JSON.stringify(["./", ...assets], null, 2)};`);
+sw = sw.replace(/^const VERSION = .*;$/m, () => `const VERSION = ${JSON.stringify(version)};`);
+sw = sw.replace(/^const ASSETS = .*;$/m, () => `const ASSETS = ${JSON.stringify(["./", ...assets], null, 2)};`);
 if (sw === before || !sw.includes(version)) fail("could not stamp VERSION/ASSETS into sw.js");
 writeFileSync(swPath, sw);
 
