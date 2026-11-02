@@ -95,7 +95,7 @@ npm run build:site  # يبني الموقع في _site/
 
 ### النشر
 
-المجلد `_site/` موقع ثابت كامل بمسارات نسبية، فيُرفع إلى أي استضافة ثابتة (GitHub Pages، أو Cloudflare Pages، أو Netlify، أو خادمك) في الجذر أو في مسار فرعي. وفي المستودع سير عمل جاهز للنشر على GitHub Pages: [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
+المجلد `_site/` موقع ثابت كامل بمسارات نسبية، فيُرفع إلى أي استضافة ثابتة (GitHub Pages، أو Cloudflare Pages، أو Netlify، أو خادمك) في الجذر أو في مسار فرعي. النسخة الرسمية منشورة على **https://fastkiwi.app/tafqit/**: يُنسخ محتوى `_site/` إلى المجلد `tafqit/` في مستودع [موقع FastKiwi](https://github.com/sarmadiq9090-coder/sarmadiq9090-coder.github.io). صفحة Excel لا تُبنى إلا بعد وجود `vba/Tafqit.bas`.
 
 ### الترخيص
 
@@ -146,6 +146,6 @@ npm run test:site  # browser smoke test (Playwright)
 npm run build:site # deployable static site in _site/
 ```
 
-Deploy `_site/` to any static host, at the root or a sub-path. A GitHub Pages workflow is included.
+Deploy `_site/` to any static host, at the root or a sub-path. The official copy lives at https://fastkiwi.app/tafqit/ (the `tafqit/` folder of the FastKiwi site repository). The Excel page is only built once `vba/Tafqit.bas` exists.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md). License: MIT.
