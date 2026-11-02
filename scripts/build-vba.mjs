@@ -1,0 +1,406 @@
+// Generates vba/Tafqit.bas and vba/TafqitTests.bas.
+//
+//   vba/Tafqit.template.bas  (hand-written logic, placeholders '@@NAME@@)
+// + src/lexicon.ts, src/errors.ts (number words, error messages)
+// + data/units.json         (unit catalog, validated with src/catalog.ts)
+// + tests/golden/cases.json (golden cases for TafqitSelfTest)
+//
+// VBA cannot read JSON offline and its editor is code-page based, so every
+// string is embedded as code: printable ASCII as a literal, anything else as
+// U("hex code units") decoded at run time. Output is pure ASCII with CRLF.
+import { readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { fileURLToPath } from "node:url";
+import { Catalog, unitKey } from "../src/catalog.ts";
+import { ERROR_MESSAGES } from "../src/errors.ts";
+import * as LX from "../src/lexicon.ts";
+
+const root = fileURLToPath(new URL("..", import.meta.url));
+const read = (p) => readFileSync(root + p, "utf8");
+
+const UNITS_PER_PROC = 8; // keeps each generated procedure far below VBA's 64 KB limit
+const CASES_PER_PROC = 25;
+const CHUNK = 100; // code units per U("...") call, keeps lines < 1023 chars
+
+// ---------------------------------------------------------------- encoding
+
+const isPrintableAscii = (s) => /^[\x20-\x7e]*$/.test(s);
+const hex = (s) => Array.from({ length: s.length }, (_, i) => s.charCodeAt(i).toString(16).toUpperCase().padStart(4, "0")).join(" ");
+
+/** VBA expressions for a string, split into chunks (joined with &). */
+function vbaPieces(s) {
+  if (isPrintableAscii(s)) return [`"${s.replace(/"/g, '""')}"`];
+  const out = [];
+  for (let i = 0; i < s.length; i += CHUNK) out.push(`U("${hex(s.slice(i, i + CHUNK))}")`);
+  return out;
+}
+
+const TRANSLIT = {
+  "ا": "a", "أ": "a", "إ": "i", "آ": "aa", "ٱ": "a", "ب": "b", "ت": "t", "ث": "th", "ج": "j", "ح": "h",
+  "خ": "kh", "د": "d", "ذ": "dh", "ر": "r", "ز": "z", "س": "s", "ش": "sh", "ص": "s", "ض": "d", "ط": "t",
+  "ظ": "z", "ع": "'", "غ": "gh", "ف": "f", "ق": "q", "ك": "k", "ل": "l", "م": "m", "ن": "n", "ه": "h",
+  "و": "w", "ؤ": "u'", "ي": "y", "ى": "a", "ئ": "i'", "ء": "'", "ة": "a", "ً": "n", "ٌ": "un", "ٍ": "in",
+  "َ": "", "ُ": "", "ِ": "", "ّ": "", "ْ": "", "ـ": "", "پ": "p", "چ": "ch", "ڤ": "v", "گ": "g", "ک": "k",
+  "ی": "y", "٫": ".", "٬": ",", "،": ",", "؟": "?",
+};
+/** ASCII-only transliteration for comments (the VBA editor cannot show Arabic in a .bas). */
+function translit(s) {
+  let out = "";
+  for (const ch of s) {
+    const c = ch.codePointAt(0);
+    if (TRANSLIT[ch] !== undefined) out += TRANSLIT[ch];
+    else if (c >= 0x660 && c <= 0x669) out += String(c - 0x660);
+    else if (c >= 0x6f0 && c <= 0x6f9) out += String(c - 0x6f0);
+    else if (c >= 0x20 && c < 0x7f) out += ch;
+    else out += "?";
+  }
+  return out;
+}
+
+/** Statements assigning string `s` to `target`, with an ASCII comment. */
+function assign(target, s, indent = "    ") {
+  const pieces = vbaPieces(s);
+  const note = isPrintableAscii(s) ? "" : ` ' ${translit(s)}`;
+  if (pieces.length === 1) return [`${indent}${target} = ${pieces[0]}${note}`];
+  return pieces.map((p, i) => (i === 0 ? `${indent}${target} = ${p}${note}` : `${indent}${target} = ${target} & ${p}`));
+}
+
+// ---------------------------------------------------------------- inputs
+
+const unitsData = JSON.parse(read("data/units.json"));
+new Catalog(unitsData); // throws on an invalid catalog (same checks as the core)
+const units = unitsData.units;
+const golden = JSON.parse(read("tests/golden/cases.json"));
+const template = read("vba/Tafqit.template.bas");
+
+const hundredsNames = Object.keys(LX.HUNDREDS);
+if (hundredsNames.length !== 2 || hundredsNames[0] !== "مائة") throw new Error("expected HUNDREDS = {مائة, مئة}");
+for (const k of [1, 2, 3, 4]) if (!LX.SCALES[k]) throw new Error(`SCALES[${k}] missing`);
+if (LX.SCALES.length !== 5) throw new Error("expected 4 scales");
+if (LX.MAX_INTEGER_DIGITS !== 15) throw new Error("MAX_INTEGER_DIGITS changed: check scales and NumberText");
+
+const ERROR_CODES = ["EMPTY", "INVALID_FORMAT", "NEGATIVE", "TOO_LARGE", "TOO_MANY_DECIMALS", "FRACTION_NOT_SUPPORTED", "UNKNOWN_UNIT", "INVALID_OPTION"];
+
+const sourceHash = createHash("sha256")
+  .update(template).update(read("src/lexicon.ts")).update(read("src/errors.ts")).update(read("data/units.json"))
+  .digest("hex").slice(0, 12);
+
+// ---------------------------------------------------------------- JS character classes
+
+// /\s/ (and String.prototype.trim) over the BMP, as code ranges.
+function ranges(pred) {
+  const out = [];
+  for (let c = 0; c <= 0xffff; c++) {
+    if (!pred(c)) continue;
+    const last = out[out.length - 1];
+    if (last && last[1] === c - 1) last[1] = c;
+    else out.push([c, c]);
+  }
+  return out;
+}
+const spaceRanges = ranges((c) => /\s/.test(String.fromCharCode(c)));
+for (let c = 0; c <= 0xffff; c++) {
+  const ch = String.fromCharCode(c);
+  if (/\s/.test(ch) !== (ch.trim() === "")) throw new Error(`trim and \\s disagree at U+${c.toString(16)}`);
+}
+
+// Characters whose toLowerCase() can produce text found in a catalog key.
+const keys = units.map((u) => unitKeysOf(u));
+const keyChars = new Set(keys.flat().join(""));
+const lowerExtras = [];
+for (let c = 0x80; c <= 0xffff; c++) {
+  if (c >= 0xd800 && c <= 0xdfff) continue;
+  const ch = String.fromCharCode(c);
+  const lo = ch.toLowerCase();
+  if (lo !== ch && [...lo].every((x) => keyChars.has(x))) lowerExtras.push([c, lo]);
+}
+
+/** Lookup names of a unit, as Catalog.add builds them. */
+function unitKeysOf(u) {
+  const idKey = unitKey(u.id);
+  const names = new Set([u.label, u.code ?? "", ...(u.aliases ?? [])].map(unitKey).filter(Boolean));
+  names.delete(idKey);
+  return [idKey, ...names];
+}
+
+// ---------------------------------------------------------------- Tafqit.bas
+
+function lexiconProc() {
+  const L = ["Private Sub InitLexicon()"];
+  L.push(...assign("mZero", LX.ZERO), ...assign("mWaw", LX.WAW), ...assign("mPoint", LX.DECIMAL_POINT_WORD));
+  ["m", "f"].forEach((g, gi) => {
+    LX.ONES[g].forEach((w, i) => w && L.push(...assign(`mOnes(${gi}, ${i})`, w)));
+    LX.TEENS[g].forEach((w, i) => w && L.push(...assign(`mTeens(${gi}, ${i})`, w)));
+    LX.COMPOUND_ONES[g].forEach((w, i) => w && L.push(...assign(`mComp(${gi}, ${i})`, w)));
+  });
+  LX.TENS.forEach((w, i) => w && L.push(...assign(`mTens(${i})`, w)));
+  hundredsNames.forEach((name, hf) => {
+    const t = LX.HUNDREDS[name];
+    L.push(...assign(`mHfName(${hf})`, name));
+    t.words.forEach((w, i) => w && L.push(...assign(`mHund(${hf}, ${i})`, w)));
+    L.push(...assign(`mHundDC(${hf})`, t.dualConstruct));
+  });
+  for (let k = 1; k <= 4; k++) {
+    const s = LX.SCALES[k];
+    L.push(...assign(`mScale(${k}, SC_SINGULAR)`, s.singular), ...assign(`mScale(${k}, SC_DUAL)`, s.dual));
+    L.push(...assign(`mScale(${k}, SC_PLURAL)`, s.plural), ...assign(`mScale(${k}, SC_ACCUSATIVE)`, s.accusative));
+  }
+  for (const code of ERROR_CODES) L.push(...assign(`mErrMsg(E_${code})`, ERROR_MESSAGES[code]));
+  L.push("End Sub");
+  return L;
+}
+
+function unitLines(u, i) {
+  const L = [`    ' --- ${u.id}: ${translit(u.label)} ---`, `    i = ${i}`];
+  L.push(...assign("mUId(i)", u.id));
+  if (u.forms) {
+    const f = u.forms;
+    L.push("    mUHasForms(i) = True", `    mUGender(i) = ${f.gender === "f" ? 1 : 0}`);
+    L.push(...assign("mUSing(i)", f.singular), ...assign("mUDual(i)", f.dual));
+    L.push(...assign("mUPlur(i)", f.plural), ...assign("mUAcc(i)", f.accusative));
+    if (f.one !== undefined) L.push(...assign("mUOne(i)", f.one));
+  }
+  if (u.subunit) {
+    const s = u.subunit;
+    L.push("    mUHasSub(i) = True", `    mUSubGender(i) = ${s.gender === "f" ? 1 : 0}`);
+    L.push(...assign("mUSubSing(i)", s.singular), ...assign("mUSubDual(i)", s.dual));
+    L.push(...assign("mUSubPlur(i)", s.plural), ...assign("mUSubAcc(i)", s.accusative));
+    if (s.one !== undefined) L.push(...assign("mUSubOne(i)", s.one));
+    L.push(`    mUSubDigits(i) = ${String(s.ratio).length - 1}`);
+  }
+  for (const k of unitKeysOf(u)) {
+    const pieces = vbaPieces(k);
+    if (pieces.length === 1) L.push(`    AddKey ${pieces[0]}, i${isPrintableAscii(k) ? "" : ` ' ${translit(k)}`}`);
+    else L.push(...assign("s", k), "    AddKey s, i");
+  }
+  return L;
+}
+
+function catalogProcs() {
+  const keyCount = keys.reduce((n, k) => n + k.length, 0);
+  const parts = [];
+  for (let p = 0; p * UNITS_PER_PROC < units.length; p++) {
+    const L = [`Private Sub InitCatalog${p + 1}()`, "    Dim i As Long, s As String"];
+    units.slice(p * UNITS_PER_PROC, (p + 1) * UNITS_PER_PROC).forEach((u, j) => L.push(...unitLines(u, p * UNITS_PER_PROC + j + 1)));
+    L.push("End Sub");
+    parts.push(L);
+  }
+  const init = [
+    "Private Sub InitCatalog()",
+    "    ReDim mUId(1 To UNIT_COUNT)",
+    ...["mUHasForms", "mUGender", "mUSing", "mUDual", "mUPlur", "mUAcc", "mUOne", "mUHasSub", "mUSubGender",
+      "mUSubSing", "mUSubDual", "mUSubPlur", "mUSubAcc", "mUSubOne", "mUSubDigits"].map((a) => `    ReDim ${a}(1 To UNIT_COUNT)`),
+    "    ReDim mKeyName(1 To KEY_COUNT)",
+    "    ReDim mKeyUnit(1 To KEY_COUNT)",
+    "    mKeyCount = 0",
+    ...parts.map((_, p) => `    InitCatalog${p + 1}`),
+    "End Sub",
+    "",
+    "Private Sub AddKey(ByVal key As String, ByVal ui As Long)",
+    "    mKeyCount = mKeyCount + 1",
+    "    mKeyName(mKeyCount) = key",
+    "    mKeyUnit(mKeyCount) = ui",
+    "End Sub",
+  ];
+  return { keyCount, lines: [init, ...parts] };
+}
+
+function charProcs() {
+  const cases = spaceRanges.map(([a, b]) => (a === b ? `${a}` : `${a} To ${b}`));
+  const space = ["' /\\s/ in JavaScript (also what String.prototype.trim removes).", "Private Function IsJsSpace(ByVal c As Long) As Boolean"];
+  space.push("    Select Case c");
+  for (let i = 0; i < cases.length; i += 8) space.push(`    Case ${cases.slice(i, i + 8).join(", ")}`, "        IsJsSpace = True");
+  space.push("    Case Else", "        IsJsSpace = False", "    End Select", "End Function");
+
+  const lower = [
+    "' toLowerCase() of one character: A-Z, plus the characters whose lower case occurs in a catalog key.",
+    "Private Function LowerChar(ByVal ch As String) As String",
+    "    Dim c As Long",
+    "    c = CharCode(ch)",
+    "    Select Case c",
+    "    Case 65 To 90",
+    "        LowerChar = ChrW(c + 32)",
+  ];
+  for (const [c, lo] of lowerExtras) lower.push(`    Case ${c}`, ...assign("LowerChar", lo, "        "));
+  lower.push("    Case Else", "        LowerChar = ch", "    End Select", "End Function");
+  return [space, lower];
+}
+
+const catalog = catalogProcs();
+const generated = [lexiconProc(), ...charProcs(), ...catalog.lines].map((p) => p.join("\n")).join("\n\n");
+
+const header = [
+  `' GENERATED by scripts/build-vba.mjs from vba/Tafqit.template.bas, src/lexicon.ts,`,
+  `' src/errors.ts and data/units.json (${units.length} units). Do not edit: edit the`,
+  `' template or the data and run "npm run build:vba". Source hash: ${sourceHash}`,
+].join("\n");
+const constants = [
+  `Private Const MAX_INTEGER_DIGITS As Long = ${LX.MAX_INTEGER_DIGITS}`,
+  `Private Const UNIT_COUNT As Long = ${units.length}`,
+  `Private Const KEY_COUNT As Long = ${catalog.keyCount}`,
+].join("\n");
+
+function fill(tpl, values) {
+  let out = tpl;
+  for (const [name, text] of Object.entries(values)) {
+    const marker = `'@@${name}@@`;
+    if (!out.includes(marker)) throw new Error(`template: missing ${marker}`);
+    out = out.replace(marker, () => text);
+  }
+  const left = out.match(/'@@[A-Z_]+@@/);
+  if (left) throw new Error(`template: unfilled ${left[0]}`);
+  return out;
+}
+
+// ---------------------------------------------------------------- TafqitTests.bas
+
+function testsModule() {
+  const d = golden.defaults ?? {};
+  const cases = golden.cases.map((c) => ({ ...d, ...c.options, id: c.id, input: c.input, unit: c.unit, expected: c.expected, cleaned: c.cleaned }));
+  const procs = [];
+  for (let p = 0; p * CASES_PER_PROC < cases.length; p++) {
+    const L = [`Private Sub LoadCases${p + 1}()`];
+    for (const c of cases.slice(p * CASES_PER_PROC, (p + 1) * CASES_PER_PROC)) {
+      L.push("    mCount = mCount + 1");
+      L.push(...assign("mId(mCount)", c.id), ...assign("mIn(mCount)", c.input), ...assign("mUnit(mCount)", c.unit));
+      L.push(...assign("mHf(mCount)", c.hundredsForm ?? ""), ...assign("mPre(mCount)", c.prefix ?? ""));
+      L.push(...assign("mSuf(mCount)", c.suffix ?? ""), ...assign("mDec(mCount)", c.decimals ?? ""));
+      L.push(...assign("mExp(mCount)", c.expected), ...assign("mClean(mCount)", c.cleaned));
+    }
+    L.push("End Sub");
+    procs.push(L.join("\n"));
+  }
+  return `Attribute VB_Name = "TafqitTests"
+' GENERATED by scripts/build-vba.mjs from tests/golden/cases.json (${cases.length} cases).
+' Do not edit. Requires the TafqitLib module (vba/Tafqit.bas).
+'
+' Run TafqitSelfTest (Alt+F8, or F5 in the VBA editor): it compares TAFQIT and
+' TAFQIT_CLEAN with every golden case, prints failures to the Immediate window
+' (Ctrl+G) as code points, and shows a summary in a message box.
+Option Explicit
+
+Private mCount As Long
+Private mId() As String
+Private mIn() As String
+Private mUnit() As String
+Private mHf() As String
+Private mPre() As String
+Private mSuf() As String
+Private mDec() As String
+Private mExp() As String
+Private mClean() As String
+
+Public Sub TafqitSelfTest()
+    Dim failed As Long, msg As String
+    failed = TafqitGoldenFailures()
+    msg = "Tafqit self-test: " & (mCount - failed) & " of " & mCount & " golden cases passed."
+    Debug.Print msg
+    If failed = 0 Then
+        MsgBox msg, vbInformation, "Tafqit"
+    Else
+        MsgBox msg & vbCrLf & failed & " failed: see the Immediate window (Ctrl+G).", vbExclamation, "Tafqit"
+    End If
+End Sub
+
+' Runs every golden case; returns the number of failures.
+Public Function TafqitGoldenFailures() As Long
+    Dim i As Long, failed As Long, got As Variant, cleaned As Variant
+    LoadCases
+    failed = 0
+    For i = 1 To mCount
+        got = TAFQIT(mIn(i), mUnit(i), mHf(i), mPre(i), mSuf(i), mDec(i))
+        cleaned = TAFQIT_CLEAN(mIn(i))
+        If Not SameText(got, mExp(i)) Then
+            failed = failed + 1
+            Debug.Print "FAIL " & mId(i) & " TAFQIT"
+            Debug.Print "  expected: " & CodePoints(mExp(i))
+            Debug.Print "  got:      " & CodePoints(got)
+        ElseIf Not SameText(cleaned, mClean(i)) Then
+            failed = failed + 1
+            Debug.Print "FAIL " & mId(i) & " TAFQIT_CLEAN"
+            Debug.Print "  expected: " & CodePoints(mClean(i))
+            Debug.Print "  got:      " & CodePoints(cleaned)
+        End If
+    Next i
+    TafqitGoldenFailures = failed
+End Function
+
+Private Function SameText(ByVal v As Variant, ByVal expected As String) As Boolean
+    If VarType(v) = vbString Then
+        SameText = (v = expected)
+    Else
+        SameText = False
+    End If
+End Function
+
+' "U+0631 U+064A ..." so that Arabic is readable in the Immediate window.
+Private Function CodePoints(ByVal v As Variant) As String
+    Dim i As Long, c As Long, s As String, out As String
+    If VarType(v) <> vbString Then
+        CodePoints = "(not text)"
+        Exit Function
+    End If
+    s = v
+    out = ""
+    For i = 1 To Len(s)
+        c = AscW(Mid(s, i, 1))
+        If c < 0 Then c = c + 65536
+        out = out & " U+" & Right("000" & Hex(c), 4)
+    Next i
+    CodePoints = Mid(out, 2)
+End Function
+
+Private Function U(ByVal hexList As String) As String
+    Dim i As Long, d As Long, v As Long, inToken As Boolean, out As String
+    out = ""
+    v = 0
+    inToken = False
+    For i = 1 To Len(hexList)
+        d = InStr(1, "0123456789ABCDEF", UCase(Mid(hexList, i, 1)))
+        If d > 0 Then
+            v = v * 16 + (d - 1)
+            inToken = True
+        ElseIf inToken Then
+            out = out & ChrW(v)
+            v = 0
+            inToken = False
+        End If
+    Next i
+    If inToken Then out = out & ChrW(v)
+    U = out
+End Function
+
+Private Sub LoadCases()
+    mCount = 0
+    ReDim mId(1 To ${cases.length})
+    ReDim mIn(1 To ${cases.length})
+    ReDim mUnit(1 To ${cases.length})
+    ReDim mHf(1 To ${cases.length})
+    ReDim mPre(1 To ${cases.length})
+    ReDim mSuf(1 To ${cases.length})
+    ReDim mDec(1 To ${cases.length})
+    ReDim mExp(1 To ${cases.length})
+    ReDim mClean(1 To ${cases.length})
+${procs.map((_, p) => `    LoadCases${p + 1}`).join("\n")}
+End Sub
+
+${procs.join("\n\n")}
+`;
+}
+
+// ---------------------------------------------------------------- write
+
+function toBas(text, name) {
+  const crlf = text.replace(/\r\n/g, "\n").replace(/\n/g, "\r\n");
+  const bad = crlf.match(/[^\x09\x0a\x0d\x20-\x7e]/);
+  if (bad) throw new Error(`${name}: non-ASCII output U+${bad[0].charCodeAt(0).toString(16)}`);
+  const long = crlf.split("\r\n").find((l) => l.length > 1000);
+  if (long) throw new Error(`${name}: line too long for VBA: ${long.slice(0, 60)}...`);
+  writeFileSync(root + "vba/" + name, crlf);
+  return crlf.split("\r\n").length;
+}
+
+const n1 = toBas(fill(template, { HEADER: header, CONSTANTS: constants, GENERATED: generated }), "Tafqit.bas");
+const n2 = toBas(testsModule(), "TafqitTests.bas");
+console.log(`vba/Tafqit.bas: ${units.length} units, ${catalog.keyCount} lookup names, ${n1} lines`);
+console.log(`vba/TafqitTests.bas: ${golden.cases.length} golden cases, ${n2} lines`);
