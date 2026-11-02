@@ -36,9 +36,7 @@
     "test:site": "npm run build:site && node tests/site/smoke.mjs",
     "build:vba": "node scripts/build-vba.mjs",
     "test:vba": "npm run build && npm run build:vba && node --test \"tests/vba/**/*.test.mjs\"",
-    "test:all": "npm test && npm run test:vba && npm run test:site",
-    "build:cf": "npm run build:site && node scripts/build-cloudflare.mjs",
-    "deploy:cf": "npm run build:cf && npx --yes wrangler@4.149.0 deploy"
+    "test:all": "npm test && npm run test:vba && npm run test:site"
   },
   "keywords": [
     "arabic",

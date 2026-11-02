@@ -1,5 +1,8 @@
 /* تفقيط مفتوح — shared styles. No external resources: system fonts only. */
 
+/* Components set their own display, which would otherwise override the hidden attribute. */
+[hidden] { display: none !important; }
+
 :root {
   color-scheme: light dark;
   --font: "Segoe UI", "Noto Sans Arabic", "Noto Naskh Arabic", "Geeza Pro", "Arial", Tahoma, "DejaVu Sans", system-ui, sans-serif;

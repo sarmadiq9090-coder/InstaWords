@@ -48,8 +48,21 @@ for (const file of walk(at("dist"))) {
 cpSync(at("data", "units.json"), join(out, "units.json"));
 
 // 4. Excel VBA module (built separately; optional here).
+// Without the module the Excel page would offer a broken download, so it is left out of the
+// build and its navigation links are removed until vba/Tafqit.bas exists.
 if (existsSync(at("vba", "Tafqit.bas"))) cpSync(at("vba", "Tafqit.bas"), join(out, "Tafqit.bas"));
-else console.warn("build-site: warning: vba/Tafqit.bas not found; the Excel download link will not work.");
+else {
+  console.warn("build-site: warning: vba/Tafqit.bas not found; the Excel page is left out of this build.");
+  rmSync(join(out, "excel.html"));
+  for (const name of readdirSync(out)) {
+    if (!name.endsWith(".html")) continue;
+    const p = join(out, name);
+    const html = readFileSync(p, "utf8");
+    const stripped = html.replace(/^[ \t]*<li><a href="excel\.html"[^\n]*<\/li>\r?\n/gm, "");
+    if (stripped.includes('href="excel.html"')) fail(`${name}: could not remove the link to excel.html`);
+    writeFileSync(p, stripped);
+  }
+}
 
 // 5. GitHub Pages: serve files as-is.
 writeFileSync(join(out, ".nojekyll"), "");

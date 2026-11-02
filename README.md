@@ -95,9 +95,7 @@ npm run build:site  # يبني الموقع في _site/
 
 ### النشر
 
-النسخة الرسمية تُنشر على **https://fastkiwi.app/tafqit/** عبر Cloudflare Worker ([`wrangler.jsonc`](wrangler.jsonc)، [`cloudflare/worker.js`](cloudflare/worker.js)). يبني سير العمل [`.github/workflows/cloudflare.yml`](.github/workflows/cloudflare.yml) الموقع ويختبره وينشره عند كل دفع إلى الفرع الافتراضي، ويحتاج سرّين في المستودع: `CLOUDFLARE_API_TOKEN` و`CLOUDFLARE_ACCOUNT_ID`. وللنشر اليدوي: `npm run deploy:cf`.
-
-والمجلد `_site/` (من `npm run build:site`) موقع ثابت كامل بمسارات نسبية، فيُرفع إلى أي استضافة ثابتة في الجذر أو في مسار فرعي.
+النسخة الرسمية منشورة على **https://fastkiwi.app/tafqit/**: يُبنى الموقع بالأمر `npm run build:site`، ثم يُنسخ محتوى `_site/` إلى المجلد `tafqit/` في مستودع [موقع FastKiwi](https://github.com/sarmadiq9090-coder/sarmadiq9090-coder.github.io). والمجلد `_site/` موقع ثابت كامل بمسارات نسبية، فيعمل على أي استضافة ثابتة في الجذر أو في مسار فرعي.
 
 ### الترخيص
 
@@ -142,13 +140,13 @@ The full linguistic specification is in [`docs/SPEC.md`](docs/SPEC.md). §16 lis
 
 ```bash
 npm install
-npm test           # core + 40 golden cases
+npm test           # core + 42 golden cases
 npm run test:vba   # VBA ↔ core parity
 npm run test:site  # browser smoke test (Playwright)
 npm run build:site # deployable static site in _site/
 ```
 
-Production: **https://fastkiwi.app/tafqit/**, served by a Cloudflare Worker (`wrangler.jsonc`) and deployed by `.github/workflows/cloudflare.yml` (needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets; manual: `npm run deploy:cf`). `_site/` also works on any static host, at the root or a sub-path.
+Production: **https://fastkiwi.app/tafqit/**. Build with `npm run build:site` and copy `_site/` into the `tafqit/` folder of the FastKiwi site repository. `_site/` uses relative paths, so it works on any static host, at the root or a sub-path.
 
 Excel: import `vba/Tafqit.bas` (module `TafqitLib`), then `=TAFQIT(A1, "ريال سعودي", "مائة", "فقط", "لا غير", "round")`. VBA output is verified against the core on ~30,000 inputs via a VBA-subset harness.
 
