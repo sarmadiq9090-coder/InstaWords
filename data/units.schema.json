@@ -4,15 +4,24 @@
   "title": "Tafqit units catalog",
   "description": "Catalog of counted nouns (currencies, measures, counts). Every grammatical form is stored explicitly; the engine never derives forms.",
   "type": "object",
-  "required": ["schemaVersion", "units"],
+  "required": [
+    "schemaVersion",
+    "units"
+  ],
   "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string" },
-    "schemaVersion": { "const": 1 },
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
     "units": {
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "#/$defs/unit" }
+      "items": {
+        "$ref": "#/$defs/unit"
+      }
     }
   },
   "$defs": {
@@ -23,40 +32,102 @@
     },
     "gender": {
       "description": "m = masculine, f = feminine (of the singular noun).",
-      "enum": ["m", "f"]
+      "enum": [
+        "m",
+        "f"
+      ]
     },
     "forms": {
       "type": "object",
-      "required": ["singular", "dual", "plural", "accusative", "gender"],
+      "required": [
+        "singular",
+        "dual",
+        "plural",
+        "accusative",
+        "gender"
+      ],
       "additionalProperties": false,
       "properties": {
-        "singular":   { "$ref": "#/$defs/arabicText", "description": "Singular (also used genitive after 100s/1000s and with 1): ريال سعودي" },
-        "dual":       { "$ref": "#/$defs/arabicText", "description": "Nominative dual used alone for 2: ريالان سعوديان" },
-        "plural":     { "$ref": "#/$defs/arabicText", "description": "Plural used with 3–10: ريالات سعودية" },
-        "accusative": { "$ref": "#/$defs/arabicText", "description": "Indefinite accusative singular used with 11–99: ريالاً سعودياً" },
-        "gender":     { "$ref": "#/$defs/gender" }
+        "singular": {
+          "$ref": "#/$defs/arabicText",
+          "description": "Singular (also used genitive after 100s/1000s and with 1): ريال سعودي"
+        },
+        "dual": {
+          "$ref": "#/$defs/arabicText",
+          "description": "Nominative dual used alone for 2: ريالان سعوديان"
+        },
+        "plural": {
+          "$ref": "#/$defs/arabicText",
+          "description": "Plural used with 3–10: ريالات سعودية"
+        },
+        "accusative": {
+          "$ref": "#/$defs/arabicText",
+          "description": "Indefinite accusative singular used with 11–99: ريالاً سعودياً"
+        },
+        "gender": {
+          "$ref": "#/$defs/gender"
+        },
+        "one": {
+          "$ref": "#/$defs/arabicText",
+          "description": "Optional phrase used for exactly 1 instead of singular + واحد/واحدة (e.g. كيلومتر واحد في الساعة)."
+        }
       }
     },
     "subunit": {
       "type": "object",
-      "required": ["singular", "dual", "plural", "accusative", "gender", "ratio"],
+      "required": [
+        "singular",
+        "dual",
+        "plural",
+        "accusative",
+        "gender",
+        "ratio"
+      ],
       "additionalProperties": false,
       "properties": {
-        "singular":   { "$ref": "#/$defs/arabicText" },
-        "dual":       { "$ref": "#/$defs/arabicText" },
-        "plural":     { "$ref": "#/$defs/arabicText" },
-        "accusative": { "$ref": "#/$defs/arabicText" },
-        "gender":     { "$ref": "#/$defs/gender" },
+        "singular": {
+          "$ref": "#/$defs/arabicText"
+        },
+        "dual": {
+          "$ref": "#/$defs/arabicText"
+        },
+        "plural": {
+          "$ref": "#/$defs/arabicText"
+        },
+        "accusative": {
+          "$ref": "#/$defs/arabicText"
+        },
+        "gender": {
+          "$ref": "#/$defs/gender"
+        },
         "ratio": {
           "description": "How many subunits make one unit. Must be a power of ten.",
           "type": "integer",
-          "enum": [10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000]
+          "enum": [
+            10,
+            100,
+            1000,
+            10000,
+            100000,
+            1000000,
+            10000000,
+            100000000
+          ]
+        },
+        "one": {
+          "$ref": "#/$defs/arabicText",
+          "description": "Optional phrase used for exactly 1 instead of singular + واحد/واحدة (e.g. كيلومتر واحد في الساعة)."
         }
       }
     },
     "unit": {
       "type": "object",
-      "required": ["id", "category", "label", "forms"],
+      "required": [
+        "id",
+        "category",
+        "label",
+        "forms"
+      ],
       "additionalProperties": false,
       "properties": {
         "id": {
@@ -81,7 +152,9 @@
             "none"
           ]
         },
-        "label": { "$ref": "#/$defs/arabicText" },
+        "label": {
+          "$ref": "#/$defs/arabicText"
+        },
         "code": {
           "description": "ISO 4217 code or crypto ticker, if any.",
           "type": "string",
@@ -91,15 +164,23 @@
           "description": "Alternative lookup names (Arabic or Latin). Unique across the catalog (checked by the engine).",
           "type": "array",
           "uniqueItems": true,
-          "items": { "$ref": "#/$defs/arabicText" }
+          "items": {
+            "$ref": "#/$defs/arabicText"
+          }
         },
         "forms": {
           "oneOf": [
-            { "$ref": "#/$defs/forms" },
-            { "type": "null" }
+            {
+              "$ref": "#/$defs/forms"
+            },
+            {
+              "type": "null"
+            }
           ]
         },
-        "subunit": { "$ref": "#/$defs/subunit" },
+        "subunit": {
+          "$ref": "#/$defs/subunit"
+        },
         "note": {
           "description": "Reviewer note. Never affects output.",
           "type": "string"
@@ -107,15 +188,41 @@
       },
       "allOf": [
         {
-          "if": { "properties": { "forms": { "type": "null" } } },
+          "if": {
+            "properties": {
+              "forms": {
+                "type": "null"
+              }
+            }
+          },
           "then": {
-            "properties": { "category": { "const": "none" } },
-            "not": { "required": ["subunit"] }
+            "properties": {
+              "category": {
+                "const": "none"
+              }
+            },
+            "not": {
+              "required": [
+                "subunit"
+              ]
+            }
           }
         },
         {
-          "if": { "properties": { "category": { "const": "none" } } },
-          "then": { "properties": { "forms": { "type": "null" } } }
+          "if": {
+            "properties": {
+              "category": {
+                "const": "none"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "forms": {
+                "type": "null"
+              }
+            }
+          }
         }
       ]
     }
