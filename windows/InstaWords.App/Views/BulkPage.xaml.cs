@@ -111,7 +111,7 @@ namespace InstaWords.App.Views
             for (var i = 0; i < rows.Length; i++)
             {
                 var r = results[i];
-                rows[i].SetResult(r.Ok, r.Cleaned ?? "", r.Ok ? r.Text : "", r.Ok ? "" : r.ErrorMessage, flow);
+                rows[i].SetResult(r.Ok, r.Amount ?? "", r.Ok ? r.Text : "", r.Ok ? "" : r.ErrorMessage, flow);
             }
             UpdateCounts();
         }
@@ -120,7 +120,7 @@ namespace InstaWords.App.Views
         {
             var options = App.Current.State.ToOptions();
             var r = Conversion.Run(row.Input, options);
-            row.SetResult(r.Ok, r.Cleaned ?? "", r.Ok ? r.Text : "", r.Ok ? "" : r.ErrorMessage, Catalog.FlowFor(options.Language));
+            row.SetResult(r.Ok, r.Amount ?? "", r.Ok ? r.Text : "", r.Ok ? "" : r.ErrorMessage, Catalog.FlowFor(options.Language));
             UpdateCounts();
         }
 

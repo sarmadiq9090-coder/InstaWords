@@ -87,7 +87,7 @@ namespace InstaWords.App.Views
             if (r.Ok)
             {
                 ResultText.Text = r.Text;
-                CleanedText.Text = Conversion.Grouped(r.Cleaned);
+                CleanedText.Text = Conversion.Grouped(r.Amount);
                 ShowState(empty: false, ok: true);
                 _historyTimer.Start();
             }
