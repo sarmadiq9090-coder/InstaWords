@@ -112,7 +112,7 @@ namespace InstaWords.UITests
             using (var s = new AppSession())
             {
                 Assert.Equal("تفقيط رقم", s.Get("NavSingle").Name);
-                Assert.True(IsLeftOf(s.Get("NavBulk"), s.Get("NavSingle")), "RTL: تفقيط رقم is right of دفعة");
+                Assert.True(IsLeftOf(s.Get("NavBulk"), s.Get("NavSingle")), "RTL: تفقيط رقم is right of عدة مبالغ");
 
                 s.Get("NavSettings").Click();
                 s.Get("UiLangEn").Patterns.SelectionItem.Pattern.Select();
