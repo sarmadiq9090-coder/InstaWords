@@ -5,23 +5,31 @@ using InstaWords.Core;
 
 namespace InstaWords.App.Services
 {
+    /// <summary>The outcome of one conversion, as the UI needs it.</summary>
+    public sealed class ConversionResult
+    {
+        public bool Ok { get; set; }
+        public string Text { get; set; } = "";
+        public string Cleaned { get; set; }
+        public string ErrorCode { get; set; }
+        public string ErrorMessage { get; set; }
+    }
+
     /// <summary>Thin wrapper over the engine that never throws into the UI.</summary>
     public static class Conversion
     {
-        public static TafqitResult Run(string input, TafqitOptions options)
+        public static ConversionResult Run(string input, TafqitOptions options)
         {
             try
             {
-                return Tafqit.TryConvert(input ?? "", options) ?? Fail("unknown", "تعذّر التحويل.");
+                var r = Tafqit.TryConvert(input ?? "", options);
+                return new ConversionResult { Ok = r.Ok, Text = r.Text ?? "", Cleaned = r.Cleaned, ErrorCode = r.ErrorCode, ErrorMessage = r.ErrorMessage };
             }
             catch (Exception ex)
             {
-                return Fail("internal", "خطأ غير متوقع: " + ex.Message);
+                return new ConversionResult { Ok = false, ErrorCode = "internal", ErrorMessage = "خطأ غير متوقع: " + ex.Message };
             }
         }
-
-        private static TafqitResult Fail(string code, string message) =>
-            new TafqitResult { Ok = false, ErrorCode = code, ErrorMessage = message };
 
         /// <summary>«الرقم المعتمد» for display: the cleaned number with thousands separators (1,250.75).</summary>
         public static string Grouped(string cleaned)

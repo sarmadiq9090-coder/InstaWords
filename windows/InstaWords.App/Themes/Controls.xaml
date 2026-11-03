@@ -7,6 +7,9 @@
   </ResourceDictionary.MergedDictionaries>
 
   <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
+  <ui:EqualsConverter x:Key="Eq" />
+  <ui:BoolToVisibleConverter x:Key="Visible" />
+  <ui:BoolToVisibleConverter x:Key="Hidden" Invert="True" />
 
   <!-- ============ Focus ring (keyboard only) ============ -->
   <Style x:Key="FocusRing">

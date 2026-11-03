@@ -1,0 +1,57 @@
+<Window x:Class="InstaWords.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:InstaWords.App.Views"
+        Title="InstaWords — تفقيط"
+        AutomationProperties.AutomationId="MainWindow"
+        Width="1080" Height="760" MinWidth="780" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        FlowDirection="RightToLeft"
+        FontFamily="{StaticResource AppFont}" FontSize="14"
+        Foreground="{StaticResource TextBrush}" Background="{StaticResource BgSoftBrush}"
+        TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"
+        UseLayoutRounding="True" SnapsToDevicePixels="True"
+        Icon="pack://application:,,,/Assets/InstaWords.ico">
+  <DockPanel>
+    <!-- Header: brand, navigation, about -->
+    <Border DockPanel.Dock="Top" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+      <Grid Margin="24,0" MinHeight="64">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+          <Image Source="{StaticResource LogoImage}" Width="34" Height="34" FlowDirection="LeftToRight" RenderOptions.BitmapScalingMode="HighQuality" />
+          <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+            <TextBlock FontSize="17" FontWeight="Bold" FlowDirection="LeftToRight" HorizontalAlignment="Left" Text="InstaWords" />
+            <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource AccentTextBrush}" Margin="0,-3,0,0" Text="تفقيط · FastKiwi" />
+          </StackPanel>
+        </StackPanel>
+
+        <ListBox x:Name="Nav" Grid.Column="1" Style="{StaticResource NavList}" Margin="28,0,0,0" VerticalAlignment="Center"
+                 SelectionChanged="OnNavChanged" AutomationProperties.Name="أقسام البرنامج" AutomationProperties.AutomationId="Nav">
+          <ListBoxItem AutomationProperties.AutomationId="NavSingle" AutomationProperties.Name="تفقيط رقم" ToolTip="Ctrl+1">تفقيط رقم</ListBoxItem>
+          <ListBoxItem AutomationProperties.AutomationId="NavBulk" AutomationProperties.Name="دفعة" ToolTip="Ctrl+2">دفعة</ListBoxItem>
+          <ListBoxItem AutomationProperties.AutomationId="NavSettings" AutomationProperties.Name="الإعدادات" ToolTip="Ctrl+3">الإعدادات</ListBoxItem>
+        </ListBox>
+
+        <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+          <Button x:Name="UpdateBadge" Style="{StaticResource ChipButton}" ui:Ui.Icon="{StaticResource IconDownload}" Margin="0,0,8,0" Visibility="Collapsed"
+                  Click="OnUpdateBadgeClick" AutomationProperties.AutomationId="UpdateBadge" Content="تحديث متاح" />
+          <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconAlert}" Click="OnReportClick" Content="إبلاغ"
+                  ToolTip="الإبلاغ عن مشكلة أو اقتراح" AutomationProperties.Name="الإبلاغ عن مشكلة أو اقتراح" AutomationProperties.AutomationId="ReportButton" />
+          <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconInfo}" Click="OnAboutClick" Content="حول" Margin="4,0,0,0"
+                  ToolTip="حول InstaWords (F1)" AutomationProperties.Name="حول InstaWords" AutomationProperties.AutomationId="AboutButton" />
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <Grid>
+      <ui:SinglePage x:Name="SinglePage" />
+      <ui:BulkPage x:Name="BulkPage" Visibility="Collapsed" />
+      <ui:SettingsPage x:Name="SettingsPage" Visibility="Collapsed" />
+    </Grid>
+  </DockPanel>
+</Window>

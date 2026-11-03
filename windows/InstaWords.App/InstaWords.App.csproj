@@ -50,9 +50,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- CoreProject can be overridden (-p:CoreProject=...) to build against another copy of the engine. -->
-    <ProjectReference Include="$(CoreProject)" Condition="'$(CoreProject)' != ''" />
-    <ProjectReference Include="..\InstaWords.Core\InstaWords.Core.csproj" Condition="'$(CoreProject)' == ''" />
+    <ProjectReference Include="..\InstaWords.Core\InstaWords.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
