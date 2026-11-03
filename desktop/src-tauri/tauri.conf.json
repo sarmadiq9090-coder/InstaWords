@@ -7,7 +7,7 @@
   "build": {
     "frontendDist": "../../_site",
     "beforeBuildCommand": { "script": "npm run build:site", "cwd": "../.." },
-    "beforeDevCommand": { "script": "npm run build:site", "cwd": "../.." }
+    "beforeDevCommand": { "script": "npm run build:site", "cwd": "../..", "wait": true }
   },
   "app": {
     "withGlobalTauri": false,

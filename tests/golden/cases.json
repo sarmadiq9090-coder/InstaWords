@@ -54,7 +54,7 @@
     { "id": "G43", "input": "0", "unit": "SAR", "cleaned": "0", "options": {"language": "en"}, "expected": "Zero Saudi Riyals", "review": ["EN2"] },
     { "id": "G44", "input": "1", "unit": "SAR", "cleaned": "1", "options": {"language": "en"}, "expected": "One Saudi Riyal" },
     { "id": "G45", "input": "2", "unit": "riyal", "cleaned": "2", "options": {"language": "en"}, "expected": "Two Riyals" },
-    { "id": "G46", "input": "21", "unit": "riyal", "cleaned": "21", "options": {"language": "en"}, "expected": "Twenty-One Riyals" },
+    { "id": "G46", "input": "21", "unit": "riyal", "cleaned": "21", "options": {"language": "en"}, "expected": "Twenty-One Riyals", "review": ["EN5"] },
     { "id": "G47", "input": "71", "unit": "riyal", "cleaned": "71", "options": {"language": "en"}, "expected": "Seventy-One Riyals" },
     { "id": "G48", "input": "80", "unit": "riyal", "cleaned": "80", "options": {"language": "en"}, "expected": "Eighty Riyals" },
     { "id": "G49", "input": "81", "unit": "riyal", "cleaned": "81", "options": {"language": "en"}, "expected": "Eighty-One Riyals" },
@@ -106,9 +106,9 @@
     { "id": "G94", "input": "21000", "unit": "EGP", "cleaned": "21000", "options": {"language": "fr"}, "expected": "vingt et un mille livres égyptiennes", "review": ["FR3"] },
     { "id": "G95", "input": "10.125", "unit": "SAR", "cleaned": "10.125", "options": {"language": "fr"}, "expected": "dix riyals saoudiens et treize halalas" },
     { "id": "G96", "input": "12.05", "unit": "none", "cleaned": "12.05", "options": {"language": "fr"}, "expected": "douze virgule zéro cinq", "review": ["FR7"] },
-    { "id": "G97", "input": "80000000", "unit": "none", "cleaned": "80000000", "options": {"language": "fr"}, "expected": "quatre-vingts millions" },
+    { "id": "G97", "input": "80000000", "unit": "none", "cleaned": "80000000", "options": {"language": "fr"}, "expected": "quatre-vingts millions", "review": ["FR2"] },
     { "id": "G98", "input": "21", "unit": "km_per_hour", "cleaned": "21", "options": {"language": "fr"}, "expected": "vingt et un kilomètres par heure" },
     { "id": "G99", "input": "1000000.5", "unit": "EUR", "cleaned": "1000000.5", "options": {"language": "fr"}, "expected": "un million d'euros et cinquante centimes", "review": ["FR9"] },
-    { "id": "G100", "input": "2,500", "unit": "MAD", "cleaned": "2500", "options": {"language": "fr", "prefix": "Arrêtée la présente facture à la somme de", "suffix": "TTC"}, "expected": "Arrêtée la présente facture à la somme de deux mille cinq cents dirhams marocains TTC" }
+    { "id": "G100", "input": "2,500", "unit": "MAD", "cleaned": "2500", "options": {"language": "fr", "prefix": "Arrêtée la présente facture à la somme de", "suffix": "TTC"}, "expected": "Arrêtée la présente facture à la somme de deux mille cinq cents dirhams marocains TTC", "review": ["FR10"] }
   ]
 }
