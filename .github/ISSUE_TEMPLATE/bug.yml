@@ -1,0 +1,42 @@
+name: "🐞 الإبلاغ عن مشكلة · Report a problem"
+description: "خطأ في التفقيط أو في الموقع أو برنامج ويندوز أو Excel · Wrong output or a bug in the website, Windows app or Excel"
+title: "[مشكلة] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        شكراً لمساعدتك في تحسين **InstaWords**. إن كانت المشكلة في نص التفقيط، فاكتب الرقم والوحدة واللغة والنص الذي ظهر والنص الصحيح.
+        Thanks for helping improve **InstaWords**. For wrong output, please give the number, unit, language, what you got and what you expected.
+  - type: dropdown
+    id: product
+    attributes:
+      label: "أين ظهرت المشكلة؟ · Where?"
+      options:
+        - "برنامج ويندوز · Windows app"
+        - "الموقع · Website (fastkiwi.app/instawords)"
+        - "Excel (Tafqit.bas)"
+        - "المكتبة البرمجية · JS library"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: "وصف المشكلة · What happened?"
+      description: "ما الذي حدث، وما الذي كنت تتوقعه؟ · What happened and what did you expect?"
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: "خطوات إعادة المشكلة · Steps to reproduce"
+      placeholder: |
+        1. اكتب 1250.75
+        2. اختر «ريال سعودي» واللغة العربية
+        3. …
+  - type: textarea
+    id: environment
+    attributes:
+      label: "معلومات تقنية · Technical details"
+      description: "يملؤها البرنامج تلقائياً إن اخترت ذلك · Filled in by the app when you choose to attach it"
+      render: text

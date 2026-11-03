@@ -1,0 +1,17 @@
+name: "💡 اقتراح · Suggestion"
+description: "فكرة أو ميزة جديدة: وحدة، لغة، تحسين في الواجهة… · A new idea: unit, language, UI improvement…"
+title: "[اقتراح] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "الاقتراح · Your suggestion"
+      description: "ما الذي تقترحه؟ · What would you like?"
+    validations:
+      required: true
+  - type: textarea
+    id: use_case
+    attributes:
+      label: "لماذا تحتاجه؟ · Why is it useful?"
+      description: "كيف ستستخدمه في عملك؟ · How would you use it?"
