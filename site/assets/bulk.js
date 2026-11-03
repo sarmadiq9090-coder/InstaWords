@@ -2,6 +2,7 @@
 // conversion is cheap, so all rows are converted at once, and the table is rendered in chunks.
 import { csvColumnValues, toCsv } from "../lib/csv.js";
 import { engineReady, bindOptions, loadPrefs, applyParams, copyText, flash, escapeHtml, debounce, formatCount, languageInfo } from "./app.js";
+import { UI, t, errorMessage } from "./i18n.js";
 
 const $ = (id) => document.getElementById(id);
 const numbersEl = $("numbers");
@@ -28,14 +29,14 @@ let renderToken = 0;
 function rowHtml(i, item) {
   const { input, r } = item;
   const cleaned = r.cleaned ?? "";
-  const text = r.ok ? escapeHtml(r.result) : escapeHtml(r.error.message);
+  const text = r.ok ? escapeHtml(r.result) : escapeHtml(errorMessage(r.error));
   return `<tr${r.ok ? "" : ' class="is-error"'}><td class="c-idx">${i + 1}</td><td class="c-in"><span dir="ltr">${escapeHtml(input)}</span></td><td class="c-clean"><span dir="ltr">${escapeHtml(cleaned)}</span></td><td class="c-text"${r.ok ? textAttrs : ""}>${text}</td></tr>`;
 }
 
 function renderRows() {
   const token = ++renderToken;
   if (!results.length) {
-    rowsEl.innerHTML = '<tr class="empty-row"><td colspan="4">أدخل أرقاماً في المربع أعلاه، أو استورد ملف CSV، لتظهر النتائج هنا.</td></tr>';
+    rowsEl.innerHTML = `<tr class="empty-row"><td colspan="4">${escapeHtml(t("bulk.empty"))}</td></tr>`;
     renderNote.textContent = "";
     return;
   }
@@ -49,7 +50,7 @@ function renderRows() {
     else rowsEl.insertAdjacentHTML("beforeend", html);
     pos = end;
     if (pos < results.length) {
-      renderNote.textContent = `جارٍ عرض الصفوف… ${formatCount(pos)} من ${formatCount(results.length)}`;
+      renderNote.textContent = t("bulk.rendering", formatCount(pos), formatCount(results.length));
       setTimeout(() => step(CHUNK), 0);
     } else {
       renderNote.textContent = "";
@@ -63,7 +64,8 @@ function renderRows() {
 function convertAll() {
   const opts = options.get();
   const lang = languageInfo(opts.language);
-  textAttrs = lang.id === "ar" ? "" : ` dir="${escapeHtml(lang.dir ?? "ltr")}" lang="${escapeHtml(lang.id)}"`;
+  // Result cells in another language than the page are marked with their own direction.
+  textAttrs = lang.id === UI ? "" : ` dir="${escapeHtml(lang.dir ?? "ltr")}" lang="${escapeHtml(lang.id)}"`;
   const lines = numbersEl.value.split(/\r\n|\r|\n/);
   const out = [];
   for (const line of lines) {
@@ -105,9 +107,9 @@ $("csv-file").addEventListener("change", async (e) => {
   try {
     const values = csvColumnValues(await file.text());
     numbersEl.value = values.join("\n");
-    importStatus.textContent = `استُورد ${formatCount(values.length)} رقماً من الملف «${file.name}».`;
+    importStatus.textContent = t("bulk.imported", formatCount(values.length), file.name);
   } catch {
-    importStatus.textContent = "تعذّرت قراءة الملف. تأكد أنه ملف CSV أو نصي بترميز UTF-8.";
+    importStatus.textContent = t("bulk.importFailed");
   }
   e.target.value = "";
   schedule.now();
@@ -118,9 +120,7 @@ copyBtn.addEventListener("click", async () => {
   const text = results.map((x) => (x.r.ok ? x.r.result : "")).join("\n");
   const ok = await copyText(text);
   const errs = results.length - results.filter((x) => x.r.ok).length;
-  const msg = ok
-    ? `نُسخ ${formatCount(results.length)} سطراً${errs ? `، وتُركت أسطر الأخطاء (${formatCount(errs)}) فارغة` : ""}.`
-    : "تعذّر النسخ.";
+  const msg = ok ? t("bulk.copied", formatCount(results.length), errs ? formatCount(errs) : "") : t("bulk.copyFailed");
   flash(copyBtn, copyStatus, ok, msg);
 });
 
@@ -128,21 +128,22 @@ copyBtn.addEventListener("click", async () => {
 const safeCell = (v) => (/^[=+@\t\r]/.test(v) ? `'${v}` : v);
 
 exportBtn.addEventListener("click", () => {
-  const rows = [["الرقم", "الرقم بعد التنقية", "التفقيط", "الخطأ"]];
+  const rows = [[...t("bulk.csvHeader")]];
   for (const { input, r } of results) {
-    rows.push([safeCell(input), r.cleaned ?? "", r.ok ? r.result : "", r.ok ? "" : r.error.message]);
+    rows.push([safeCell(input), r.cleaned ?? "", r.ok ? r.result : "", r.ok ? "" : errorMessage(r.error)]);
   }
+  const fileName = t("bulk.csvFile");
   const blob = new Blob([toCsv(rows)], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "tafqit.csv";
+  a.download = fileName;
   document.body.append(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
   copyStatus.classList.add("is-ok");
-  copyStatus.textContent = `صُدّر ${formatCount(results.length)} صفاً إلى tafqit.csv.`;
+  copyStatus.textContent = t("bulk.exported", formatCount(results.length), fileName);
 });
 
 convertAll();

@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Amounts in words in Excel: the TAFQIT function, offline — InstaWords | FastKiwi</title>
+  <meta name="description" content="A free, open-source VBA module from InstaWords that adds a TAFQIT function to Excel to write amounts in words in English, Arabic or French, with 100+ currencies and units, on your computer without internet. Plus a JavaScript library for developers.">
+  <meta name="theme-color" content="#3f8a1c">
+  <meta name="color-scheme" content="light">
+  <link rel="canonical" href="https://fastkiwi.app/instawords/en/excel.html">
+  <link rel="alternate" hreflang="ar" href="https://fastkiwi.app/instawords/excel.html">
+  <link rel="alternate" hreflang="en" href="https://fastkiwi.app/instawords/en/excel.html">
+  <link rel="alternate" hreflang="x-default" href="https://fastkiwi.app/instawords/en/excel.html">
+  <link rel="icon" href="../icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preload" href="../fonts/plex-arabic-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../fonts/plex-arabic-latin-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/style.css">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="FastKiwi">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="ar_AR">
+  <meta property="og:title" content="Amounts in words in Excel with InstaWords: a TAFQIT function that works offline">
+  <meta property="og:description" content="Add a function to Excel that writes amounts in words in English, Arabic or French, on your computer and without internet.">
+  <meta property="og:url" content="https://fastkiwi.app/instawords/en/excel.html">
+  <meta property="og:image" content="https://fastkiwi.app/img/social-en.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="InstaWords by FastKiwi">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Amounts in words in Excel with InstaWords: a TAFQIT function that works offline">
+  <meta name="twitter:description" content="Add a function to Excel that writes amounts in words in English, Arabic or French, on your computer and without internet.">
+  <meta name="twitter:image" content="https://fastkiwi.app/img/social-en.png">
+  <script type="module" src="../assets/app.js"></script>
+  <script type="module" src="../assets/release.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="https://fastkiwi.app/">
+      <img src="../img/fastkiwi.svg" width="34" height="34" alt="">
+      <span>FastKiwi</span>
+    </a>
+    <a class="product" href="./"><img src="../icon.svg" width="28" height="28" alt=""><span>InstaWords <small>Amounts in words</small></span></a>
+    <nav class="tool-nav" aria-label="InstaWords tools">
+      <ul>
+        <li><a href="./">Convert</a></li>
+        <li><a href="bulk.html">Bulk</a></li>
+        <li><a href="excel.html" aria-current="page">Excel</a></li>
+      </ul>
+    </nav>
+    <a class="lang-switch" href="../excel.html" hreflang="ar" lang="ar" data-lang-switch>العربية</a>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+<section class="hero hero-page" aria-labelledby="page-title">
+  <div class="wrap">
+    <div>
+      <p class="app-label"><img src="../icon.svg" width="28" height="28" alt="">InstaWords for Excel</p>
+      <p class="eyebrow">Free VBA module · No internet · No subscription</p>
+      <h1 id="page-title"><span class="grad">Amounts in words inside Excel</span>, on your computer and offline</h1>
+      <p class="lead">One file adds a function called <code dir="ltr">TAFQIT</code> to your spreadsheet. It runs locally, with no connection and no external add-ins, and gives exactly the same English, Arabic or French text as InstaWords in the browser.</p>
+      <div class="actions hero-cta">
+        <a class="btn btn-primary" href="../Tafqit.bas" download="Tafqit.bas">
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
+          Download Tafqit.bas
+        </a>
+        <a class="btn btn-ghost" href="#install">How to install</a>
+      </div>
+      <p class="hint">A single text file with the function and every currency and unit · for Windows and macOS.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="install" aria-labelledby="install-title">
+  <div class="wrap">
+    <div class="grid two">
+      <article class="card prose">
+        <h2 id="install-title">Install once per workbook</h2>
+        <ol class="steps">
+          <li>Open the workbook in Excel, then press <kbd>Alt</kbd> + <kbd>F11</kbd> to open the Visual Basic editor (on a Mac: <kbd>Option</kbd> + <kbd>F11</kbd>, or Tools → Macro → Visual Basic Editor).</li>
+          <li>In the File menu choose Import File… and select the <span dir="ltr">Tafqit.bas</span> file you downloaded.</li>
+          <li>Close the editor and save the workbook as an Excel Macro-Enabled Workbook <span dir="ltr">(.xlsm)</span> so the function stays with it.</li>
+        </ol>
+        <p class="note">If a security warning appears when you open the workbook later, choose “Enable Content”. If Excel blocks macros in a file downloaded from the internet, open the file's Properties in Windows and tick “Unblock”.</p>
+      </article>
+
+      <article class="card prose" aria-labelledby="use-title">
+        <h2 id="use-title">Usage</h2>
+        <p>Type this formula in any cell, where <span dir="ltr">A1</span> is the cell with the amount:</p>
+        <code class="formula" id="formula">=TAFQIT(A1, "USD", "", "", "Only", "", "en")</code>
+        <p>If <span dir="ltr">A1</span> holds <span dir="ltr">2500</span>, the result is:</p>
+        <p class="example-out" data-excel-example data-n="2500" data-unit="USD" data-suffix="Only" data-lang="en">Two Thousand Five Hundred US Dollars Only</p>
+        <p>The arguments after the number are optional, and <code dir="ltr">"en"</code> (the seventh) selects English; <code dir="ltr">=TAFQIT(B2, "SAR", , , , , "en")</code> gives “One Thousand Two Hundred Fifty Saudi Riyals and Seventy-Five Halalas” for <span dir="ltr">1250.75</span>. Leave the language out for Arabic, or use <code dir="ltr">"fr"</code> for French.</p>
+      </article>
+    </div>
+
+    <article class="card prose params-card" aria-labelledby="params-title">
+      <h2 id="params-title">Arguments</h2>
+      <div class="params-wrap">
+        <table class="params">
+          <thead>
+            <tr><th scope="col">#</th><th scope="col">Argument</th><th scope="col">Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Number</td><td>A cell or a value. Text works too, with Western or Arabic-Indic digits.</td></tr>
+            <tr><td>2</td><td>Unit</td><td>The currency code such as <span dir="ltr">"USD"</span> or <span dir="ltr">"SAR"</span>, a symbol such as <span dir="ltr">"$"</span> or <span dir="ltr">"€"</span>, or the unit's id such as <span dir="ltr">"kilogram"</span> (Arabic names work too). Leave it empty for a plain number.</td></tr>
+            <tr><td>3</td><td>HundredsForm</td><td>Arabic only: how “hundred” is spelled. Leave it empty in English and French.</td></tr>
+            <tr><td>4</td><td>Prefix</td><td>Optional text before the amount, such as “The sum of”.</td></tr>
+            <tr><td>5</td><td>Suffix</td><td>Optional text after the amount, such as “Only”.</td></tr>
+            <tr><td>6</td><td>Decimals</td><td><span dir="ltr">"round"</span> (the default) to round extra decimals half up to the currency's subunit, or <span dir="ltr">"error"</span> to show an error.</td></tr>
+            <tr><td>7</td><td>Language</td><td><span dir="ltr">"en"</span> for English, <span dir="ltr">"fr"</span> for French, or <span dir="ltr">"ar"</span> (the default, also when empty) for Arabic, in any letter case.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>When the number is not valid, the function returns a message explaining why instead of the text; these messages are in Arabic in every language. <code dir="ltr">=TAFQIT_CLEAN(A1)</code> returns the cleaned number, such as <span dir="ltr">123.45</span> for the input <span dir="ltr">١٢٣٫٤٥</span>.</p>
+    </article>
+  </div>
+</section>
+
+<section class="section soft" id="developers" aria-labelledby="dev-title">
+  <div class="wrap">
+    <div class="section-head">
+      <h2 id="dev-title">For developers: a JavaScript library</h2>
+      <p>The core that runs this site is a small library with no dependencies, for the browser and Node.js. The <span dir="ltr">lib/</span> folder of this site is a ready-made copy, and you can build it from the repository with <code dir="ltr">npm run build</code>.</p>
+    </div>
+    <div class="code-block">
+      <button type="button" class="btn btn-ghost btn-sm" data-copy-from="js-snippet"><span data-label>Copy</span></button>
+<pre id="js-snippet"><code>import { tafqit, tryTafqit, createTafqit } from "./lib/index.js";
+
+tafqit("1250.75", { unit: "SAR", language: "en" });
+// "One Thousand Two Hundred Fifty Saudi Riyals and Seventy-Five Halalas"
+
+tafqit("2500", { unit: "USD", language: "en", suffix: "Only" });
+// "Two Thousand Five Hundred US Dollars Only"
+
+const r = tryTafqit("abc", { unit: "SAR", language: "en" }); // never throws
+if (!r.ok) console.log(r.error.code, r.error.message);
+
+// Custom units: edit units.json, then build an engine from it
+const engine = createTafqit(await (await fetch("units.json")).json());
+engine.tafqit("300", { unit: "EUR", language: "fr" });</code></pre>
+    </div>
+    <p class="muted">Options: <code dir="ltr">unit</code>, <code dir="ltr">language</code> (<span dir="ltr">"ar"</span>, the default, <span dir="ltr">"en"</span> or <span dir="ltr">"fr"</span>), <code dir="ltr">decimals</code> (<span dir="ltr">"round"</span> or <span dir="ltr">"error"</span>), <code dir="ltr">prefix</code>, <code dir="ltr">suffix</code> and, for Arabic, <code dir="ltr">hundredsForm</code>. Error codes such as <code dir="ltr">INVALID_FORMAT</code> are stable; the messages are in Arabic. Full details are in the <a href="https://github.com/sarmadiq9090-coder/tafket" data-github>project repository on GitHub</a>.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="foot-meta">
+      <p>© 2026 FastKiwi · InstaWords, free and open source</p>
+      <p class="offline-badge" data-offline-badge>Works offline after the first visit</p>
+    </div>
+    <nav aria-label="Links">
+      <a href="https://fastkiwi.app/">FastKiwi</a>
+      <a href="https://github.com/sarmadiq9090-coder/tafket/releases/download/v2.0.0/InstaWords_2.0.0_x64-setup.exe" data-windows-download>Windows app <span class="ver" data-version>v2.0.0</span></a>
+      <a href="#download" data-release-notes>What's new in the Windows app</a>
+      <a href="#support" data-support>Report a problem or suggestion</a>
+      <a href="https://github.com/sarmadiq9090-coder/tafket" data-github>Source code on GitHub</a>
+      <a href="../LICENSE.txt">MIT licence</a>
+      <a href="https://fastkiwi.app/privacy/">Privacy</a>
+      <a href="../excel.html" hreflang="ar" lang="ar" data-lang-switch>العربية</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>

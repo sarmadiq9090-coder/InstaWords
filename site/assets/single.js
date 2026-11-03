@@ -1,5 +1,6 @@
 // InstaWords — single conversion page.
 import { engineReady, bindOptions, loadPrefs, applyParams, copyText, flash, groupThousands, languageInfo } from "./app.js";
+import { UI, UI_DIR, t, errorMessage } from "./i18n.js";
 
 const $ = (id) => document.getElementById(id);
 const numberEl = $("number");
@@ -43,9 +44,9 @@ function render(force = false) {
     current = "";
     panel.dataset.state = "empty";
     resultEl.className = "result-text is-empty";
-    resultEl.dir = "rtl";
-    resultEl.lang = "ar";
-    resultEl.textContent = "اكتب مبلغاً في الحقل أعلاه، فيظهر هنا مكتوباً بالحروف.";
+    resultEl.dir = UI_DIR;
+    resultEl.lang = UI;
+    resultEl.textContent = t("single.empty");
     emptyEl.hidden = false;
     cleanedBox.hidden = true;
     copyBtn.disabled = true;
@@ -66,7 +67,7 @@ function render(force = false) {
     current = r.result;
     panel.dataset.state = "ok";
     resultEl.className = "result-text";
-    resultEl.dir = lang.dir ?? "rtl";
+    resultEl.dir = lang.dir ?? UI_DIR;
     resultEl.lang = lang.id;
     resultEl.textContent = r.result;
     copyBtn.disabled = false;
@@ -75,9 +76,9 @@ function render(force = false) {
     current = "";
     panel.dataset.state = "error";
     resultEl.className = "result-text is-error";
-    resultEl.dir = "rtl";
-    resultEl.lang = "ar";
-    resultEl.textContent = r.error.message;
+    resultEl.dir = UI_DIR;
+    resultEl.lang = UI;
+    resultEl.textContent = errorMessage(r.error);
     copyBtn.disabled = true;
     reveal("error", force);
   }
@@ -103,7 +104,7 @@ for (const btn of document.querySelectorAll("[data-sample]")) {
 copyBtn.addEventListener("click", async () => {
   if (!current) return;
   const ok = await copyText(current);
-  flash(copyBtn, copyStatus, ok, ok ? "نُسخ النص إلى الحافظة." : "تعذّر النسخ، حدّد النص وانسخه يدوياً.");
+  flash(copyBtn, copyStatus, ok, ok ? t("single.copied") : t("single.copyFailed"));
 });
 
 render();

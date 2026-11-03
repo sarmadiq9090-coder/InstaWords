@@ -1,4 +1,4 @@
-// Service worker: makes the whole site work offline.
+// Service worker: makes the whole site work offline, in every interface language (/, en/).
 // VERSION and ASSETS are filled in by scripts/build-site.mjs; a new VERSION replaces the old cache.
 const VERSION = "dev";
 const ASSETS = [];
@@ -56,7 +56,9 @@ async function cacheFirst(req) {
     return await store(cache, req, await fetch(req));
   } catch (err) {
     if (isPage) {
-      const fallback = await cache.match("index.html");
+      // Offline and not cached: the converter home of the page's own interface language.
+      const en = req.url.startsWith(new URL("en/", self.registration.scope).href);
+      const fallback = (en && (await cache.match("en/index.html"))) || (await cache.match("index.html"));
       if (fallback) return fallback;
     }
     throw err;

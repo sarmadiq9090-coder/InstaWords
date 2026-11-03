@@ -6,6 +6,7 @@
 // (GitHub API, cached in localStorage for an hour) every button is pointed at its installer.
 // Remote text (release notes) is only ever put into the page as DOM text nodes, never as HTML.
 import { copyText, flash } from "./app.js";
+import { UI, UI_DIR, t } from "./i18n.js";
 
 const REPO = "sarmadiq9090-coder/tafket";
 const API = `https://api.github.com/repos/${REPO}/releases/latest`;
@@ -150,15 +151,15 @@ function applyToButtons(r) {
 
 function formatSize(bytes) {
   if (!bytes) return "";
-  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} كيلوبايت`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} ميغابايت`;
+  if (bytes < 1024 * 1024) return t("kb", Math.max(1, Math.round(bytes / 1024)));
+  return t("mb", (bytes / (1024 * 1024)).toFixed(1));
 }
 
 function formatDate(iso) {
   const d = new Date(iso);
   if (!iso || Number.isNaN(d.getTime())) return "";
   try {
-    return d.toLocaleDateString("ar-u-nu-latn", { year: "numeric", month: "long", day: "numeric" });
+    return d.toLocaleDateString(t("numberLocale"), { year: "numeric", month: "long", day: "numeric" });
   } catch {
     return iso.slice(0, 10);
   }
@@ -272,11 +273,11 @@ let opener = null;
 
 function makeDialog(id, title) {
   const titleId = `${id}-title`;
-  const close = h("button", { type: "button", class: "dialog-close", "aria-label": "إغلاق", title: "إغلاق" }, ICON_CLOSE());
+  const close = h("button", { type: "button", class: "dialog-close", "aria-label": t("close"), title: t("close") }, ICON_CLOSE());
   const body = h("div", { class: "dialog-body" });
   const dlg = h(
     "dialog",
-    { id: `${id}-dialog`, class: "dialog", "aria-labelledby": titleId, dir: "rtl", lang: "ar" },
+    { id: `${id}-dialog`, class: "dialog", "aria-labelledby": titleId, dir: UI_DIR, lang: UI },
     h("div", { class: "dialog-head" }, h("h2", { id: titleId }, title), close),
     body,
   );
@@ -310,8 +311,8 @@ function open(which, from) {
   d.querySelector(".dialog-body").scrollTop = 0;
 }
 
-const { dlg: releaseDialog, body: releaseBody } = makeDialog("download", "InstaWords لويندوز: التنزيل وما الجديد");
-const { dlg: supportDialog, body: supportBody } = makeDialog("support", "الإبلاغ عن مشكلة أو اقتراح");
+const { dlg: releaseDialog, body: releaseBody } = makeDialog("download", t("dl.title"));
+const { dlg: supportDialog, body: supportBody } = makeDialog("support", t("sup.title"));
 
 function fact(label, ...value) {
   return [h("dt", {}, label), h("dd", {}, ...value)];
@@ -320,7 +321,7 @@ function fact(label, ...value) {
 function renderRelease() {
   const body = releaseBody;
   if (!release) {
-    body.replaceChildren(h("p", { class: "dialog-loading", role: "status" }, "جارٍ التحقق من آخر إصدار…"));
+    body.replaceChildren(h("p", { class: "dialog-loading", role: "status" }, t("dl.loading")));
     return;
   }
   const r = release;
@@ -331,23 +332,23 @@ function renderRelease() {
       h(
         "p",
         { class: "note", role: "status", "data-release-offline": true },
-        "تعذّر الوصول إلى GitHub الآن (لا اتصال بالإنترنت أو الخدمة غير متاحة)، فلا يمكن عرض آخر إصدار وملاحظاته. يمكنك تنزيل الإصدار ",
+        t("dl.offline1"),
         h("bdi", { dir: "ltr" }, `v${r.version}`),
-        " مباشرة، وقد يكون هناك إصدار أحدث.",
+        t("dl.offline2"),
       ),
     );
   }
-  const sha = h("code", { class: "sha", dir: "ltr", "data-sha256": true }, r.setup.sha256 || "غير متاح");
+  const sha = h("code", { class: "sha", dir: "ltr", "data-sha256": true }, r.setup.sha256 || t("dl.noSha"));
   const facts = h(
     "dl",
     { class: "facts" },
-    fact("الإصدار", h("bdi", { dir: "ltr", "data-release-version": true }, `v${r.version}`), offline ? " (المضمّن في الموقع)" : ""),
-    formatDate(r.date) ? fact("تاريخ النشر", formatDate(r.date)) : [],
-    r.setup.size ? fact("حجم المثبّت", formatSize(r.setup.size)) : [],
+    fact(t("dl.version"), h("bdi", { dir: "ltr", "data-release-version": true }, `v${r.version}`), offline ? t("dl.bundled") : ""),
+    formatDate(r.date) ? fact(t("dl.date"), formatDate(r.date)) : [],
+    r.setup.size ? fact(t("dl.size"), formatSize(r.setup.size)) : [],
   );
-  const shaRow = h("div", { class: "sha-row" }, h("span", { class: "sha-label", id: "sha-label" }, "بصمة المثبّت SHA-256"), sha);
+  const shaRow = h("div", { class: "sha-row" }, h("span", { class: "sha-label", id: "sha-label" }, t("dl.shaLabel")), sha);
   if (r.setup.sha256) {
-    const copy = h("button", { type: "button", class: "btn btn-ghost btn-sm", "aria-describedby": "sha-label" }, h("span", { "data-label": true }, "نسخ البصمة"));
+    const copy = h("button", { type: "button", class: "btn btn-ghost btn-sm", "aria-describedby": "sha-label" }, h("span", { "data-label": true }, t("dl.copySha")));
     copy.addEventListener("click", async () => flash(copy, null, await copyText(r.setup.sha256)));
     shaRow.append(copy);
   }
@@ -355,13 +356,13 @@ function renderRelease() {
     "a",
     { class: "btn btn-primary", href: r.setup.url, "data-windows-download": true, "data-dialog-download": true },
     ICON_WINDOWS(),
-    "تنزيل المثبّت ",
+    t("dl.installer"),
     h("span", { class: "ver", dir: "ltr", "data-version": true }, `v${r.version}`),
   );
   const actions = h("div", { class: "actions" }, primary);
   if (r.portable) {
     actions.append(
-      h("a", { class: "btn btn-ghost", href: r.portable.url, "data-portable-download": true }, ICON_DOWNLOAD(), "النسخة المحمولة (zip)", r.portable.size ? h("small", { class: "ver" }, formatSize(r.portable.size)) : null),
+      h("a", { class: "btn btn-ghost", href: r.portable.url, "data-portable-download": true }, ICON_DOWNLOAD(), t("dl.portable"), r.portable.size ? h("small", { class: "ver" }, formatSize(r.portable.size)) : null),
     );
   }
   nodes.push(
@@ -370,33 +371,33 @@ function renderRelease() {
     actions,
     h(
       "ul",
-      { class: "checks reqs", "aria-label": "المتطلبات" },
-      h("li", {}, "ويندوز 10 أو 11 (64 بت)"),
-      h("li", {}, "لا يحتاج صلاحيات المسؤول: يُثبَّت للمستخدم الحالي"),
-      h("li", {}, "يعمل دون إنترنت بعد التثبيت، والنسخة المحمولة لا تحتاج تثبيتاً"),
+      { class: "checks reqs", "aria-label": t("dl.reqs") },
+      h("li", {}, t("dl.req1")),
+      h("li", {}, t("dl.req2")),
+      h("li", {}, t("dl.req3")),
     ),
-    h("p", { class: "fine" }, "البرنامج غير موقّع رقمياً بعد، فإن ظهر تنبيه SmartScreen فاختر «مزيد من المعلومات» ثم «تشغيل على أي حال». وللتحقق من الملف قارن بصمته بالأمر ", h("code", { dir: "ltr" }, `Get-FileHash ${r.setup.name}`), " في PowerShell."),
+    h("p", { class: "fine" }, t("dl.smart1"), h("code", { dir: "ltr" }, `Get-FileHash ${r.setup.name}`), t("dl.smart2")),
   );
   if (!offline && r.notes.trim()) {
-    nodes.push(h("section", { class: "notes", "aria-labelledby": "notes-title" }, h("h3", { id: "notes-title", class: "notes-title" }, "ما الجديد في هذا الإصدار"), h("div", { class: "notes-body", "data-release-notes-body": true }, renderNotes(r.notes))));
+    nodes.push(h("section", { class: "notes", "aria-labelledby": "notes-title" }, h("h3", { id: "notes-title", class: "notes-title" }, t("dl.notes")), h("div", { class: "notes-body", "data-release-notes-body": true }, renderNotes(r.notes))));
   }
-  nodes.push(h("div", { class: "dialog-foot" }, githubLink(offline ? RELEASES_PAGE : r.pageUrl, offline ? "فتح صفحة الإصدارات على GitHub" : "كل الإصدارات على GitHub")));
+  nodes.push(h("div", { class: "dialog-foot" }, githubLink(offline ? RELEASES_PAGE : r.pageUrl, offline ? t("dl.releasesPage") : t("dl.allReleases"))));
   body.replaceChildren(...nodes);
 }
 
 function renderSupport() {
   if (supportBody.childElementCount) return;
   supportBody.append(
-    h("p", {}, "ملاحظتك تجعل InstaWords أدق. لا يُرسَل شيء تلقائياً من أي مكان: أنت من يراجع البلاغ ويرسله."),
+    h("p", {}, t("sup.intro")),
     h(
       "ol",
       { class: "support-list" },
-      h("li", {}, h("strong", {}, "برنامج ويندوز: "), "اضغط زر «إبلاغ» أعلى نافذة البرنامج، أو اختر «الإبلاغ عن مشكلة أو اقتراح» من أيقونته بجانب الساعة. يجهّز البرنامج تقريراً فيه إصداره ونظامك دون أي مبلغ كتبته، فتنسخه أو تفتحه على GitHub."),
-      h("li", {}, h("strong", {}, "Excel: "), "اذكر الصيغة كما كتبتها (مثل ", h("code", { dir: "ltr" }, '=TAFQIT(A1, "SAR")'), ") وقيمة الخلية والنص الذي ظهر والنص الذي توقعته، وإصدار Excel."),
-      h("li", {}, h("strong", {}, "الموقع: "), "اذكر الرقم والعملة والخيارات، والنص الذي ظهر والنص الصحيح في رأيك. رابط الصفحة بعد التحويل يحفظ الرقم والعملة، فانسخه من شريط العنوان وأرفقه."),
+      h("li", {}, h("strong", {}, t("sup.app")), t("sup.appText")),
+      h("li", {}, h("strong", {}, "Excel: "), t("sup.excel1"), h("code", { dir: "ltr" }, t("sup.excelFormula")), t("sup.excel2")),
+      h("li", {}, h("strong", {}, t("sup.site")), t("sup.siteText")),
     ),
-    h("p", { class: "fine" }, "تُستقبل البلاغات والاقتراحات على GitHub، وتحتاج حساباً مجانياً هناك."),
-    h("div", { class: "dialog-foot" }, githubLink(ISSUES_NEW, "فتح بلاغ جديد على GitHub", "btn btn-primary")),
+    h("p", { class: "fine" }, t("sup.fine")),
+    h("div", { class: "dialog-foot" }, githubLink(ISSUES_NEW, t("sup.open"), "btn btn-primary")),
   );
 }
 

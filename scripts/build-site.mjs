@@ -1,5 +1,5 @@
 // Build the deployable static site into _site/ (run via `npm run build:site`, after `npm run build`).
-//   site/*            → _site/
+//   site/*            → _site/   (Arabic pages at the root, English pages in en/, sharing assets/)
 //   dist/**/*.js      → _site/lib/
 //   data/units.json   → _site/units.json
 //   LICENSE           → _site/LICENSE.txt
@@ -26,6 +26,14 @@ function walk(dir) {
   }
   return files;
 }
+
+/** Every page of every interface language, as [name relative to _site/, absolute path]. */
+const pages = () =>
+  walk(out)
+    .filter((f) => f.endsWith(".html"))
+    .map((f) => [relative(out, f).split(sep).join("/"), f]);
+/** Interface languages: the root holds Arabic, each of these sub-folders another language. */
+const LANG_DIRS = ["en"];
 
 const fail = (msg) => {
   console.error(`build-site: ${msg}`);
@@ -60,10 +68,8 @@ cpSync(at("LICENSE"), join(out, "LICENSE.txt"));
 if (existsSync(at("vba", "Tafqit.bas"))) cpSync(at("vba", "Tafqit.bas"), join(out, "Tafqit.bas"));
 else {
   console.warn("build-site: warning: vba/Tafqit.bas not found; the Excel page is left out of this build.");
-  rmSync(join(out, "excel.html"));
-  for (const name of readdirSync(out)) {
-    if (!name.endsWith(".html")) continue;
-    const p = join(out, name);
+  for (const dir of ["", ...LANG_DIRS]) rmSync(join(out, dir, "excel.html"), { force: true });
+  for (const [name, p] of pages()) {
     const html = readFileSync(p, "utf8");
     // Remove one-line list items linking to the page, and any line marked data-excel-only.
     const stripped = html
@@ -86,9 +92,7 @@ try {
   const SETUP_URL_RE = /https:\/\/github\.com\/sarmadiq9090-coder\/tafket\/releases\/download\/v[\d.]+\/InstaWords_[\d.]+_x64-setup\.exe/g;
   const PORTABLE_URL_RE = /https:\/\/github\.com\/sarmadiq9090-coder\/tafket\/releases\/download\/v[\d.]+\/InstaWords_[\d.]+_x64-portable\.zip/g;
   const VERSION_LABEL_RE = /(<span\b[^>]*\bdata-version\b[^>]*>)v[^<]*(<\/span>)/g;
-  for (const name of readdirSync(out)) {
-    if (!name.endsWith(".html")) continue;
-    const p = join(out, name);
+  for (const [name, p] of pages()) {
     let html = readFileSync(p, "utf8");
     const links = html.match(SETUP_URL_RE)?.length ?? 0;
     html = html
@@ -107,8 +111,11 @@ try {
   const MARK = "/* @release-fallback */ null";
   if (js.split(MARK).length !== 2) fail(`assets/release.js: expected the marker \`${MARK}\` exactly once`);
   writeFileSync(jsPath, js.replace(MARK, () => `/* @release-fallback */ ${JSON.stringify(fallback)}`));
-  if (!readFileSync(join(out, "index.html"), "utf8").includes(`"downloadUrl": "${fallback.setup.url}"`)) {
-    fail("index.html: JSON-LD downloadUrl does not name the fallback installer");
+  for (const dir of ["", ...LANG_DIRS]) {
+    const name = join(dir, "index.html");
+    if (!readFileSync(join(out, name), "utf8").includes(`"downloadUrl": "${fallback.setup.url}"`)) {
+      fail(`${name}: JSON-LD downloadUrl does not name the fallback installer`);
+    }
   }
 }
 
@@ -128,8 +135,10 @@ const version = hash.digest("hex").slice(0, 16);
 let sw = readFileSync(swPath, "utf8");
 const before = sw;
 sw = sw.replace(/^const VERSION = .*;$/m, () => `const VERSION = ${JSON.stringify(version)};`);
-sw = sw.replace(/^const ASSETS = .*;$/m, () => `const ASSETS = ${JSON.stringify(["./", ...assets], null, 2)};`);
+// Each language's folder URL ("./", "en/") is precached too, so /instawords/en/ opens offline.
+const folders = ["./", ...LANG_DIRS.filter((d) => assets.includes(`${d}/index.html`)).map((d) => `${d}/`)];
+sw = sw.replace(/^const ASSETS = .*;$/m, () => `const ASSETS = ${JSON.stringify([...folders, ...assets], null, 2)};`);
 if (sw === before || !sw.includes(version)) fail("could not stamp VERSION/ASSETS into sw.js");
 writeFileSync(swPath, sw);
 
-console.log(`build-site: _site/ ready (fallback release v${fallback.version}, ${assets.length + 1} files precached, cache version ${version})`);
+console.log(`build-site: _site/ ready (fallback release v${fallback.version}, ${assets.length + folders.length} files precached, cache version ${version})`);

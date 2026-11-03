@@ -2,6 +2,7 @@
 // unit, hundreds, decimals, prefix, suffix), preferences, copy, keyboard shortcuts, service worker.
 // A namespace import keeps the page working with cores that do not export LANGUAGES yet.
 import * as core from "../lib/index.js";
+import { UI, UI_DIR, t, unitLabel } from "./i18n.js";
 
 const { createTafqit, tryTafqit, units, findUnit } = core;
 const BUNDLED = { tryTafqit, units, findUnit };
@@ -21,23 +22,12 @@ const PRESETS = {
 };
 const presetFor = (lang) => PRESETS[lang] ?? PRESETS.ar;
 
-/** Arabic names of the unit categories, in display order. */
-export const CATEGORY_LABELS = {
-  none: "بدون وحدة",
-  "currency-arab": "عملات عربية",
-  "currency-world": "عملات عالمية",
-  crypto: "عملات رقمية",
-  "generic-currency": "عملات بلا تحديد بلد",
-  weight: "الأوزان",
-  volume: "الأحجام والسعات",
-  length: "الأطوال",
-  area: "المساحات",
-  time: "الزمن",
-  count: "المعدودات",
-  data: "سعة البيانات",
-  speed: "السرعة",
-};
-const OTHER_LABEL = "وحدات أخرى";
+/** Names of the unit categories in the interface language, in display order. */
+export const CATEGORY_LABELS = Object.fromEntries(
+  ["none", "currency-arab", "currency-world", "crypto", "generic-currency", "weight", "volume", "length", "area", "time", "count", "data", "speed"]
+    .map((id) => [id, t(`cat.${id}`)]),
+);
+const OTHER_LABEL = t("cat.other");
 
 /**
  * The engine is built from units.json at runtime, so editing that one file changes the site.
@@ -58,8 +48,9 @@ export const engineReady = (async () => {
 
 /* ---------- Preferences (localStorage may be unavailable) ---------- */
 
-const PREFS_KEY = "tafket.prefs.v1";
-export const DEFAULT_PREFS = { language: "ar", unit: "SAR", hundredsForm: "مائة", decimals: "round", prefix: "", suffix: "" };
+// Each interface language remembers its own choices; English pages write English by default.
+const PREFS_KEY = UI === "ar" ? "tafket.prefs.v1" : `tafket.prefs.${UI}.v1`;
+export const DEFAULT_PREFS = { language: UI === "en" ? "en" : "ar", unit: "SAR", hundredsForm: "مائة", decimals: "round", prefix: "", suffix: "" };
 
 export function loadPrefs() {
   try {
@@ -98,7 +89,8 @@ export function fillUnitSelect(select, engine, selectedId) {
     for (const u of list) {
       const opt = document.createElement("option");
       opt.value = u.id;
-      opt.textContent = u.code ? `${u.label} (${u.code})` : u.label;
+      const label = unitLabel(u);
+      opt.textContent = u.code ? `${label} (${u.code})` : label;
       og.append(opt);
     }
     frag.append(og);
@@ -113,8 +105,10 @@ function fillLanguages(root) {
   const field = root.querySelector("[data-language-field]");
   const box = root.querySelector("[data-language-options]");
   if (!field || !box) return;
+  // The interface language comes first (Arabic pages keep the core's order).
+  const ordered = [...LANGUAGES.filter((l) => l.id === UI), ...LANGUAGES.filter((l) => l.id !== UI)];
   box.replaceChildren(
-    ...LANGUAGES.map((l) => {
+    ...ordered.map((l) => {
       const label = document.createElement("label");
       const input = document.createElement("input");
       input.type = "radio";
@@ -173,7 +167,7 @@ export function bindOptions(root, engine, initial, onChange) {
       presetBtn.textContent = label;
       presetBtn.title = label;
       presetBtn.lang = lang.id;
-      presetBtn.dir = lang.dir ?? "rtl";
+      presetBtn.dir = lang.dir ?? UI_DIR;
     }
     document.documentElement.dataset.outputLang = lang.id;
   };
@@ -193,7 +187,7 @@ export function bindOptions(root, engine, initial, onChange) {
     if (o.suffix !== undefined) suffix.value = o.suffix;
     syncLanguage();
   };
-  set({ hundredsForm: "مائة", ...initial, language: initial.language ?? "ar" });
+  set({ hundredsForm: "مائة", ...initial, language: initial.language ?? DEFAULT_PREFS.language });
 
   // Everything is remembered, including رسم المئة while another language is shown.
   const remember = () => savePrefs({ ...get(), hundredsForm: checked("hundreds", "مائة") });
@@ -279,7 +273,7 @@ export function flash(button, status, ok, message) {
   const label = button.querySelector("[data-label]") ?? button;
   const original = button.dataset.original ?? label.textContent;
   button.dataset.original = original;
-  label.textContent = ok ? "تم النسخ" : "تعذّر النسخ";
+  label.textContent = ok ? t("copied") : t("copyFailed");
   button.classList.toggle("is-done", ok);
   if (status) {
     status.textContent = message;
@@ -300,6 +294,16 @@ for (const btn of document.querySelectorAll("[data-copy-from]")) {
     const ok = await copyText(src ? src.textContent.trim() : "");
     flash(btn, null, ok);
   });
+}
+
+/* ---------- Language switch (English ↔ العربية): keep a deep link (?n=…&unit=…) ---------- */
+
+if (location.search) {
+  for (const a of document.querySelectorAll("a[data-lang-switch]")) {
+    const url = new URL(a.href);
+    url.search = location.search;
+    a.href = url.href;
+  }
 }
 
 /* ---------- Keyboard shortcuts: "/" focuses the input, Ctrl/⌘+Enter copies the result ---------- */
@@ -331,7 +335,7 @@ if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
   navigator.serviceWorker.ready
     .then(() => {
       if (badge) {
-        badge.textContent = "جاهز للعمل دون اتصال";
+        badge.textContent = t("offlineReady");
         badge.classList.add("is-ready");
       }
     })
@@ -357,4 +361,4 @@ export function debounce(fn, ms) {
   return d;
 }
 
-export const formatCount = (n) => n.toLocaleString("ar-u-nu-latn");
+export const formatCount = (n) => n.toLocaleString(t("numberLocale"));

@@ -105,11 +105,15 @@ pre code { background: none; padding: 0; }
 .tool-nav a { display: block; padding: .3rem .95rem; border-radius: 999px; color: var(--muted); text-decoration: none; font-size: .95rem; font-weight: 700; white-space: nowrap; }
 .tool-nav a:hover { color: var(--text); }
 .tool-nav a[aria-current="page"] { background: var(--surface); color: var(--brand-text); box-shadow: 0 1px 2px rgb(15 23 42 / .08), 0 2px 8px rgb(76 154 30 / .12); }
+/* Link to the same page in the other interface language (English ↔ العربية). */
+.lang-switch { display: inline-flex; align-items: center; min-height: 36px; padding: .2rem .85rem; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); text-decoration: none; font-size: .92rem; font-weight: 700; white-space: nowrap; }
+.lang-switch:hover { color: var(--text); border-color: var(--border-strong); }
 @media (max-width: 860px) { .product { display: none; } }
 @media (max-width: 620px) {
   .site-header { position: static; }
   .site-header .wrap { padding-block: 10px; }
-  .tool-nav { width: 100%; margin: 0; }
+  .lang-switch { order: 1; margin-inline-start: auto; }
+  .tool-nav { order: 2; width: 100%; margin: 0; }
   .tool-nav li { flex: 1; }
   .tool-nav a { text-align: center; padding-inline: .4rem; font-size: .92rem; }
 }
@@ -121,6 +125,11 @@ pre code { background: none; padding: 0; }
   background:
     radial-gradient(700px 380px at 85% 0%, color-mix(in srgb, var(--brand) 14%, transparent), transparent 70%),
     radial-gradient(600px 360px at 10% 70%, color-mix(in srgb, var(--brand-2) 12%, transparent), transparent 70%);
+}
+html[dir="ltr"] .hero {
+  background:
+    radial-gradient(700px 380px at 15% 0%, color-mix(in srgb, var(--brand) 14%, transparent), transparent 70%),
+    radial-gradient(600px 360px at 90% 70%, color-mix(in srgb, var(--brand-2) 12%, transparent), transparent 70%);
 }
 .hero .wrap { display: grid; gap: clamp(1.5rem, 4vw, 3rem); align-items: start; }
 @media (min-width: 980px) {
@@ -240,11 +249,11 @@ textarea { min-height: 220px; resize: vertical; line-height: 1.65; font-family: 
   overflow: hidden;
 }
 .cheque::before { content: ""; position: absolute; inset-block: 0; inset-inline-start: 0; width: 5px; background: var(--grad); }
-.cheque-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; padding: .85rem 1.2rem 0 1rem; padding-inline-start: 1.3rem; }
+.cheque-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; padding-block: .85rem 0; padding-inline: 1.3rem 1rem; }
 .cheque-head h2 { margin: 0; font-size: .95rem; font-weight: 700; color: var(--accent-text); letter-spacing: .01em; }
 .cheque-amount { display: inline-flex; align-items: baseline; gap: .45rem; padding: .1rem .75rem; border: 1.5px solid var(--border-strong); border-radius: 8px; background: var(--surface); font-size: .82rem; color: var(--muted); }
 .cheque-amount > span[dir] { color: var(--text); font-weight: 700; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
-.cheque-body { padding: .5rem 1.2rem 1rem; padding-inline-start: 1.3rem; }
+.cheque-body { padding-block: .5rem 1rem; padding-inline: 1.3rem 1.2rem; }
 .result-text {
   margin: 0;
   min-height: 3.7em;
@@ -335,6 +344,8 @@ textarea { min-height: 220px; resize: vertical; line-height: 1.65; font-family: 
   .results td.c-idx { font-weight: 700; }
   .results td.c-in::before { content: "المدخل: "; color: var(--muted); font-family: var(--font); font-size: .8rem; }
   .results td.c-clean::before { content: "بعد التنقية: "; color: var(--muted); font-family: var(--font); font-size: .8rem; }
+  html[lang="en"] .results td.c-in::before { content: "Input: "; }
+  html[lang="en"] .results td.c-clean::before { content: "Cleaned: "; }
   .results td.c-text { grid-column: 1 / -1; padding-top: .4rem; margin-top: .3rem; border-top: 1px dashed var(--border); }
   .results .empty-row { display: block; }
 }
@@ -432,8 +443,11 @@ textarea { min-height: 220px; resize: vertical; line-height: 1.65; font-family: 
 .lang-field .segmented span { min-width: 5.5rem; }
 
 .input-wrap { position: relative; }
+/* The number field is always LTR; its text sits at the page's start and the clear button at its end. */
 .input-wrap input.input-number { padding-left: 3.4rem; }
-.clear-btn { position: absolute; left: .55rem; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: var(--bg-soft); color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
+html[dir="ltr"] input.input-number { text-align: left; }
+html[dir="ltr"] .input-wrap input.input-number { padding-left: .85rem; padding-right: 3.4rem; }
+.clear-btn { position: absolute; inset-inline-end: .55rem; top: 50%; transform: translateY(-50%); width: 36px; height: 36px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: var(--bg-soft); color: var(--muted); cursor: pointer; transition: background-color .15s, color .15s; }
 .clear-btn:hover { background: color-mix(in srgb, var(--brand) 14%, var(--surface)); color: var(--text); }
 .clear-btn svg { width: 18px; height: 18px; }
 
@@ -467,7 +481,7 @@ textarea { min-height: 220px; resize: vertical; line-height: 1.65; font-family: 
 .win-bar span { width: 10px; height: 10px; border-radius: 50%; background: var(--border-strong); }
 .win-bar b { margin-inline-start: .4rem; color: var(--muted); }
 .win-body { display: grid; gap: .7rem; padding: 1.2rem; }
-.win-field { padding: .55rem .85rem; border: 1.5px solid var(--brand); border-radius: 10px; font-weight: 700; font-size: 1.3rem; text-align: right; box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 18%, transparent); }
+.win-field { padding: .55rem .85rem; border: 1.5px solid var(--brand); border-radius: 10px; font-weight: 700; font-size: 1.3rem; text-align: start; box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 18%, transparent); }
 .win-chip { padding: .45rem .85rem; border: 1.5px solid var(--border-strong); border-radius: 10px; color: var(--muted); }
 .win-result { padding: .8rem 1rem; border-radius: 10px; border: 1px solid color-mix(in srgb, var(--brand) 30%, var(--border)); background: linear-gradient(180deg, #fbfdf8, #f3f8ec); font-weight: 700; line-height: 1.8; }
 .win-btn { justify-self: end; padding: .45rem 1.1rem; border-radius: 10px; background: var(--grad); color: #fff; font-weight: 700; font-size: .92rem; }
