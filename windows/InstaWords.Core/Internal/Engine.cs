@@ -26,7 +26,7 @@ namespace InstaWords.Core.Internal
                     _index[key] = i;
                 }
                 infos[i] = new UnitInfo(u.Id, u.Category, u.Label, u.Code, Array.AsReadOnly((string[])u.Aliases.Clone()),
-                    u.Subunit != null, u.En?.Singular, u.Fr?.Singular);
+                    u.Subunit != null, u.Subunit?.Digits ?? 0, u.En?.Singular, u.Fr?.Singular);
             }
             Units = new ReadOnlyCollection<UnitInfo>(infos);
         }

@@ -417,7 +417,7 @@ namespace InstaWords.App.Views
                 job.Pages.Add(new PrintForm
                 {
                     Template = _template,
-                    Cleaned = r?.Cleaned ?? "",
+                    Cleaned = r?.Amount ?? "",
                     Words = r?.Text ?? "",
                     UnitText = unitText,
                     Date = (DateBox.Text ?? "").Trim(),

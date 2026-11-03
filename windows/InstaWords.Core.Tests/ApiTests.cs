@@ -141,7 +141,9 @@ namespace InstaWords.Core.Tests
                 Assert.Equal(j.TryGetProperty("code", out var code) ? code.GetString() : null, u.Code);
                 var aliases = j.TryGetProperty("aliases", out var a) ? a.EnumerateArray().Select(x => x.GetString()!).ToArray() : new string[0];
                 Assert.Equal(aliases, u.Aliases);
-                Assert.Equal(j.TryGetProperty("subunit", out _), u.HasSubunit);
+                Assert.Equal(j.TryGetProperty("subunit", out var subunit), u.HasSubunit);
+                // ratio is a power of ten: its digits after the leading 1.
+                Assert.Equal(u.HasSubunit ? subunit.GetProperty("ratio").GetRawText().Length - 1 : 0, u.SubunitDigits);
                 bool hasI18n = j.TryGetProperty("i18n", out var i18n);
                 Assert.Equal(hasI18n ? i18n.GetProperty("en").GetProperty("singular").GetString() : null, u.EnglishName);
                 Assert.Equal(hasI18n ? i18n.GetProperty("fr").GetProperty("singular").GetString() : null, u.FrenchName);
@@ -160,6 +162,8 @@ namespace InstaWords.Core.Tests
             Assert.Equal("currency-arab", sar.Category);
             Assert.Equal("ريال سعودي", sar.Label);
             Assert.True(sar.HasSubunit);
+            Assert.Equal(2, sar.SubunitDigits);
+            Assert.Equal(3, Tafqit.FindUnit("KWD")!.SubunitDigits);
             Assert.Equal("Saudi Riyal", sar.EnglishName);
             Assert.Equal("riyal saoudien", sar.FrenchName);
             Assert.Same(sar, Tafqit.FindUnit("  sAr "));
@@ -167,6 +171,7 @@ namespace InstaWords.Core.Tests
             Assert.Same(Tafqit.FindUnit("kg"), Tafqit.FindUnit("KG")); // Kelvin sign lower-cases to k in JavaScript
             Assert.Equal("none", Tafqit.FindUnit("بدون")!.Id);
             Assert.False(Tafqit.FindUnit("none")!.HasSubunit);
+            Assert.Equal(0, Tafqit.FindUnit("none")!.SubunitDigits);
             Assert.Null(Tafqit.FindUnit("none")!.EnglishName);
             Assert.Null(Tafqit.FindUnit(""));
             Assert.Null(Tafqit.FindUnit(" "));
