@@ -162,6 +162,10 @@ function watch(page) {
   return page;
 }
 const ready = (page) => page.waitForSelector("html[data-ready]", { timeout: 10000 });
+/** Wait until the dialog `sel` is closed and its #hash cleared. */
+function closed(page, sel) {
+  return page.waitForFunction((s) => !document.querySelector(s)?.open && !location.hash, sel, { timeout: 5000 }).catch(() => {});
+}
 const rowCount = (page) => page.locator("#rows tr:not(.empty-row)").count();
 
 const browser = await chromium.launch();
@@ -615,6 +619,7 @@ async function releaseDialogChecks(page) {
   check("release notes: remote HTML stays text (no <script>/<img>, nothing executed)", !!notes && notes.elements.every((t) => ["h3", "h4", "p", "ul", "ol", "li", "strong", "code"].includes(t)) && notes.text.includes("<img src=x") && notes.text.includes("<script>") && notes.pwned === undefined, JSON.stringify(notes && { elements: [...new Set(notes.elements)], pwned: notes.pwned }));
   check("release notes: GitHub layout tags dropped", !!notes && !notes.text.includes("<div") && !notes.text.includes("</div>"));
   await page.keyboard.press("Escape");
+  await closed(page, "#download-dialog");
   check("Esc closes the dialog", !(await page.isVisible("#download-dialog")) && (await page.evaluate(() => location.hash)) === "");
   check("focus returns to the link that opened it", await page.evaluate((s) => document.activeElement === document.querySelector(s), trigger));
 
@@ -624,6 +629,7 @@ async function releaseDialogChecks(page) {
   check("#download deep link opens the dialog", await page.isVisible("#download-dialog[open]"));
   check("deep-linked dialog shows the latest release", (await page.textContent("#download-dialog [data-release-version]").catch(() => "")) === "v2.1.0");
   await page.click("#download-dialog .dialog-close");
+  await closed(page, "#download-dialog");
   check("close button closes the dialog", !(await page.isVisible("#download-dialog")));
 
   await page.click("footer [data-support]");
@@ -635,6 +641,7 @@ async function releaseDialogChecks(page) {
   check("support dialog explains the app, Excel and website options", sup.text.includes("برنامج ويندوز") && sup.text.includes("Excel") && sup.text.includes("الموقع"));
   check("support dialog: exactly one explicit GitHub button to open an issue", sup.links.length === 1 && sup.links[0].href === `${REPO_URL}/issues/new/choose` && sup.links[0].gh && sup.links[0].text.includes("GitHub"), JSON.stringify(sup.links));
   await page.keyboard.press("Escape");
+  await closed(page, "#support-dialog");
   check("Esc closes the support dialog, focus back on its link", !(await page.isVisible("#support-dialog")) && (await page.evaluate(() => document.activeElement?.matches("footer [data-support]"))));
   await page.goto(BASE);
   await ready(page);
@@ -658,8 +665,9 @@ async function githubLinkChecks() {
       await p.waitForSelector("html[data-release]", { timeout: 10000 }).catch(() => {});
       for (const hash of ["#download", "#support"]) {
         await p.evaluate((h) => { location.hash = h; }, hash);
-        await p.waitForTimeout(50);
+        await p.waitForSelector(`${hash}-dialog[open]`, { timeout: 5000 }).catch(() => {});
         await p.keyboard.press("Escape");
+        await closed(p, `${hash}-dialog`);
       }
       const links = await p.$$eval("a[href]", (as) => as.map((a) => ({ href: a.href, gh: a.hasAttribute("data-github"), text: a.textContent.trim(), dl: a.hasAttribute("data-windows-download") || a.hasAttribute("data-portable-download") })));
       const out = links.filter((l) => /^https?:\/\/([^/]+\.)?github\.com\//.test(l.href));

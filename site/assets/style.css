@@ -525,6 +525,4 @@ a[data-github]:not(.btn) { white-space: nowrap; }
 @media (max-width: 520px) {
   .dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 16px); }
   .dialog-body .actions .btn { flex: 1 1 100%; }
-  .facts { grid-template-columns: 1fr; gap: 0; }
-  .facts dd { margin-bottom: .4rem; }
 }
