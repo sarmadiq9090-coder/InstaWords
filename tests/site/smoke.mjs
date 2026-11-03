@@ -1,6 +1,9 @@
 // End-to-end smoke test of the built site in _site/ (run via `npm run test:site`).
 // Serves _site/ under the sub-path /instawords/ (like the real deployment) and drives Chromium with Playwright.
-// Set TAFKET_SCREENSHOTS=<dir> to also save mobile (375px) and desktop (1280px) screenshots.
+// Arabic pages are at /instawords/, English pages at /instawords/en/ (same assets, interface strings
+// in site/assets/i18n.js).
+// Set TAFKET_SCREENSHOTS=<dir> to also save mobile (375px) and desktop (1280px) screenshots, and the
+// English pages at 390px and 1366px in <dir>/en/.
 import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
@@ -88,6 +91,11 @@ async function newContext(options = {}, api = "ok") {
 }
 
 const PREFIX = "/instawords/";
+/** Every page, Arabic (root) and English (en/). */
+const PAGES = ["index.html", "bulk.html", "excel.html", "en/index.html", "en/bulk.html", "en/excel.html"];
+const SITE_URL = "https://fastkiwi.app/instawords/";
+/** Arabic letters (not Arabic-Indic digits or the Arabic decimal separator, which English pages mention as input). */
+const ARABIC_LETTERS = /[\u0621-\u064A\u066E-\u06D3\u06FA-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFC]/;
 const MIME = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -294,6 +302,9 @@ try {
   check("language picker present", (await page.locator("[data-language-field]").count()) === 1);
   await languageChecks();
 
+  /* ---------- English interface (/instawords/en/) ---------- */
+  await englishChecks();
+
   /* ---------- bulk page ---------- */
   console.log("bulk page");
   await page.goto(`${BASE}bulk.html`);
@@ -383,6 +394,26 @@ try {
   await page.goto(`${BASE}?n=7&unit=SAR`);
   await ready(page);
   await waitText(page, "#result", tafqit("7", { unit: "SAR" }), "offline: deep link");
+  await page.goto(`${BASE}en/`);
+  await ready(page);
+  check("offline: English page served from the cache", (await page.getAttribute("html", "lang")) === "en");
+  await page.selectOption("#unit", "SAR");
+  await page.fill("#number", "1250.75");
+  await waitText(page, "#result", tafqit("1250.75", { unit: "SAR", language: "en" }), "offline: English page converts (English by default)");
+  await page.goto(`${BASE}en/bulk.html?unit=USD`);
+  await ready(page);
+  await page.fill("#numbers", "1\n2\nabc");
+  await page.waitForFunction(() => document.querySelector("#rows")?.dataset.rendered === "3", null, { timeout: 5000 }).catch(() => {});
+  check("offline: English bulk page works", (await rowCount(page)) === 3 && (await page.textContent("#rows tr:nth-child(3) td.c-text")) === "The number format is not valid.");
+  await page.goto(`${BASE}en/excel.html`);
+  await page.waitForLoadState("load");
+  check("offline: English Excel page served", (await page.getAttribute("html", "lang")) === "en" && (await page.isVisible("#formula")));
+  await page.goto(`${BASE}en/no-such-page.html`);
+  await ready(page);
+  check("offline: unknown English URL falls back to the English converter", (await page.getAttribute("html", "lang")) === "en");
+  await page.goto(`${BASE}no-such-page.html`);
+  await ready(page);
+  check("offline: unknown Arabic URL falls back to the Arabic converter", (await page.getAttribute("html", "lang")) === "ar");
   // Offline with no cached release: real network (no mock), so the API call fails → fallback.
   await ctx.unroute("https://api.github.com/**");
   await page.evaluate(() => localStorage.removeItem("instawords.release.v1"));
@@ -398,26 +429,36 @@ try {
   console.log("layout");
   const narrow = await newContext({ viewport: { width: 360, height: 740 } });
   const np = watch(await narrow.newPage());
-  for (const p of ["", "bulk.html", "excel.html"]) {
+  for (const p of ["", "bulk.html", "excel.html", "en/", "en/bulk.html", "en/excel.html"]) {
+    if (p.endsWith(".html") && !existsSync(join(root, p))) continue;
     await np.goto(BASE + p);
     await np.waitForLoadState("load");
-    if (p === "bulk.html") {
+    if (p.endsWith("bulk.html")) {
       await ready(np);
       await np.click("#sample");
       await np.waitForTimeout(150);
     }
     const [sw, cw] = await np.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
     check(`no horizontal scroll at 360px: ${p || "index.html"}`, sw <= cw, `${sw} > ${cw}`);
+    const header = await np.evaluate(() => {
+      const s = document.querySelector("header [data-lang-switch]")?.getBoundingClientRect();
+      return s && { left: s.left, right: s.right, top: s.top, w: document.documentElement.clientWidth, ltr: document.dir === "ltr" };
+    });
+    // On the first row, at the end side (right in English, left in Arabic), beside the brand.
+    const atEnd = header && (header.ltr ? header.right >= header.w - 32 : header.left <= 32);
+    check(`360px: header language switch on the first row, at the end: ${p || "index.html"}`, !!header && header.left >= 0 && header.right <= header.w && header.top < 60 && atEnd, JSON.stringify(header));
   }
-  await np.goto(`${BASE}#download`);
-  await np.waitForSelector("html[data-release]", { timeout: 10000 }).catch(() => {});
-  await np.waitForSelector("#download-dialog[open] [data-release-notes-body]", { timeout: 5000 }).catch(() => {});
-  const box = await np.evaluate(() => {
-    const d = document.getElementById("download-dialog");
-    const r = d.getBoundingClientRect();
-    return { left: r.left, right: r.right, inner: d.querySelector(".dialog-body").scrollWidth <= d.querySelector(".dialog-body").clientWidth };
-  });
-  check("#download dialog fits a 360px screen", box.left >= 0 && box.right <= 360 && box.inner, JSON.stringify(box));
+  for (const p of ["", "en/"]) {
+    await np.goto(`${BASE}${p}#download`);
+    await np.waitForSelector("html[data-release]", { timeout: 10000 }).catch(() => {});
+    await np.waitForSelector("#download-dialog[open] [data-release-notes-body]", { timeout: 5000 }).catch(() => {});
+    const box = await np.evaluate(() => {
+      const d = document.getElementById("download-dialog");
+      const r = d.getBoundingClientRect();
+      return { left: r.left, right: r.right, inner: d.querySelector(".dialog-body").scrollWidth <= d.querySelector(".dialog-body").clientWidth };
+    });
+    check(`#download dialog fits a 360px screen: ${p || "index.html"}`, box.left >= 0 && box.right <= 360 && box.inner, JSON.stringify(box));
+  }
   await narrow.close();
 
   /* ---------- screenshots ---------- */
@@ -455,6 +496,7 @@ try {
         await c.close();
       }
     }
+    await englishScreenshots(join(shots, "en"));
     console.log(`screenshots → ${shots}`);
   }
 
@@ -656,7 +698,7 @@ async function releaseDialogChecks(page) {
 /** Leaving the site: only explicit GitHub buttons/links, plus direct release files, may point at github.com. */
 async function githubLinkChecks() {
   console.log("links out to GitHub");
-  for (const name of ["index.html", "bulk.html", "excel.html"]) {
+  for (const name of PAGES) {
     if (!existsSync(join(root, name))) continue;
     const html = readFileSync(join(root, name), "utf8");
     const staticHrefs = [...html.matchAll(/<a\b[^>]*\bdata-windows-download\b[^>]*>/g)].map((m) => /href="([^"]+)"/.exec(m[0])?.[1]);
@@ -666,16 +708,18 @@ async function githubLinkChecks() {
     const files = [...html.matchAll(/https:\/\/github\.com\/[^"'\s<>]*\/releases\/download\/[^"'\s<>]+/g)].map((m) => m[0]);
     check(`${name}: every release file named in the HTML is the fallback release`, files.every((f) => f === STATIC_EXE || f === FB.portable?.url), files.join(", "));
   }
-  const ld = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(readFileSync(join(root, "index.html"), "utf8"));
-  const app = ld && JSON.parse(ld[1])["@graph"]?.find?.((n) => n["@type"] === "WebApplication");
-  check("index.html: JSON-LD downloadUrl is the fallback installer", app?.downloadUrl === STATIC_EXE, String(app?.downloadUrl));
+  for (const name of ["index.html", "en/index.html"]) {
+    const ld = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(readFileSync(join(root, name), "utf8"));
+    const app = ld && JSON.parse(ld[1])["@graph"]?.find?.((n) => n["@type"] === "WebApplication");
+    check(`${name}: JSON-LD downloadUrl is the fallback installer`, app?.downloadUrl === STATIC_EXE, String(app?.downloadUrl));
+  }
   const releaseJs = readFileSync(join(root, "assets", "release.js"), "utf8");
   check("assets/release.js: FALLBACK_DATA filled from site/release-fallback.json", releaseJs.includes(`/* @release-fallback */ ${JSON.stringify(FB)}`) && !releaseJs.includes("/* @release-fallback */ null"));
   const c = await newContext({ serviceWorkers: "block" });
   const p = watch(await c.newPage());
   try {
-    for (const path of ["", "bulk.html", "excel.html"]) {
-      if (path && !existsSync(join(root, path))) continue;
+    for (const path of ["", "bulk.html", "excel.html", "en/", "en/bulk.html", "en/excel.html"]) {
+      if (path.endsWith(".html") && !existsSync(join(root, path))) continue;
       await p.goto(BASE + path);
       await p.waitForSelector("html[data-release]", { timeout: 10000 }).catch(() => {});
       for (const hash of ["#download", "#support"]) {
@@ -692,6 +736,19 @@ async function githubLinkChecks() {
       const pages = out.filter((l) => /\/releases(\/latest|\/tag\/|\/?$)/.test(l.href) && !l.gh);
       check(`${path || "index.html"}: no download link to the GitHub releases page`, pages.length === 0, pages.map((l) => l.href).join(", "));
       check(`${path || "index.html"}: footer report link stays on the site`, (await p.getAttribute("footer [data-support]", "href")) === "#support");
+      // Every other link stays on the site (FastKiwi included) and points at a page or file that exists.
+      const site = new URL(BASE);
+      const offSite = links.filter((l) => !out.includes(l) && !/^https:\/\/fastkiwi\.app\//.test(l.href) && new URL(l.href).origin !== site.origin);
+      check(`${path || "index.html"}: no other link leaves the site`, offSite.length === 0, offSite.map((l) => `${l.text} → ${l.href}`).join(" | "));
+      const missing = [];
+      for (const l of links) {
+        const u = new URL(l.href);
+        if (u.origin !== site.origin || !u.pathname.startsWith(PREFIX)) continue;
+        let file = join(root, decodeURIComponent(u.pathname.slice(PREFIX.length)));
+        if (u.pathname.endsWith("/")) file = join(file, "index.html");
+        if (!existsSync(file)) missing.push(`${l.text} → ${u.pathname}`);
+      }
+      check(`${path || "index.html"}: every on-site link resolves to a built file`, missing.length === 0, missing.join(" | "));
     }
   } finally {
     await c.close();
@@ -723,6 +780,323 @@ async function apiDownChecks() {
     check("API down: exactly one clearly labelled GitHub link", d.github.length === 1 && d.github[0].gh && d.github[0].text.includes("GitHub"), JSON.stringify(d.github));
     check("API down: no page errors", errors.length === 0, errors.join(" | "));
   } finally {
+    await c.close();
+  }
+}
+
+/** Where Arabic letters appear outside an element marked lang="ar" (UI chrome that was not translated). */
+function arabicChrome(page) {
+  return page.evaluate((src) => {
+    const AR = new RegExp(src);
+    const bad = [];
+    const outsideAr = (el) => el.closest("[lang]")?.getAttribute("lang") !== "ar" && !el.closest("[data-release-notes-body], script, style");
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n; (n = walker.nextNode()); ) {
+      if (n.parentElement && AR.test(n.data) && outsideAr(n.parentElement)) bad.push(n.data.trim().slice(0, 50));
+    }
+    for (const el of document.body.querySelectorAll("[aria-label], [title], [placeholder], [alt], optgroup")) {
+      for (const a of ["aria-label", "title", "placeholder", "alt", "label"]) {
+        const v = el.getAttribute(a);
+        if (v && AR.test(v) && outsideAr(el)) bad.push(`${a}="${v}"`);
+      }
+    }
+    for (const m of document.head.querySelectorAll('title, meta[name="description"], meta[property^="og:"], meta[name^="twitter:"]')) {
+      const v = m.tagName === "TITLE" ? m.textContent : m.getAttribute("content");
+      if (AR.test(v)) bad.push(`head: ${v.slice(0, 50)}`);
+    }
+    return bad;
+  }, ARABIC_LETTERS.source);
+}
+
+/** Head of every page: lang/dir, canonical and the ar ↔ en ↔ x-default alternates (static HTML). */
+function headChecks() {
+  console.log("page heads: lang/dir, canonical, hreflang");
+  for (const name of PAGES) {
+    if (!existsSync(join(root, name))) continue;
+    const html = readFileSync(join(root, name), "utf8");
+    const en = name.startsWith("en/");
+    const page = name.replace(/^en\//, "").replace(/^index\.html$/, "");
+    const tag = /<html\b[^>]*>/.exec(html)?.[0] ?? "";
+    check(`${name}: <html lang dir>`, tag.includes(en ? 'lang="en"' : 'lang="ar"') && tag.includes(en ? 'dir="ltr"' : 'dir="rtl"'), tag);
+    const canonical = /<link rel="canonical" href="([^"]+)">/.exec(html)?.[1];
+    check(`${name}: canonical`, canonical === `${SITE_URL}${en ? "en/" : ""}${page}`, String(canonical));
+    const alt = Object.fromEntries([...html.matchAll(/<link rel="alternate" hreflang="([^"]+)" href="([^"]+)">/g)].map((m) => [m[1], m[2]]));
+    const want = { ar: `${SITE_URL}${page}`, en: `${SITE_URL}en/${page}`, "x-default": `${SITE_URL}en/${page}` };
+    check(`${name}: hreflang ar / en / x-default=en`, JSON.stringify(alt) === JSON.stringify(want), JSON.stringify(alt));
+    const ogUrl = /<meta property="og:url" content="([^"]+)">/.exec(html)?.[1];
+    check(`${name}: og:url is the canonical`, ogUrl === canonical, String(ogUrl));
+    const locale = /<meta property="og:locale" content="([^"]+)">/.exec(html)?.[1];
+    check(`${name}: og:locale`, locale === (en ? "en_US" : "ar_AR"), String(locale));
+    const sw = [...html.matchAll(/<a\b[^>]*\bdata-lang-switch\b[^>]*>([^<]*)<\/a>/g)].map((m) => ({ tag: m[0], text: m[1] }));
+    const target = en ? `../${page}` : `en/${page}`;
+    check(`${name}: language switch in header and footer → ${target}`, sw.length === 2 && sw.every((l) => l.tag.includes(`href="${target}"`) && l.text === (en ? "العربية" : "English") && l.tag.includes(`hreflang="${en ? "ar" : "en"}"`)), JSON.stringify(sw));
+    if (en) {
+      const desc = /<meta name="description" content="([^"]+)">/.exec(html)?.[1] ?? "";
+      const tw = /<meta name="twitter:title" content="([^"]+)">/.exec(html)?.[1] ?? "";
+      check(`${name}: English description, og and twitter tags`, desc.length > 80 && !ARABIC_LETTERS.test(desc) && tw.length > 10 && html.includes('content="https://fastkiwi.app/img/social-en.png"'), desc);
+    }
+  }
+  const ld = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(readFileSync(join(root, "en/index.html"), "utf8"));
+  const app = ld && JSON.parse(ld[1])["@graph"]?.find?.((n) => n["@type"] === "WebApplication");
+  check("en/index.html: JSON-LD WebApplication in English (inLanguage en, en/ URL, FastKiwi)", app?.inLanguage === "en" && app?.url === `${SITE_URL}en/` && app?.publisher?.["@id"] === "https://fastkiwi.app/#org" && !ARABIC_LETTERS.test(app?.description ?? "ا"), JSON.stringify(app && { inLanguage: app.inLanguage, url: app.url }));
+  const sw = readFileSync(join(root, "sw.js"), "utf8");
+  check("sw.js precaches both language trees", ["\"./\"", "\"en/\"", "\"en/index.html\"", "\"en/bulk.html\"", "\"index.html\"", "\"assets/i18n.js\""].every((a) => sw.includes(a)));
+}
+
+/** The English interface: /instawords/en/ (strings, default output language, conversion, dialogs). */
+async function englishChecks() {
+  headChecks();
+  console.log("English single page");
+  const EN = `${BASE}en/`;
+  const c = await newContext({ permissions: ["clipboard-read", "clipboard-write"], acceptDownloads: true });
+  const p = watch(await c.newPage());
+  try {
+    await p.goto(EN);
+    await ready(p);
+    check("en: lang/dir", (await p.getAttribute("html", "lang")) === "en" && (await p.getAttribute("html", "dir")) === "ltr");
+    check("en: title in English", /^InstaWords — Amounts in words/.test(await p.title()), await p.title());
+    check("en: header in English", (await p.textContent(".tool-nav")).replace(/\s+/g, " ").trim() === "Convert Bulk Excel" && (await p.getAttribute(".brand", "href")) === "https://fastkiwi.app/");
+    const sw = await p.$$eval("a[data-lang-switch]", (as) => as.map((a) => ({ href: a.href, text: a.textContent.trim(), lang: a.lang })));
+    check("en: «العربية» switch in header and footer → the Arabic page", sw.length === 2 && sw.every((l) => l.href === BASE && l.text === "العربية" && l.lang === "ar"), JSON.stringify(sw));
+    if (REAL_LANGUAGES) {
+      const ids = await p.$$eval('input[name="language"]', (rs) => rs.map((r) => r.value));
+      check("en: output language picker (English first, Arabic and French offered)", ids[0] === "en" && ids.includes("ar") && ids.includes("fr") && (await p.isVisible("[data-language-field]")), ids.join());
+      check("en: English output selected by default", await p.isChecked('input[name="language"][value="en"]'));
+      check("en: hundreds control hidden for English output", await p.isHidden("[data-hundreds-field]"));
+    }
+    const groups = await p.$$eval("#unit optgroup", (gs) => gs.map((g) => g.label));
+    check("en: unit groups in English", groups[0] === "No unit" && groups.includes("Arab currencies") && groups.includes("World currencies") && groups.length >= 13, groups.join(", "));
+    const opts = await p.$$eval("#unit option", (os) => Object.fromEntries(os.map((o) => [o.value, o.textContent])));
+    check("en: unit names in English", opts.SAR === "Saudi Riyal (SAR)" && opts.none === "No unit" && opts.USD === "US Dollar (USD)", `${opts.SAR} | ${opts.none} | ${opts.USD}`);
+    check("en: empty state in English", (await p.textContent("#result")) === "Type an amount in the field above to see it here in words." && (await p.getAttribute("#result", "dir")) === "ltr");
+    const chrome = await arabicChrome(p);
+    check("en: no Arabic UI text outside lang=ar (switch, picker, Arabic samples)", chrome.length === 0, chrome.join(" | "));
+    const examples = await p.$$eval("[data-example]", (els) => els.map((e) => ({ n: e.dataset.n, unit: e.dataset.unit, language: e.dataset.lang, text: e.textContent.trim(), lang: e.closest("[lang]").lang })));
+    const wrongEx = examples.filter((e) => e.text !== tafqit(e.n, { unit: e.unit, language: e.language }) || e.lang !== e.language);
+    check(`en: worked examples match the engine (${examples.length}, English first)`, examples.length >= 6 && examples[0].language === "en" && wrongEx.length === 0, wrongEx.map((e) => `${e.n} ${e.unit} ${e.language}: «${e.text}»`).join("; "));
+    const faqs = await p.$$eval(".faq details summary", (els) => els.map((e) => e.textContent));
+    check("en: FAQ in English", faqs.length >= 7 && faqs.every((f) => !ARABIC_LETTERS.test(f)), faqs.join(" | "));
+    check("en: footer in English", /free and open source/.test(await p.textContent("footer")) && (await p.getAttribute('footer a[href$="privacy/"]', "href")) === "https://fastkiwi.app/privacy/");
+
+    if (REAL_LANGUAGES) {
+      await p.selectOption("#unit", "SAR");
+      await p.fill("#number", "1250.75");
+      await waitText(p, "#result", "One Thousand Two Hundred Fifty Saudi Riyals and Seventy-Five Halalas", "en: 1250.75 SAR in English by default");
+      check("en: English result is LTR", (await p.getAttribute("#result", "dir")) === "ltr" && (await p.getAttribute("#result", "lang")) === "en");
+      await waitText(p, "#cleaned", "1,250.75", "en: number used");
+      await p.fill("#number", "١٢٣");
+      await waitText(p, "#result", tafqit("123", { unit: "SAR", language: "en" }), "en: Arabic-Indic digits");
+      await p.fill("#number", "abc");
+      await waitText(p, "#result", "The number format is not valid.", "en: errors in English (INVALID_FORMAT)");
+      check("en: error is LTR, copy disabled", (await p.getAttribute("#result", "dir")) === "ltr" && (await p.isDisabled("#copy")));
+      await p.fill("#number", "-5");
+      await waitText(p, "#result", "Negative numbers are not supported.", "en: NEGATIVE in English");
+      await p.fill("#number", "10.125");
+      await p.check('input[name="decimals"][value="error"]');
+      await waitText(p, "#result", "There are more decimal places than this unit allows.", "en: TOO_MANY_DECIMALS in English");
+      await p.check('input[name="decimals"][value="round"]');
+      await waitText(p, "#result", "Ten Saudi Riyals and Thirteen Halalas", "en: rounding by default");
+      await p.selectOption("#unit", "piece");
+      await p.fill("#number", "2.5");
+      await waitText(p, "#result", "This unit does not support fractions.", "en: FRACTION_NOT_SUPPORTED in English");
+      await p.selectOption("#unit", "SAR");
+      await p.fill("#number", "2500");
+      await p.click('[data-preset="only"]');
+      check('en: "… Only" preset', (await p.inputValue("#suffix")) === "Only" && (await p.inputValue("#prefix")) === "");
+      await waitText(p, "#result", "Two Thousand Five Hundred Saudi Riyals Only", "en: preset applied");
+      await p.click("#copy");
+      await p.waitForTimeout(100);
+      check("en: copy to clipboard", (await p.evaluate(() => navigator.clipboard.readText())) === "Two Thousand Five Hundred Saudi Riyals Only");
+      check("en: copy feedback in English", (await p.textContent("#copy")).includes("Copied") && (await p.textContent("#copy-status")) === "Copied to the clipboard.");
+
+      // Arabic and French output on the English page.
+      await p.check('input[name="language"][value="ar"]');
+      check("en: hundreds control shown for Arabic output", await p.isVisible("[data-hundreds-field]"));
+      check("en: preset swapped to فقط … لا غير", (await p.inputValue("#prefix")) === "فقط" && (await p.inputValue("#suffix")) === "لا غير");
+      await waitText(p, "#result", "فقط ألفان وخمسمائة ريال سعودي لا غير", "en: Arabic output when chosen");
+      check("en: Arabic result is RTL", (await p.getAttribute("#result", "dir")) === "rtl" && (await p.getAttribute("#result", "lang")) === "ar");
+      await p.check('input[name="hundreds"][value="مئة"]');
+      await p.fill("#number", "300");
+      await waitText(p, "#result", "فقط ثلاثمئة ريال سعودي لا غير", "en: hundreds form for Arabic output");
+      const chromeAr = await arabicChrome(p);
+      check("en: with Arabic output, Arabic text only in lang=ar elements", chromeAr.length === 0, chromeAr.join(" | "));
+      await p.fill("#number", "abc");
+      await waitText(p, "#result", "The number format is not valid.", "en: errors stay English with Arabic output");
+      await p.check('input[name="language"][value="fr"]');
+      await p.click('[data-preset="none"]');
+      await p.fill("#number", "1250.75");
+      await waitText(p, "#result", tafqit("1250.75", { unit: "SAR", language: "fr" }), "en: French output");
+      await p.check('input[name="language"][value="en"]');
+
+      // Preferences: remembered per interface language.
+      await p.selectOption("#unit", "KWD");
+      await p.reload();
+      await ready(p);
+      check("en: prefs remembered", (await p.inputValue("#unit")) === "KWD" && (await p.isChecked('input[name="language"][value="en"]')));
+      await p.goto(BASE);
+      await ready(p);
+      check("Arabic page keeps its own output language (Arabic)", await p.isChecked('input[name="language"][value="ar"]'));
+      await p.goto(`${EN}?n=5000&unit=USD`);
+      await ready(p);
+      await waitText(p, "#result", "Five Thousand US Dollars", "en: deep link ?n=&unit=");
+      check("en: language switch keeps the deep link", (await p.getAttribute("header [data-lang-switch]", "href")).endsWith("../?n=5000&unit=USD") || (await p.$eval("header [data-lang-switch]", (a) => a.href)) === `${BASE}?n=5000&unit=USD`);
+      await p.goto(`${EN}?n=7&unit=SAR&lang=ar`);
+      await ready(p);
+      await waitText(p, "#result", tafqit("7", { unit: "SAR" }), "en: deep link lang=ar");
+      await p.check('input[name="language"][value="en"]');
+    }
+    const arSw = await (async () => {
+      await p.goto(BASE);
+      await ready(p);
+      return p.$$eval("a[data-lang-switch]", (as) => as.map((a) => ({ href: a.href, text: a.textContent.trim(), lang: a.lang })));
+    })();
+    check("ar: «English» switch in header and footer → the English page", arSw.length === 2 && arSw.every((l) => l.href === EN && l.text === "English" && l.lang === "en"), JSON.stringify(arSw));
+
+    // Dialogs in English.
+    console.log("English dialogs");
+    await p.goto(EN);
+    await ready(p);
+    await p.waitForSelector("html[data-release]", { timeout: 10000 }).catch(() => {});
+    const win = await p.$$eval("[data-windows-download]", (as) => as.map((a) => ({ href: a.href, text: a.textContent })));
+    check("en: Windows download links → latest installer", win.length >= 4 && win.every((l) => l.href === FIXTURE_EXE && l.text.includes(`v${FV}`)), win.map((l) => l.href).join(", "));
+    const trigger = "#windows [data-release-notes]";
+    await p.click(trigger);
+    await p.waitForSelector("#download-dialog[open]", { timeout: 5000 }).catch(() => {});
+    const d = await p.evaluate(() => {
+      const dlg = document.getElementById("download-dialog");
+      const q = (s) => dlg.querySelector(s);
+      return {
+        dir: dlg.dir,
+        lang: dlg.lang,
+        modal: dlg.matches(":modal"),
+        title: document.getElementById(dlg.getAttribute("aria-labelledby"))?.textContent,
+        close: q(".dialog-close")?.getAttribute("aria-label"),
+        text: q(".dialog-body")?.textContent ?? "",
+        primary: q("[data-dialog-download]")?.textContent ?? "",
+        portable: q("[data-portable-download]")?.href,
+        github: [...dlg.querySelectorAll("a[href*='github.com']")].filter((a) => !a.href.includes("/releases/download/")).map((a) => ({ gh: a.hasAttribute("data-github"), text: a.textContent })),
+      };
+    });
+    check("en: #download dialog is modal, LTR and English", d.modal && d.dir === "ltr" && d.lang === "en" && d.title === "InstaWords for Windows: download and what's new" && d.close === "Close", JSON.stringify({ dir: d.dir, lang: d.lang, title: d.title }));
+    check("en: dialog facts in English (version, date, 2.5 MB)", d.text.includes("Version") && d.text.includes("December 1, 2026") && d.text.includes("2.5 MB") && d.text.includes("Installer SHA-256"), d.text.slice(0, 200));
+    check("en: dialog requirements in English", d.text.includes("Windows 10 or 11 (64-bit)") && d.text.includes("No admin rights") && d.text.includes("Works offline"));
+    check("en: dialog buttons in English", d.primary.includes("Download the installer") && d.primary.includes(`v${FV}`) && d.portable === FIXTURE_ZIP);
+    check("en: dialog has one explicit GitHub link", d.github.length === 1 && d.github[0].gh && d.github[0].text === "All releases on GitHub", JSON.stringify(d.github));
+    const dChrome = await arabicChrome(p);
+    check("en: #download dialog has no Arabic UI text (remote notes aside)", dChrome.length === 0, dChrome.join(" | "));
+    await p.keyboard.press("Escape");
+    await closed(p, "#download-dialog");
+    check("en: Esc closes the dialog, focus back on its link", !(await p.isVisible("#download-dialog")) && (await p.evaluate((s) => document.activeElement === document.querySelector(s), trigger)));
+    await p.click("footer [data-support]");
+    const sup = await p.evaluate(() => {
+      const dlg = document.getElementById("support-dialog");
+      return { open: dlg.open, dir: dlg.dir, text: dlg.textContent, links: [...dlg.querySelectorAll("a")].map((a) => ({ href: a.href, gh: a.hasAttribute("data-github"), text: a.textContent })) };
+    });
+    check("en: support dialog in English (Windows app, Excel, website)", sup.open && sup.dir === "ltr" && sup.text.includes("Windows app:") && sup.text.includes("Excel:") && sup.text.includes("Website:") && sup.text.includes('"en")'), sup.text.slice(0, 120));
+    check("en: support dialog has one explicit GitHub button", sup.links.length === 1 && sup.links[0].href === `${REPO_URL}/issues/new/choose` && sup.links[0].gh && sup.links[0].text === "Open a new issue on GitHub", JSON.stringify(sup.links));
+    const sChrome = await arabicChrome(p);
+    check("en: support dialog has no Arabic UI text", sChrome.length === 0, sChrome.join(" | "));
+    await p.keyboard.press("Escape");
+    await closed(p, "#support-dialog");
+
+    /* ---------- English bulk page ---------- */
+    console.log("English bulk page");
+    await p.goto(`${EN}bulk.html`);
+    await ready(p);
+    check("en/bulk: lang/dir and English title", (await p.getAttribute("html", "lang")) === "en" && (await p.getAttribute("html", "dir")) === "ltr" && /^Bulk conversion/.test(await p.title()));
+    check("en/bulk: empty table text in English", (await p.textContent("#rows")).trim() === "Enter numbers in the box above, or import a CSV file, to see the results here.");
+    if (REAL_LANGUAGES) check("en/bulk: English output by default", await p.isChecked('input[name="language"][value="en"]'));
+    await p.selectOption("#unit", "SAR");
+    await p.fill("#numbers", "1250.75\nabc\n2500");
+    await p.waitForFunction(() => document.querySelector("#rows")?.dataset.rendered === "3", null, { timeout: 5000 }).catch(() => {});
+    const cells = await p.$$eval("#rows td.c-text", (tds) => tds.map((td) => ({ text: td.textContent, dir: td.dir, lang: td.lang })));
+    check("en/bulk: English rows and English error", cells.length === 3 && cells[0].text === tafqit("1250.75", { unit: "SAR", language: "en" }) && cells[1].text === "The number format is not valid." && cells[2].text === tafqit("2500", { unit: "SAR", language: "en" }), JSON.stringify(cells));
+    check("en/bulk: counts", (await p.textContent("#count-ok")) === "2" && (await p.textContent("#count-err")) === "1" && (await p.textContent("#line-count")) === "3");
+    const bChrome = await arabicChrome(p);
+    check("en/bulk: no Arabic UI text outside lang=ar", bChrome.length === 0, bChrome.join(" | "));
+    await p.click("#copy-all");
+    await p.waitForTimeout(100);
+    check("en/bulk: copy all, status in English", (await p.evaluate(() => navigator.clipboard.readText())).split("\n")[1] === "" && (await p.textContent("#copy-status")) === "Copied 3 lines; the lines with errors (1) were left empty.", await p.textContent("#copy-status"));
+    const [download] = await Promise.all([p.waitForEvent("download"), p.click("#export")]);
+    const csv = readFileSync(await download.path()).toString("utf8");
+    check("en/bulk: CSV export with English header and error", download.suggestedFilename() === "amounts-in-words.csv" && csv.includes("Number,Cleaned number,Amount in words,Error") && csv.includes("The number format is not valid."), csv.slice(0, 120));
+    check("en/bulk: export status in English", (await p.textContent("#copy-status")) === "Exported 3 rows to amounts-in-words.csv.");
+    await p.setInputFiles("#csv-file", { name: "amounts.csv", mimeType: "text/csv", buffer: Buffer.from("Amount\r\n1500\r\n2\r\n", "utf8") });
+    await p.waitForFunction(() => document.querySelector("#rows")?.dataset.rendered === "2", null, { timeout: 5000 }).catch(() => {});
+    check("en/bulk: import status in English", (await p.textContent("#import-status")) === "Imported 2 numbers from “amounts.csv”.", await p.textContent("#import-status"));
+    if (REAL_LANGUAGES) {
+      await p.check('input[name="language"][value="ar"]');
+      await p.check('input[name="hundreds"][value="مائة"]');
+      await p.waitForTimeout(200);
+      await p.waitForFunction(() => document.querySelector("#rows")?.dataset.rendered === "2", null, { timeout: 5000 }).catch(() => {});
+      const ar = await p.$eval("#rows td.c-text", (td) => ({ text: td.textContent, dir: td.dir, lang: td.lang }));
+      check("en/bulk: Arabic rows marked RTL when Arabic is chosen", ar.text === tafqit("1500", { unit: "SAR" }) && ar.dir === "rtl" && ar.lang === "ar", JSON.stringify(ar));
+      await p.check('input[name="language"][value="en"]');
+    }
+    await p.setViewportSize({ width: 390, height: 844 });
+    const label = await p.$eval("#rows td.c-in", (td) => getComputedStyle(td, "::before").content);
+    check("en/bulk: mobile cell labels in English", label === '"Input: "', label);
+    await p.setViewportSize({ width: 1280, height: 720 });
+
+    /* ---------- English Excel page ---------- */
+    if (existsSync(join(root, "en", "excel.html"))) {
+      console.log("English Excel page");
+      await p.goto(`${EN}excel.html`);
+      await p.waitForLoadState("load");
+      check("en/excel: lang/dir", (await p.getAttribute("html", "lang")) === "en" && (await p.getAttribute("html", "dir")) === "ltr");
+      check("en/excel: formula with Language \"en\"", (await p.textContent("#formula")) === '=TAFQIT(A1, "USD", "", "", "Only", "", "en")');
+      const ex = await p.$eval("[data-excel-example]", (e) => ({ text: e.textContent.trim(), ...e.dataset }));
+      check("en/excel: example result matches the engine", ex.text === tafqit(ex.n, { unit: ex.unit, suffix: ex.suffix, language: ex.lang }), JSON.stringify(ex));
+      const rows = await p.$$eval(".params tbody tr", (trs) => trs.map((tr) => tr.children[1].textContent));
+      check("en/excel: the seven arguments, Language last", rows.join() === "Number,Unit,HundredsForm,Prefix,Suffix,Decimals,Language", rows.join());
+      check("en/excel: Tafqit.bas download", (await p.$eval('a[download="Tafqit.bas"]', (a) => a.href)) === `${BASE}Tafqit.bas`);
+      const eChrome = await arabicChrome(p);
+      check("en/excel: no Arabic UI text outside lang=ar", eChrome.length === 0, eChrome.join(" | "));
+      await p.click('[data-copy-from="js-snippet"]');
+      await p.waitForTimeout(100);
+      check("en/excel: code copy button in English", (await p.textContent('[data-copy-from="js-snippet"]')).trim() === "Copied" && (await p.evaluate(() => navigator.clipboard.readText())).includes('language: "en"'));
+    }
+  } finally {
+    await c.close();
+  }
+}
+
+/** English pages at 1366px and 390px (TAFKET_SCREENSHOTS). */
+async function englishScreenshots(dir) {
+  mkdirSync(dir, { recursive: true });
+  for (const [label, viewport] of [["390", { width: 390, height: 844 }], ["1366", { width: 1366, height: 900 }]]) {
+    const c = await newContext({ viewport });
+    const p = watch(await c.newPage());
+    await p.goto(`${BASE}en/?n=1250.75&unit=SAR`);
+    await ready(p);
+    await p.evaluate(() => document.fonts.ready);
+    await p.waitForTimeout(350);
+    await p.screenshot({ path: join(dir, `index-${label}.png`), fullPage: true });
+    await p.screenshot({ path: join(dir, `index-top-${label}.png`) });
+    await p.fill("#number", "abc");
+    await p.waitForTimeout(350);
+    await p.locator(".cheque").screenshot({ path: join(dir, `index-error-${label}.png`) });
+    await p.goto(`${BASE}en/?n=1250.75&unit=SAR&lang=ar`);
+    await ready(p);
+    await p.waitForTimeout(350);
+    await p.locator(".tool").screenshot({ path: join(dir, `index-arabic-output-${label}.png`) });
+    await p.goto(`${BASE}en/bulk.html`);
+    await ready(p);
+    await p.click("#sample");
+    await p.waitForTimeout(200);
+    await p.screenshot({ path: join(dir, `bulk-${label}.png`), fullPage: true });
+    if (existsSync(join(root, "en", "excel.html"))) {
+      await p.goto(`${BASE}en/excel.html`);
+      await p.waitForLoadState("load");
+      await p.screenshot({ path: join(dir, `excel-${label}.png`), fullPage: true });
+    }
+    await p.goto(`${BASE}en/#download`);
+    await p.waitForSelector("#download-dialog[open] [data-release-notes-body]", { timeout: 5000 }).catch(() => {});
+    await p.waitForTimeout(200);
+    await p.screenshot({ path: join(dir, `download-dialog-${label}.png`) });
+    await p.goto(`${BASE}en/#support`);
+    await p.waitForTimeout(200);
+    await p.screenshot({ path: join(dir, `support-dialog-${label}.png`) });
     await c.close();
   }
 }
