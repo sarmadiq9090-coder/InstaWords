@@ -5,8 +5,10 @@ name: Windows (native app)
 # the Inno Setup installer and a portable zip, uploaded as workflow artifacts.
 # A manual run with "release" ticked also publishes GitHub Release v<package.json version>.
 # The asset names below are what the app's updater looks for: keep them.
-# Code signing (optional, docs/CODE-SIGNING.md): release runs sign InstaWords.exe, InstaWords.Core.dll
-# and the setup through SignPath when the SIGNPATH_API_TOKEN secret exists; otherwise they skip cleanly.
+# Code signing (optional, docs/CODE-SIGNING.md): release runs from the default branch sign InstaWords.exe,
+# InstaWords.Core.dll and the setup through SignPath when the SIGNPATH_ORGANIZATION_ID variable is set;
+# otherwise they skip cleanly. The SIGNPATH_API_TOKEN secret lives in the protected `signing` environment,
+# which only those runs enter, and only the two SignPath steps receive it (never npm ci, builds or tests).
 # The release also gets SHA256SUMS.txt, winget-manifests.zip and instawords.json (docs/PACKAGING.md).
 
 on:
@@ -35,14 +37,18 @@ jobs:
   build:
     runs-on: windows-latest
     timeout-minutes: 90
+    # Release runs from the default branch enter the `signing` environment (its deployment-branch rule
+    # and optional reviewers guard SIGNPATH_API_TOKEN); every other run uses no environment at all.
+    environment: ${{ (github.event_name == 'workflow_dispatch' && inputs.release && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && vars.SIGNPATH_ORGANIZATION_ID != '') && 'signing' || '' }}
     outputs:
       version: ${{ steps.version.outputs.version }}
       signed: ${{ steps.signed.outputs.signed }}
     env:
-      # Empty when the secret is not configured: every signing step below is then skipped.
-      SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
-      # Only release runs are signed (each SignPath request may need a manual approval).
-      SIGN_THIS_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.release }}
+      # The switch is the (non-secret) SIGNPATH_ORGANIZATION_ID variable: unset → every signing step is skipped.
+      # The token itself is NOT in the job env; only the SignPath steps get it through `with: api-token`.
+      SIGNING_CONFIGURED: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
+      # Only release runs from the default branch are signed (each SignPath request may need a manual approval).
+      SIGN_THIS_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.release && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
@@ -105,10 +111,10 @@ jobs:
             out/test-results/*.trx
           if-no-files-found: warn
 
-      # ---- Code signing, part 1: the app (SignPath; skipped without the SIGNPATH_API_TOKEN secret) ----
+      # ---- Code signing, part 1: the app (SignPath; skipped unless SIGNPATH_ORGANIZATION_ID is set) ----
       - name: Upload the unsigned app for signing
         id: unsigned-app
-        if: env.SIGNPATH_API_TOKEN != '' && env.SIGN_THIS_RUN == 'true'
+        if: env.SIGNING_CONFIGURED == 'true' && env.SIGN_THIS_RUN == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: InstaWords-${{ steps.version.outputs.version }}-unsigned-app
@@ -121,7 +127,7 @@ jobs:
       # Replaces InstaWords.exe and InstaWords.Core.dll in bin/ with the signed files, so the
       # installer and the portable zip below are built from them.
       - name: Sign the app (SignPath)
-        if: env.SIGNPATH_API_TOKEN != '' && env.SIGN_THIS_RUN == 'true'
+        if: env.SIGNING_CONFIGURED == 'true' && env.SIGN_THIS_RUN == 'true'
         uses: signpath/github-action-submit-signing-request@ced31329c0317e779dad2eec2a7c3bb46ea1343e # v1.3
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
@@ -156,7 +162,7 @@ jobs:
       # ---- Code signing, part 2: the installer ----
       - name: Upload the unsigned installer for signing
         id: unsigned-setup
-        if: env.SIGNPATH_API_TOKEN != '' && env.SIGN_THIS_RUN == 'true'
+        if: env.SIGNING_CONFIGURED == 'true' && env.SIGN_THIS_RUN == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: InstaWords-${{ steps.version.outputs.version }}-unsigned-setup
@@ -165,7 +171,7 @@ jobs:
           retention-days: 1
 
       - name: Sign the installer (SignPath)
-        if: env.SIGNPATH_API_TOKEN != '' && env.SIGN_THIS_RUN == 'true'
+        if: env.SIGNING_CONFIGURED == 'true' && env.SIGN_THIS_RUN == 'true'
         uses: signpath/github-action-submit-signing-request@ced31329c0317e779dad2eec2a7c3bb46ea1343e # v1.3
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
@@ -187,7 +193,7 @@ jobs:
             "windows\InstaWords.App\bin\Release\net48\InstaWords.Core.dll",
             "out\InstaWords_${{ steps.version.outputs.version }}_x64-setup.exe"
           )
-          $expectSigned = ($env:SIGNPATH_API_TOKEN -ne '') -and ($env:SIGN_THIS_RUN -eq 'true')
+          $expectSigned = ($env:SIGNING_CONFIGURED -eq 'true') -and ($env:SIGN_THIS_RUN -eq 'true')
           $valid = 0
           foreach ($f in $files) {
             $sig = Get-AuthenticodeSignature $f
@@ -195,7 +201,7 @@ jobs:
             if ($sig.Status -eq 'Valid') { $valid++ }
           }
           if ($expectSigned -and $valid -ne $files.Count) { throw "Signing was requested but not every file has a valid signature." }
-          if (-not $expectSigned) { "Not signed: no SIGNPATH_API_TOKEN secret, or not a release run (docs/CODE-SIGNING.md)." }
+          if (-not $expectSigned) { "Not signed: SIGNPATH_ORGANIZATION_ID not set, or not a release run from the default branch (docs/CODE-SIGNING.md)." }
           "signed=$($expectSigned.ToString().ToLower())" >> $env:GITHUB_OUTPUT
 
       - name: Portable zip
