@@ -2,7 +2,7 @@
 
 > **InstaWords — تفقيط**: كتابة المبالغ بالحروف بالعربية ولغات أخرى، للشيكات والفواتير والسندات. من برامج [FastKiwi](https://fastkiwi.app/ar/).
 
-## الإصدار 1.1 (قيد التنفيذ)
+## الإصدار 1.1.0 (منجز)
 
 | # | البند | الحالة | معيار القبول |
 |---|---|---|---|
@@ -34,6 +34,6 @@
 
 ## English summary
 
-v1.1 (in progress): rename to **InstaWords**; multi-language engine (Arabic + English + French, one module per language, unit names under `i18n`); language picker; UI polish; offline Windows app (Tauri, NSIS, built by GitHub Actions, published to Releases); Excel language parameter with exact parity; docs and deployment.
+v1.1.0 (done): rename to **InstaWords**; multi-language engine (Arabic + English + French, one module per language, unit names under `i18n`); language picker; UI polish; offline Windows app (Tauri, NSIS, built by GitHub Actions, published to Releases); Excel language parameter with exact parity; docs and deployment.
 
 Later, on request: code signing, winget/Scoop, auto-update, print templates (cheque/invoice/receipt → PDF), npm package, Office/Sheets add-in, more languages (Turkish, Persian, Urdu, Spanish…), upper-case English option, specialist linguistic review, repository rename.
