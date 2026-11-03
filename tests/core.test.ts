@@ -1,7 +1,9 @@
 import { test, describe } from "node:test";
 import assert from "node:assert/strict";
-import { tafqit, tryTafqit, convert, createTafqit, normalizeNumber, findUnit, units, TafqitError } from "../src/index.ts";
-import type { TafqitErrorCode, UnitCatalog } from "../src/index.ts";
+import {
+  tafqit, tryTafqit, convert, createTafqit, normalizeNumber, findUnit, units, TafqitError, ERROR_MESSAGES, LANGUAGES,
+} from "../src/index.ts";
+import type { Language, TafqitErrorCode, UnitCatalog } from "../src/index.ts";
 import { parseCsv, toCsv, csvColumnValues } from "../src/csv.ts";
 
 const r = (n: string, unit = "riyal", extra: object = {}) => tafqit(n, { unit, ...extra });
@@ -185,6 +187,215 @@ describe("output hygiene over a range", () => {
       for (const n of samples) {
         const s = tafqit(n, { unit });
         assert.ok(!/\s{2}|^\s|\s$|و\s|\sو$/.test(s), `${unit} ${n}: «${s}»`);
+      }
+    }
+  });
+});
+
+describe("languages: API", () => {
+  test("LANGUAGES export", () => {
+    assert.deepEqual(LANGUAGES, [
+      { id: "ar", label: "العربية", dir: "rtl", supportsHundredsForm: true },
+      { id: "en", label: "English", dir: "ltr", supportsHundredsForm: false },
+      { id: "fr", label: "Français", dir: "ltr", supportsHundredsForm: false },
+    ]);
+    assert.ok(Object.isFrozen(LANGUAGES) && LANGUAGES.every((l) => Object.isFrozen(l)));
+  });
+  test("default and explicit Arabic are identical", () => {
+    for (const n of ["0", "21", "1250.75", "200000"]) {
+      assert.equal(tafqit(n, { unit: "SAR", language: "ar" }), tafqit(n, { unit: "SAR" }));
+      assert.equal(tafqit(n, { unit: "SAR", language: "" as Language }), tafqit(n, { unit: "SAR" }));
+    }
+  });
+  test("invalid language", () => {
+    for (const l of ["de", "AR", "english", "fr-FR", " en"]) {
+      throwsCode(() => tafqit("1", { language: l as Language }), "INVALID_OPTION");
+    }
+    const bad = tryTafqit("1", { language: "xx" as Language });
+    assert.ok(!bad.ok && bad.error.code === "INVALID_OPTION");
+  });
+  test("hundredsForm is ignored for en/fr but still validated", () => {
+    assert.equal(tafqit("200", { language: "en", hundredsForm: "مئة" }), "Two Hundred");
+    assert.equal(tafqit("200", { language: "fr", hundredsForm: "مئة" }), "deux cents");
+    throwsCode(() => tafqit("1", { language: "en", hundredsForm: "x" as never }), "INVALID_OPTION");
+  });
+  test("convert() passes language", () => {
+    assert.deepEqual(convert({ the_number: "21", unit: "EGP", language: "fr" }), { result: "vingt et une livres égyptiennes" });
+    assert.deepEqual(convert({ the_number: 7, language: "en" }), { result: "Seven" });
+  });
+  test("shared errors and rounding apply to every language", () => {
+    for (const language of ["en", "fr"] as const) {
+      throwsCode(() => tafqit("2.5", { unit: "piece", language }), "FRACTION_NOT_SUPPORTED");
+      throwsCode(() => tafqit("10.125", { unit: "SAR", language, decimals: "error" }), "TOO_MANY_DECIMALS");
+      throwsCode(() => tafqit("-1", { language }), "NEGATIVE");
+      throwsCode(() => tafqit("1", { unit: "xyz", language }), "UNKNOWN_UNIT");
+      throwsCode(() => tafqit("1." + "1".repeat(16), { language }), "TOO_MANY_DECIMALS");
+    }
+    assert.equal(tafqit("1.995", { unit: "SAR", language: "en" }), "Two Saudi Riyals");
+    assert.equal(tafqit("9.9999", { unit: "KWD", language: "fr" }), "dix dinars koweïtiens");
+    assert.equal(tafqit(0.1 + 0.2, { unit: "SAR", language: "en" }), "Thirty Halalas");
+    assert.equal(tafqit("0.004", { unit: "SAR", language: "fr" }), "zéro riyal saoudien");
+  });
+  test("prefix/suffix", () => {
+    assert.equal(tafqit("5", { unit: "USD", language: "en", prefix: " Only ", suffix: "" }), "Only Five US Dollars");
+  });
+});
+
+describe("languages: English", () => {
+  const cases: [string, string][] = [
+    ["0", "Zero"], ["7", "Seven"], ["11", "Eleven"], ["15", "Fifteen"], ["19", "Nineteen"], ["20", "Twenty"],
+    ["45", "Forty-Five"], ["99", "Ninety-Nine"], ["110", "One Hundred Ten"], ["999", "Nine Hundred Ninety-Nine"],
+    ["1001", "One Thousand One"], ["12000", "Twelve Thousand"], ["100000", "One Hundred Thousand"],
+    ["1001001001001", "One Trillion One Billion One Million One Thousand One"],
+    ["999999999999999", "Nine Hundred Ninety-Nine Trillion Nine Hundred Ninety-Nine Billion Nine Hundred Ninety-Nine Million Nine Hundred Ninety-Nine Thousand Nine Hundred Ninety-Nine"],
+    ["0.5", "Zero Point Five"], ["3.125", "Three Point One Two Five"], ["7.007", "Seven Point Zero Zero Seven"],
+  ];
+  for (const [n, want] of cases) test(n, () => assert.equal(tafqit(n, { language: "en" }), want));
+  test("counted nouns", () => {
+    const en = (n: string, unit: string) => tafqit(n, { unit, language: "en" });
+    assert.equal(en("0.01", "GBP"), "One Penny");
+    assert.equal(en("2.02", "GBP"), "Two Pounds Sterling and Two Pence");
+    assert.equal(en("0.50", "SAR"), "Fifty Halalas");
+    assert.equal(en("3", "foot"), "Three Feet");
+    assert.equal(en("1.001", "OMR"), "One Omani Rial and One Baisa");
+    assert.equal(en("2", "km_per_hour"), "Two Kilometers per Hour");
+  });
+});
+
+describe("languages: French", () => {
+  const cases: [string, string][] = [
+    ["0", "zéro"], ["1", "un"], ["16", "seize"], ["17", "dix-sept"], ["31", "trente et un"], ["61", "soixante et un"],
+    ["70", "soixante-dix"], ["72", "soixante-douze"], ["77", "soixante-dix-sept"], ["79", "soixante-dix-neuf"],
+    ["90", "quatre-vingt-dix"], ["99", "quatre-vingt-dix-neuf"], ["101", "cent un"], ["180", "cent quatre-vingts"],
+    ["280", "deux cent quatre-vingts"], ["300", "trois cents"], ["310", "trois cent dix"], ["1100", "mille cent"],
+    ["2001", "deux mille un"], ["21000", "vingt et un mille"], ["80000", "quatre-vingt mille"],
+    ["81000", "quatre-vingt-un mille"], ["200000", "deux cent mille"], ["1000500", "un million cinq cents"],
+    ["21000000", "vingt et un millions"], ["300000000", "trois cents millions"], ["1000000000", "un milliard"],
+    ["1000000001", "un milliard un"], ["2000000000000", "deux billions"],
+    ["999999999999999", "neuf cent quatre-vingt-dix-neuf billions neuf cent quatre-vingt-dix-neuf milliards neuf cent quatre-vingt-dix-neuf millions neuf cent quatre-vingt-dix-neuf mille neuf cent quatre-vingt-dix-neuf"],
+    ["0.5", "zéro virgule cinq"], ["3.125", "trois virgule cent vingt-cinq"],
+  ];
+  for (const [n, want] of cases) test(n, () => assert.equal(tafqit(n, { language: "fr" }), want));
+  const fr = (n: string, unit: string) => tafqit(n, { unit, language: "fr" });
+  test("gender agreement on the last group only", () => {
+    assert.equal(fr("1", "lira"), "une lire");
+    assert.equal(fr("31", "lira"), "trente et une lires");
+    assert.equal(fr("201", "lira"), "deux cent une lires");
+    assert.equal(fr("1001", "EGP"), "mille une livres égyptiennes");
+    assert.equal(fr("1000001", "EGP"), "un million une livres égyptiennes");
+    assert.equal(fr("21000", "lira"), "vingt et un mille lires");
+    assert.equal(fr("21000000", "lira"), "vingt et un millions de lires");
+    assert.equal(fr("71", "hour"), "soixante et onze heures");
+  });
+  test("de / d' after an exact million, milliard or billion", () => {
+    assert.equal(fr("1000000", "USD"), "un million de dollars américains");
+    assert.equal(fr("3000000000", "hectare"), "trois milliards d'hectares");
+    assert.equal(fr("200000000", "hour"), "deux cents millions d'heures");
+    assert.equal(fr("1000000000000", "EUR"), "un billion d'euros");
+    assert.equal(fr("1000500", "MAD"), "un million cinq cents dirhams marocains");
+    assert.equal(fr("1001000", "MAD"), "un million mille dirhams marocains");
+    assert.equal(fr("0.01", "BTC"), "un million de satoshis");
+  });
+  test("singular for 0 and 1, plural from 2", () => {
+    assert.equal(fr("0", "piece"), "zéro pièce");
+    assert.equal(fr("1", "piece"), "une pièce");
+    assert.equal(fr("2", "roll"), "deux rouleaux");
+    assert.equal(fr("0.01", "GBP"), "un penny");
+  });
+});
+
+describe("languages: catalog", () => {
+  const box = { singular: "صندوق", dual: "صندوقان", plural: "صناديق", accusative: "صندوقاً", gender: "m" } as const;
+  const base: UnitCatalog = {
+    schemaVersion: 1,
+    units: [
+      { id: "none", category: "none", label: "بدون وحدة", forms: null },
+      {
+        id: "box", category: "count", label: "صندوق", forms: box,
+        i18n: { en: { singular: "Box", plural: "Boxes" }, fr: { singular: "caisse", plural: "caisses", gender: "f" } },
+      },
+      { id: "arOnly", category: "count", label: "كيس", forms: { ...box, singular: "كيس" } },
+      {
+        id: "coin", category: "currency-world", label: "عملة", forms: box,
+        i18n: { en: { singular: "Coin", plural: "Coins", one: "A Single Coin" }, fr: { singular: "pièce", plural: "pièces", gender: "f", one: "une seule pièce" } },
+        subunit: { ...box, ratio: 100 },
+      },
+    ],
+  };
+  test("custom catalog with i18n and `one`", () => {
+    const t = createTafqit(base);
+    assert.equal(t.tafqit("21", { unit: "box", language: "fr" }), "vingt et une caisses");
+    assert.equal(t.tafqit("1", { unit: "coin", language: "en" }), "A Single Coin");
+    assert.equal(t.tafqit("1", { unit: "coin", language: "fr" }), "une seule pièce");
+    assert.equal(t.tafqit("2.5", { unit: "none", language: "en" }), "Two Point Five");
+  });
+  test("NO_LANGUAGE_FORMS", () => {
+    const t = createTafqit(base);
+    assert.equal(ERROR_MESSAGES.NO_LANGUAGE_FORMS, "لا تتوفر صيغة لهذه الوحدة باللغة المختارة.");
+    throwsCode(() => t.tafqit("1", { unit: "arOnly", language: "en" }), "NO_LANGUAGE_FORMS");
+    throwsCode(() => t.tafqit("1", { unit: "arOnly", language: "fr" }), "NO_LANGUAGE_FORMS");
+    assert.equal(t.tafqit("3", { unit: "arOnly" }), "ثلاثة صناديق");
+    // The subunit's forms are needed only when a subunit amount is written.
+    assert.equal(t.tafqit("2", { unit: "coin", language: "en" }), "Two Coins");
+    assert.equal(t.tafqit("2.00", { unit: "coin", language: "fr" }), "deux pièces");
+    throwsCode(() => t.tafqit("2.5", { unit: "coin", language: "en" }), "NO_LANGUAGE_FORMS");
+    const res = t.tryTafqit("1", { unit: "arOnly", language: "fr" });
+    assert.ok(!res.ok && res.error.code === "NO_LANGUAGE_FORMS" && res.error.message.startsWith(ERROR_MESSAGES.NO_LANGUAGE_FORMS));
+  });
+  const bad = (mut: (c: UnitCatalog) => void) => {
+    const c = structuredClone(base); mut(c); return () => createTafqit(c);
+  };
+  const i18n = (c: UnitCatalog) => c.units[1]!.i18n as Record<string, Record<string, unknown>>;
+  test("i18n validation", () => {
+    throwsCode(bad((c) => { c.units[0]!.i18n = {}; }), "INVALID_CATALOG");
+    throwsCode(bad((c) => { i18n(c).de = { singular: "Kiste", plural: "Kisten" }; }), "INVALID_CATALOG");
+    throwsCode(bad((c) => { i18n(c).ar = { singular: "صندوق", plural: "صناديق" }; }), "INVALID_CATALOG");
+    throwsCode(bad((c) => { delete i18n(c).fr!.gender; }), "INVALID_CATALOG");
+    throwsCode(bad((c) => { i18n(c).fr!.gender = "n"; }), "INVALID_CATALOG");
+    throwsCode(bad((c) => { i18n(c).en!.gender = "m"; }), "INVALID_CATALOG");
+    throwsCode(bad((c) => { i18n(c).en!.plural = ""; }), "INVALID_CATALOG");
+    throwsCode(bad((c) => { i18n(c).en!.singular = " Box"; }), "INVALID_CATALOG");
+    throwsCode(bad((c) => { i18n(c).en!.one = 1; }), "INVALID_CATALOG");
+    throwsCode(bad((c) => { i18n(c).en!.plurals = "Boxes"; }), "INVALID_CATALOG");
+    throwsCode(bad((c) => { c.units[1]!.i18n = [] as never; }), "INVALID_CATALOG");
+    throwsCode(bad((c) => { c.units[3]!.subunit!.i18n = { fr: { singular: "x", plural: "y" } as never }; }), "INVALID_CATALOG");
+  });
+  test("bundled catalog: en and fr forms for every unit and subunit", () => {
+    for (const u of units) {
+      if (u.forms === null) { assert.equal(u.i18n, undefined); continue; }
+      assert.ok(u.i18n?.en && u.i18n.fr, `${u.id}`);
+      if (u.subunit) assert.ok(u.subunit.i18n?.en && u.subunit.i18n.fr, `${u.id}.subunit`);
+    }
+  });
+});
+
+describe("languages: every unit, hygiene", () => {
+  const clean = (s: string) => !/\s{2}|^\s|\s$|--|^-|-$|\s-|-\s/.test(s);
+  test("every unit converts 0/1/2/21/1000000/1000.5 in en and fr", () => {
+    for (const language of ["en", "fr"] as const) {
+      for (const u of units) {
+        const inputs = ["0", "1", "2", "21", "1000000", ...(u.subunit || u.forms === null ? ["1000.5"] : [])];
+        for (const n of inputs) {
+          const s = tafqit(n, { unit: u.id, language });
+          assert.ok(clean(s), `${language} ${u.id} ${n}: «${s}»`);
+        }
+      }
+    }
+  });
+  test("no double spaces, trimmed, well-formed (0..20000 and samples)", () => {
+    const samples: string[] = [];
+    for (let i = 0; i <= 20000; i++) samples.push(String(i));
+    for (let i = 1; i < 2000; i++) samples.push(String(BigInt(i) * 7919n * 1000003n));
+    for (const unit of ["none", "riyal", "lira", "SAR", "hour"]) {
+      for (const n of samples) {
+        const en = tafqit(n, { unit, language: "en" });
+        assert.ok(clean(en) && !/ and /.test(en) && /^[A-Z]/.test(en), `en ${unit} ${n}: «${en}»`);
+        const fr = tafqit(n, { unit, language: "fr" });
+        const ok = clean(fr)
+          && !/(^|(million|milliard|billion)s? )un mille/.test(fr) // never "un mille" for 1000
+          && !/ et (?!une? |une?$|onze)/.test(fr) // "et" only in 21…71
+          && !/(cents|vingts) (un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|quatorze|quinze|seize|vingt|trente|quarante|cinquante|soixante|cent|mille)\b/.test(fr);
+        assert.ok(ok, `fr ${unit} ${n}: «${fr}»`);
       }
     }
   });

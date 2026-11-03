@@ -351,8 +351,10 @@ try {
         await p.goto(`${BASE}?n=1250.75&unit=SAR`);
         await ready(p);
         await p.evaluate(() => document.fonts.ready);
+        await p.waitForTimeout(350);
         await p.screenshot({ path: join(shots, `index-${label}-${scheme}.png`), fullPage: true });
         await p.fill("#number", "abc");
+        await p.waitForTimeout(350);
         await p.locator(".cheque").screenshot({ path: join(shots, `index-error-${label}-${scheme}.png`) });
         await p.goto(`${BASE}bulk.html`);
         await ready(p);
@@ -471,6 +473,7 @@ async function languageChecks() {
           await p.goto(`${BASE}?lang=${l.id}&n=1250.75&unit=${unitFor(l.id)}`);
           await ready(p);
           await p.evaluate(() => document.fonts.ready);
+          await p.waitForTimeout(350);
           await p.screenshot({ path: join(shots, `index-${l.id}${tag}-${label}.png`), fullPage: label === "mobile" ? false : false });
         }
         await p.goto(`${BASE}bulk.html?lang=en&unit=${unitFor("en")}`);

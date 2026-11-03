@@ -5,6 +5,7 @@
 //! - `save_file`: native "Save as" dialog for links with a `download` attribute
 //!   (Tafqit.bas, CSV export). The page never chooses a path; the user does.
 //! - `open_external`: opens http(s)/mailto links in the system browser.
+//!
 //! Navigation and `window.open` are also guarded here, so an external URL can never
 //! load inside the app window even if a click slips past the injected script.
 
@@ -14,7 +15,7 @@ use percent_encoding::percent_decode_str;
 use tauri::{
     ipc::{InvokeBody, Request},
     webview::NewWindowResponse,
-    AppHandle, Manager, Runtime, Url, WebviewWindow, WebviewWindowBuilder,
+    AppHandle, Runtime, Url, WebviewWindow, WebviewWindowBuilder,
 };
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_opener::OpenerExt;

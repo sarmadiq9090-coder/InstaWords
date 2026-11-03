@@ -407,7 +407,7 @@ textarea { min-height: 220px; resize: vertical; line-height: 1.65; font-family: 
 .lead { line-height: 1.8; }
 .field > label, fieldset > legend { font-size: .92rem; letter-spacing: .005em; }
 
-.app-label { display: inline-flex; align-items: center; gap: .5rem; margin: 0 0 .7rem; font-weight: 700; color: var(--accent-text); }
+.app-label { display: flex; width: fit-content; align-items: center; gap: .5rem; margin: 0 0 .7rem; font-weight: 700; color: var(--accent-text); }
 .app-label img { width: 28px; height: 28px; border-radius: 7px; box-shadow: 0 0 0 1px var(--border), 0 4px 12px rgb(76 154 30 / .18); }
 .cta { display: flex; flex-wrap: wrap; gap: .65rem; margin-block: 1.4rem .4rem; }
 .fine { font-size: .88rem; color: var(--muted); margin: .6rem 0 0; }
@@ -415,7 +415,12 @@ textarea { min-height: 220px; resize: vertical; line-height: 1.65; font-family: 
 @media (min-width: 920px) { .split { grid-template-columns: 1.05fr .95fr; } }
 .split h2 { font-size: clamp(1.45rem, 1.1rem + 1.3vw, 2rem); }
 .split .checks { margin-top: 1rem; }
-@media (max-width: 520px) { .hero .cta .btn, .split .cta .btn { flex: 1 1 100%; } }
+@media (max-width: 520px) {
+  .split .cta .btn { flex: 1 1 100%; }
+  .hero .cta { gap: .5rem; margin-top: 1.1rem; }
+  .hero .cta .btn { flex: 1 1 auto; min-height: 42px; padding: .4rem .7rem; font-size: .9rem; border-radius: 10px; }
+  .hero .cta .btn svg { width: 17px; height: 17px; }
+}
 
 /* converter card */
 .tool-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem 1rem; margin-bottom: 1rem; padding-bottom: .85rem; border-bottom: 1px solid var(--border); }
