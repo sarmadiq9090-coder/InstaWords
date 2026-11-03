@@ -38,7 +38,9 @@
     "test:vba": "npm run build && npm run build:vba && node --test \"tests/vba/**/*.test.mjs\"",
     "test:all": "npm test && npm run test:vba && npm run test:site",
     "desktop:dev": "tauri dev",
-    "desktop:build": "tauri build"
+    "desktop:build": "tauri build",
+    "build:dotnet": "node scripts/build-dotnet.mjs",
+    "test:dotnet": "npm run build && node scripts/build-dotnet.mjs && node scripts/gen-dotnet-corpus.mjs && dotnet test windows/InstaWords.Core.Tests"
   },
   "keywords": [
     "arabic",
