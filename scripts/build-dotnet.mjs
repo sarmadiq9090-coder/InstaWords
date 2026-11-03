@@ -417,9 +417,9 @@ export function buildDotnet(unitsData) {
   const keys = units.flatMap((u) => unitKeysOf(u));
 
   const sourceHash = createHash("sha256")
-    .update(readFileSync(fileURLToPath(import.meta.url), "utf8"))
+    .update(readFileSync(fileURLToPath(import.meta.url), "utf8").replace(/\r\n/g, "\n"))
     .update(JSON.stringify(LX)).update(JSON.stringify(EN_WORDS)).update(JSON.stringify(FR_WORDS)).update(String(FR_WORDS.ELIDES))
-    .update(JSON.stringify(LANGUAGES)).update(JSON.stringify(ERROR_MESSAGES)).update(readFileSync(root + "src/normalize.ts", "utf8"))
+    .update(JSON.stringify(LANGUAGES)).update(JSON.stringify(ERROR_MESSAGES)).update(readFileSync(root + "src/normalize.ts", "utf8").replace(/\r\n/g, "\n"))
     .update(JSON.stringify(unitsData))
     .digest("hex").slice(0, 16);
 
@@ -454,7 +454,8 @@ function main(argv) {
   const stale = [];
   for (const [name, text] of Object.entries(out.files)) {
     const path = dir + name;
-    const current = existsSync(path) ? readFileSync(path, "utf8") : null;
+    // Compare ignoring CRLF/LF so a Windows checkout with autocrlf does not count as stale.
+    const current = existsSync(path) ? readFileSync(path, "utf8").replace(/\r\n/g, "\n") : null;
     if (current === text) continue;
     if (check) stale.push(name);
     else writeFileSync(path, text);

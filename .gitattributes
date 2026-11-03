@@ -1,0 +1,11 @@
+# Same line endings on every OS, so generated files and source hashes match on Windows CI.
+* text=auto eol=lf
+# Excel imports .bas modules with Windows line endings.
+*.bas text eol=crlf
+*.png binary
+*.ico binary
+*.icns binary
+*.ttf binary
+*.woff2 binary
+*.exe binary
+*.zip binary
