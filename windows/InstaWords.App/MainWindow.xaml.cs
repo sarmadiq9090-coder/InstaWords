@@ -147,6 +147,10 @@ namespace InstaWords.App
                     Top = t;
                 }
             }
+            // Never larger than the screen (e.g. 1366×768 laptops).
+            var work = SystemParameters.WorkArea;
+            Width = Math.Min(Width, work.Width);
+            Height = Math.Min(Height, work.Height);
             if (s.WindowMaximized) WindowState = WindowState.Maximized;
         }
 

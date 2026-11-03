@@ -1,7 +1,7 @@
 {
   "name": "instawords",
-  "version": "1.1.0",
-  "description": "InstaWords — free, open-source amount-in-words (tafqit) for cheques and invoices: Arabic, English and French. Zero dependencies, browser + Node, offline Windows app and Excel VBA module.",
+  "version": "2.0.0",
+  "description": "InstaWords — free, open-source amount-in-words (tafqit) for cheques and invoices: Arabic, English and French. Zero-dependency TS library, offline website, native Windows app (WPF) and Excel VBA module.",
   "type": "module",
   "license": "MIT",
   "main": "./dist/index.js",
@@ -37,8 +37,6 @@
     "build:vba": "node scripts/build-vba.mjs",
     "test:vba": "npm run build && npm run build:vba && node --test \"tests/vba/**/*.test.mjs\"",
     "test:all": "npm test && npm run test:vba && npm run test:site",
-    "desktop:dev": "tauri dev",
-    "desktop:build": "tauri build",
     "build:dotnet": "node scripts/build-dotnet.mjs",
     "test:dotnet": "npm run build && node scripts/build-dotnet.mjs --check && node scripts/gen-dotnet-corpus.mjs && dotnet test windows/InstaWords.Core.Tests"
   },
@@ -51,7 +49,6 @@
     "invoice"
   ],
   "devDependencies": {
-    "@tauri-apps/cli": "2.12.2",
     "@types/node": "^22.20.5",
     "typescript": "5.9.3"
   }

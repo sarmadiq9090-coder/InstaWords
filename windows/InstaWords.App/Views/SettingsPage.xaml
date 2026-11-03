@@ -46,7 +46,7 @@
                      Text="انسخ رقماً من أي برنامج (Excel أو المتصفح أو برنامج المحاسبة)، ثم اضغط الاختصار: يصبح ما في الحافظة المبلغَ مكتوباً بالحروف، فالصقه حيث تشاء. يعمل والنافذة مغلقة ما دام InstaWords في شريط المهام." />
           <WrapPanel>
             <TextBox x:Name="HotkeyBox" Width="220" FontSize="16" FontWeight="SemiBold" IsReadOnly="True" IsReadOnlyCaretVisible="False"
-                     HorizontalContentAlignment="Center" FlowDirection="LeftToRight" Margin="0,0,10,8" Cursor="Hand"
+                     HorizontalContentAlignment="Center" TextAlignment="Center" FlowDirection="LeftToRight" Margin="0,0,10,8" Cursor="Hand"
                      ui:Ui.Placeholder="اضغط الاختصار الجديد…" ToolTip="انقر هنا ثم اضغط الاختصار الذي تريده، مثل Ctrl+Alt+T"
                      PreviewKeyDown="OnHotkeyKeyDown" GotKeyboardFocus="OnHotkeyFocus" LostKeyboardFocus="OnHotkeyBlur"
                      AutomationProperties.AutomationId="HotkeyBox" AutomationProperties.Name="الاختصار" />

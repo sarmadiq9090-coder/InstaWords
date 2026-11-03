@@ -212,6 +212,16 @@ namespace InstaWords.App
             }
         }
 
+        /// <summary>Windows is signing out or shutting down: save and let the windows close.</summary>
+        protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
+        {
+            base.OnSessionEnding(e);
+            if (e.Cancel) return;
+            _exiting = true;
+            SaveSettings();
+            History.Save();
+        }
+
         protected override void OnExit(ExitEventArgs e)
         {
             _tray?.Dispose();

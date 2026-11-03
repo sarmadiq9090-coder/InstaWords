@@ -1,0 +1,1 @@
+{"main":{"identifier":"main","description":"The only IPC the bundled site may use: the native save dialog for downloads and opening http(s)/mailto links in the system browser. No core, fs, dialog or opener permissions are exposed to JavaScript; both commands are implemented in Rust.","local":true,"windows":["main"],"permissions":["allow-save-file","allow-open-external"]}}

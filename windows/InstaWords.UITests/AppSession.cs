@@ -27,7 +27,7 @@ namespace InstaWords.UITests
   ""prefix"": """", ""suffix"": """", ""hotkey"": ""Ctrl+Alt+T"", ""hotkeyEnabled"": true,
   ""closeToTray"": false, ""minimizeToTray"": false, ""showToast"": true, ""trayHintShown"": true,
   ""autoCheckUpdates"": false, ""optionsExpanded"": false,
-  ""windowLeft"": 10, ""windowTop"": 10, ""windowWidth"": 1000, ""windowHeight"": 700, ""windowMaximized"": false
+  ""windowLeft"": 10, ""windowTop"": 10, ""windowWidth"": 1040, ""windowHeight"": 800, ""windowMaximized"": false
 }";
 
         public AppSession(string settingsJson = null, string updateFeedJson = null)

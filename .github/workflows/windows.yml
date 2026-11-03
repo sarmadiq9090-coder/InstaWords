@@ -1,0 +1,222 @@
+name: Windows (native app)
+
+# InstaWords for Windows: a native WPF app on .NET Framework 4.8 (built into Windows 10/11).
+# Every push: engine parity tests, app unit tests, the app itself, UI tests with screenshots,
+# the Inno Setup installer and a portable zip, uploaded as workflow artifacts.
+# A manual run with "release" ticked also publishes GitHub Release v<package.json version>.
+# The asset names below are what the app's updater looks for: keep them.
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Publish GitHub Release v<package.json version> from this commit"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Read version
+        id: version
+        shell: bash
+        run: |
+          version=$(node -p "require('./package.json').version")
+          numeric=${version%%-*}
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "numeric=$numeric" >> "$GITHUB_OUTPUT"
+          echo "InstaWords $version"
+
+      - run: npm ci
+
+      # npm run build, then build-dotnet.mjs --check (generated C# up to date),
+      # gen-dotnet-corpus.mjs, and the engine's parity tests (dotnet test windows/InstaWords.Core.Tests).
+      - name: Engine parity tests
+        run: npm run test:dotnet
+
+      - name: Generated files are committed and current
+        shell: bash
+        run: |
+          node scripts/build-dotnet.mjs
+          git diff --exit-code
+
+      - name: App unit tests (updater, problem reports, CSV)
+        run: dotnet test windows/InstaWords.App.Tests -c Release
+
+      - name: Build the app
+        run: dotnet build windows/InstaWords.App -c Release -p:Version=${{ steps.version.outputs.version }}
+
+      # Larger desktop for readable screenshots (the default runner screen is small). Best effort.
+      - name: Screen resolution
+        continue-on-error: true
+        shell: pwsh
+        run: Set-DisplayResolution -Width 1920 -Height 1080 -Force
+
+      - name: UI tests
+        env:
+          INSTAWORDS_APP_PATH: ${{ github.workspace }}\windows\InstaWords.App\bin\Release\net48\InstaWords.exe
+          INSTAWORDS_ARTIFACTS: ${{ github.workspace }}\out\screenshots
+        run: dotnet test windows/InstaWords.UITests -c Release --logger "console;verbosity=normal" --logger "trx;LogFileName=ui-tests.trx" --results-directory out/test-results
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: InstaWords-${{ steps.version.outputs.version }}-screenshots
+          path: |
+            out/screenshots/*.png
+            out/test-results/*.trx
+          if-no-files-found: warn
+
+      - name: Installer (Inno Setup)
+        shell: pwsh
+        run: |
+          $iscc = @(
+            "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
+            "$env:ProgramFiles\Inno Setup 6\ISCC.exe"
+          ) | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $iscc) {
+            choco install innosetup --no-progress -y
+            $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          }
+          & $iscc /Qp `
+            "/DAppVersion=${{ steps.version.outputs.version }}" `
+            "/DNumericVersion=${{ steps.version.outputs.numeric }}" `
+            "/DSourceDir=$env:GITHUB_WORKSPACE\windows\InstaWords.App\bin\Release\net48" `
+            "/DOutputDir=$env:GITHUB_WORKSPACE\out" `
+            windows\installer\InstaWords.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Portable zip
+        shell: pwsh
+        run: |
+          $v = "${{ steps.version.outputs.version }}"
+          $src = "windows\InstaWords.App\bin\Release\net48"
+          $stage = "out\portable\InstaWords"
+          New-Item -ItemType Directory -Force -Path "$stage\Licenses" | Out-Null
+          Copy-Item "$src\InstaWords.exe", "$src\InstaWords.exe.config", "$src\InstaWords.Core.dll" $stage
+          Copy-Item "$src\Licenses\*" "$stage\Licenses"
+          # Marks the copy as portable: updates open the release page instead of running the installer.
+          @"
+          InstaWords $v (portable)
+
+          تشغيل: InstaWords.exe. لا يحتاج تثبيتاً. الإعدادات في %APPDATA%\FastKiwi\InstaWords
+          Run InstaWords.exe. No install needed. Settings are kept in %APPDATA%\FastKiwi\InstaWords
+          https://fastkiwi.app/instawords/
+          "@ | Set-Content -Encoding utf8 "$stage\portable.txt"
+          Compress-Archive -Path "$stage" -DestinationPath "out\InstaWords_${v}_x64-portable.zip" -Force
+          Get-ChildItem out -File | Format-Table Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: InstaWords-${{ steps.version.outputs.version }}-windows
+          path: |
+            out/InstaWords_*_x64-setup.exe
+            out/InstaWords_*_x64-portable.zip
+          if-no-files-found: error
+
+  # Publishes the UI-test screenshots to the ci-screenshots branch so they can be reviewed
+  # without downloading artifacts (e.g. from the cloud build environment). Never touches other branches.
+  screenshots:
+    if: always() && github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: InstaWords-*-screenshots
+          merge-multiple: true
+          path: shots
+      - name: Push to ci-screenshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -d shots ] || [ -z "$(ls -A shots 2>/dev/null)" ]; then echo "No screenshots."; exit 0; fi
+          cd shots
+          git init -q -b ci-screenshots
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "Screenshots for ${GITHUB_SHA} (${GITHUB_REF_NAME}), run ${GITHUB_RUN_ID}" > README.md
+          git add -A
+          git commit -q -m "UI screenshots for ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" ci-screenshots
+
+  release:
+    if: github.event_name == 'workflow_dispatch' && inputs.release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: InstaWords-${{ needs.build.outputs.version }}-windows
+          path: out
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.build.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          name: InstaWords v${{ needs.build.outputs.version }}
+          prerelease: ${{ contains(needs.build.outputs.version, '-') }}
+          files: |
+            out/InstaWords_${{ needs.build.outputs.version }}_x64-setup.exe
+            out/InstaWords_${{ needs.build.outputs.version }}_x64-portable.zip
+          fail_on_unmatched_files: true
+          body: |
+            ## InstaWords — تفقيط v${{ needs.build.outputs.version }}
+
+            <div dir="rtl">
+
+            **العربية**
+
+            برنامج Windows **أصلي** لكتابة المبالغ بالحروف للشيكات والفواتير، بالعربية والإنجليزية والفرنسية، بأكثر من 100 عملة ووحدة. ليس موقعاً داخل نافذة: واجهة Windows حقيقية، سريعة وخفيفة، تعمل كلها **دون إنترنت**، ولا تحتاج تثبيت أي شيء إضافي على Windows 10 و11.
+
+            - **`InstaWords_${{ needs.build.outputs.version }}_x64-setup.exe`**: المثبّت (موصى به). يثبّت للمستخدم الحالي دون صلاحيات المسؤول، ويحدّث نفسه من داخل البرنامج.
+            - **`InstaWords_${{ needs.build.outputs.version }}_x64-portable.zip`**: نسخة محمولة: فكّ الضغط وشغّل `InstaWords.exe`.
+            - **Ctrl+Alt+T** من أي برنامج: انسخ رقماً، اضغط الاختصار، فيصبح ما في الحافظة المبلغَ مكتوباً بالحروف جاهزاً للصق.
+            - تبويب «دفعة» لتحويل عمود كامل من Excel، مع تصدير CSV.
+            - البرنامج غير موقّع رقمياً بعد، لذا قد يظهر تحذير SmartScreen: اختر «مزيد من المعلومات» ثم «تشغيل على أي حال».
+
+            </div>
+
+            **English**
+
+            A **native** Windows app that writes amounts in words for cheques and invoices, in Arabic, English and French, with 100+ currencies and units. Not a website in a window: a real Windows UI, fast and light, that works fully **offline** and needs nothing extra on Windows 10 and 11.
+
+            - **`InstaWords_${{ needs.build.outputs.version }}_x64-setup.exe`**: installer (recommended). Per-user, no admin rights; updates itself from inside the app.
+            - **`InstaWords_${{ needs.build.outputs.version }}_x64-portable.zip`**: portable: unzip and run `InstaWords.exe`.
+            - **Ctrl+Alt+T** from any program: copy a number, press the shortcut, and the clipboard now holds the amount in words, ready to paste.
+            - Bulk tab to convert a whole Excel column, with CSV export.
+            - The app is not code-signed yet, so SmartScreen may warn: click "More info" → "Run anyway".

@@ -206,12 +206,28 @@ namespace InstaWords.App.Services
                 using (var fs = File.OpenRead(path)) return UpdateLogic.ParseRelease(fs);
             }
             using (var client = CreateClient())
-            using (var response = await client.GetAsync(UpdateLogic.LatestReleaseApi, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false))
             {
-                if (response.StatusCode == HttpStatusCode.NotFound) return null; // no release yet
-                response.EnsureSuccessStatusCode();
-                using (var s = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
-                    return UpdateLogic.ParseRelease(s);
+                var url = UpdateLogic.LatestReleaseApi;
+                for (var hop = 0; ; hop++)
+                {
+                    using (var response = await client.GetAsync(url, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false))
+                    {
+                        var code = (int)response.StatusCode;
+                        // A renamed repository answers 301: follow it, but only within api.github.com.
+                        if (code >= 300 && code < 400 && response.Headers.Location != null && hop < 3)
+                        {
+                            var next = new Uri(new Uri(url), response.Headers.Location);
+                            if (next.Scheme != Uri.UriSchemeHttps || !next.Host.Equals("api.github.com", StringComparison.OrdinalIgnoreCase))
+                                throw new UpdateException("أعاد GitHub التوجيه إلى عنوان غير متوقع.");
+                            url = next.AbsoluteUri;
+                            continue;
+                        }
+                        if (response.StatusCode == HttpStatusCode.NotFound) return null; // no release yet
+                        response.EnsureSuccessStatusCode();
+                        using (var s = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                            return UpdateLogic.ParseRelease(s);
+                    }
+                }
             }
         }
 

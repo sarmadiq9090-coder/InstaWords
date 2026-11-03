@@ -15,24 +15,29 @@ namespace InstaWords.UITests
         private static TafqitOptions Options(string unit = "SAR", string language = "ar", string prefix = "", string suffix = "") =>
             new TafqitOptions { Unit = unit, Language = language, Prefix = prefix, Suffix = suffix };
 
-        /// <summary>Picks a unit the way a user does: focus the picker, type, Enter.</summary>
+        /// <summary>Picks a unit the way a user does: focus the picker, type, Enter (UI Automation as a fallback).</summary>
         private static void PickUnit(AppSession s, string query, string unitId)
         {
             var combo = s.Get("UnitPicker");
             combo.Focus();
             Keyboard.Type(query);
-            Thread.Sleep(400);
+            Thread.Sleep(500);
             Keyboard.Press(VirtualKeyShort.ENTER);
+            Thread.Sleep(400);
+            if (IsSelected(combo, unitId)) return;
+
+            var cb = combo.AsComboBox();
+            cb.Expand();
             Thread.Sleep(300);
-            // Fallback through UI Automation if typing went astray (e.g. a slow CI desktop).
-            if (!(combo.Patterns.Value.IsSupported ? combo.Patterns.Value.Pattern.Value.Value : combo.Name ?? "").Contains(unitId))
-            {
-                var cb = combo.AsComboBox();
-                cb.Expand();
-                var item = s.Get("unit-" + unitId, cb);
-                item.Patterns.SelectionItem.Pattern.Select();
-                cb.Collapse();
-            }
+            s.Get("unit-" + unitId, cb).Patterns.SelectionItem.Pattern.Select();
+            cb.Collapse();
+            AppSession.WaitUntil(() => IsSelected(combo, unitId), "unit " + unitId + " selected");
+        }
+
+        private static bool IsSelected(AutomationElement combo, string unitId)
+        {
+            var selection = combo.Patterns.Selection.PatternOrDefault?.Selection.ValueOrDefault;
+            return selection != null && selection.Any(e => e.AutomationId == "unit-" + unitId);
         }
 
         [Fact]
@@ -89,17 +94,17 @@ namespace InstaWords.UITests
 
                 var expander = s.Get("OptionsExpander");
                 expander.Patterns.ExpandCollapse.Pattern.Expand();
-                s.Get("PresetOnly").Click();
+                s.Get("PresetOnly").AsButton().Invoke();
                 var only = Tafqit.Convert("300", Options("SAR", "ar", "فقط", "لا غير"));
                 AppSession.WaitUntil(() => s.ResultText == only, "«فقط … لا غير» result");
 
-                s.Get("HundredsMia").Click();
+                s.Get("HundredsMia").Patterns.SelectionItem.Pattern.Select();
                 var mia = Tafqit.Convert("300", new TafqitOptions { Unit = "SAR", HundredsForm = "مئة", Prefix = "فقط", Suffix = "لا غير" });
                 AppSession.WaitUntil(() => s.ResultText == mia, "مئة result");
                 s.Screenshot(s.Window, "04-options");
 
                 // Switching language swaps the ready-made phrase for its English equivalent.
-                s.Get("lang-en").Click();
+                s.Get("lang-en").Patterns.SelectionItem.Pattern.Select();
                 var en = Tafqit.Convert("300", Options("SAR", "en", "", "Only"));
                 AppSession.WaitUntil(() => s.ResultText == en, "English preset result");
             }

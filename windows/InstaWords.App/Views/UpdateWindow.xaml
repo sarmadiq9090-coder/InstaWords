@@ -44,7 +44,7 @@
 
     <DockPanel Margin="0,16,0,0" LastChildFill="False">
       <Button x:Name="UpdateNow" DockPanel.Dock="Left" Style="{StaticResource PrimaryButton}" ui:Ui.Icon="{StaticResource IconDownload}" Content="تحديث الآن"
-              IsDefault="True" Click="OnUpdateNowClick" AutomationProperties.AutomationId="UpdateNow" />
+              Click="OnUpdateNowClick" AutomationProperties.AutomationId="UpdateNow" />
       <Button x:Name="Later" DockPanel.Dock="Left" Style="{StaticResource GhostButton}" Content="لاحقاً" Margin="8,0,0,0" IsCancel="True"
               Click="OnLaterClick" AutomationProperties.AutomationId="UpdateLater" />
       <Button x:Name="SkipButton" DockPanel.Dock="Right" Style="{StaticResource QuietButton}" Content="تخطّي هذا الإصدار"
