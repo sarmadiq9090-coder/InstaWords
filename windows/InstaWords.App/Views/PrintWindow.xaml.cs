@@ -504,7 +504,7 @@ namespace InstaWords.App.Views
             var scale = available / _pageWidthDip;
             // A single page is shown whole (a wide window would otherwise push a landscape voucher's
             // signatures below the fold); several pages scroll, so they only fit the width.
-            var availableHeight = PreviewScroll.ActualHeight - 48 - 18;
+            var availableHeight = PreviewScroll.ActualHeight - 48 - 18 - 8;
             if (_previewPages <= 1 && availableHeight > 0 && _pageHeightDip > 0) scale = Math.Min(scale, availableHeight / _pageHeightDip);
             return Math.Max(0.25, Math.Min(2.5, scale));
         }

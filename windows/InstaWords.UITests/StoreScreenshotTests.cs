@@ -92,6 +92,11 @@ namespace InstaWords.UITests
                 var logoLoaded = dialog.FindFirstDescendant(s.Cf.ByAutomationId("PrintLogoRemove"));
                 Console.WriteLine("Logo in the print dialog: " + (logoLoaded != null && !logoLoaded.IsOffscreen) + "; logo file exists: "
                     + File.Exists(Path.Combine(s.DataDir, "logo.png")));
+                Thread.Sleep(1200); // the app saves its settings shortly after the template change
+                var saved = File.ReadAllText(Path.Combine(s.DataDir, "settings.json"));
+                var at = saved.IndexOf("\"print\"", StringComparison.Ordinal);
+                Console.WriteLine("Saved print settings: " + (at < 0 ? "(none)" : saved.Substring(at, Math.Min(900, saved.Length - at))));
+                DiagnoseLogo(Path.Combine(s.DataDir, "logo.png"));
                 s.Get("PrintParty", dialog).AsTextBox().Text = l.Party;
                 s.Get("PrintPurpose", dialog).AsTextBox().Text = l.Purpose;
                 AppSession.WaitUntil(() => (dialog.FindFirstDescendant(s.Cf.ByAutomationId("PreviewWords"))?.Name ?? "").Length > 10, "words on the voucher");
@@ -147,6 +152,30 @@ namespace InstaWords.UITests
             var print = ",\n  \"print\": { \"lastTemplate\": \"receipt\", \"companyName\": \"" + l.Company + "\", \"logoPath\": \""
                 + logo.Replace("\\", "\\\\") + "\", \"nextNumber\": \"1042\" }\n}";
             File.WriteAllText(settings, json.Substring(0, json.Length - 1).TrimEnd() + print, new UTF8Encoding(false));
+        }
+
+        // TEMPORARY: why the app shows no logo.
+        private static void DiagnoseLogo(string path)
+        {
+            var t = new Thread(() =>
+            {
+                try
+                {
+                    var img = new System.Windows.Media.Imaging.BitmapImage();
+                    img.BeginInit();
+                    img.CacheOption = System.Windows.Media.Imaging.BitmapCacheOption.OnLoad;
+                    img.CreateOptions = System.Windows.Media.Imaging.BitmapCreateOptions.IgnoreImageCache;
+                    img.StreamSource = new MemoryStream(File.ReadAllBytes(path));
+                    img.DecodePixelHeight = 300;
+                    img.EndInit();
+                    img.Freeze();
+                    Console.WriteLine("Logo decodes in the test: " + img.PixelWidth + "x" + img.PixelHeight);
+                }
+                catch (Exception ex) { Console.WriteLine("Logo decode failed in the test: " + ex); }
+            });
+            t.SetApartmentState(ApartmentState.STA);
+            t.Start();
+            t.Join();
         }
 
         private static void Convert(AppSession s, TextBox number, string amount, string unit)
