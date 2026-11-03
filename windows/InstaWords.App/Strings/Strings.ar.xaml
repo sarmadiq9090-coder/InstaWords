@@ -267,7 +267,7 @@
   <sys:String x:Key="Report.WhyHeading">لماذا تحتاجه؟</sys:String>
   <sys:String x:Key="Report.DetailsName">تفاصيل إضافية</sys:String>
   <sys:String x:Key="Report.IncludeTech">إرفاق معلومات تقنية</sys:String>
-  <sys:String x:Key="Report.IncludeTechHint">إصدار البرنامج وWindows و.NET، ولغة الواجهة، وخيارات التحويل، وآخر رمز خطأ. لا تُرفق أي أرقام أو محتوى الحافظة أو السجل.</sys:String>
+  <sys:String x:Key="Report.IncludeTechHint">إصدار البرنامج وWindows و.NET، ولغة الواجهة، وخيارات التحويل، وآخر رمز خطأ. لا تُرفق أي أرقام ولا ما نسخته (الحافظة) ولا السجل.</sys:String>
   <sys:String x:Key="Report.Preview">معاينة ما سيُرسل</sys:String>
   <sys:String x:Key="Report.PreviewName">معاينة التقرير</sys:String>
   <sys:String x:Key="Report.TechHeading">معلومات تقنية</sys:String>
@@ -287,7 +287,7 @@
   <sys:String x:Key="Tech.UiLanguage">لغة الواجهة</sys:String>
   <sys:String x:Key="Tech.Scale">دقة العرض</sys:String>
   <sys:String x:Key="Tech.Options">خيارات التحويل</sys:String>
-  <sys:String x:Key="Tech.Hotkey">اختصار الحافظة</sys:String>
+  <sys:String x:Key="Tech.Hotkey">اختصار تحويل ما نسخته</sys:String>
   <sys:String x:Key="Tech.NotRegistered">غير مسجّل</sys:String>
   <sys:String x:Key="Tech.Off">معطّل</sys:String>
   <sys:String x:Key="Tech.LastError">آخر رمز خطأ</sys:String>
