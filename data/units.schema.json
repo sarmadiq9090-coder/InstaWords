@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/sarmadiq9090-coder/tafket/blob/main/data/units.schema.json",
   "title": "Tafqit units catalog",
-  "description": "Catalog of counted nouns (currencies, measures, counts). Every grammatical form is stored explicitly; the engine never derives forms.",
+  "description": "Catalog of counted nouns (currencies, measures, counts). Every grammatical form is stored explicitly; the engine never derives forms. Optional `i18n` holds the forms in languages other than Arabic (docs/SPEC.md §17).",
   "type": "object",
   "required": [
     "schemaVersion",
@@ -117,6 +117,9 @@
         "one": {
           "$ref": "#/$defs/arabicText",
           "description": "Optional phrase used for exactly 1 instead of singular + واحد/واحدة (e.g. كيلومتر واحد في الساعة)."
+        },
+        "i18n": {
+          "$ref": "#/$defs/i18n"
         }
       }
     },
@@ -178,6 +181,10 @@
             }
           ]
         },
+        "i18n": {
+          "$ref": "#/$defs/i18n",
+          "description": "Forms of the unit in other languages (the subunit carries its own i18n)."
+        },
         "subunit": {
           "$ref": "#/$defs/subunit"
         },
@@ -202,8 +209,17 @@
               }
             },
             "not": {
-              "required": [
-                "subunit"
+              "anyOf": [
+                {
+                  "required": [
+                    "subunit"
+                  ]
+                },
+                {
+                  "required": [
+                    "i18n"
+                  ]
+                }
               ]
             }
           }
@@ -225,6 +241,75 @@
           }
         }
       ]
+    },
+    "latinText": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^\\S(.*\\S)?$"
+    },
+    "enForms": {
+      "description": "English forms (Title Case).",
+      "type": "object",
+      "required": [
+        "singular",
+        "plural"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "singular": {
+          "$ref": "#/$defs/latinText",
+          "description": "Used with 1: Saudi Riyal"
+        },
+        "plural": {
+          "$ref": "#/$defs/latinText",
+          "description": "Used with every other number, including 0: Saudi Riyals"
+        },
+        "one": {
+          "$ref": "#/$defs/latinText",
+          "description": "Optional phrase for exactly 1 instead of \"One \" + singular."
+        }
+      }
+    },
+    "frForms": {
+      "description": "French forms (lowercase, traditional orthography).",
+      "type": "object",
+      "required": [
+        "singular",
+        "plural",
+        "gender"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "singular": {
+          "$ref": "#/$defs/latinText",
+          "description": "Used with 0 and 1: riyal saoudien"
+        },
+        "plural": {
+          "$ref": "#/$defs/latinText",
+          "description": "Used with 2 and more: riyals saoudiens"
+        },
+        "gender": {
+          "$ref": "#/$defs/gender",
+          "description": "Gender of the French noun (un/une, vingt et un/vingt et une)."
+        },
+        "one": {
+          "$ref": "#/$defs/latinText",
+          "description": "Optional phrase for exactly 1 instead of un/une + singular."
+        }
+      }
+    },
+    "i18n": {
+      "description": "Forms in languages other than Arabic. A language missing here makes conversion to it fail with NO_LANGUAGE_FORMS.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "en": {
+          "$ref": "#/$defs/enForms"
+        },
+        "fr": {
+          "$ref": "#/$defs/frForms"
+        }
+      }
     }
   }
 }

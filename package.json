@@ -36,7 +36,9 @@
     "test:site": "npm run build:site && node tests/site/smoke.mjs",
     "build:vba": "node scripts/build-vba.mjs",
     "test:vba": "npm run build && npm run build:vba && node --test \"tests/vba/**/*.test.mjs\"",
-    "test:all": "npm test && npm run test:vba && npm run test:site"
+    "test:all": "npm test && npm run test:vba && npm run test:site",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build"
   },
   "keywords": [
     "arabic",
@@ -47,6 +49,7 @@
     "invoice"
   ],
   "devDependencies": {
+    "@tauri-apps/cli": "2.12.2",
     "@types/node": "^22.20.5",
     "typescript": "5.9.3"
   }

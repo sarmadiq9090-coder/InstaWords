@@ -20,7 +20,17 @@ if (!existsSync(join(root, "index.html"))) {
   console.error("smoke: _site/ not found; run `npm run build:site` first.");
   process.exit(1);
 }
-const { tafqit } = await import(new URL("../../dist/index.js", import.meta.url));
+const core = await import(new URL("../../dist/index.js", import.meta.url));
+const { tafqit } = core;
+// Output languages: real ones when the core exports LANGUAGES; otherwise the picker UI is checked
+// against a stub export injected into lib/index.js (Arabic output, layout and behaviour only).
+const REAL_LANGUAGES = Array.isArray(core.LANGUAGES) && core.LANGUAGES.length > 1 ? core.LANGUAGES : null;
+const STUB_LANGUAGES = [
+  { id: "ar", label: "العربية", dir: "rtl", supportsHundredsForm: true },
+  { id: "en", label: "English", dir: "ltr", supportsHundredsForm: false },
+  { id: "fr", label: "Français", dir: "ltr", supportsHundredsForm: false },
+];
+const WINDOWS_URL = "https://github.com/sarmadiq9090-coder/tafket/releases/latest";
 
 const PREFIX = "/tafqit/";
 const MIME = {
@@ -114,6 +124,11 @@ try {
   await ready(page);
 
   check("lang/dir", (await page.getAttribute("html", "lang")) === "ar" && (await page.getAttribute("html", "dir")) === "rtl");
+  check("title names InstaWords and تفقيط", /InstaWords/.test(await page.title()) && (await page.title()).includes("تفقيط"), await page.title());
+  check("header product name", (await page.textContent(".product")).includes("InstaWords"));
+  const winLinks = await page.$$eval("[data-windows-download]", (as) => as.map((a) => a.href));
+  check("Windows download links (hero + section)", winLinks.length >= 2 && winLinks.every((h) => h === WINDOWS_URL), winLinks.join(", "));
+  check("Windows section says it works offline on Windows 10/11", /ويندوز 10 و11/.test(await page.textContent("#windows")));
   await page.evaluate(() => document.fonts.ready);
   check("self-hosted Plex Arabic font loaded", await page.evaluate(() => document.fonts.check('700 16px "Plex Arabic"', "تفقيط")));
   const ld = await page.$$eval('script[type="application/ld+json"]', (els) => els.map((e) => e.textContent));
@@ -134,8 +149,10 @@ try {
   await page.selectOption("#unit", "SAR");
   await page.fill("#number", "1250.75");
   await waitText(page, "#result", "ألف ومائتان وخمسون ريالاً سعودياً وخمس وسبعون هللة", "1250.75 SAR");
-  await waitText(page, "#cleaned", "1250.75", "cleaned number shown");
+  await waitText(page, "#cleaned", "1,250.75", "cleaned number shown with thousands separators");
 
+  await page.fill("#number", "1234567.5");
+  await waitText(page, "#cleaned", "1,234,567.5", "thousands grouping");
   await page.fill("#number", "١٢٣");
   await waitText(page, "#result", "مائة وثلاثة وعشرون ريالاً سعودياً", "Arabic-Indic digits");
   await waitText(page, "#cleaned", "123", "Indic cleaned to 123");
@@ -175,6 +192,25 @@ try {
   check("copy to clipboard", clip === "فقط ألفان وخمسمائة ريال سعودي لا غير", clip);
   check("copy feedback", (await page.textContent("#copy")).includes("تم النسخ"));
 
+  // Keyboard shortcuts and the clear button.
+  await page.click('[data-preset="none"]');
+  await page.fill("#number", "75");
+  await page.focus("h1");
+  await page.evaluate(() => document.activeElement?.blur());
+  await page.keyboard.press("/");
+  check('"/" focuses the number field', await page.evaluate(() => document.activeElement?.id === "number"));
+  await page.evaluate(() => navigator.clipboard.writeText(""));
+  await page.keyboard.press("Control+Enter");
+  await page.waitForTimeout(100);
+  check("Ctrl+Enter copies the result", (await page.evaluate(() => navigator.clipboard.readText())) === tafqit("75", { unit: "SAR" }));
+  check("clear button shown with input", await page.isVisible("#clear-number"));
+  await page.click("#clear-number");
+  check("clear button empties the field", (await page.inputValue("#number")) === "" && (await page.getAttribute("#result", "class")).includes("is-empty") && !(await page.isVisible("#clear-number")));
+  await page.click('[data-sample="1250.75"]');
+  await waitText(page, "#result", tafqit("1250.75", { unit: "SAR" }), "sample chip fills the converter");
+  await page.fill("#number", "2500");
+  await page.click('[data-preset="only"]');
+
   // Preferences survive a reload.
   await page.check('input[name="hundreds"][value="مئة"]');
   await page.selectOption("#unit", "KWD");
@@ -188,6 +224,11 @@ try {
   await page.goto(`${BASE}?n=${encodeURIComponent("5000")}&unit=USD`);
   await ready(page);
   await waitText(page, "#result", tafqit("5000", { unit: "USD" }), "deep link ?n=&unit=");
+
+  /* ---------- language picker ---------- */
+  console.log(`language picker (${REAL_LANGUAGES ? "core LANGUAGES: " + REAL_LANGUAGES.map((l) => l.id).join("/") : "core has no LANGUAGES yet: UI checked with a stub, output checks skipped"})`);
+  check("language picker present", (await page.locator("[data-language-field]").count()) === 1);
+  await languageChecks();
 
   /* ---------- bulk page ---------- */
   console.log("bulk page");
@@ -344,6 +385,110 @@ try {
 } finally {
   await browser.close();
   server.close();
+}
+
+async function languageChecks() {
+  const langs = REAL_LANGUAGES ?? STUB_LANGUAGES;
+  const c = await browser.newContext({ serviceWorkers: "block", permissions: ["clipboard-read", "clipboard-write"] });
+  if (!REAL_LANGUAGES) {
+    await c.route("**/lib/index.js", async (route) => {
+      const res = await route.fetch();
+      const body = (await res.text()) + `\nexport const LANGUAGES = ${JSON.stringify(STUB_LANGUAGES)};\n`;
+      await route.fulfill({ response: res, body });
+    });
+  }
+  const p = watch(await c.newPage());
+  const en = langs.find((l) => l.id === "en");
+  const fr = langs.find((l) => l.id === "fr");
+  try {
+    await p.goto(BASE);
+    await ready(p);
+    const ids = await p.$$eval('input[name="language"]', (rs) => rs.map((r) => r.value));
+    check("picker lists the core languages", ids.join() === langs.map((l) => l.id).join() && (await p.isVisible("[data-language-field]")), ids.join());
+    check("Arabic selected by default", await p.isChecked('input[name="language"][value="ar"]'));
+    if (!en) return;
+    await p.selectOption("#unit", "SAR");
+    await p.click('[data-preset="only"]');
+    await p.check('input[name="language"][value="en"]');
+    check("hundreds control hidden for English", await p.isHidden("[data-hundreds-field]"));
+    check('preset switches to "… Only"', (await p.inputValue("#prefix")) === "" && (await p.inputValue("#suffix")) === "Only", `${await p.inputValue("#prefix")}|${await p.inputValue("#suffix")}`);
+    await p.click('[data-preset="none"]');
+    await p.fill("#number", "1250.75");
+    await p.waitForTimeout(50);
+    const r = await p.evaluate(() => ({ dir: document.getElementById("result").dir, lang: document.getElementById("result").lang, cls: document.getElementById("result").className }));
+    if (REAL_LANGUAGES) {
+      const want = core.tryTafqit("1250.75", { unit: "SAR", language: "en" });
+      await waitText(p, "#result", want.ok ? want.result : want.error.message, `English with SAR matches the core (${want.ok ? "text" : want.error.code})`);
+      const u = unitFor("en");
+      await p.selectOption("#unit", u);
+      await p.fill("#number", "2,500.5");
+      await waitText(p, "#result", tafqit("2,500.5", { unit: u, language: "en" }), `English output matches the core (unit ${u})`);
+      const r2 = await p.evaluate(() => ({ dir: document.getElementById("result").dir, lang: document.getElementById("result").lang }));
+      check("English result is LTR", r2.dir === "ltr" && r2.lang === "en", JSON.stringify(r2));
+    } else {
+      check("English result marked LTR (stub)", r.dir === "ltr" && r.lang === "en", JSON.stringify(r));
+    }
+    await p.reload();
+    await ready(p);
+    check("language remembered after reload", await p.isChecked('input[name="language"][value="en"]'));
+    await p.check('input[name="language"][value="ar"]');
+    check("hundreds control back for Arabic", await p.isVisible("[data-hundreds-field]"));
+    await p.goto(`${BASE}?lang=en&n=7&unit=SAR`);
+    await ready(p);
+    check("deep link lang=en selects English", await p.isChecked('input[name="language"][value="en"]'));
+    if (fr) {
+      await p.goto(`${BASE}?lang=fr&n=1250.75&unit=SAR`);
+      await ready(p);
+      check("deep link lang=fr selects French", await p.isChecked('input[name="language"][value="fr"]'));
+      await p.click('[data-preset="only"]');
+      check("French preset is a prefix", (await p.inputValue("#prefix")).startsWith("Arrêtée") && (await p.inputValue("#suffix")) === "");
+      if (REAL_LANGUAGES) {
+        const u = unitFor("fr");
+        await p.selectOption("#unit", u);
+        const want = core.tryTafqit("1250.75", { unit: u, language: "fr", prefix: await p.inputValue("#prefix") });
+        await waitText(p, "#result", want.ok ? want.result : want.error.message, `French output matches the core (unit ${u})`);
+      }
+      await p.click('[data-preset="none"]');
+    }
+    await p.goto(`${BASE}bulk.html?lang=en&unit=${unitFor("en")}`);
+    await ready(p);
+    check("bulk: language picker and deep link", await p.isChecked('input[name="language"][value="en"]'));
+    await p.fill("#numbers", "1\n2500");
+    await p.waitForFunction(() => document.querySelector("#rows")?.dataset.rendered === "2", null, { timeout: 5000 }).catch(() => {});
+    const cell = await p.evaluate(() => { const td = document.querySelector("#rows tr:not(.is-error) td.c-text"); return td && { dir: td.dir, lang: td.lang, text: td.textContent }; });
+    if (REAL_LANGUAGES) {
+      check("bulk: English rows", cell?.text === tafqit("1", { unit: await p.inputValue("#unit"), language: "en" }) && cell?.dir === "ltr", JSON.stringify(cell));
+    } else {
+      check("bulk: English rows marked LTR (stub)", cell?.dir === "ltr" && cell?.lang === "en", JSON.stringify(cell));
+    }
+    const shots = process.env.TAFKET_SCREENSHOTS;
+    if (shots) {
+      mkdirSync(shots, { recursive: true });
+      const tag = REAL_LANGUAGES ? "" : "-stub";
+      for (const [label, viewport] of [["mobile", { width: 375, height: 812 }], ["desktop", { width: 1280, height: 900 }]]) {
+        await p.setViewportSize(viewport);
+        for (const l of langs.filter((x) => x.id !== "ar")) {
+          await p.goto(`${BASE}?lang=${l.id}&n=1250.75&unit=${unitFor(l.id)}`);
+          await ready(p);
+          await p.evaluate(() => document.fonts.ready);
+          await p.screenshot({ path: join(shots, `index-${l.id}${tag}-${label}.png`), fullPage: label === "mobile" ? false : false });
+        }
+        await p.goto(`${BASE}bulk.html?lang=en&unit=${unitFor("en")}`);
+        await ready(p);
+        await p.click("#sample");
+        await p.waitForTimeout(200);
+        await p.screenshot({ path: join(shots, `bulk-en${tag}-${label}.png`), fullPage: true });
+      }
+    }
+  } finally {
+    await c.close();
+  }
+}
+
+/** A unit the core can spell in `lang` (currencies first), falling back to "none". */
+function unitFor(lang) {
+  if (!REAL_LANGUAGES) return "SAR";
+  return ["USD", "EUR", "SAR", "AED", "none"].find((u) => core.tryTafqit("1.5", { unit: u, language: lang }).ok) ?? "none";
 }
 
 function tryMessage(input, opts) {
