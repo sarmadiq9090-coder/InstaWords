@@ -42,13 +42,15 @@
         <UniformGrid Rows="1">
           <RadioButton Style="{StaticResource SegmentRadio}"
                        IsChecked="{Binding Decimals, Converter={StaticResource Eq}, ConverterParameter=round}"
-                       AutomationProperties.AutomationId="DecimalsRound" AutomationProperties.Name="تقريب">
-            <TextBlock><Run Text="تقريب" /><Run Text=" 10.125 ← 10.13" FontSize="12" FontWeight="Normal" Foreground="{StaticResource MutedBrush}" /></TextBlock>
+                       AutomationProperties.AutomationId="DecimalsRound" AutomationProperties.Name="تقريب"
+                       ToolTip="تقريب نصفي للأعلى إلى دقة العملة: 10.125 ريال تصبح 10.13">
+            <TextBlock Text="تقريب" TextTrimming="CharacterEllipsis" />
           </RadioButton>
           <RadioButton Style="{StaticResource SegmentRadio}"
                        IsChecked="{Binding Decimals, Converter={StaticResource Eq}, ConverterParameter=error}"
-                       AutomationProperties.AutomationId="DecimalsError" AutomationProperties.Name="إظهار خطأ">
-            <TextBlock><Run Text="إظهار خطأ" /><Run Text=" للتدقيق" FontSize="12" FontWeight="Normal" Foreground="{StaticResource MutedBrush}" /></TextBlock>
+                       AutomationProperties.AutomationId="DecimalsError" AutomationProperties.Name="إظهار خطأ"
+                       ToolTip="لا تقريب: يظهر خطأ إذا زادت الخانات العشرية على دقة العملة، للتدقيق">
+            <TextBlock Text="إظهار خطأ" TextTrimming="CharacterEllipsis" />
           </RadioButton>
         </UniformGrid>
       </Border>
