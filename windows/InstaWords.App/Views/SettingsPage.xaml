@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:ui="clr-namespace:InstaWords.App.Views"
              Focusable="False" IsTabStop="False">
-  <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
+  <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False" AutomationProperties.AutomationId="SettingsScroll">
     <StackPanel Margin="24,20,24,24" MaxWidth="900" HorizontalAlignment="Stretch">
 
       <!-- Interface language («لغة الواجهة»): independent of the tafqit output language. -->

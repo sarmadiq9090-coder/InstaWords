@@ -4,7 +4,7 @@
         xmlns:ui="clr-namespace:InstaWords.App.Views"
         Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner"
         Title="{DynamicResource Print.WindowTitle}" AutomationProperties.AutomationId="PrintWindow"
-        Width="1180" Height="820" MinWidth="940" MinHeight="600" ResizeMode="CanResizeWithGrip">
+        Width="1240" Height="820" MinWidth="1000" MinHeight="600" ResizeMode="CanResizeWithGrip">
   <DockPanel Margin="20">
     <!-- Actions -->
     <DockPanel DockPanel.Dock="Bottom" Margin="0,14,0,0" LastChildFill="True">
@@ -25,13 +25,14 @@
 
     <Grid>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="430" />
+        <!-- Wide enough for the currency name, "Company name (optional)" beside the logo, and the date. -->
+        <ColumnDefinition Width="500" />
         <ColumnDefinition Width="18" />
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
 
       <!-- Fields -->
-      <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False" Padding="0,0,6,0" Margin="0,0,-6,0">
+      <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False" Padding="0,0,6,0" Margin="0,0,-6,0" AutomationProperties.AutomationId="PrintFieldsScroll">
         <StackPanel>
           <ContentControl Style="{StaticResource Card}" Padding="18,16">
             <StackPanel>
@@ -50,32 +51,35 @@
               </Border>
               <TextBlock x:Name="TemplateHint" Style="{StaticResource HintText}" Margin="2,8,0,0" AutomationProperties.AutomationId="PrintTemplateHint" />
 
-              <!-- Amount: typed here, or the rows from the bulk tab -->
-              <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Single.NumberLabel}" Margin="0,16,0,6" />
-              <TextBox x:Name="AmountBox" FlowDirection="LeftToRight" FontSize="18" FontWeight="SemiBold" MaxLength="400" ui:Ui.Placeholder="0.00"
-                       TextChanged="OnFieldChanged" AutomationProperties.AutomationId="PrintAmount" AutomationProperties.Name="{DynamicResource Single.NumberLabel}" />
-              <Border x:Name="BulkInfo" Style="{StaticResource Pill}" Visibility="Collapsed" HorizontalAlignment="Left" Padding="12,6" Background="{StaticResource BrandSofterBrush}">
-                <StackPanel Orientation="Horizontal">
-                  <ui:Icon Data="{StaticResource IconList}" FlowDirection="{DynamicResource UiFlow}" Width="16" Height="16" Foreground="{StaticResource BrandTextBrush}" Margin="0,0,8,0" />
-                  <TextBlock x:Name="BulkInfoText" FontWeight="SemiBold" Foreground="{StaticResource BrandTextBrush}" AutomationProperties.AutomationId="PrintBulkInfo" />
-                </StackPanel>
-              </Border>
-
-              <Grid Margin="0,12,0,0">
+              <!-- Amount (typed here, or the rows from the bulk tab) beside the output language; the currency
+                   gets a full row so its name is never cut. -->
+              <Grid Margin="0,16,0,0">
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*" />
                   <ColumnDefinition Width="12" />
                   <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel>
-                  <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Common.Unit}" />
-                  <ui:UnitPicker />
+                  <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Single.NumberLabel}" />
+                  <TextBox x:Name="AmountBox" FlowDirection="LeftToRight" FontSize="18" FontWeight="SemiBold" MaxLength="400" ui:Ui.Placeholder="0.00"
+                           TextChanged="OnFieldChanged" AutomationProperties.AutomationId="PrintAmount" AutomationProperties.Name="{DynamicResource Single.NumberLabel}" />
+                  <Border x:Name="BulkInfo" Style="{StaticResource Pill}" Visibility="Collapsed" HorizontalAlignment="Left" Padding="12,6" Background="{StaticResource BrandSofterBrush}">
+                    <DockPanel>
+                      <ui:Icon DockPanel.Dock="Left" Data="{StaticResource IconList}" FlowDirection="{DynamicResource UiFlow}" Width="16" Height="16" Foreground="{StaticResource BrandTextBrush}"
+                               Margin="0,0,8,0" VerticalAlignment="Top" />
+                      <TextBlock x:Name="BulkInfoText" FontWeight="SemiBold" Foreground="{StaticResource BrandTextBrush}" TextWrapping="Wrap"
+                                 AutomationProperties.AutomationId="PrintBulkInfo" />
+                    </DockPanel>
+                  </Border>
                 </StackPanel>
                 <StackPanel Grid.Column="2">
                   <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Common.OutputLanguage}" />
                   <ui:LanguagePicker MinHeight="40" />
                 </StackPanel>
               </Grid>
+
+              <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Common.Unit}" Margin="0,12,0,6" />
+              <ui:UnitPicker />
 
               <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Print.WordsLabel}" Margin="0,14,0,6" />
               <Border CornerRadius="10" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BgSofterBrush}" Padding="12,8">

@@ -34,11 +34,13 @@ namespace InstaWords.UITests
         /// <summary>The default settings with the interface in English (the tafqit output language stays Arabic).</summary>
         public static string EnglishSettings => DefaultSettings.Replace("\"uiLanguage\": \"ar\"", "\"uiLanguage\": \"en\"");
 
-        public AppSession(string settingsJson = null, string updateFeedJson = null)
+        /// <param name="seed">Called with the data folder before launch, to add files (a logo, for instance).</param>
+        public AppSession(string settingsJson = null, string updateFeedJson = null, Action<string> seed = null)
         {
             DataDir = Path.Combine(Path.GetTempPath(), "InstaWords-uitest-" + Guid.NewGuid().ToString("N").Substring(0, 8));
             Directory.CreateDirectory(DataDir);
             File.WriteAllText(Path.Combine(DataDir, "settings.json"), settingsJson ?? DefaultSettings, new UTF8Encoding(false));
+            seed?.Invoke(DataDir);
 
             var psi = new ProcessStartInfo(AppPath) { UseShellExecute = false, WorkingDirectory = Path.GetDirectoryName(AppPath) };
             psi.Environment["INSTAWORDS_DATA_DIR"] = DataDir;
@@ -89,7 +91,7 @@ namespace InstaWords.UITests
             }
         }
 
-        private static string RepoWindowsDir()
+        internal static string RepoWindowsDir()
         {
             var d = new DirectoryInfo(AppContext.BaseDirectory);
             while (d != null && !File.Exists(Path.Combine(d.FullName, "InstaWords.sln"))) d = d.Parent;

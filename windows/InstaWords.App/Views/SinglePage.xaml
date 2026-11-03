@@ -11,7 +11,7 @@
       <ColumnDefinition x:Name="HistoryColumn" Width="320" />
     </Grid.ColumnDefinitions>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False" Padding="0,0,4,0" Margin="0,0,-4,0">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False" Padding="0,0,4,0" Margin="0,0,-4,0" AutomationProperties.AutomationId="SingleScroll">
       <ContentControl Style="{StaticResource Card}" Margin="0,0,0,6">
         <StackPanel>
           <!-- Title + shortcuts -->
