@@ -94,11 +94,11 @@ Partner Center → InstaWords → Store listings → add **English (United State
 
 **Short description**
 
-> Write any amount in words for cheques, invoices and vouchers, in Arabic, English and French. 100+ currencies, cheque printing, and a Ctrl+Alt+T shortcut that converts the number you copied, from any program. Works fully offline.
+> Turn any amount into correct words for cheques, invoices and vouchers, in Arabic, English or French. 50+ currencies, cheque printing, whole Excel columns. Offline and free.
 
 **Description**
 
-> InstaWords writes amounts in words (tafqit) for cheques, invoices, receipts and payment vouchers, in Arabic, English and French, with more than 100 currencies and units.
+> InstaWords writes amounts in words for cheques, invoices, receipts and payment vouchers, in Arabic, English and French, with more than 50 currencies and over 50 other units (weight, length, area, time, quantities…). Writing the amount in words, as cheques and vouchers require, is called tafqit (تفقيط) in Arabic.
 >
 > Type a number and the words appear as you type. Arabic grammar is handled for you: dual forms, the right agreement for each currency, and fractions such as halalas and fils. Choose مائة or مئة, add «فقط … لا غير» or "… Only", and copy the result with one click.
 >
@@ -111,7 +111,7 @@ Partner Center → InstaWords → Store listings → add **English (United State
 **Product features** (up to 20)
 
 1. Amounts in words in Arabic, English and French
-2. 100+ currencies and units, with their fractions (halalas, fils, cents…)
+2. 50+ currencies, with fractions such as halalas, fils and cents, and over 50 units of measure
 3. Live conversion as you type, with Arabic-Indic (١٢٣) or Western digits
 4. Correct Arabic grammar: dual forms, agreement, مائة or مئة
 5. Ready phrases: «فقط … لا غير», "… Only", "Arrêtée la présente facture à la somme de …"
@@ -154,15 +154,15 @@ Partner Center → InstaWords → Store listings → add **English (United State
 
 **وصف مختصر**
 
-> اكتب أي مبلغ بالحروف للشيكات والفواتير والسندات، بالعربية والإنجليزية والفرنسية. أكثر من 100 عملة، وطباعة الشيكات، واختصار Ctrl+Alt+T يحوّل الرقم المنسوخ من أي برنامج. يعمل كله دون إنترنت.
+> اكتب أي مبلغ بالحروف كتابةً صحيحة للشيكات والفواتير والسندات، بالعربية أو الإنجليزية أو الفرنسية. أكثر من 50 عملة، وطباعة الشيكات، وأعمدة Excel كاملة. يعمل دون إنترنت، ومجاني.
 
 **الوصف**
 
-> InstaWords يكتب المبالغ بالحروف (التفقيط) للشيكات والفواتير وسندات القبض والصرف، بالعربية والإنجليزية والفرنسية، بأكثر من 100 عملة ووحدة.
+> InstaWords يكتب المبالغ بالحروف (التفقيط) للشيكات والفواتير وسندات القبض والصرف، بالعربية والإنجليزية والفرنسية، بأكثر من 50 عملة وأكثر من 50 وحدة أخرى (الوزن والطول والمساحة والوقت والكميات…).
 >
 > اكتب الرقم فيظهر المبلغ بالحروف فوراً أثناء الكتابة، بقواعد عربية صحيحة: المثنى، والتمييز المناسب لكل عملة، وأجزاء العملة (هللة، فلس، سنت…). اختر «مائة» أو «مئة»، وأضف «فقط … لا غير»، وانسخ النتيجة بنقرة.
 >
-> تعمل على Excel أو برنامج محاسبة؟ انسخ الرقم، واضغط Ctrl+Alt+T من أي برنامج، فيصبح ما في الحافظة المبلغَ مكتوباً بالحروف جاهزاً للصق. ولتحويل عمود كامل، الصقه في تبويب «دفعة» أو استورد ملف CSV، ثم انسخ النتائج أو صدّرها CSV.
+> تعمل على Excel أو برنامج محاسبة؟ انسخ الرقم، واضغط Ctrl+Alt+T من أي برنامج، فيصبح ما نسخته (الحافظة) المبلغَ مكتوباً بالحروف جاهزاً للصق. ولتحويل عمود كامل، الصقه في تبويب «عدة مبالغ» أو استورد ملف CSV، ثم انسخ النتائج أو صدّرها CSV.
 >
 > طباعة الشيكات والسندات: شيك بالمبلغ بالأرقام وبالحروف مع الخط المتقطع بعده، وسند قبض وسند صرف على A5 أو A4 باسم مؤسستك وشعارها، وشريط للمبلغ بالحروف وحده. المعاينة الحيّة هي نفسها ما يُطبع، ومع المعايرة بالمليمتر لكل حقل يطابق الناتج شيكاتك المطبوعة مسبقاً. ولحفظ PDF اختر «Microsoft Print to PDF».
 >
@@ -171,12 +171,12 @@ Partner Center → InstaWords → Store listings → add **English (United State
 **المزايا**
 
 1. المبلغ بالحروف بالعربية والإنجليزية والفرنسية
-2. أكثر من 100 عملة ووحدة مع أجزائها (هللة، فلس، سنت…)
+2. أكثر من 50 عملة مع أجزائها مثل الهللة والفلس والسنت، وأكثر من 50 وحدة قياس
 3. تفقيط فوري أثناء الكتابة، بالأرقام العربية (١٢٣) أو الإنجليزية
 4. قواعد عربية صحيحة: المثنى والتمييز، و«مائة» أو «مئة»
 5. صيغ جاهزة: «فقط … لا غير»، و"… Only"، والصيغة الفرنسية للفواتير
-6. Ctrl+Alt+T من أي برنامج: الرقم المنسوخ يصبح كلمات في الحافظة
-7. تبويب «دفعة»: الصق عموداً من Excel أو استورد CSV، وصدّر النتائج CSV
+6. Ctrl+Alt+T من أي برنامج: الرقم الذي نسخته يصبح كلمات جاهزة للصق
+7. تبويب «عدة مبالغ»: الصق عموداً من Excel أو استورد CSV، وصدّر النتائج CSV
 8. سلس مع 10,000 سطر
 9. طباعة الشيكات بالمبلغ بالأرقام وبالحروف
 10. سند قبض وسند صرف على A5 أو A4 باسم مؤسستك وشعارها
@@ -190,11 +190,11 @@ Partner Center → InstaWords → Store listings → add **English (United State
 
 **كلمات البحث**
 
-`تفقيط` · `المبلغ بالحروف` · `كتابة المبالغ` · `شيكات` · `tafqit` · `amount in words` · `cheque writer`
+`تفقيط` · `كتابة المبلغ بالحروف` · `تحويل الأرقام إلى كلمات` · `المبلغ بالحروف` · `كتابة المبالغ` · `طباعة شيك` · `شيكات`
 
 **ما الجديد في هذا الإصدار**
 
-> أول إصدار من InstaWords 2.1 في Microsoft Store: طباعة الشيكات والسندات مع المعايرة، وواجهة إنجليزية، وتحويل أعمدة Excel كاملة في «دفعة»، واختصار Ctrl+Alt+T للحافظة. يحدّث المتجر البرنامج تلقائياً.
+> أول إصدار من InstaWords 2.1 في Microsoft Store: طباعة الشيكات والسندات مع المعايرة، وواجهة إنجليزية، وتحويل أعمدة Excel كاملة في «عدة مبالغ»، واختصار Ctrl+Alt+T لتحويل ما نسخته. يحدّث المتجر البرنامج تلقائياً.
 
 **حقوق النشر:** ‏© 2026 FastKiwi. رخصة MIT.
 
@@ -265,16 +265,18 @@ Partner Center needs at least one desktop screenshot of **1366×768 or larger** 
 | `screenshots/15-print-en-ui.png` | 1180×820 | English | Too narrow |
 | `screenshots/06-toast.png`, `07-toast-error.png` | 408×129 | Arabic | No |
 
-None of these meets 1366×768. Arabic and English 1366×768 screenshots were both missing, so this branch adds `windows/InstaWords.UITests/StoreScreenshotTests.cs`. It runs in the normal UI tests on a 1920×1080 runner screen and writes:
+None of these meets 1366×768, so `windows/InstaWords.UITests/StoreScreenshotTests.cs` takes the Store screenshots. It runs in the normal UI tests on the 1920×1080 runner screen. It maximises the main window (and the print dialog) and captures the screen's work area, which the maximised window fills exactly: no desktop and no taskbar show. Before the first picture it converts and copies four amounts through the app, so the history holds real results, and it scrolls each page to the top. Every amount in words, history entry and preview is the app's own output.
 
-| File | Size | Content |
-|---|---|---|
-| `store-ar-1-convert.png` / `store-en-1-convert.png` | 1366×768 | Main window, 1,250.75 in words, formatting options open (English listing: English UI and English words) |
-| `store-ar-2-bulk.png` / `store-en-2-bulk.png` | 1366×768 | Bulk tab with six converted rows |
-| `store-ar-3-settings.png` / `store-en-3-settings.png` | 1366×768 | Settings (top of the page: interface language, defaults, hotkey) |
-| `store-ar-4-print.png` / `store-en-4-print.png` | 1440×900 | Receipt voucher print preview over the main window |
+Upload them in this order, the same for both languages (Arabic listing: `store-ar-*`, Arabic interface and Arabic words; English listing: `store-en-*`, English interface and English words):
 
-Until this branch is merged, get them from the workflow run's `InstaWords-<version>-screenshots` artifact. After the merge they also appear on `ci-screenshots`. The UI tests run the unpackaged build, so if you want the Store-mode screens (no update button), the install test's screenshots are in the `store-package-checks` artifact (`store-settings.png`, `store-about.png`, at the default window size).
+| # | File | Size | Content |
+|---|---|---|---|
+| 1 | `store-ar-1-convert.png` / `store-en-1-convert.png` | SIZE | Convert tab: 45,750.50 SAR (English: 18,945.75 USD) in words with «فقط … لا غير» / "… Only", the formatting options open, and five recent conversions in SAR, AED, IQD, USD (English: USD, AED, SAR, EUR) in the history |
+| 2 | `store-ar-2-print.png` / `store-en-2-print.png` | SIZE | Print dialog, maximised: a receipt voucher with a company name and logo (the app icon), number 1042, today's date, payer and purpose, and its live preview |
+| 3 | `store-ar-3-excel.png` / `store-en-3-excel.png` | SIZE | «عدة مبالغ» / Bulk tab: a column copied from Excel (header row and seven formatted amounts) pasted and converted, in SAR (English: AED) |
+| 4 | `store-ar-4-settings.png` / `store-en-4-settings.png` | SIZE | Settings, from the top: interface language, default conversion options, the Ctrl+Alt+T shortcut |
+
+Get them from the workflow run's `InstaWords-<version>-screenshots` artifact. After the merge they also appear on `ci-screenshots`. The UI tests run the unpackaged build, so Settings shows the GitHub update options, which the Store copy replaces with "Updates come from Microsoft Store". If you want the Store-mode screens, the install test's screenshots are in the `store-package-checks` artifact (`store-settings.png`, `store-about.png`, at the default window size).
 
 ## 7. Submission checklist (owner)
 
@@ -288,7 +290,7 @@ Until this branch is merged, get them from the workflow run's `InstaWords-<versi
    2. **Properties:** category Business → Accounting & finance, privacy policy URL, support info, product declarations.
    3. **Age ratings:** the questionnaire answers in section 4.
    4. **Packages:** drag in the `.msix`. Partner Center validates it, and the version must be higher than any earlier submission.
-   5. **Store listings:** English (United States) and Arabic. Paste section 3, then add at least one 1366×768 screenshot per language (section 6). The Store takes the app's logos from the package.
+   5. **Store listings:** English (United States) and Arabic. Paste section 3, then add the four screenshots per language in order (section 6). The Store takes the app's logos from the package.
    6. **Submission options → Notes for certification:** section 5, including the runFullTrust justification.
 7. **Submit.** Certification usually takes 1 to 3 business days. Partner Center emails you the result.
 8. **Later versions:** bump `package.json` (`npm run release:prepare -- x.y.z`), let CI build `store-package`, then make a new submission with the new `.msix` (each version must be higher). The Store delivers the update. The app never self-updates in the Store copy.
