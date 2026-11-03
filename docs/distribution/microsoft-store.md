@@ -64,6 +64,8 @@ The `store-package` job in `.github/workflows/windows.yml` runs on every push, b
    - Uninstalls the app.
 5. **Windows App Certification Kit**, if the runner's SDK has it. This step is informational (`continue-on-error`). Its report and the test screenshots go to the artifact `store-package-checks`.
 
+   Latest result: **overall PASS**. 23 tests passed. One optional test, "Blocked executables", is flagged because `InstaWords.exe` references `Process.Start`. The app uses it to open https links in the default browser, to open the data folder in Explorer, and, only outside the Store, to run the verified installer. The certification notes explain this.
+
 The uploaded `store-package` is never signed: the Store signs it.
 
 ## 2. Store mode in the app
@@ -231,6 +233,7 @@ Paste into Submission → **Notes for certification**:
 > - **Printing:** cheques and vouchers are printed with the standard Windows print dialog (no driver or service is installed).
 > - **No account, no sign-in, no ads, no telemetry, no in-app purchases.**
 > - **Network:** none. The Store build makes no network connections of its own: the GitHub update check of the non-Store build is disabled in the package (the Store updates the app). The only internet use is user-initiated links (website, source code, license, "Report a problem", which builds a prefilled GitHub issue URL) that open in the user's default browser.
+> - **Process.Start** (flagged by the optional WACK "Blocked executables" test): used only to open https links in the user's default browser and the data folder in File Explorer, on the user's click. The non-Store build also uses it to run its downloaded installer; that code path is disabled in the package.
 > - **Data:** settings and history are two local JSON files under the user's AppData (redirected by MSIX to the package's LocalCache); nothing is sent anywhere.
 > - **Testing:** no test account is needed. Type a number on the first screen; press Ctrl+P for the print preview; Ctrl+2 for bulk conversion.
 
@@ -311,7 +314,7 @@ The web app at https://fastkiwi.app/instawords/ is already a PWA: it has `site/m
   - printing to a real printer;
   - "Open data folder";
   - uninstall removes the data.
-- **Partner Center validation of this exact package** happens only when you upload it. MakeAppx schema validation and the (informational) WACK run in CI are the closest checks available.
+- **Partner Center validation of this exact package** happens only when you upload it. MakeAppx schema validation and the (informational) WACK run in CI are the closest checks available. WACK ran on the Windows Server runner "without application deployment", so its runtime tests (launch and suspend times, crashes) were not part of it.
 - **Installed copy and Store copy side by side:** both share one single-instance lock. The Store copy reads an existing `%APPDATA%\FastKiwi\InstaWords` (MSIX shows the real folder merged with its own). New files go to its LocalCache. This has not been tested on a PC that has both.
 - **The privacy policy page** is not live yet (site branch `claude/privacy`).
 
