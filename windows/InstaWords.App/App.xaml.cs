@@ -251,6 +251,8 @@ namespace InstaWords.App
         private void OnUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             Log.Warn("Unhandled: " + e.Exception);
+            CrashLog.Write(AppPaths.DataDir, CrashLog.Source.Dispatcher, e.Exception, Program.VersionText());
+            // Kept running on purpose (a single failed action should not close the app); the full error is in crash.log.
             e.Handled = true;
             try
             {
