@@ -35,9 +35,9 @@ namespace InstaWords.UITests
         private static readonly Listing Arabic = new Listing
         {
             Ui = "ar",
-            History = new[] { ("3,750", "SAR"), ("12,400.50", "AED"), ("1,750,000", "IQD"), ("2,150.25", "USD") },
-            Main = ("45,750.50", "SAR"),
-            Column = new[] { "المبلغ", "1,250.75", "3,400.00", "15,000.00", "860.50", "27,999.99", "120,000.00", "4,315.25" },
+            History = new[] { ("3,750", "SAR"), ("12,400.75", "AED"), ("1,750,000", "IQD"), ("2,150.25", "USD") },
+            Main = ("45,750.25", "SAR"),
+            Column = new[] { "المبلغ", "1,250.75", "3,400.00", "15,000.00", "860.45", "27,999.99", "120,000.00", "4,315.25" },
             ColumnUnit = "SAR",
             Company = "مؤسسة النخيل التجارية",
             Party = "شركة الواحة للمقاولات",
@@ -47,9 +47,9 @@ namespace InstaWords.UITests
         private static readonly Listing English = new Listing
         {
             Ui = "en",
-            History = new[] { ("2,150.25", "USD"), ("12,400.50", "AED"), ("3,750", "SAR"), ("860.40", "EUR") },
+            History = new[] { ("2,150.25", "USD"), ("12,400.75", "AED"), ("3,750", "SAR"), ("860.45", "EUR") },
             Main = ("18,945.75", "USD"),
-            Column = new[] { "Amount", "1,250.75", "3,400.00", "15,000.00", "860.50", "27,999.99", "120,000.00", "4,315.25" },
+            Column = new[] { "Amount", "1,250.75", "3,400.00", "15,000.00", "860.45", "27,999.99", "120,000.00", "4,315.25" },
             ColumnUnit = "AED",
             Company = "Palm Trading Co.",
             Party = "Oasis Contracting LLC",
@@ -89,6 +89,9 @@ namespace InstaWords.UITests
                 var dialog = s.GetTopLevel("PrintWindow");
                 Maximize(dialog);
                 s.Get("PrintTemplateReceipt", dialog).Patterns.SelectionItem.Pattern.Select();
+                var logoLoaded = dialog.FindFirstDescendant(s.Cf.ByAutomationId("PrintLogoRemove"));
+                Console.WriteLine("Logo in the print dialog: " + (logoLoaded != null && !logoLoaded.IsOffscreen) + "; logo file exists: "
+                    + File.Exists(Path.Combine(s.DataDir, "logo.png")));
                 s.Get("PrintParty", dialog).AsTextBox().Text = l.Party;
                 s.Get("PrintPurpose", dialog).AsTextBox().Text = l.Purpose;
                 AppSession.WaitUntil(() => (dialog.FindFirstDescendant(s.Cf.ByAutomationId("PreviewWords"))?.Name ?? "").Length > 10, "words on the voucher");
@@ -117,12 +120,11 @@ namespace InstaWords.UITests
             }
         }
 
-        /// <summary>The test settings, maximised, without toasts, with the voucher header filled in.</summary>
+        /// <summary>The test settings: maximised, formatting options open.</summary>
         private static string Settings(Listing l)
         {
             var json = AppSession.DefaultSettings
                 .Replace("\"windowMaximized\": false", "\"windowMaximized\": true")
-                .Replace("\"showToast\": true", "\"showToast\": false")
                 .Replace("\"optionsExpanded\": false", "\"optionsExpanded\": true")
                 .Replace("\"uiLanguage\": \"ar\"", "\"uiLanguage\": \"" + l.Ui + "\"")
                 .Replace("\"unit\": \"USD\"", "\"unit\": \"" + l.Main.Unit + "\"");
@@ -131,11 +133,15 @@ namespace InstaWords.UITests
             return json;
         }
 
-        /// <summary>The voucher header: the company name and a logo made from the app icon (site/icon.svg).</summary>
+        /// <summary>The voucher header: the company name and a logo, a PNG made from the app icon.</summary>
         private static void Seed(string dir, Listing l)
         {
             var logo = Path.Combine(dir, "logo.png");
-            File.Copy(Path.Combine(AppSession.RepoWindowsDir(), "packaging", "msix", "Assets", "Square150x150Logo.scale-200.png"), logo);
+            var ico = Path.Combine(AppSession.RepoWindowsDir(), "InstaWords.App", "Assets", "InstaWords.ico");
+            using (var icon = new Icon(ico, 256, 256))
+            using (var bitmap = icon.ToBitmap())
+                bitmap.Save(logo, System.Drawing.Imaging.ImageFormat.Png);
+            Console.WriteLine("Logo " + logo + ": " + new FileInfo(logo).Length + " bytes");
             var settings = Path.Combine(dir, "settings.json");
             var json = File.ReadAllText(settings, Encoding.UTF8).TrimEnd();
             var print = ",\n  \"print\": { \"lastTemplate\": \"receipt\", \"companyName\": \"" + l.Company + "\", \"logoPath\": \""
