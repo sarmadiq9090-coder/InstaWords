@@ -2,6 +2,7 @@
 //   site/*            → _site/
 //   dist/**/*.js      → _site/lib/
 //   data/units.json   → _site/units.json
+//   LICENSE           → _site/LICENSE.txt
 //   vba/Tafqit.bas    → _site/Tafqit.bas (when present)
 // Then stamps a content-hash cache version and the precache list into _site/sw.js.
 import { createHash } from "node:crypto";
@@ -46,6 +47,9 @@ for (const file of walk(at("dist"))) {
 
 // 3. Units catalog, fetched at runtime by the pages.
 cpSync(at("data", "units.json"), join(out, "units.json"));
+
+// 3b. Licence, linked from the footer so it opens on the site itself.
+cpSync(at("LICENSE"), join(out, "LICENSE.txt"));
 
 // 4. Excel VBA module (built separately; optional here).
 // Without the module the Excel page would offer a broken download, so it is left out of the

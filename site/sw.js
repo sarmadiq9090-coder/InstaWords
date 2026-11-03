@@ -30,6 +30,9 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
+  // Other origins are never cached or answered here. In particular the GitHub API call for the
+  // latest Windows release goes straight to the network: offline it simply fails and the page
+  // falls back to the release it ships with, instead of showing a stale or broken cached answer.
   if (url.origin !== self.location.origin) return;
   if (url.pathname.endsWith("/units.json")) {
     event.respondWith(cacheThenUpdate(event));

@@ -30,7 +30,56 @@ const STUB_LANGUAGES = [
   { id: "en", label: "English", dir: "ltr", supportsHundredsForm: false },
   { id: "fr", label: "Français", dir: "ltr", supportsHundredsForm: false },
 ];
-const WINDOWS_URL = "https://github.com/sarmadiq9090-coder/tafket/releases/latest";
+const REPO_URL = "https://github.com/sarmadiq9090-coder/tafket";
+const RELEASE_API = "https://api.github.com/repos/sarmadiq9090-coder/tafket/releases/latest";
+// Direct installer used without JavaScript / when GitHub is unreachable (site/assets/release.js FALLBACK).
+const STATIC_EXE = `${REPO_URL}/releases/download/v2.0.0/InstaWords_2.0.0_x64-setup.exe`;
+// GitHub API fixture: what the buttons and the #download dialog must show when the API answers.
+const FIXTURE_EXE = `${REPO_URL}/releases/download/v2.1.0/InstaWords_2.1.0_x64-setup.exe`;
+const FIXTURE_ZIP = `${REPO_URL}/releases/download/v2.1.0/InstaWords_2.1.0_x64-portable.zip`;
+const FIXTURE_SHA = "ab".repeat(32);
+const FIXTURE = {
+  tag_name: "v2.1.0",
+  name: "InstaWords v2.1.0",
+  html_url: `${REPO_URL}/releases/tag/v2.1.0`,
+  published_at: "2026-12-01T10:00:00Z",
+  body: [
+    "## InstaWords — تفقيط v2.1.0",
+    "",
+    '<div dir="rtl">',
+    "",
+    "**العربية**",
+    "",
+    "- **`InstaWords_2.1.0_x64-setup.exe`**: المثبّت (موصى به).",
+    '- تحسين التصدير <img src=x onerror="window.__pwned=1"> إلى CSV.',
+    "",
+    "<script>window.__pwned=2</script>",
+    "",
+    "### Fixes",
+    "1. First fix",
+    "2. Second fix",
+    "",
+    "</div>",
+  ].join("\r\n"),
+  assets: [
+    { name: "InstaWords_2.1.0_x64-setup.exe.blockmap", size: 10, digest: null, browser_download_url: `${FIXTURE_EXE}.blockmap` },
+    { name: "InstaWords_2.1.0_x64-portable.zip", size: 600000, digest: `sha256:${"cd".repeat(32)}`, browser_download_url: FIXTURE_ZIP },
+    { name: "InstaWords_2.1.0_x64-setup.exe", size: 2621440, digest: `sha256:${FIXTURE_SHA}`, browser_download_url: FIXTURE_EXE },
+  ],
+};
+/** Answer the GitHub release API with the fixture ("ok") or fail it like an unreachable network ("down"). */
+async function mockReleaseApi(context, mode = "ok") {
+  await context.route("https://api.github.com/**", (route) =>
+    mode === "ok"
+      ? route.fulfill({ status: 200, contentType: "application/json; charset=utf-8", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify(FIXTURE) })
+      : route.abort("internetdisconnected"),
+  );
+}
+async function newContext(options = {}, api = "ok") {
+  const c = await browser.newContext(options);
+  await mockReleaseApi(c, api);
+  return c;
+}
 
 const PREFIX = "/instawords/";
 const MIME = {
@@ -103,10 +152,11 @@ const externalRequests = [];
 function watch(page) {
   page.on("request", (r) => {
     const url = r.url();
-    if (!url.startsWith(new URL(BASE).origin) && !/^(blob|data):/.test(url)) externalRequests.push(url);
+    // The one allowed request outside the site: the latest Windows release (mocked in tests).
+    if (!url.startsWith(new URL(BASE).origin) && !/^(blob|data):/.test(url) && url !== RELEASE_API) externalRequests.push(url);
   });
   page.on("console", (m) => {
-    if (m.type() === "error") consoleErrors.push(`${page.url()}: ${m.text()}`);
+    if (m.type() === "error" && !(m.location()?.url ?? "").startsWith("https://api.github.com/")) consoleErrors.push(`${page.url()}: ${m.text()}`);
   });
   page.on("pageerror", (e) => consoleErrors.push(`${page.url()}: ${e.message}`));
   return page;
@@ -118,7 +168,7 @@ const browser = await chromium.launch();
 try {
   /* ---------- single page ---------- */
   console.log("single page");
-  const ctx = await browser.newContext({ permissions: ["clipboard-read", "clipboard-write"], acceptDownloads: true });
+  const ctx = await newContext({ permissions: ["clipboard-read", "clipboard-write"], acceptDownloads: true });
   const page = watch(await ctx.newPage());
   await page.goto(BASE);
   await ready(page);
@@ -126,8 +176,12 @@ try {
   check("lang/dir", (await page.getAttribute("html", "lang")) === "ar" && (await page.getAttribute("html", "dir")) === "rtl");
   check("title names InstaWords and تفقيط", /InstaWords/.test(await page.title()) && (await page.title()).includes("تفقيط"), await page.title());
   check("header product name", (await page.textContent(".product")).includes("InstaWords"));
-  const winLinks = await page.$$eval("[data-windows-download]", (as) => as.map((a) => a.href));
-  check("Windows download links (hero + section)", winLinks.length >= 2 && winLinks.every((h) => h === WINDOWS_URL), winLinks.join(", "));
+  await page.waitForSelector("html[data-release]", { timeout: 10000 }).catch(() => {});
+  check("latest release resolved from the GitHub API", (await page.getAttribute("html", "data-release")) === "api", String(await page.getAttribute("html", "data-release")));
+  const winLinks = await page.$$eval("[data-windows-download]", (as) => as.map((a) => ({ href: a.href, text: a.textContent })));
+  check("Windows download links (hero, section, FAQ, footer) → direct installer of the latest release", winLinks.length >= 4 && winLinks.every((l) => l.href === FIXTURE_EXE), winLinks.map((l) => l.href).join(", "));
+  check("Windows download links show the latest version", winLinks.every((l) => l.text.includes("v2.1.0")), winLinks.map((l) => l.text.trim()).join(" | "));
+  await releaseDialogChecks(page);
   check("Windows section says it works offline on Windows 10/11", /ويندوز 10 و11/.test(await page.textContent("#windows")));
   await page.evaluate(() => document.fonts.ready);
   check("self-hosted Plex Arabic font loaded", await page.evaluate(() => document.fonts.check('700 16px "Plex Arabic"', "تفقيط")));
@@ -319,12 +373,20 @@ try {
   await page.goto(`${BASE}?n=7&unit=SAR`);
   await ready(page);
   await waitText(page, "#result", tafqit("7", { unit: "SAR" }), "offline: deep link");
+  // Offline with no cached release: real network (no mock), so the API call fails → fallback.
+  await ctx.unroute("https://api.github.com/**");
+  await page.evaluate(() => localStorage.removeItem("instawords.release.v1"));
+  await page.goto(`${BASE}#download`);
+  await page.waitForSelector("html[data-release]", { timeout: 15000 }).catch(() => {});
+  check("offline: release falls back to the bundled installer", (await page.getAttribute("html", "data-release")) === "fallback");
+  check("offline: #download dialog explains GitHub is unreachable", await page.isVisible("#download-dialog [data-release-offline]"));
+  check("offline: dialog offers the static direct download", (await page.getAttribute("#download-dialog [data-dialog-download]", "href")) === STATIC_EXE);
   await ctx.setOffline(false);
   await ctx.close();
 
   /* ---------- layout: no horizontal scroll at 360px ---------- */
   console.log("layout");
-  const narrow = await browser.newContext({ viewport: { width: 360, height: 740 } });
+  const narrow = await newContext({ viewport: { width: 360, height: 740 } });
   const np = watch(await narrow.newPage());
   for (const p of ["", "bulk.html", "excel.html"]) {
     await np.goto(BASE + p);
@@ -337,6 +399,15 @@ try {
     const [sw, cw] = await np.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]);
     check(`no horizontal scroll at 360px: ${p || "index.html"}`, sw <= cw, `${sw} > ${cw}`);
   }
+  await np.goto(`${BASE}#download`);
+  await np.waitForSelector("html[data-release]", { timeout: 10000 }).catch(() => {});
+  await np.waitForSelector("#download-dialog[open] [data-release-notes-body]", { timeout: 5000 }).catch(() => {});
+  const box = await np.evaluate(() => {
+    const d = document.getElementById("download-dialog");
+    const r = d.getBoundingClientRect();
+    return { left: r.left, right: r.right, inner: d.querySelector(".dialog-body").scrollWidth <= d.querySelector(".dialog-body").clientWidth };
+  });
+  check("#download dialog fits a 360px screen", box.left >= 0 && box.right <= 360 && box.inner, JSON.stringify(box));
   await narrow.close();
 
   /* ---------- screenshots ---------- */
@@ -346,7 +417,7 @@ try {
     {
       const scheme = "light";
       for (const [label, viewport] of [["mobile", { width: 375, height: 812 }], ["desktop", { width: 1280, height: 900 }]]) {
-        const c = await browser.newContext({ viewport, colorScheme: scheme });
+        const c = await newContext({ viewport, colorScheme: scheme });
         const p = watch(await c.newPage());
         await p.goto(`${BASE}?n=1250.75&unit=SAR`);
         await ready(p);
@@ -364,6 +435,13 @@ try {
         await p.goto(`${BASE}excel.html`);
         await p.waitForLoadState("load");
         await p.screenshot({ path: join(shots, `excel-${label}-${scheme}.png`), fullPage: true });
+        await p.goto(`${BASE}#download`);
+        await p.waitForSelector("#download-dialog[open] [data-release-notes-body]", { timeout: 5000 }).catch(() => {});
+        await p.waitForTimeout(200);
+        await p.screenshot({ path: join(shots, `download-dialog-${label}-${scheme}.png`) });
+        await p.goto(`${BASE}#support`);
+        await p.waitForTimeout(200);
+        await p.screenshot({ path: join(shots, `support-dialog-${label}-${scheme}.png`) });
         await c.close();
       }
     }
@@ -371,13 +449,16 @@ try {
   }
 
   // Light theme only: a dark-mode preference must not change the page.
-  const dark = await browser.newContext({ colorScheme: "dark" });
+  const dark = await newContext({ colorScheme: "dark" });
   const dp = watch(await dark.newPage());
   await dp.goto(BASE);
   await ready(dp);
   const bg = await dp.evaluate(() => getComputedStyle(document.body).backgroundColor);
   check("light theme even when the system prefers dark", bg === "rgb(255, 255, 255)", bg);
   await dark.close();
+
+  await githubLinkChecks();
+  await apiDownChecks();
 
   check("no console errors", consoleErrors.length === 0, consoleErrors.join(" | "));
   check("no requests outside the site (fully offline-capable)", externalRequests.length === 0, [...new Set(externalRequests)].join(" | "));
@@ -391,7 +472,7 @@ try {
 
 async function languageChecks() {
   const langs = REAL_LANGUAGES ?? STUB_LANGUAGES;
-  const c = await browser.newContext({ serviceWorkers: "block", permissions: ["clipboard-read", "clipboard-write"] });
+  const c = await newContext({ serviceWorkers: "block", permissions: ["clipboard-read", "clipboard-write"] });
   if (!REAL_LANGUAGES) {
     await c.route("**/lib/index.js", async (route) => {
       const res = await route.fetch();
@@ -483,6 +564,141 @@ async function languageChecks() {
         await p.screenshot({ path: join(shots, `bulk-en${tag}-${label}.png`), fullPage: true });
       }
     }
+  } finally {
+    await c.close();
+  }
+}
+
+/** The on-site release dialog (#download) and the support dialog (#support), with the API fixture. */
+async function releaseDialogChecks(page) {
+  console.log("release & support dialogs");
+  const trigger = "#windows [data-release-notes]";
+  await page.click(trigger);
+  check("release-notes link opens the #download dialog", await page.isVisible("#download-dialog[open]"));
+  check("dialog is modal, labelled and RTL", await page.evaluate(() => {
+    const d = document.getElementById("download-dialog");
+    return d.matches(":modal") && d.dir === "rtl" && document.getElementById(d.getAttribute("aria-labelledby"))?.textContent.trim().length > 0;
+  }));
+  check("opening the dialog sets #download", (await page.evaluate(() => location.hash)) === "#download");
+  const d = await page.evaluate(() => {
+    const q = (s) => document.querySelector(`#download-dialog ${s}`);
+    return {
+      version: q("[data-release-version]")?.textContent,
+      text: q(".dialog-body")?.textContent ?? "",
+      sha: q("[data-sha256]")?.textContent,
+      primary: q("[data-dialog-download]")?.href,
+      primaryText: q("[data-dialog-download]")?.textContent ?? "",
+      portable: q("[data-portable-download]")?.href,
+      github: [...document.querySelectorAll("#download-dialog a[href*='github.com']")].filter((a) => !a.href.includes("/releases/download/")).map((a) => ({ gh: a.hasAttribute("data-github"), text: a.textContent })),
+    };
+  });
+  check("dialog: version, date and installer size", d.version === "v2.1.0" && d.text.includes("2026") && d.text.includes("2.5 ميغابايت"), d.text.slice(0, 200));
+  check("dialog: SHA-256 from the asset digest", d.sha === FIXTURE_SHA, String(d.sha));
+  check("dialog: requirements (Windows 10/11, no admin, offline)", /ويندوز 10 أو 11/.test(d.text) && d.text.includes("صلاحيات المسؤول") && d.text.includes("دون إنترنت"));
+  check("dialog: primary button downloads the installer directly", d.primary === FIXTURE_EXE && d.primaryText.includes("v2.1.0"), String(d.primary));
+  check("dialog: portable zip is a direct link", d.portable === FIXTURE_ZIP, String(d.portable));
+  check("dialog: one explicit GitHub link", d.github.length === 1 && d.github[0].gh && d.github[0].text.includes("GitHub"), JSON.stringify(d.github));
+  const notes = await page.evaluate(() => {
+    const b = document.querySelector("#download-dialog [data-release-notes-body]");
+    return b && {
+      h: [...b.querySelectorAll("h3, h4")].map((e) => e.textContent),
+      li: b.querySelectorAll("li").length,
+      ol: b.querySelectorAll("ol > li").length,
+      strong: b.querySelectorAll("strong").length,
+      code: b.querySelector("code")?.textContent,
+      elements: [...b.querySelectorAll("*")].map((e) => e.tagName.toLowerCase()),
+      text: b.textContent,
+      pwned: window.__pwned,
+    };
+  });
+  check("release notes: headings, lists, bold and code rendered", !!notes && notes.h.includes("InstaWords — تفقيط v2.1.0") && notes.h.includes("Fixes") && notes.li === 4 && notes.ol === 2 && notes.strong >= 2 && notes.code === "InstaWords_2.1.0_x64-setup.exe", JSON.stringify(notes));
+  check("release notes: remote HTML stays text (no <script>/<img>, nothing executed)", !!notes && notes.elements.every((t) => ["h3", "h4", "p", "ul", "ol", "li", "strong", "code"].includes(t)) && notes.text.includes("<img src=x") && notes.text.includes("<script>") && notes.pwned === undefined, JSON.stringify(notes && { elements: [...new Set(notes.elements)], pwned: notes.pwned }));
+  check("release notes: GitHub layout tags dropped", !!notes && !notes.text.includes("<div") && !notes.text.includes("</div>"));
+  await page.keyboard.press("Escape");
+  check("Esc closes the dialog", !(await page.isVisible("#download-dialog")) && (await page.evaluate(() => location.hash)) === "");
+  check("focus returns to the link that opened it", await page.evaluate((s) => document.activeElement === document.querySelector(s), trigger));
+
+  await page.goto(`${BASE}#download`);
+  await ready(page);
+  await page.waitForSelector("#download-dialog[open]", { timeout: 5000 }).catch(() => {});
+  check("#download deep link opens the dialog", await page.isVisible("#download-dialog[open]"));
+  check("deep-linked dialog shows the latest release", (await page.textContent("#download-dialog [data-release-version]").catch(() => "")) === "v2.1.0");
+  await page.click("#download-dialog .dialog-close");
+  check("close button closes the dialog", !(await page.isVisible("#download-dialog")));
+
+  await page.click("footer [data-support]");
+  check("footer report link opens the on-site support dialog", await page.isVisible("#support-dialog[open]"));
+  const sup = await page.evaluate(() => {
+    const d = document.getElementById("support-dialog");
+    return { text: d.textContent, links: [...d.querySelectorAll("a")].map((a) => ({ href: a.href, gh: a.hasAttribute("data-github"), text: a.textContent })) };
+  });
+  check("support dialog explains the app, Excel and website options", sup.text.includes("برنامج ويندوز") && sup.text.includes("Excel") && sup.text.includes("الموقع"));
+  check("support dialog: exactly one explicit GitHub button to open an issue", sup.links.length === 1 && sup.links[0].href === `${REPO_URL}/issues/new/choose` && sup.links[0].gh && sup.links[0].text.includes("GitHub"), JSON.stringify(sup.links));
+  await page.keyboard.press("Escape");
+  check("Esc closes the support dialog, focus back on its link", !(await page.isVisible("#support-dialog")) && (await page.evaluate(() => document.activeElement?.matches("footer [data-support]"))));
+  await page.goto(BASE);
+  await ready(page);
+}
+
+/** Leaving the site: only explicit GitHub buttons/links, plus direct release files, may point at github.com. */
+async function githubLinkChecks() {
+  console.log("links out to GitHub");
+  for (const name of ["index.html", "bulk.html", "excel.html"]) {
+    if (!existsSync(join(root, name))) continue;
+    const html = readFileSync(join(root, name), "utf8");
+    const staticHrefs = [...html.matchAll(/<a\b[^>]*\bdata-windows-download\b[^>]*>/g)].map((m) => /href="([^"]+)"/.exec(m[0])?.[1]);
+    check(`${name}: static (no-JS) Windows links download the installer directly`, staticHrefs.length >= 1 && staticHrefs.every((h) => h === STATIC_EXE), staticHrefs.join(", "));
+  }
+  const c = await newContext({ serviceWorkers: "block" });
+  const p = watch(await c.newPage());
+  try {
+    for (const path of ["", "bulk.html", "excel.html"]) {
+      if (path && !existsSync(join(root, path))) continue;
+      await p.goto(BASE + path);
+      await p.waitForSelector("html[data-release]", { timeout: 10000 }).catch(() => {});
+      for (const hash of ["#download", "#support"]) {
+        await p.evaluate((h) => { location.hash = h; }, hash);
+        await p.waitForTimeout(50);
+        await p.keyboard.press("Escape");
+      }
+      const links = await p.$$eval("a[href]", (as) => as.map((a) => ({ href: a.href, gh: a.hasAttribute("data-github"), text: a.textContent.trim(), dl: a.hasAttribute("data-windows-download") || a.hasAttribute("data-portable-download") })));
+      const out = links.filter((l) => /^https?:\/\/([^/]+\.)?github\.com\//.test(l.href));
+      const files = out.filter((l) => /\/releases\/download\/v[\d.]+\/InstaWords_[\d.]+_x64-(setup\.exe|portable\.zip)$/.test(l.href));
+      const bad = out.filter((l) => !files.includes(l) && !(l.gh && l.text.includes("GitHub")));
+      check(`${path || "index.html"}: every github.com link is an explicit GitHub button (${out.length - files.length}) or a direct file`, bad.length === 0 && files.every((l) => l.dl), bad.map((l) => `${l.text} → ${l.href}`).join(" | "));
+      const pages = out.filter((l) => /\/releases(\/latest|\/tag\/|\/?$)/.test(l.href) && !l.gh);
+      check(`${path || "index.html"}: no download link to the GitHub releases page`, pages.length === 0, pages.map((l) => l.href).join(", "));
+      check(`${path || "index.html"}: footer report link stays on the site`, (await p.getAttribute("footer [data-support]", "href")) === "#support");
+    }
+  } finally {
+    await c.close();
+  }
+}
+
+/** GitHub unreachable: buttons keep the bundled direct download, the dialog says so. */
+async function apiDownChecks() {
+  console.log("GitHub API unreachable");
+  const c = await newContext({ serviceWorkers: "block" }, "down");
+  const p = await c.newPage();
+  const errors = [];
+  p.on("pageerror", (e) => errors.push(e.message));
+  try {
+    await p.goto(`${BASE}#download`);
+    await ready(p);
+    await p.waitForSelector("html[data-release]", { timeout: 15000 }).catch(() => {});
+    check("API down: release falls back", (await p.getAttribute("html", "data-release")) === "fallback");
+    const links = await p.$$eval("[data-windows-download]", (as) => as.map((a) => ({ href: a.href, text: a.textContent })));
+    check("API down: buttons download the bundled installer directly and show v2.0.0", links.length >= 4 && links.every((l) => l.href === STATIC_EXE && l.text.includes("v2.0.0")), links.map((l) => l.href).join(", "));
+    check("API down: dialog open and says GitHub is unreachable", (await p.isVisible("#download-dialog[open]")) && (await p.isVisible("#download-dialog [data-release-offline]")));
+    const d = await p.evaluate(() => ({
+      primary: document.querySelector("#download-dialog [data-dialog-download]")?.href,
+      portable: document.querySelector("#download-dialog [data-portable-download]")?.href,
+      notes: !!document.querySelector("#download-dialog [data-release-notes-body]"),
+      github: [...document.querySelectorAll("#download-dialog a[href*='github.com']")].filter((a) => !a.href.includes("/releases/download/")).map((a) => ({ gh: a.hasAttribute("data-github"), text: a.textContent })),
+    }));
+    check("API down: dialog offers the v2.0.0 direct download (+ portable)", d.primary === STATIC_EXE && /InstaWords_2\.0\.0_x64-portable\.zip$/.test(d.portable ?? "") && !d.notes, JSON.stringify(d));
+    check("API down: exactly one clearly labelled GitHub link", d.github.length === 1 && d.github[0].gh && d.github[0].text.includes("GitHub"), JSON.stringify(d.github));
+    check("API down: no page errors", errors.length === 0, errors.join(" | "));
   } finally {
     await c.close();
   }
