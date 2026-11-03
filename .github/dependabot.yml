@@ -1,0 +1,30 @@
+# Weekly dependency updates. Actions are pinned to commit SHAs in .github/workflows;
+# Dependabot keeps those pins (and their version comments) current.
+# Merged updates ship with the next Friday release train.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      github-actions:
+        patterns: ["*"]
+    labels:
+      - dependencies
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+  - package-ecosystem: nuget
+    directory: /windows
+    schedule:
+      interval: weekly
+    groups:
+      nuget:
+        patterns: ["*"]
+    labels:
+      - dependencies

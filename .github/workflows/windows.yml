@@ -44,14 +44,14 @@ jobs:
       # Only release runs are signed (each SignPath request may need a manual approval).
       SIGN_THIS_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.release }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 22
           cache: npm
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: 8.0.x
 
@@ -96,7 +96,7 @@ jobs:
           INSTAWORDS_ARTIFACTS: ${{ github.workspace }}\out\screenshots
         run: dotnet test windows/InstaWords.UITests -c Release --logger "console;verbosity=normal" --logger "trx;LogFileName=ui-tests.trx" --results-directory out/test-results
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
           name: InstaWords-${{ steps.version.outputs.version }}-screenshots
@@ -109,7 +109,7 @@ jobs:
       - name: Upload the unsigned app for signing
         id: unsigned-app
         if: env.SIGNPATH_API_TOKEN != '' && env.SIGN_THIS_RUN == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: InstaWords-${{ steps.version.outputs.version }}-unsigned-app
           path: |
@@ -122,7 +122,7 @@ jobs:
       # installer and the portable zip below are built from them.
       - name: Sign the app (SignPath)
         if: env.SIGNPATH_API_TOKEN != '' && env.SIGN_THIS_RUN == 'true'
-        uses: signpath/github-action-submit-signing-request@v1
+        uses: signpath/github-action-submit-signing-request@ced31329c0317e779dad2eec2a7c3bb46ea1343e # v1.3
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
@@ -157,7 +157,7 @@ jobs:
       - name: Upload the unsigned installer for signing
         id: unsigned-setup
         if: env.SIGNPATH_API_TOKEN != '' && env.SIGN_THIS_RUN == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: InstaWords-${{ steps.version.outputs.version }}-unsigned-setup
           path: out/InstaWords_${{ steps.version.outputs.version }}_x64-setup.exe
@@ -166,7 +166,7 @@ jobs:
 
       - name: Sign the installer (SignPath)
         if: env.SIGNPATH_API_TOKEN != '' && env.SIGN_THIS_RUN == 'true'
-        uses: signpath/github-action-submit-signing-request@v1
+        uses: signpath/github-action-submit-signing-request@ced31329c0317e779dad2eec2a7c3bb46ea1343e # v1.3
         with:
           api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
           organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
@@ -218,7 +218,7 @@ jobs:
           Compress-Archive -Path "$stage" -DestinationPath "out\InstaWords_${v}_x64-portable.zip" -Force
           Get-ChildItem out -File | Format-Table Name, Length
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: InstaWords-${{ steps.version.outputs.version }}-windows
           path: |
@@ -235,7 +235,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         continue-on-error: true
         with:
           pattern: InstaWords-*-screenshots
@@ -265,13 +265,13 @@ jobs:
       VERSION: ${{ needs.build.outputs.version }}
     steps:
       # The packaging templates and scripts/package-manifests.mjs.
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: 22
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: InstaWords-${{ needs.build.outputs.version }}-windows
           path: out
@@ -283,7 +283,7 @@ jobs:
           sha256sum "InstaWords_${VERSION}_x64-setup.exe" "InstaWords_${VERSION}_x64-portable.zip" > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           tag_name: v${{ needs.build.outputs.version }}
           target_commitish: ${{ github.sha }}
