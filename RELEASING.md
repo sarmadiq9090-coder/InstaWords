@@ -18,9 +18,10 @@
 
 2. **الاختبارات**: `npm run test:all` (و`npm run test:dotnet` إن كان ‎.NET SDK مثبتاً).
 3. **الحفظ والرفع**: `git commit -am "Release v2.1.0"` ثم `git push`، وانتظر نجاح سير العمل «Windows (native app)» على هذا الإيداع (البناء، اختبارات الواجهة، الصور).
-4. **النشر**: في GitHub ← Actions ← «Windows (native app)» ← Run workflow، وفعّل الخيار **release**. ينشئ CI الوسم `v2.1.0` وإصدار GitHub بخمسة ملفات:
+4. **النشر**: في GitHub ← Actions ← «Windows (native app)» ← Run workflow، وفعّل الخيار **release**. ينشئ CI الوسم `v2.1.0` وإصدار GitHub بستة ملفات:
    - `InstaWords_2.1.0_x64-setup.exe` و`InstaWords_2.1.0_x64-portable.zip` (لا تغيّر هذين الاسمين: المحدِّث داخل البرنامج يبحث عنهما)،
-   - `SHA256SUMS.txt` (بصمات الملفين)،
+   - `InstaWords.xlam` (إضافة Excel، يبنيها `scripts/build-xlam.mjs` من `vba/Tafqit.bas`)،
+   - `SHA256SUMS.txt` (بصمات الملفات الثلاثة)،
    - `winget-manifests.zip` و`instawords.json` (ملفات winget وScoop معبّأة بالبصمات الحقيقية، انظر [`docs/PACKAGING.md`](docs/PACKAGING.md)).
 
    وإن كان التوقيع الرقمي مُعدّاً (السر `SIGNPATH_API_TOKEN`) يُوقَّع البرنامج والمثبّت قبل النشر، انظر [`docs/CODE-SIGNING.md`](docs/CODE-SIGNING.md).
@@ -64,7 +65,7 @@ The version lives in one authoritative place, `package.json`: CI takes the Windo
 1. **Prepare** (locally): `npm run release:prepare -- 2.1.0` bumps `package.json` and `package-lock.json`, the app project's default `<Version>` (local builds; CI passes `-p:Version`), and the build examples in `windows/README.md` and `windows/installer/InstaWords.iss`, then prints the checklist. `--dry-run` shows the changes without writing.
 2. **Test**: `npm run test:all` (and `npm run test:dotnet` with the .NET SDK).
 3. **Commit and push**, then wait for the "Windows (native app)" workflow on that commit to pass.
-4. **Publish**: Actions → "Windows (native app)" → Run workflow → tick **release**. CI creates tag `v2.1.0` and the GitHub release with five assets: the setup exe and the portable zip (keep these names, the in-app updater looks for them), `SHA256SUMS.txt`, and `winget-manifests.zip` + `instawords.json` (winget and Scoop manifests with the real SHA-256, see [`docs/PACKAGING.md`](docs/PACKAGING.md)). With the `SIGNPATH_API_TOKEN` secret configured, the app and the installer are signed first ([`docs/CODE-SIGNING.md`](docs/CODE-SIGNING.md)).
+4. **Publish**: Actions → "Windows (native app)" → Run workflow → tick **release**. CI creates tag `v2.1.0` and the GitHub release with six assets: the setup exe and the portable zip (keep these names, the in-app updater looks for them), the Excel add-in `InstaWords.xlam`, `SHA256SUMS.txt`, and `winget-manifests.zip` + `instawords.json` (winget and Scoop manifests with the real SHA-256, see [`docs/PACKAGING.md`](docs/PACKAGING.md)). With the `SIGNPATH_API_TOKEN` secret configured, the app and the installer are signed first ([`docs/CODE-SIGNING.md`](docs/CODE-SIGNING.md)).
 5. **Review** the release page; try updating from an older version ([`docs/TESTING-CHECKLIST.md`](docs/TESTING-CHECKLIST.md)).
 6. **Website fallback**, after publishing: `npm run release:fallback` (refreshes `site/release-fallback.json` from the latest release, then `packaging/`), `npm run test:site`, commit and push. `scripts/update-release-fallback.mjs` reads the GitHub API (optional `GITHUB_TOKEN`), picks the assets by name, takes the SHA-256 from each asset's `digest`, and writes only when the release is newer; offline it exits 0 with a message. The FastKiwi site's daily sync also picks up new releases; this step keeps the repository itself current.
 7. **winget and Scoop**: see [`docs/PACKAGING.md`](docs/PACKAGING.md).

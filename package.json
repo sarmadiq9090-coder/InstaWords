@@ -35,6 +35,7 @@
     "build:site": "npm run build && node scripts/build-site.mjs",
     "test:site": "npm run build:site && node tests/site/smoke.mjs",
     "build:vba": "node scripts/build-vba.mjs",
+    "build:xlam": "node scripts/build-xlam.mjs",
     "test:vba": "npm run build && npm run build:vba && node --test \"tests/vba/**/*.test.mjs\"",
     "test:all": "npm test && npm run test:vba && npm run test:site",
     "build:dotnet": "node scripts/build-dotnet.mjs",

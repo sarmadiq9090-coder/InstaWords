@@ -5,6 +5,7 @@ site/lib/
 .DS_Store
 src/generated/
 _site/
+/out/
 windows/**/bin/
 windows/**/obj/
 windows/**/TestResults/
