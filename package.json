@@ -1,7 +1,7 @@
 {
-  "name": "tafket",
-  "version": "1.0.0",
-  "description": "Free, open-source Arabic tafqit (numbers to Arabic words) for cheques, invoices and accounting documents. Zero dependencies, browser + Node, Excel VBA module.",
+  "name": "instawords",
+  "version": "1.1.0",
+  "description": "InstaWords — free, open-source amount-in-words (tafqit) for cheques and invoices: Arabic, English and French. Zero dependencies, browser + Node, offline Windows app and Excel VBA module.",
   "type": "module",
   "license": "MIT",
   "main": "./dist/index.js",

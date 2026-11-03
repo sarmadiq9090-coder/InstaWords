@@ -1,4 +1,6 @@
-# تفقيط مفتوح · Tafket
+# InstaWords — تفقيط
+
+**🌐 https://fastkiwi.app/instawords/** · **🪟 [برنامج ويندوز / Windows app](https://github.com/sarmadiq9090-coder/tafket/releases/latest)** · من برامج [FastKiwi](https://fastkiwi.app/ar/)
 
 [العربية](#العربية) · [English](#english)
 
@@ -8,16 +10,20 @@
 
 ## العربية
 
-أداة **مجانية ومفتوحة المصدر (MIT)** لتحويل الأرقام إلى كلمات عربية (التفقيط) كما تُكتب في الشيكات والفواتير والمستندات المحاسبية. تعمل في المتصفح بلا خادم وبلا إنترنت، ومعها مكتبة TypeScript ووحدة Excel تعمل دون اتصال.
+**InstaWords** أداة **مجانية ومفتوحة المصدر (MIT)** تكتب المبالغ بالحروف (التفقيط) **بالعربية والإنجليزية والفرنسية** كما تُكتب في الشيكات والفواتير والمستندات المحاسبية. تعمل في المتصفح بلا خادم وبلا إنترنت، ومعها **برنامج ويندوز** يعمل دون اتصال، ومكتبة TypeScript، ووحدة Excel.
 
 ```
 1250.75 ريال سعودي  ←  ألف ومائتان وخمسون ريالاً سعودياً وخمس وسبعون هللة
 5.250 دينار كويتي   ←  خمسة دنانير كويتية ومائتان وخمسون فلساً
 2,500 + فقط/لا غير  ←  فقط ألفان وخمسمائة ريال سعودي لا غير
+1250.75 SAR (en)    ←  One Thousand Two Hundred Fifty Saudi Riyals and Seventy-Five Halalas
+1250.75 MAD (fr)    ←  mille deux cent cinquante dirhams marocains et soixante-quinze centimes
 ```
 
 ### المزايا
 
+- **ثلاث لغات للتفقيط**: العربية والإنجليزية والفرنسية (وحدة مستقلة لكل لغة، وتُضاف لغات أخرى بسهولة).
+- **برنامج ويندوز 10/11** يعمل دون إنترنت: مثبّت بلا صلاحيات مدير، أو نسخة محمولة ([التنزيل](https://github.com/sarmadiq9090-coder/tafket/releases/latest)، والتفاصيل في [`desktop/README.md`](desktop/README.md)).
 - **تذكير وتأنيث صحيحان** للعدد والمعدود (ثلاثة ريالات، ثلاث ليرات، إحدى عشرة هللة).
 - **صيغ مطابقة لعرف المالية والحسابات**: مائتان ريال، ألفان ريال، أحد عشر ألف ريال، مائتا ألف ريال.
 - **أجزاء العملة** بأي نسبة من قوى العشرة: 100 هللة، و1000 فلس للدينار العراقي والكويتي والبحريني والأردني والريال العماني.
@@ -26,7 +32,7 @@
 - **صيغة المئات** حسب اختيارك: مائة أو مئة.
 - **تفقيط متعدد بلا حد**: لصق آلاف الأرقام أو استيراد CSV، مع بادئة ولاحقة موحدتين، ونسخ النتائج، وتصديرها CSV.
 - **يعمل دون اتصال** بعد الزيارة الأولى، بفضل Service Worker.
-- **Excel دون إنترنت**: `=TAFQIT(A1; "ريال سعودي"; "مائة"; "فقط"; "لا غير")`.
+- **Excel دون إنترنت**: `=TAFQIT(A1; "ريال سعودي"; "مائة"; "فقط"; "لا غير")`، والمعامل السابع للغة: `"en"` أو `"fr"`.
 - **الوحدات في ملف JSON**: العملات، والعملات الرقمية، ووحدات الوزن والحجم والمسافة والمساحة والزمن والعدّ والبيانات والسرعة. تضيف وحدة جديدة بلا أي تعديل في الكود.
 
 ### الاستخدام
@@ -36,7 +42,7 @@
 **JavaScript / TypeScript:**
 
 ```ts
-import { tafqit, tryTafqit, convert, createTafqit } from "tafket";
+import { tafqit, tryTafqit, convert, createTafqit, LANGUAGES } from "instawords";
 
 tafqit("1250.75", { unit: "SAR" });
 // "ألف ومائتان وخمسون ريالاً سعودياً وخمس وسبعون هللة"
@@ -60,7 +66,8 @@ const t = createTafqit(myUnitsJson);
 | الخيار | القيمة الافتراضية | الوصف |
 |---|---|---|
 | `unit` | `"none"` | معرّف الوحدة، أو رمزها، أو اسمها، أو أحد أسمائها البديلة |
-| `hundredsForm` | `"مائة"` | `"مائة"` أو `"مئة"` |
+| `language` | `"ar"` | `"ar"` أو `"en"` أو `"fr"` |
+| `hundredsForm` | `"مائة"` | `"مائة"` أو `"مئة"` (للعربية فقط) |
 | `prefix` / `suffix` | `""` | نص حر قبل النتيجة وبعدها |
 | `decimals` | `"round"` | الخانات الزائدة عن دقة العملة: تقريب نصفي للأعلى، أو `"error"` |
 
@@ -87,7 +94,7 @@ const t = createTafqit(myUnitsJson);
 
 ```bash
 npm install
-npm test            # النواة + الحالات الذهبية
+npm test            # النواة + 107 حالات ذهبية
 npm run test:vba    # تطابق مخرجات VBA مع النواة حرفاً بحرف
 npm run test:site   # اختبار المتصفح (Playwright)
 npm run build:site  # يبني الموقع في _site/
@@ -107,10 +114,12 @@ MIT. انظر [`LICENSE`](LICENSE). كُتب المشروع بأسلوب «ال�
 
 ## English
 
-**Free, open-source (MIT)** Arabic *tafqit*: converts numbers to Arabic words as written on cheques, invoices and accounting documents. Fully client-side and offline, with a zero-dependency TypeScript library and an offline Excel VBA module.
+**InstaWords** is a **free, open-source (MIT)** amount-in-words tool (*tafqit*) for cheques, invoices and accounting documents, in **Arabic, English and French**. Fully client-side and offline, with an **offline Windows app**, a zero-dependency TypeScript library and an Excel VBA module.
 
 ### Features
 
+- Three output languages: Arabic, English (British spelling, Title Case) and French (traditional orthography), one module per language.
+- Windows 10/11 app, fully offline (per-user installer or portable exe): [Releases](https://github.com/sarmadiq9090-coder/tafket/releases/latest).
 - Correct masculine/feminine agreement, dual and plural forms, following common finance/accounting usage (مائتان ريال، ألفان ريال، أحد عشر ألف ريال).
 - Subunits with any power-of-ten ratio (100 halalas; 1000 fils for IQD/KWD/BHD/JOD, 1000 baisa for OMR).
 - Accepts Arabic-Indic, Persian and Western digits, thousands separators and the Arabic decimal separator.
@@ -123,7 +132,7 @@ MIT. انظر [`LICENSE`](LICENSE). كُتب المشروع بأسلوب «ال�
 ### Usage
 
 ```ts
-import { tafqit, tryTafqit, convert, createTafqit } from "tafket";
+import { tafqit, tryTafqit, convert, createTafqit, LANGUAGES } from "instawords";
 
 tafqit("1250.75", { unit: "SAR" });        // ألف ومائتان وخمسون ريالاً سعودياً وخمس وسبعون هللة
 tafqit("11000", { unit: "riyal" });        // أحد عشر ألف ريال
@@ -131,7 +140,7 @@ tryTafqit("abc");                          // { ok: false, error: { code: "INVAL
 convert({ the_number: "2", unit: "SAR" }); // { result: "ريالان سعوديان" }
 ```
 
-Options: `unit` (id, code, label or alias; default `"none"`), `hundredsForm` (`"مائة"` | `"مئة"`), `prefix`, `suffix`, `decimals` (`"round"` half-up to the subunit — default — or `"error"`).
+Options: `unit` (id, code, label or alias; default `"none"`), `language` (`"ar"` | `"en"` | `"fr"`), `hundredsForm` (Arabic only: `"مائة"` | `"مئة"`), `prefix`, `suffix`, `decimals` (`"round"` half-up to the subunit — default — or `"error"`).
 Error codes: `EMPTY`, `INVALID_FORMAT`, `NEGATIVE`, `TOO_LARGE`, `TOO_MANY_DECIMALS`, `FRACTION_NOT_SUPPORTED`, `UNKNOWN_UNIT`, `INVALID_OPTION`, `INVALID_CATALOG`.
 
 The full linguistic specification is in [`docs/SPEC.md`](docs/SPEC.md). §16 lists the cases awaiting linguistic review. Excel instructions are in [`vba/README.md`](vba/README.md).
@@ -140,7 +149,7 @@ The full linguistic specification is in [`docs/SPEC.md`](docs/SPEC.md). §16 lis
 
 ```bash
 npm install
-npm test           # core + 42 golden cases
+npm test           # core + 107 golden cases
 npm run test:vba   # VBA ↔ core parity
 npm run test:site  # browser smoke test (Playwright)
 npm run build:site # deployable static site in _site/
