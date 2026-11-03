@@ -40,7 +40,7 @@
     "desktop:dev": "tauri dev",
     "desktop:build": "tauri build",
     "build:dotnet": "node scripts/build-dotnet.mjs",
-    "test:dotnet": "npm run build && node scripts/build-dotnet.mjs && node scripts/gen-dotnet-corpus.mjs && dotnet test windows/InstaWords.Core.Tests"
+    "test:dotnet": "npm run build && node scripts/build-dotnet.mjs --check && node scripts/gen-dotnet-corpus.mjs && dotnet test windows/InstaWords.Core.Tests"
   },
   "keywords": [
     "arabic",

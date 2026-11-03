@@ -1,0 +1,14 @@
+<Project>
+  <!--
+    Shared settings for the projects under windows/. A project can override any of them
+    in its own .csproj (properties set there win over this file).
+  -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <Deterministic>true</Deterministic>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <!-- Deterministic paths in PDBs and stack traces (no machine-specific source paths). -->
+    <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+</Project>

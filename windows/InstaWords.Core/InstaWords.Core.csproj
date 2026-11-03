@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    InstaWords tafqit engine for .NET: a character-for-character port of the TypeScript core
+    (src/). netstandard2.0, so it loads on .NET Framework 4.8 as well as on .NET 8+.
+    No NuGet runtime dependencies. Generated/*.g.cs comes from scripts/build-dotnet.mjs.
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <RootNamespace>InstaWords.Core</RootNamespace>
+    <AssemblyName>InstaWords.Core</AssemblyName>
+    <Deterministic>true</Deterministic>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DebugType>embedded</DebugType>
+    <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
+
+    <Product>InstaWords</Product>
+    <Description>Amounts in words (tafqit) for cheques and invoices: Arabic, English and French.</Description>
+    <Company>FastKiwi</Company>
+    <Authors>FastKiwi</Authors>
+    <Copyright>© FastKiwi. MIT License.</Copyright>
+    <NeutralLanguage>ar</NeutralLanguage>
+  </PropertyGroup>
+
+  <!-- The version comes from the repo package.json (CI may still pass -p:Version=...). -->
+  <PropertyGroup Condition="'$(Version)' == '' Or '$(Version)' == '1.0.0'">
+    <_PackageJson>$(MSBuildThisFileDirectory)..\..\package.json</_PackageJson>
+    <Version Condition="Exists('$(_PackageJson)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(_PackageJson)')), '"version"\s*:\s*"([0-9][^"]*)"').Groups[1].Value)</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="InstaWords.Core.Tests" />
+  </ItemGroup>
+
+</Project>
