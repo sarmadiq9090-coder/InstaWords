@@ -258,7 +258,7 @@ describe("languages: English", () => {
     assert.equal(en("0.50", "SAR"), "Fifty Halalas");
     assert.equal(en("3", "foot"), "Three Feet");
     assert.equal(en("1.001", "OMR"), "One Omani Rial and One Baisa");
-    assert.equal(en("2", "km_per_hour"), "Two Kilometers per Hour");
+    assert.equal(en("2", "km_per_hour"), "Two Kilometres per Hour");
   });
 });
 
@@ -278,13 +278,13 @@ describe("languages: French", () => {
   for (const [n, want] of cases) test(n, () => assert.equal(tafqit(n, { language: "fr" }), want));
   const fr = (n: string, unit: string) => tafqit(n, { unit, language: "fr" });
   test("gender agreement on the last group only", () => {
-    assert.equal(fr("1", "lira"), "une lire");
-    assert.equal(fr("31", "lira"), "trente et une lires");
-    assert.equal(fr("201", "lira"), "deux cent une lires");
+    assert.equal(fr("1", "lira"), "une livre");
+    assert.equal(fr("31", "lira"), "trente et une livres");
+    assert.equal(fr("201", "lira"), "deux cent une livres");
     assert.equal(fr("1001", "EGP"), "mille une livres égyptiennes");
     assert.equal(fr("1000001", "EGP"), "un million une livres égyptiennes");
-    assert.equal(fr("21000", "lira"), "vingt et un mille lires");
-    assert.equal(fr("21000000", "lira"), "vingt et un millions de lires");
+    assert.equal(fr("21000", "lira"), "vingt et un mille livres");
+    assert.equal(fr("21000000", "lira"), "vingt et un millions de livres");
     assert.equal(fr("71", "hour"), "soixante et onze heures");
   });
   test("de / d' after an exact million, milliard or billion", () => {

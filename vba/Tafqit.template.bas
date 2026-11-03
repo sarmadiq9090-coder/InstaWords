@@ -1,18 +1,19 @@
 Attribute VB_Name = "TafqitLib"
 '==============================================================================
-' Tafqit - Arabic numbers to words (tafqit) for Excel.  MIT License.
-' https://github.com/sarmadiq9090-coder/tafket
+' InstaWords (tafqit) - numbers to words in Arabic, English and French, for
+' Excel. MIT License. https://github.com/sarmadiq9090-coder/tafket
 '
 '@@HEADER@@
 '
 ' Worksheet functions (see vba/README.md):
-'   =TAFQIT(Number, [Unit], [HundredsForm], [Prefix], [Suffix], [Decimals])
+'   =TAFQIT(Number, [Unit], [HundredsForm], [Prefix], [Suffix], [Decimals], [Language])
 '   =TAFQIT_CLEAN(Number)
 '
-' Port of the TypeScript core (src/engine.ts, src/normalize.ts, src/catalog.ts,
-' src/index.ts); rules in docs/SPEC.md. Output must match the core character for
-' character. All Arabic text is stored as UTF-16 code points (U("0627 ...")) and
-' decoded at run time, so this file stays pure ASCII for the VBA editor.
+' Port of the TypeScript core (src/engine.ts, src/lang/*.ts, src/normalize.ts,
+' src/catalog.ts, src/index.ts); rules in docs/SPEC.md. Output must match the
+' core character for character. Text that is not printable ASCII is stored as
+' UTF-16 code units (U("0627 ...")) and decoded at run time, so this file stays
+' pure ASCII for the VBA editor.
 '
 ' Notes
 ' - The module is named TafqitLib, not Tafqit: Excel returns #NAME? when a
@@ -21,23 +22,20 @@ Attribute VB_Name = "TafqitLib"
 ' - A numeric cell (Double) is converted with CDec, which keeps 15 significant
 '   digits (what Excel displays). Enter long amounts as text for exactness.
 ' - On error the function returns the Arabic message of ERROR_MESSAGES in
-'   src/errors.ts, without the "(detail)" suffix of the core.
+'   src/errors.ts (in every language), without the "(detail)" suffix of the core.
 ' - Plain arrays only (no Scripting.Dictionary), so it also runs on Excel for Mac.
 '
 ' Keep this code within the VBA subset understood by tests/vba/harness/vba.mjs.
 '==============================================================================
 Option Explicit
 
-Private Const E_EMPTY As Long = 1
-Private Const E_INVALID_FORMAT As Long = 2
-Private Const E_NEGATIVE As Long = 3
-Private Const E_TOO_LARGE As Long = 4
-Private Const E_TOO_MANY_DECIMALS As Long = 5
-Private Const E_FRACTION_NOT_SUPPORTED As Long = 6
-Private Const E_UNKNOWN_UNIT As Long = 7
-Private Const E_INVALID_OPTION As Long = 8
+' Languages (src/lang/index.ts): index into the per-language arrays.
+Private Const LANG_AR As Long = 0
+Private Const LANG_EN As Long = 1
+Private Const LANG_FR As Long = 2
+Private Const LANG_COUNT As Long = 3
 
-' Index of the scale forms in mScale(k, f).
+' Index of the Arabic scale forms in mScale(k, f).
 Private Const SC_SINGULAR As Long = 0
 Private Const SC_DUAL As Long = 1
 Private Const SC_PLURAL As Long = 2
@@ -46,13 +44,16 @@ Private Const SC_ACCUSATIVE As Long = 3
 ' Fraction digits accepted with the "none" unit (engine.ts).
 Private Const MAX_FRACTION_DIGITS_NONE As Long = 15
 
+' Error codes E_* (src/errors.ts), MAX_INTEGER_DIGITS, UNIT_COUNT, KEY_COUNT:
 '@@CONSTANTS@@
 
 Private mReady As Boolean
 Private mErr As Long
-Private mErrMsg(1 To 8) As String
+Private mErrMsg(1 To ERROR_COUNT) As String
+Private mLangId(0 To 2) As String
+Private mJoiner(0 To 2) As String
 
-' Lexicon (src/lexicon.ts). Gender index: 0 = m, 1 = f. Hundreds form: 0 = first, 1 = second.
+' Arabic (src/lexicon.ts). Gender index: 0 = m, 1 = f. Hundreds form: 0 = first, 1 = second.
 Private mZero As String
 Private mWaw As String
 Private mPoint As String
@@ -65,23 +66,50 @@ Private mHundDC(0 To 1) As String
 Private mHfName(0 To 1) As String
 Private mScale(1 To 4, 0 To 3) As String
 
-' Unit catalog (data/units.json), units 1..UNIT_COUNT.
+' English (EN_WORDS in src/lang/en.ts).
+Private mEnSmall(0 To 19) As String
+Private mEnTens(0 To 9) As String
+Private mEnScale(0 To 4) As String
+Private mEnHundred As String
+Private mEnPoint As String
+Private mEnHyphen As String
+
+' French (FR_WORDS in src/lang/fr.ts).
+Private mFrSmall(0 To 19) As String
+Private mFrTens(0 To 6) As String
+Private mFrScale(0 To 4) As String
+Private mFrFourTwenty As String
+Private mFrCent As String
+Private mFrMille As String
+Private mFrPoint As String
+Private mFrEt As String
+Private mFrHyphen As String
+Private mFrPluralS As String
+Private mFrOneF As String
+Private mFrDe As String
+Private mFrDeElided As String
+
+' Unit catalog (data/units.json), units 1..UNIT_COUNT. (unit, language) arrays hold the
+' forms of each language: Arabic from "forms", English/French from "i18n".
 Private mUId() As String
 Private mUHasForms() As Boolean
-Private mUGender() As Long
-Private mUSing() As String
-Private mUDual() As String
-Private mUPlur() As String
-Private mUAcc() As String
-Private mUOne() As String
+Private mFHas() As Boolean
+Private mFSing() As String
+Private mFPlur() As String
+Private mFOne() As String
+Private mFGender() As Long
+Private mFDual() As String
+Private mFAcc() As String
+' Subunit: same layout, plus the number of fraction digits it takes.
 Private mUHasSub() As Boolean
-Private mUSubGender() As Long
-Private mUSubSing() As String
-Private mUSubDual() As String
-Private mUSubPlur() As String
-Private mUSubAcc() As String
-Private mUSubOne() As String
 Private mUSubDigits() As Long
+Private mSHas() As Boolean
+Private mSSing() As String
+Private mSPlur() As String
+Private mSOne() As String
+Private mSGender() As Long
+Private mSDual() As String
+Private mSAcc() As String
 ' Lookup names (unitKey of id, code, label and aliases) -> unit index.
 Private mKeyCount As Long
 Private mKeyName() As String
@@ -92,14 +120,16 @@ Private mKeyUnit() As Long
 '==============================================================================
 
 ' Number: a cell, text or number. Unit: id, code, label or alias (default "none").
-' HundredsForm: the spelling of 100 (default, or "1"/"2"). Prefix / Suffix: free text.
+' HundredsForm: the spelling of 100 in Arabic (default, or "1"/"2"). Prefix / Suffix: free text.
 ' Decimals: "round" (default, half-up to the subunit) or "error".
+' Language: "ar" (default), "en" or "fr".
 Public Function TAFQIT(ByVal Number As Variant, Optional ByVal Unit As Variant = "none", _
         Optional ByVal HundredsForm As Variant = "", Optional ByVal Prefix As Variant = "", _
-        Optional ByVal Suffix As Variant = "", Optional ByVal Decimals As Variant = "") As Variant
+        Optional ByVal Suffix As Variant = "", Optional ByVal Decimals As Variant = "", _
+        Optional ByVal Language As Variant = "") As Variant
     Dim vNum As Variant, vUnit As Variant, vHf As Variant
-    Dim vPre As Variant, vSuf As Variant, vDec As Variant
-    Dim ui As Long, hf As Long, code As Long, roundIt As Boolean
+    Dim vPre As Variant, vSuf As Variant, vDec As Variant, vLang As Variant
+    Dim ui As Long, hf As Long, lang As Long, code As Long, roundIt As Boolean
     Dim txt As String, ip As String, fp As String, words As String, decText As String
 
     EnsureInit
@@ -109,6 +139,7 @@ Public Function TAFQIT(ByVal Number As Variant, Optional ByVal Unit As Variant =
     vPre = ArgValue(Prefix)
     vSuf = ArgValue(Suffix)
     vDec = ArgValue(Decimals)
+    vLang = ArgValue(Language)
     If IsCellError(vNum) Then
         TAFQIT = vNum
         Exit Function
@@ -133,13 +164,23 @@ Public Function TAFQIT(ByVal Number As Variant, Optional ByVal Unit As Variant =
         TAFQIT = vDec
         Exit Function
     End If
+    If IsCellError(vLang) Then
+        TAFQIT = vLang
+        Exit Function
+    End If
 
     ' Same order of checks as tafqit() in src/index.ts.
+    lang = ResolveLanguage(ArgText(vLang))
+    If lang < 0 Then
+        TAFQIT = mErrMsg(E_INVALID_OPTION)
+        Exit Function
+    End If
     ui = FindUnit(ArgText(vUnit))
     If ui = 0 Then
         TAFQIT = mErrMsg(E_UNKNOWN_UNIT)
         Exit Function
     End If
+    ' Validated for every language, but only Arabic uses it.
     hf = ResolveHundreds(ArgText(vHf))
     If hf < 0 Then
         TAFQIT = mErrMsg(E_INVALID_OPTION)
@@ -161,7 +202,7 @@ Public Function TAFQIT(ByVal Number As Variant, Optional ByVal Unit As Variant =
         Exit Function
     End If
 
-    words = Phrase(ui, ip, fp, hf, roundIt)
+    words = Phrase(ui, ip, fp, hf, roundIt, lang)
     If mErr <> 0 Then
         TAFQIT = mErrMsg(mErr)
         Exit Function
@@ -270,6 +311,23 @@ Private Function ResolveHundreds(ByVal s As String) As Long
     Else
         ResolveHundreds = -1
     End If
+End Function
+
+' Index of a language id (trimmed, any case; empty = Arabic), or -1 when unknown.
+Private Function ResolveLanguage(ByVal s As String) As Long
+    Dim t As String, i As Long
+    ResolveLanguage = -1
+    t = LowerKey(JsTrim(s))
+    If t = "" Then
+        ResolveLanguage = LANG_AR
+        Exit Function
+    End If
+    For i = 0 To LANG_COUNT - 1
+        If t = mLangId(i) Then
+            ResolveLanguage = i
+            Exit Function
+        End If
+    Next i
 End Function
 
 '==============================================================================
@@ -423,25 +481,26 @@ Private Function NormalizeNumber(ByVal s As String, ByRef intPart As String, ByR
 End Function
 
 '==============================================================================
-' Tafqit rules (src/engine.ts, SPEC sections 3-11)
+' Shared pipeline (src/engine.ts, SPEC sections 8-10 and 17)
 '==============================================================================
 
 ' Full phrase without prefix/suffix. Sets mErr on error.
 Private Function Phrase(ByVal ui As Long, ByVal intPart As String, ByVal fracPart As String, _
-        ByVal hf As Long, ByVal roundIt As Boolean) As String
-    Dim intText As String, subPart As String, subDigits As String, subText As String, d As Long
+        ByVal hf As Long, ByVal roundIt As Boolean, ByVal lang As Long) As String
+    Dim subPart As String, subDigits As String, subText As String, d As Long
 
     mErr = 0
     Phrase = ""
     If Not mUHasForms(ui) Then
-        intText = IntegerWords(intPart, 0, hf, False)
-        If fracPart = "" Then
-            Phrase = intText
-        ElseIf Len(fracPart) > MAX_FRACTION_DIGITS_NONE Then
+        If Len(fracPart) > MAX_FRACTION_DIGITS_NONE Then
             mErr = E_TOO_MANY_DECIMALS
         Else
-            Phrase = intText & " " & mPoint & " " & FractionWords(fracPart, hf)
+            Phrase = PlainWords(lang, intPart, fracPart, hf)
         End If
+        Exit Function
+    End If
+    If Not mFHas(ui, lang) Then
+        mErr = E_NO_LANGUAGE_FORMS
         Exit Function
     End If
 
@@ -473,18 +532,121 @@ Private Function Phrase(ByVal ui As Long, ByVal intPart As String, ByVal fracPar
     End If
 
     If subPart = "0" Then
-        Phrase = CountPhrase(intPart, mUSing(ui), mUDual(ui), mUPlur(ui), mUAcc(ui), mUOne(ui), mUGender(ui), hf)
+        Phrase = CountWords(lang, intPart, ui, False, hf)
         Exit Function
     End If
-    subText = CountPhrase(subPart, mUSubSing(ui), mUSubDual(ui), mUSubPlur(ui), mUSubAcc(ui), _
-        mUSubOne(ui), mUSubGender(ui), hf)
+    If Not mSHas(ui, lang) Then
+        mErr = E_NO_LANGUAGE_FORMS
+        Exit Function
+    End If
+    subText = CountWords(lang, subPart, ui, True, hf)
     If intPart = "0" Then
         Phrase = subText
     Else
-        Phrase = CountPhrase(intPart, mUSing(ui), mUDual(ui), mUPlur(ui), mUAcc(ui), mUOne(ui), mUGender(ui), hf) _
-            & mWaw & subText
+        Phrase = CountWords(lang, intPart, ui, False, hf) & mJoiner(lang) & subText
     End If
 End Function
+
+' A number with no counted noun (LanguageModule.plain).
+Private Function PlainWords(ByVal lang As Long, ByVal intPart As String, ByVal fracPart As String, _
+        ByVal hf As Long) As String
+    Dim s As String, i As Long
+    Select Case lang
+    Case LANG_EN
+        s = EnInteger(intPart)
+        If fracPart <> "" Then
+            ' Digits after the point are read one by one.
+            s = s & " " & mEnPoint
+            For i = 1 To Len(fracPart)
+                s = s & " " & mEnSmall(DigitsValue(Mid(fracPart, i, 1)))
+            Next i
+        End If
+    Case LANG_FR
+        s = FrInteger(intPart, 0)
+        If fracPart <> "" Then s = s & " " & mFrPoint & " " & FractionWords(fracPart, hf, LANG_FR)
+    Case Else
+        s = IntegerWords(intPart, 0, hf, False)
+        If fracPart <> "" Then s = s & " " & mPoint & " " & FractionWords(fracPart, hf, LANG_AR)
+    End Select
+    PlainWords = s
+End Function
+
+' A number followed by the unit's (isSub = False) or subunit's noun (LanguageModule.count).
+Private Function CountWords(ByVal lang As Long, ByVal digits As String, ByVal ui As Long, _
+        ByVal isSub As Boolean, ByVal hf As Long) As String
+    Dim sing As String, plur As String, one As String, dual As String, acc As String, gi As Long
+    If isSub Then
+        sing = mSSing(ui, lang)
+        plur = mSPlur(ui, lang)
+        one = mSOne(ui, lang)
+        gi = mSGender(ui, lang)
+        dual = mSDual(ui)
+        acc = mSAcc(ui)
+    Else
+        sing = mFSing(ui, lang)
+        plur = mFPlur(ui, lang)
+        one = mFOne(ui, lang)
+        gi = mFGender(ui, lang)
+        dual = mFDual(ui)
+        acc = mFAcc(ui)
+    End If
+    Select Case lang
+    Case LANG_EN
+        CountWords = EnCount(digits, sing, plur, one)
+    Case LANG_FR
+        CountWords = FrCount(digits, sing, plur, one, gi)
+    Case Else
+        CountWords = CountPhrase(digits, sing, dual, plur, acc, one, gi, hf)
+    End Select
+End Function
+
+' Split a digit string into 3-digit groups, least significant first; returns the count.
+Private Function SplitGroups(ByVal digits As String, ByRef grp() As Long) As Long
+    Dim n As Long, k As Long, p As Long
+    n = (Len(digits) + 2) \ 3
+    ReDim grp(0 To n - 1)
+    For k = 0 To n - 1
+        p = Len(digits) - 3 * k - 2
+        If p < 1 Then
+            grp(k) = DigitsValue(Left(digits, Len(digits) - 3 * k))
+        Else
+            grp(k) = DigitsValue(Mid(digits, p, 3))
+        End If
+    Next k
+    SplitGroups = n
+End Function
+
+' Leading zeros of a fraction read as the zero word, then the rest as a whole number
+' (Arabic SPEC section 10, French 17.2).
+Private Function FractionWords(ByVal fraction As String, ByVal hf As Long, ByVal lang As Long) As String
+    Dim lead As Long, i As Long, s As String, zero As String
+    If lang = LANG_FR Then
+        zero = mFrSmall(0)
+    Else
+        zero = mZero
+    End If
+    lead = 0
+    Do While lead < Len(fraction)
+        If Mid(fraction, lead + 1, 1) <> "0" Then Exit Do
+        lead = lead + 1
+    Loop
+    s = ""
+    For i = 1 To lead
+        s = JoinParts(s, zero, " ")
+    Next i
+    If lead < Len(fraction) Then
+        If lang = LANG_FR Then
+            s = JoinParts(s, FrInteger(Mid(fraction, lead + 1), 0), " ")
+        Else
+            s = JoinParts(s, IntegerWords(Mid(fraction, lead + 1), 0, hf, False), " ")
+        End If
+    End If
+    FractionWords = s
+End Function
+
+'==============================================================================
+' Arabic (src/lang/ar.ts, SPEC sections 3-7)
+'==============================================================================
 
 ' SPEC section 5: number + counted noun. one = "" when the unit has no "one" form.
 Private Function CountPhrase(ByVal digits As String, ByVal sing As String, ByVal dual As String, _
@@ -517,23 +679,16 @@ End Function
 ' SPEC section 7: integer words without the counted noun.
 Private Function IntegerWords(ByVal digits As String, ByVal gi As Long, ByVal hf As Long, _
         ByVal nounFollows As Boolean) As String
-    Dim n As Long, k As Long, lowest As Long, p As Long, s As String
+    Dim n As Long, k As Long, lowest As Long, s As String
     Dim grp() As Long
 
     If digits = "0" Then
         IntegerWords = mZero
         Exit Function
     End If
-    n = (Len(digits) + 2) \ 3
-    ReDim grp(0 To n - 1)
+    n = SplitGroups(digits, grp)
     lowest = -1
     For k = 0 To n - 1
-        p = Len(digits) - 3 * k - 2
-        If p < 1 Then
-            grp(k) = DigitsValue(Left(digits, Len(digits) - 3 * k))
-        Else
-            grp(k) = DigitsValue(Mid(digits, p, 3))
-        End If
         If lowest = -1 And grp(k) > 0 Then lowest = k
     Next k
 
@@ -603,22 +758,184 @@ Private Function GroupWords(ByVal g As Long, ByVal gi As Long, ByVal hf As Long,
     GroupWords = JoinParts(hs, rs, mWaw)
 End Function
 
-' SPEC section 10: fraction digits for the no-unit case; leading zeros read as zero words.
-Private Function FractionWords(ByVal fraction As String, ByVal hf As Long) As String
-    Dim lead As Long, i As Long, s As String
-    lead = 0
-    Do While lead < Len(fraction)
-        If Mid(fraction, lead + 1, 1) <> "0" Then Exit Do
-        lead = lead + 1
-    Loop
-    s = ""
-    For i = 1 To lead
-        s = JoinParts(s, mZero, " ")
-    Next i
-    If lead < Len(fraction) Then
-        s = JoinParts(s, IntegerWords(Mid(fraction, lead + 1), 0, hf, False), " ")
+'==============================================================================
+' English (src/lang/en.ts, SPEC 17.1)
+'==============================================================================
+
+Private Function EnCount(ByVal digits As String, ByVal sing As String, ByVal plur As String, _
+        ByVal one As String) As String
+    If digits = "1" Then
+        If one <> "" Then
+            EnCount = one
+        Else
+            EnCount = mEnSmall(1) & " " & sing
+        End If
+    Else
+        EnCount = EnInteger(digits) & " " & plur
     End If
-    FractionWords = s
+End Function
+
+Private Function EnInteger(ByVal digits As String) As String
+    Dim n As Long, k As Long, s As String
+    Dim grp() As Long
+    If digits = "0" Then
+        EnInteger = mEnSmall(0)
+        Exit Function
+    End If
+    n = SplitGroups(digits, grp)
+    s = ""
+    For k = n - 1 To 0 Step -1
+        If grp(k) > 0 Then
+            If k = 0 Then
+                s = JoinParts(s, EnGroup(grp(k)), " ")
+            Else
+                s = JoinParts(s, EnGroup(grp(k)) & " " & mEnScale(k), " ")
+            End If
+        End If
+    Next k
+    EnInteger = s
+End Function
+
+' 1..999: "Two Hundred Five", "Twenty-One".
+Private Function EnGroup(ByVal g As Long) As String
+    Dim h As Long, r As Long, s As String, t As String
+    h = g \ 100
+    r = g Mod 100
+    s = ""
+    If h > 0 Then s = mEnSmall(h) & " " & mEnHundred
+    If r > 0 And r < 20 Then
+        s = JoinParts(s, mEnSmall(r), " ")
+    ElseIf r >= 20 Then
+        t = mEnTens(r \ 10)
+        If r Mod 10 <> 0 Then t = t & mEnHyphen & mEnSmall(r Mod 10)
+        s = JoinParts(s, t, " ")
+    End If
+    EnGroup = s
+End Function
+
+'==============================================================================
+' French (src/lang/fr.ts, SPEC 17.2). Gender index: 0 = m, 1 = f.
+'==============================================================================
+
+Private Function FrCount(ByVal digits As String, ByVal sing As String, ByVal plur As String, _
+        ByVal one As String, ByVal gi As Long) As String
+    Dim link As String
+    If digits = "0" Then
+        FrCount = mFrSmall(0) & " " & sing
+    ElseIf digits = "1" Then
+        If one <> "" Then
+            FrCount = one
+        Else
+            FrCount = FrOne(gi) & " " & sing
+        End If
+    Else
+        ' Exactly N million/milliard/billion: un million de dirhams, deux milliards d'euros.
+        link = ""
+        If Right(digits, 6) = "000000" Then
+            link = mFrDe
+            If plur <> "" Then
+                If FrElides(CharCode(Left(plur, 1))) Then link = mFrDeElided
+            End If
+        End If
+        FrCount = FrInteger(digits, gi) & " " & link & plur
+    End If
+End Function
+
+Private Function FrOne(ByVal gi As Long) As String
+    If gi = 1 Then
+        FrOne = mFrOneF
+    Else
+        FrOne = mFrSmall(1)
+    End If
+End Function
+
+' Integer words; the gender applies to the last group only, higher groups are masculine.
+Private Function FrInteger(ByVal digits As String, ByVal gi As Long) As String
+    Dim n As Long, k As Long, g As Long, s As String, part As String
+    Dim grp() As Long
+    If digits = "0" Then
+        FrInteger = mFrSmall(0)
+        Exit Function
+    End If
+    n = SplitGroups(digits, grp)
+    s = ""
+    For k = n - 1 To 1 Step -1
+        g = grp(k)
+        If g > 0 Then
+            If k = 1 Then
+                ' mille: invariable, never "un mille"
+                If g = 1 Then
+                    part = mFrMille
+                Else
+                    part = FrGroup(g, 0, False) & " " & mFrMille
+                End If
+            ElseIf g = 1 Then
+                part = FrOne(0) & " " & mFrScale(k)
+            Else
+                part = FrGroup(g, 0, True) & " " & mFrScale(k) & mFrPluralS
+            End If
+            s = JoinParts(s, part, " ")
+        End If
+    Next k
+    If grp(0) > 0 Then s = JoinParts(s, FrGroup(grp(0), gi, True), " ")
+    FrInteger = s
+End Function
+
+' 1..999. cent takes s when multiplied and final (nothing after it in the group).
+Private Function FrGroup(ByVal g As Long, ByVal gi As Long, ByVal isFinal As Boolean) As String
+    Dim h As Long, r As Long, s As String
+    h = g \ 100
+    r = g Mod 100
+    s = ""
+    If h = 1 Then
+        s = mFrCent
+    ElseIf h > 1 Then
+        s = mFrSmall(h) & " " & mFrCent
+        If r = 0 And isFinal Then s = s & mFrPluralS
+    End If
+    If r > 0 Then s = JoinParts(s, FrBelow100(r, gi, isFinal), " ")
+    FrGroup = s
+End Function
+
+' 1..99. isFinal: no other number word follows, then 80 is written quatre-vingts.
+Private Function FrBelow100(ByVal n As Long, ByVal gi As Long, ByVal isFinal As Boolean) As String
+    Dim t As Long, un As Long, base As String, s As String
+    If n = 1 Then
+        s = FrOne(gi)
+    ElseIf n < 20 Then
+        s = mFrSmall(n)
+    Else
+        t = n \ 10
+        un = n Mod 10
+        If t = 7 Or t = 9 Then
+            If t = 7 Then
+                base = mFrTens(6)
+            Else
+                base = mFrFourTwenty
+            End If
+            If t = 7 And un = 1 Then
+                s = base & mFrEt & mFrSmall(11)
+            Else
+                s = base & mFrHyphen & mFrSmall(10 + un)
+            End If
+        ElseIf t = 8 Then
+            If un = 0 Then
+                s = mFrFourTwenty
+                If isFinal Then s = s & mFrPluralS
+            ElseIf un = 1 Then
+                s = mFrFourTwenty & mFrHyphen & FrOne(gi)
+            Else
+                s = mFrFourTwenty & mFrHyphen & mFrSmall(un)
+            End If
+        ElseIf un = 0 Then
+            s = mFrTens(t)
+        ElseIf un = 1 Then
+            s = mFrTens(t) & mFrEt & FrOne(gi)
+        Else
+            s = mFrTens(t) & mFrHyphen & mFrSmall(un)
+        End If
+    End If
+    FrBelow100 = s
 End Function
 
 '==============================================================================
@@ -718,6 +1035,8 @@ End Function
 Private Sub EnsureInit()
     If mReady Then Exit Sub
     InitLexicon
+    InitWordsEn
+    InitWordsFr
     InitCatalog
     mReady = True
 End Sub

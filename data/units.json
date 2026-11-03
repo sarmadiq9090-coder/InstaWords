@@ -85,7 +85,7 @@
       },
       "i18n": {
         "en": { "singular": "Qatari Riyal", "plural": "Qatari Riyals" },
-        "fr": { "singular": "riyal qatari", "plural": "riyals qataris", "gender": "m" }
+        "fr": { "singular": "riyal qatarien", "plural": "riyals qatariens", "gender": "m" }
       },
       "subunit": {
         "singular": "درهم",
@@ -542,7 +542,7 @@
       },
       "i18n": {
         "en": { "singular": "Mauritanian Ouguiya", "plural": "Mauritanian Ouguiyas" },
-        "fr": { "singular": "ouguiya mauritanienne", "plural": "ouguiyas mauritaniennes", "gender": "f" }
+        "fr": { "singular": "ouguiya mauritanien", "plural": "ouguiyas mauritaniens", "gender": "m" }
       },
       "note": "No subunit: the khoums (خمس) is 1/5 of an ouguiya, not a power of ten. NEW: plural أوقيات (sound plural); the broken plural أواق (أواقٍ) is also classical"
     },
@@ -1244,8 +1244,8 @@
         "gender": "f"
       },
       "i18n": {
-        "en": { "singular": "Lira", "plural": "Liras" },
-        "fr": { "singular": "lire", "plural": "lires", "gender": "f" }
+        "en": { "singular": "Lira", "plural": "Lira" },
+        "fr": { "singular": "livre", "plural": "livres", "gender": "f" }
       }
     },
     {
@@ -1394,7 +1394,7 @@
         "gender": "m"
       },
       "i18n": {
-        "en": { "singular": "Ton", "plural": "Tons" },
+        "en": { "singular": "Tonne", "plural": "Tonnes" },
         "fr": { "singular": "tonne", "plural": "tonnes", "gender": "f" }
       },
       "note": "Metric ton (1000 kg)"
@@ -1484,7 +1484,7 @@
         "gender": "m"
       },
       "i18n": {
-        "en": { "singular": "Liter", "plural": "Liters" },
+        "en": { "singular": "Litre", "plural": "Litres" },
         "fr": { "singular": "litre", "plural": "litres", "gender": "m" }
       },
       "subunit": {
@@ -1495,7 +1495,7 @@
         "gender": "m",
         "ratio": 1000,
         "i18n": {
-          "en": { "singular": "Milliliter", "plural": "Milliliters" },
+          "en": { "singular": "Millilitre", "plural": "Millilitres" },
           "fr": { "singular": "millilitre", "plural": "millilitres", "gender": "m" }
         }
       }
@@ -1513,7 +1513,7 @@
         "gender": "m"
       },
       "i18n": {
-        "en": { "singular": "Cubic Meter", "plural": "Cubic Meters" },
+        "en": { "singular": "Cubic Metre", "plural": "Cubic Metres" },
         "fr": { "singular": "mètre cube", "plural": "mètres cubes", "gender": "m" }
       }
     },
@@ -1565,7 +1565,7 @@
         "gender": "m"
       },
       "i18n": {
-        "en": { "singular": "Meter", "plural": "Meters" },
+        "en": { "singular": "Metre", "plural": "Metres" },
         "fr": { "singular": "mètre", "plural": "mètres", "gender": "m" }
       },
       "subunit": {
@@ -1576,7 +1576,7 @@
         "gender": "m",
         "ratio": 100,
         "i18n": {
-          "en": { "singular": "Centimeter", "plural": "Centimeters" },
+          "en": { "singular": "Centimetre", "plural": "Centimetres" },
           "fr": { "singular": "centimètre", "plural": "centimètres", "gender": "m" }
         }
       }
@@ -1594,7 +1594,7 @@
         "gender": "m"
       },
       "i18n": {
-        "en": { "singular": "Centimeter", "plural": "Centimeters" },
+        "en": { "singular": "Centimetre", "plural": "Centimetres" },
         "fr": { "singular": "centimètre", "plural": "centimètres", "gender": "m" }
       }
     },
@@ -1611,7 +1611,7 @@
         "gender": "m"
       },
       "i18n": {
-        "en": { "singular": "Millimeter", "plural": "Millimeters" },
+        "en": { "singular": "Millimetre", "plural": "Millimetres" },
         "fr": { "singular": "millimètre", "plural": "millimètres", "gender": "m" }
       }
     },
@@ -1628,7 +1628,7 @@
         "gender": "m"
       },
       "i18n": {
-        "en": { "singular": "Kilometer", "plural": "Kilometers" },
+        "en": { "singular": "Kilometre", "plural": "Kilometres" },
         "fr": { "singular": "kilomètre", "plural": "kilomètres", "gender": "m" }
       },
       "subunit": {
@@ -1639,7 +1639,7 @@
         "gender": "m",
         "ratio": 1000,
         "i18n": {
-          "en": { "singular": "Meter", "plural": "Meters" },
+          "en": { "singular": "Metre", "plural": "Metres" },
           "fr": { "singular": "mètre", "plural": "mètres", "gender": "m" }
         }
       }
@@ -1727,7 +1727,7 @@
         "gender": "m"
       },
       "i18n": {
-        "en": { "singular": "Square Meter", "plural": "Square Meters" },
+        "en": { "singular": "Square Metre", "plural": "Square Metres" },
         "fr": { "singular": "mètre carré", "plural": "mètres carrés", "gender": "m" }
       }
     },
@@ -1744,7 +1744,7 @@
         "gender": "m"
       },
       "i18n": {
-        "en": { "singular": "Square Kilometer", "plural": "Square Kilometers" },
+        "en": { "singular": "Square Kilometre", "plural": "Square Kilometres" },
         "fr": { "singular": "kilomètre carré", "plural": "kilomètres carrés", "gender": "m" }
       }
     },
@@ -2218,7 +2218,7 @@
         "gender": "m"
       },
       "i18n": {
-        "en": { "singular": "Kilometer per Hour", "plural": "Kilometers per Hour" },
+        "en": { "singular": "Kilometre per Hour", "plural": "Kilometres per Hour" },
         "fr": { "singular": "kilomètre par heure", "plural": "kilomètres par heure", "gender": "m" }
       }
     },

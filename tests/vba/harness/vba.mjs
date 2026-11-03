@@ -1223,9 +1223,12 @@ class Compiler {
         return "R.MISSING";
       }
       if (prm.isArray) {
-        const x = this.ex(a, ctx);
-        if (x.t !== "array") throw new VbaCompileError(`${ctx.where}: array expected for ${prm.name}`);
-        return x.c;
+        // Arrays are always passed by reference; a dynamic array may still be undimensioned
+        // (the callee can ReDim it), so pass the variable itself.
+        const vs = a.k === "name" ? this.resolve(a.name, ctx) : null;
+        if (!vs || !vs.isArray) throw new VbaCompileError(`${ctx.where}: array variable expected for ${prm.name}`);
+        if (prm.type !== "variant" && vs.type !== prm.type) throw new VbaCompileError(`${ctx.where}: ByRef argument type mismatch (${a.name}() -> ${name}.${prm.name})`);
+        return this.jsName(vs, a.name);
       }
       if (!prm.byRef) return this.ex(a, ctx).c;
       // ByRef

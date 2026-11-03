@@ -76,7 +76,7 @@
     { "id": "G65", "input": "10.125", "unit": "SAR", "cleaned": "10.125", "options": {"language": "en"}, "expected": "Ten Saudi Riyals and Thirteen Halalas" },
     { "id": "G66", "input": "0.999", "unit": "SAR", "cleaned": "0.999", "options": {"language": "en"}, "expected": "One Saudi Riyal" },
     { "id": "G67", "input": "12.05", "unit": "none", "cleaned": "12.05", "options": {"language": "en"}, "expected": "Twelve Point Zero Five", "review": ["EN3"] },
-    { "id": "G68", "input": "1", "unit": "km_per_hour", "cleaned": "1", "options": {"language": "en"}, "expected": "One Kilometer per Hour" },
+    { "id": "G68", "input": "1", "unit": "km_per_hour", "cleaned": "1", "options": {"language": "en"}, "expected": "One Kilometre per Hour" },
     { "id": "G69", "input": "2,500", "unit": "SAR", "cleaned": "2500", "options": {"language": "en", "prefix": "Say", "suffix": "Only"}, "expected": "Say Two Thousand Five Hundred Saudi Riyals Only" },
 
     { "id": "G70", "input": "0", "unit": "MAD", "cleaned": "0", "options": {"language": "fr"}, "expected": "zéro dirham marocain", "review": ["FR4"] },
@@ -102,13 +102,21 @@
     { "id": "G90", "input": "1.999", "unit": "TND", "cleaned": "1.999", "options": {"language": "fr"}, "expected": "un dinar tunisien et neuf cent quatre-vingt-dix-neuf millimes" },
     { "id": "G91", "input": "21", "unit": "EGP", "cleaned": "21", "options": {"language": "fr"}, "expected": "vingt et une livres égyptiennes" },
     { "id": "G92", "input": "1.01", "unit": "EGP", "cleaned": "1.01", "options": {"language": "fr"}, "expected": "une livre égyptienne et une piastre" },
-    { "id": "G93", "input": "81", "unit": "lira", "cleaned": "81", "options": {"language": "fr"}, "expected": "quatre-vingt-une lires", "review": ["FR9"] },
+    { "id": "G93", "input": "81", "unit": "lira", "cleaned": "81", "options": {"language": "fr"}, "expected": "quatre-vingt-une livres", "review": ["FR9"] },
     { "id": "G94", "input": "21000", "unit": "EGP", "cleaned": "21000", "options": {"language": "fr"}, "expected": "vingt et un mille livres égyptiennes", "review": ["FR3"] },
     { "id": "G95", "input": "10.125", "unit": "SAR", "cleaned": "10.125", "options": {"language": "fr"}, "expected": "dix riyals saoudiens et treize halalas" },
     { "id": "G96", "input": "12.05", "unit": "none", "cleaned": "12.05", "options": {"language": "fr"}, "expected": "douze virgule zéro cinq", "review": ["FR7"] },
     { "id": "G97", "input": "80000000", "unit": "none", "cleaned": "80000000", "options": {"language": "fr"}, "expected": "quatre-vingts millions", "review": ["FR2"] },
     { "id": "G98", "input": "21", "unit": "km_per_hour", "cleaned": "21", "options": {"language": "fr"}, "expected": "vingt et un kilomètres par heure" },
     { "id": "G99", "input": "1000000.5", "unit": "EUR", "cleaned": "1000000.5", "options": {"language": "fr"}, "expected": "un million d'euros et cinquante centimes", "review": ["FR9"] },
-    { "id": "G100", "input": "2,500", "unit": "MAD", "cleaned": "2500", "options": {"language": "fr", "prefix": "Arrêtée la présente facture à la somme de", "suffix": "TTC"}, "expected": "Arrêtée la présente facture à la somme de deux mille cinq cents dirhams marocains TTC", "review": ["FR10"] }
+    { "id": "G100", "input": "2,500", "unit": "MAD", "cleaned": "2500", "options": {"language": "fr", "prefix": "Arrêtée la présente facture à la somme de", "suffix": "TTC"}, "expected": "Arrêtée la présente facture à la somme de deux mille cinq cents dirhams marocains TTC", "review": ["FR10"] },
+
+    { "id": "G101", "input": "1", "unit": "MRU", "cleaned": "1", "options": { "language": "fr" }, "expected": "un ouguiya mauritanien" },
+    { "id": "G102", "input": "21", "unit": "MRU", "cleaned": "21", "options": { "language": "fr" }, "expected": "vingt et un ouguiyas mauritaniens" },
+    { "id": "G103", "input": "1000000", "unit": "MRU", "cleaned": "1000000", "options": { "language": "fr" }, "expected": "un million d'ouguiyas mauritaniens" },
+    { "id": "G104", "input": "200.02", "unit": "USD", "cleaned": "200.02", "options": { "language": "fr" }, "expected": "deux cents dollars américains et deux cents" },
+    { "id": "G105", "input": "2", "unit": "lira", "cleaned": "2", "options": { "language": "en" }, "expected": "Two Lira" },
+    { "id": "G106", "input": "3", "unit": "ton", "cleaned": "3", "options": { "language": "en" }, "expected": "Three Tonnes" },
+    { "id": "G107", "input": "2.5", "unit": "liter", "cleaned": "2.5", "options": { "language": "en" }, "expected": "Two Litres and Five Hundred Millilitres" }
   ]
 }

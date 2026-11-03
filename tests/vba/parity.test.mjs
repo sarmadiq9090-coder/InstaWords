@@ -90,11 +90,11 @@ function buildCorpus() {
   const indic = (s) => s.replace(/\d/g, (d) => String.fromCharCode(0x660 + Number(d)));
   const persian = (s) => s.replace(/\d/g, (d) => String.fromCharCode(0x6f0 + Number(d)));
   const group = (s, sep) => s.replace(/\B(?=(\d{3})+(?!\d))/g, sep);
-  const spaces = [" ", " ", " ", " ", "\t", "\r", "\n", "　", " ", "﻿"];
+  const spaces = [" ", "\u00a0", "\u2009", "\u202f", "\t", "\r", "\n", "\u3000", "\u2002", "\ufeff"];
   for (let i = 0; i < 2500; i++) {
     const ip = digits(1 + int(12));
     const fp = rand() < 0.5 ? "" : digits(1 + int(3), false);
-    let s = rand() < 0.5 ? group(ip, pick([",", "٬", " ", " ", " ", " "])) : ip;
+    let s = rand() < 0.5 ? group(ip, pick([",", "٬", " ", "\u00a0", "\u202f", "\u2009"])) : ip;
     if (fp) s += pick([".", "٫", ".", "٫"]) + fp + (rand() < 0.3 ? "00" : "");
     if (rand() < 0.3) s = "00" + s;
     const f = int(4);
@@ -102,7 +102,7 @@ function buildCorpus() {
     if (f === 2) s = persian(s);
     if (f === 3) s = s.split("").map((ch) => (rand() < 0.5 ? indic(ch) : persian(ch))).join("");
     if (rand() < 0.3) s = pick(spaces) + s + pick(spaces);
-    if (rand() < 0.1) s = pick(["+", "-", "−", "++", "+-"]) + s;
+    if (rand() < 0.1) s = pick(["+", "-", "\u2212", "++", "+-"]) + s;
     add({ input: s, unit: pick(["none", "SAR", "KWD", "riyal", "lira", "piece"]) });
   }
   // every unit: numbers through all count forms, N=1 (incl. the "one" form), lookups by every name
@@ -115,7 +115,7 @@ function buildCorpus() {
     const names = [u.id, u.label, u.code, ...(u.aliases ?? [])].filter(Boolean);
     for (const name of names) {
       add({ input: "1", unit: name });
-      add({ input: "15", unit: `  ${name.toUpperCase()} ` });
+      add({ input: "15", unit: `  ${name.toUpperCase()}\u00a0` });
       add({ input: "2", unit: name.replace(/ /g, " \t "), hf: "2" });
       add({ input: "1", unit: name.toLowerCase() });
     }
@@ -127,17 +127,17 @@ function buildCorpus() {
     for (const decimals of ["", "round", "error", "ROUND", " Error ", "x", "rounded"]) add({ input: n + ".125", unit: "SAR", decimals });
   }
   // prefix / suffix
-  for (const [prefix, suffix] of [["فقط", "لا غير"], ["  فقط ", " لا غير  "], ["　فقط ", "\tلا غير\n"], ["", "لا غير"],
-    ["فقط", ""], ["   ", " "], ["Only", "only."], ["﻿فقط", "لا  غير"]]) {
+  for (const [prefix, suffix] of [["فقط", "لا غير"], ["  فقط ", " لا غير  "], ["\u3000فقط\u00a0", "\tلا غير\n"], ["", "لا غير"],
+    ["فقط", ""], ["   ", "\u00a0"], ["Only", "only."], ["\ufeffفقط", "لا  غير"]]) {
     for (const n of ["0", "1", "2500", "1250.75", "abc"]) add({ input: n, unit: "SAR", prefix, suffix });
   }
   // errors and odd input
-  const bad = ["", " ", " \t", ",", "٬", ".", "..", "1.2.3", "1..2", "abc", "12a", "a12", "1e5", "1E5", "0x10", "-5", "−5",
+  const bad = ["", " ", "\u00a0\t", ",", "٬", ".", "..", "1.2.3", "1..2", "abc", "12a", "a12", "1e5", "1E5", "0x10", "-5", "\u22125",
     "+5", "++5", "+-5", "-0", "+", "-", "5-", "1 2", "1/2", "١٫٢٫٣", "1234567890123456", "0001234567890123456",
     "999999999999999", "1000000000000000", "1000000000000000.5", "0000000000000000001", "١٢٣٤٥٦٧٨٩٠١٢٣٤٥٦",
-    "١۲", "😀", "۱۲۳٬۴۵۶٫۷۸", "12,34.5", "12.3,4", "１２", "½", "0.0000000000000001", "0." + "1".repeat(16), "0.000"];
+    "١۲", "\ud83d\ude00", "۱۲۳٬۴۵۶٫۷۸", "12,34.5", "12.3,4", "\uff11\uff12", "½", "0.0000000000000001", "0." + "1".repeat(16), "0.000"];
   for (const s of bad) for (const unit of ["none", "SAR", "piece", "KWD", "nope"]) add({ input: s, unit });
-  for (const unit of ["", " ", "XYZ", "ريالات", "sar ", " Sar", "S A R", "KM/H", "Kg", "KG", "ＳＡＲ", "riyal​", "none", "None", "بدون"]) {
+  for (const unit of ["", " ", "XYZ", "ريالات", "sar ", " Sar", "S A R", "KM/H", "\u212ag", "\u212aG", "\uff33\uff21\uff32", "riyal\u200b", "none", "None", "بدون"]) {
     for (const n of ["0", "1", "2", "12", "3.5"]) add({ input: n, unit });
   }
   return C;
@@ -163,7 +163,7 @@ test("TafqitSelfTest (generated VBA test module) passes every golden case", () =
   vm.call("TafqitSelfTest");
   const n = golden.cases.length;
   assert.equal(vm.messages.length, 1);
-  assert.equal(vm.messages[0].prompt, `Tafqit self-test: ${n} of ${n} golden cases passed.`);
+  assert.equal(vm.messages[0].prompt, `InstaWords self-test: ${n} of ${n} golden cases passed.`);
   assert.deepEqual(vm.output, [vm.messages[0].prompt]);
 });
 

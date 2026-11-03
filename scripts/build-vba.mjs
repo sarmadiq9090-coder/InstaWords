@@ -1,24 +1,32 @@
 // Generates vba/Tafqit.bas and vba/TafqitTests.bas.
 //
 //   vba/Tafqit.template.bas  (hand-written logic, placeholders '@@NAME@@)
-// + src/lexicon.ts, src/errors.ts (number words, error messages)
+// + src/lexicon.ts, src/lang/en.ts, src/lang/fr.ts (number words of each language)
+// + src/errors.ts           (error codes and messages)
 // + data/units.json         (unit catalog, validated with src/catalog.ts)
 // + tests/golden/cases.json (golden cases for TafqitSelfTest)
 //
 // VBA cannot read JSON offline and its editor is code-page based, so every
 // string is embedded as code: printable ASCII as a literal, anything else as
 // U("hex code units") decoded at run time. Output is pure ASCII with CRLF.
-import { readFileSync, writeFileSync } from "node:fs";
+//
+// Usage: node scripts/build-vba.mjs [--units <units.json>] [--out <dir>]
+// (the options are for tests that build the module from a custom catalog).
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { Catalog, unitKey } from "../src/catalog.ts";
 import { ERROR_MESSAGES } from "../src/errors.ts";
 import * as LX from "../src/lexicon.ts";
+import { LANGUAGE_MODULES } from "../src/lang/index.ts";
+import { EN_WORDS } from "../src/lang/en.ts";
+import { FR_WORDS } from "../src/lang/fr.ts";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const read = (p) => readFileSync(root + p, "utf8");
 
-const UNITS_PER_PROC = 8; // keeps each generated procedure far below VBA's 64 KB limit
+const UNITS_PER_PROC = 6; // keeps each generated procedure far below VBA's 64 KB limit
 const CASES_PER_PROC = 25;
 const CHUNK = 100; // code units per U("...") call, keeps lines < 1023 chars
 
@@ -46,7 +54,8 @@ const TRANSLIT = {
 /** ASCII-only transliteration for comments (the VBA editor cannot show Arabic in a .bas). */
 function translit(s) {
   let out = "";
-  for (const ch of s) {
+  const latin = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/œ/g, "oe").replace(/æ/g, "ae").replace(/ß/g, "ss");
+  for (const ch of latin) {
     const c = ch.codePointAt(0);
     if (TRANSLIT[ch] !== undefined) out += TRANSLIT[ch];
     else if (c >= 0x660 && c <= 0x669) out += String(c - 0x660);
@@ -65,12 +74,8 @@ function assign(target, s, indent = "    ") {
   return pieces.map((p, i) => (i === 0 ? `${indent}${target} = ${p}${note}` : `${indent}${target} = ${target} & ${p}`));
 }
 
-// ---------------------------------------------------------------- inputs
+// ---------------------------------------------------------------- shared inputs
 
-const unitsData = JSON.parse(read("data/units.json"));
-new Catalog(unitsData); // throws on an invalid catalog (same checks as the core)
-const units = unitsData.units;
-const golden = JSON.parse(read("tests/golden/cases.json"));
 const template = read("vba/Tafqit.template.bas");
 
 const hundredsNames = Object.keys(LX.HUNDREDS);
@@ -79,11 +84,19 @@ for (const k of [1, 2, 3, 4]) if (!LX.SCALES[k]) throw new Error(`SCALES[${k}] m
 if (LX.SCALES.length !== 5) throw new Error("expected 4 scales");
 if (LX.MAX_INTEGER_DIGITS !== 15) throw new Error("MAX_INTEGER_DIGITS changed: check scales and NumberText");
 
-const ERROR_CODES = ["EMPTY", "INVALID_FORMAT", "NEGATIVE", "TOO_LARGE", "TOO_MANY_DECIMALS", "FRACTION_NOT_SUPPORTED", "UNKNOWN_UNIT", "INVALID_OPTION"];
+// The VBA rules are written for these languages, in this order (LANG_AR, LANG_EN, LANG_FR).
+const LANGS = ["ar", "en", "fr"];
+if (Object.keys(LANGUAGE_MODULES).join() !== LANGS.join()) throw new Error(`languages changed: ${Object.keys(LANGUAGE_MODULES)}`);
+const expectLen = (name, a, n) => { if (a.length !== n) throw new Error(`${name} has ${a.length} entries, the VBA module expects ${n}`); };
+expectLen("EN_WORDS.SMALL", EN_WORDS.SMALL, 20);
+expectLen("EN_WORDS.TENS", EN_WORDS.TENS, 10);
+expectLen("EN_WORDS.SCALES", EN_WORDS.SCALES, 5);
+expectLen("FR_WORDS.SMALL", FR_WORDS.SMALL, 20);
+expectLen("FR_WORDS.TENS", FR_WORDS.TENS, 7);
+expectLen("FR_WORDS.SCALE_NOUNS", FR_WORDS.SCALE_NOUNS, 5);
 
-const sourceHash = createHash("sha256")
-  .update(template).update(read("src/lexicon.ts")).update(read("src/errors.ts")).update(read("data/units.json"))
-  .digest("hex").slice(0, 12);
+/** Error codes in src/errors.ts order; E_<CODE> = 1, 2, ... */
+const ERROR_CODES = Object.keys(ERROR_MESSAGES);
 
 // ---------------------------------------------------------------- JS character classes
 
@@ -102,17 +115,6 @@ const spaceRanges = ranges((c) => /\s/.test(String.fromCharCode(c)));
 for (let c = 0; c <= 0xffff; c++) {
   const ch = String.fromCharCode(c);
   if (/\s/.test(ch) !== (ch.trim() === "")) throw new Error(`trim and \\s disagree at U+${c.toString(16)}`);
-}
-
-// Characters whose toLowerCase() can produce text found in a catalog key.
-const keys = units.map((u) => unitKeysOf(u));
-const keyChars = new Set(keys.flat().join(""));
-const lowerExtras = [];
-for (let c = 0x80; c <= 0xffff; c++) {
-  if (c >= 0xd800 && c <= 0xdfff) continue;
-  const ch = String.fromCharCode(c);
-  const lo = ch.toLowerCase();
-  if (lo !== ch && [...lo].every((x) => keyChars.has(x))) lowerExtras.push([c, lo]);
 }
 
 /** Lookup names of a unit, as Catalog.add builds them. */
@@ -146,27 +148,77 @@ function lexiconProc() {
     L.push(...assign(`mScale(${k}, SC_PLURAL)`, s.plural), ...assign(`mScale(${k}, SC_ACCUSATIVE)`, s.accusative));
   }
   for (const code of ERROR_CODES) L.push(...assign(`mErrMsg(E_${code})`, ERROR_MESSAGES[code]));
+  LANGS.forEach((id, i) => L.push(...assign(`mLangId(${i})`, id)));
+  L.push(...assign("mJoiner(LANG_AR)", LX.WAW), ...assign("mJoiner(LANG_EN)", EN_WORDS.SUBUNIT_JOINER));
+  L.push(...assign("mJoiner(LANG_FR)", FR_WORDS.SUBUNIT_JOINER));
   L.push("End Sub");
+  return L;
+}
+
+function englishProc() {
+  const W = EN_WORDS;
+  const L = ["Private Sub InitWordsEn()"];
+  W.SMALL.forEach((w, i) => L.push(...assign(`mEnSmall(${i})`, w)));
+  W.TENS.forEach((w, i) => w && L.push(...assign(`mEnTens(${i})`, w)));
+  W.SCALES.forEach((w, i) => w && L.push(...assign(`mEnScale(${i})`, w)));
+  L.push(...assign("mEnHundred", W.HUNDRED), ...assign("mEnPoint", W.POINT), ...assign("mEnHyphen", W.HYPHEN));
+  L.push("End Sub");
+  return L;
+}
+
+function frenchProc() {
+  const W = FR_WORDS;
+  const L = ["Private Sub InitWordsFr()"];
+  W.SMALL.forEach((w, i) => L.push(...assign(`mFrSmall(${i})`, w)));
+  W.TENS.forEach((w, i) => w && L.push(...assign(`mFrTens(${i})`, w)));
+  W.SCALE_NOUNS.forEach((w, i) => w && L.push(...assign(`mFrScale(${i})`, w)));
+  for (const [v, k] of [["mFrFourTwenty", "FOUR_TWENTY"], ["mFrCent", "CENT"], ["mFrMille", "MILLE"], ["mFrPoint", "POINT"],
+    ["mFrEt", "ET"], ["mFrHyphen", "HYPHEN"], ["mFrPluralS", "PLURAL_S"], ["mFrOneF", "ONE_F"], ["mFrDe", "DE"], ["mFrDeElided", "DE_ELIDED"]]) {
+    if (typeof W[k] !== "string") throw new Error(`FR_WORDS.${k} missing`);
+    L.push(...assign(v, W[k]));
+  }
+  L.push("End Sub");
+  return L;
+}
+
+/** FR_WORDS.ELIDES over every UTF-16 code unit (what the regex sees for the first character). */
+function frenchElisionProc() {
+  const cases = ranges((c) => FR_WORDS.ELIDES.test(String.fromCharCode(c))).map(([a, b]) => (a === b ? `${a}` : `${a} To ${b}`));
+  const L = ["' A French noun starting with this code unit takes d' (FR_WORDS.ELIDES in src/lang/fr.ts).",
+    "Private Function FrElides(ByVal c As Long) As Boolean", "    Select Case c"];
+  for (let i = 0; i < cases.length; i += 8) L.push(`    Case ${cases.slice(i, i + 8).join(", ")}`, "        FrElides = True");
+  L.push("    Case Else", "        FrElides = False", "    End Select", "End Function");
+  return L;
+}
+
+/** Forms of a unit or subunit in each language: [lang index, {singular, plural, one?, gender?}]. */
+function formsByLang(arabic, i18n) {
+  const out = [];
+  if (arabic) out.push([0, arabic]);
+  if (i18n?.en) out.push([1, i18n.en]);
+  if (i18n?.fr) out.push([2, i18n.fr]);
+  return out;
+}
+
+function formLines(prefix, arabic, i18n) {
+  const L = [];
+  for (const [li, f] of formsByLang(arabic, i18n)) {
+    L.push(`    m${prefix}Has(i, ${li}) = True`);
+    if (f.gender !== undefined) L.push(`    m${prefix}Gender(i, ${li}) = ${f.gender === "f" ? 1 : 0}`);
+    L.push(...assign(`m${prefix}Sing(i, ${li})`, f.singular), ...assign(`m${prefix}Plur(i, ${li})`, f.plural));
+    if (f.one !== undefined) L.push(...assign(`m${prefix}One(i, ${li})`, f.one));
+    if (li === 0) L.push(...assign(`m${prefix}Dual(i)`, f.dual), ...assign(`m${prefix}Acc(i)`, f.accusative));
+  }
   return L;
 }
 
 function unitLines(u, i) {
   const L = [`    ' --- ${u.id}: ${translit(u.label)} ---`, `    i = ${i}`];
   L.push(...assign("mUId(i)", u.id));
-  if (u.forms) {
-    const f = u.forms;
-    L.push("    mUHasForms(i) = True", `    mUGender(i) = ${f.gender === "f" ? 1 : 0}`);
-    L.push(...assign("mUSing(i)", f.singular), ...assign("mUDual(i)", f.dual));
-    L.push(...assign("mUPlur(i)", f.plural), ...assign("mUAcc(i)", f.accusative));
-    if (f.one !== undefined) L.push(...assign("mUOne(i)", f.one));
-  }
+  if (u.forms) L.push("    mUHasForms(i) = True", ...formLines("F", u.forms, u.i18n));
   if (u.subunit) {
-    const s = u.subunit;
-    L.push("    mUHasSub(i) = True", `    mUSubGender(i) = ${s.gender === "f" ? 1 : 0}`);
-    L.push(...assign("mUSubSing(i)", s.singular), ...assign("mUSubDual(i)", s.dual));
-    L.push(...assign("mUSubPlur(i)", s.plural), ...assign("mUSubAcc(i)", s.accusative));
-    if (s.one !== undefined) L.push(...assign("mUSubOne(i)", s.one));
-    L.push(`    mUSubDigits(i) = ${String(s.ratio).length - 1}`);
+    L.push("    mUHasSub(i) = True", `    mUSubDigits(i) = ${String(u.subunit.ratio).length - 1}`);
+    L.push(...formLines("S", u.subunit, u.subunit.i18n));
   }
   for (const k of unitKeysOf(u)) {
     const pieces = vbaPieces(k);
@@ -176,7 +228,7 @@ function unitLines(u, i) {
   return L;
 }
 
-function catalogProcs() {
+function catalogProcs(units, keys) {
   const keyCount = keys.reduce((n, k) => n + k.length, 0);
   const parts = [];
   for (let p = 0; p * UNITS_PER_PROC < units.length; p++) {
@@ -187,9 +239,9 @@ function catalogProcs() {
   }
   const init = [
     "Private Sub InitCatalog()",
-    "    ReDim mUId(1 To UNIT_COUNT)",
-    ...["mUHasForms", "mUGender", "mUSing", "mUDual", "mUPlur", "mUAcc", "mUOne", "mUHasSub", "mUSubGender",
-      "mUSubSing", "mUSubDual", "mUSubPlur", "mUSubAcc", "mUSubOne", "mUSubDigits"].map((a) => `    ReDim ${a}(1 To UNIT_COUNT)`),
+    ...["mUId", "mUHasForms", "mFDual", "mFAcc", "mUHasSub", "mUSubDigits", "mSDual", "mSAcc"].map((a) => `    ReDim ${a}(1 To UNIT_COUNT)`),
+    ...["mFHas", "mFSing", "mFPlur", "mFOne", "mFGender", "mSHas", "mSSing", "mSPlur", "mSOne", "mSGender"]
+      .map((a) => `    ReDim ${a}(1 To UNIT_COUNT, 0 To LANG_COUNT - 1)`),
     "    ReDim mKeyName(1 To KEY_COUNT)",
     "    ReDim mKeyUnit(1 To KEY_COUNT)",
     "    mKeyCount = 0",
@@ -205,7 +257,7 @@ function catalogProcs() {
   return { keyCount, lines: [init, ...parts] };
 }
 
-function charProcs() {
+function charProcs(lowerExtras) {
   const cases = spaceRanges.map(([a, b]) => (a === b ? `${a}` : `${a} To ${b}`));
   const space = ["' /\\s/ in JavaScript (also what String.prototype.trim removes).", "Private Function IsJsSpace(ByVal c As Long) As Boolean"];
   space.push("    Select Case c");
@@ -226,20 +278,6 @@ function charProcs() {
   return [space, lower];
 }
 
-const catalog = catalogProcs();
-const generated = [lexiconProc(), ...charProcs(), ...catalog.lines].map((p) => p.join("\n")).join("\n\n");
-
-const header = [
-  `' GENERATED by scripts/build-vba.mjs from vba/Tafqit.template.bas, src/lexicon.ts,`,
-  `' src/errors.ts and data/units.json (${units.length} units). Do not edit: edit the`,
-  `' template or the data and run "npm run build:vba". Source hash: ${sourceHash}`,
-].join("\n");
-const constants = [
-  `Private Const MAX_INTEGER_DIGITS As Long = ${LX.MAX_INTEGER_DIGITS}`,
-  `Private Const UNIT_COUNT As Long = ${units.length}`,
-  `Private Const KEY_COUNT As Long = ${catalog.keyCount}`,
-].join("\n");
-
 function fill(tpl, values) {
   let out = tpl;
   for (const [name, text] of Object.entries(values)) {
@@ -254,7 +292,7 @@ function fill(tpl, values) {
 
 // ---------------------------------------------------------------- TafqitTests.bas
 
-function testsModule() {
+function testsModule(golden) {
   const d = golden.defaults ?? {};
   const cases = golden.cases.map((c) => ({ ...d, ...c.options, id: c.id, input: c.input, unit: c.unit, expected: c.expected, cleaned: c.cleaned }));
   const procs = [];
@@ -265,6 +303,7 @@ function testsModule() {
       L.push(...assign("mCaseId(mCount)", c.id), ...assign("mCaseIn(mCount)", c.input), ...assign("mCaseUnit(mCount)", c.unit));
       L.push(...assign("mCaseHf(mCount)", c.hundredsForm ?? ""), ...assign("mCasePre(mCount)", c.prefix ?? ""));
       L.push(...assign("mCaseSuf(mCount)", c.suffix ?? ""), ...assign("mCaseDec(mCount)", c.decimals ?? ""));
+      L.push(...assign("mCaseLang(mCount)", c.language ?? ""));
       L.push(...assign("mCaseExp(mCount)", c.expected), ...assign("mCaseClean(mCount)", c.cleaned));
     }
     L.push("End Sub");
@@ -287,18 +326,19 @@ Private mCaseHf() As String
 Private mCasePre() As String
 Private mCaseSuf() As String
 Private mCaseDec() As String
+Private mCaseLang() As String
 Private mCaseExp() As String
 Private mCaseClean() As String
 
 Public Sub TafqitSelfTest()
     Dim failed As Long, msg As String
     failed = TafqitGoldenFailures()
-    msg = "Tafqit self-test: " & (mCount - failed) & " of " & mCount & " golden cases passed."
+    msg = "InstaWords self-test: " & (mCount - failed) & " of " & mCount & " golden cases passed."
     Debug.Print msg
     If failed = 0 Then
-        MsgBox msg, vbInformation, "Tafqit"
+        MsgBox msg, vbInformation, "InstaWords"
     Else
-        MsgBox msg & vbCrLf & failed & " failed: see the Immediate window (Ctrl+G).", vbExclamation, "Tafqit"
+        MsgBox msg & vbCrLf & failed & " failed: see the Immediate window (Ctrl+G).", vbExclamation, "InstaWords"
     End If
 End Sub
 
@@ -308,7 +348,7 @@ Public Function TafqitGoldenFailures() As Long
     LoadCases
     failed = 0
     For i = 1 To mCount
-        got = TAFQIT(mCaseIn(i), mCaseUnit(i), mCaseHf(i), mCasePre(i), mCaseSuf(i), mCaseDec(i))
+        got = TAFQIT(mCaseIn(i), mCaseUnit(i), mCaseHf(i), mCasePre(i), mCaseSuf(i), mCaseDec(i), mCaseLang(i))
         cleaned = TAFQIT_CLEAN(mCaseIn(i))
         If Not SameText(got, mCaseExp(i)) Then
             failed = failed + 1
@@ -379,6 +419,7 @@ Private Sub LoadCases()
     ReDim mCasePre(1 To ${cases.length})
     ReDim mCaseSuf(1 To ${cases.length})
     ReDim mCaseDec(1 To ${cases.length})
+    ReDim mCaseLang(1 To ${cases.length})
     ReDim mCaseExp(1 To ${cases.length})
     ReDim mCaseClean(1 To ${cases.length})
 ${procs.map((_, p) => `    LoadCases${p + 1}`).join("\n")}
@@ -388,19 +429,79 @@ ${procs.join("\n\n")}
 `;
 }
 
-// ---------------------------------------------------------------- write
+// ---------------------------------------------------------------- build
 
+/** CRLF, and checks that the text is safe for the VBA editor. */
 function toBas(text, name) {
   const crlf = text.replace(/\r\n/g, "\n").replace(/\n/g, "\r\n");
   const bad = crlf.match(/[^\x09\x0a\x0d\x20-\x7e]/);
   if (bad) throw new Error(`${name}: non-ASCII output U+${bad[0].charCodeAt(0).toString(16)}`);
   const long = crlf.split("\r\n").find((l) => l.length > 1000);
   if (long) throw new Error(`${name}: line too long for VBA: ${long.slice(0, 60)}...`);
-  writeFileSync(root + "vba/" + name, crlf);
-  return crlf.split("\r\n").length;
+  return crlf;
 }
 
-const n1 = toBas(fill(template, { HEADER: header, CONSTANTS: constants, GENERATED: generated }), "Tafqit.bas");
-const n2 = toBas(testsModule(), "TafqitTests.bas");
-console.log(`vba/Tafqit.bas: ${units.length} units, ${catalog.keyCount} lookup names, ${n1} lines`);
-console.log(`vba/TafqitTests.bas: ${golden.cases.length} golden cases, ${n2} lines`);
+/** Builds both modules from a units catalog and the golden cases. Returns their text (CRLF). */
+export function buildVba(unitsData, golden) {
+  new Catalog(unitsData); // throws on an invalid catalog (same checks as the core)
+  const units = unitsData.units;
+  const keys = units.map((u) => unitKeysOf(u));
+
+  // Characters whose toLowerCase() can produce text found in a catalog key.
+  const keyChars = new Set(keys.flat().join(""));
+  const lowerExtras = [];
+  for (let c = 0x80; c <= 0xffff; c++) {
+    if (c >= 0xd800 && c <= 0xdfff) continue;
+    const ch = String.fromCharCode(c);
+    const lo = ch.toLowerCase();
+    if (lo !== ch && [...lo].every((x) => keyChars.has(x))) lowerExtras.push([c, lo]);
+  }
+
+  const sourceHash = createHash("sha256")
+    .update(template).update(JSON.stringify(LX)).update(JSON.stringify(EN_WORDS)).update(JSON.stringify(FR_WORDS))
+    .update(String(FR_WORDS.ELIDES)).update(JSON.stringify(ERROR_MESSAGES)).update(JSON.stringify(unitsData))
+    .digest("hex").slice(0, 12);
+
+  const catalog = catalogProcs(units, keys);
+  const generated = [lexiconProc(), englishProc(), frenchProc(), frenchElisionProc(), ...charProcs(lowerExtras), ...catalog.lines]
+    .map((p) => p.join("\n")).join("\n\n");
+  const header = [
+    `' GENERATED by scripts/build-vba.mjs from vba/Tafqit.template.bas, src/lexicon.ts,`,
+    `' src/lang/en.ts, src/lang/fr.ts, src/errors.ts and data/units.json (${units.length} units).`,
+    `' Do not edit: edit the template or the sources and run "npm run build:vba".`,
+    `' Source hash: ${sourceHash}`,
+  ].join("\n");
+  const constants = [
+    ...ERROR_CODES.map((code, i) => `Private Const E_${code} As Long = ${i + 1}`),
+    `Private Const ERROR_COUNT As Long = ${ERROR_CODES.length}`,
+    `Private Const MAX_INTEGER_DIGITS As Long = ${LX.MAX_INTEGER_DIGITS}`,
+    `Private Const UNIT_COUNT As Long = ${units.length}`,
+    `Private Const KEY_COUNT As Long = ${catalog.keyCount}`,
+  ].join("\n");
+
+  return {
+    tafqit: toBas(fill(template, { HEADER: header, CONSTANTS: constants, GENERATED: generated }), "Tafqit.bas"),
+    tests: toBas(testsModule(golden), "TafqitTests.bas"),
+    units: units.length,
+    keys: catalog.keyCount,
+    cases: golden.cases.length,
+  };
+}
+
+function main(argv) {
+  const opt = (name, def) => {
+    const i = argv.indexOf(name);
+    return i === -1 ? def : resolve(argv[i + 1]);
+  };
+  const unitsPath = opt("--units", root + "data/units.json");
+  const outDir = opt("--out", root + "vba");
+  const out = buildVba(JSON.parse(readFileSync(unitsPath, "utf8")), JSON.parse(read("tests/golden/cases.json")));
+  mkdirSync(outDir, { recursive: true });
+  writeFileSync(outDir + "/Tafqit.bas", out.tafqit);
+  writeFileSync(outDir + "/TafqitTests.bas", out.tests);
+  const lines = (t) => t.split("\r\n").length;
+  console.log(`${outDir}/Tafqit.bas: ${out.units} units, ${out.keys} lookup names, ${lines(out.tafqit)} lines`);
+  console.log(`${outDir}/TafqitTests.bas: ${out.cases} golden cases, ${lines(out.tests)} lines`);
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) main(process.argv.slice(2));
