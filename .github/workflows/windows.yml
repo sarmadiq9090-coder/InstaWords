@@ -229,7 +229,12 @@ jobs:
   # Publishes the UI-test screenshots to the ci-screenshots branch so they can be reviewed
   # without downloading artifacts (e.g. from the cloud build environment). Never touches other branches.
   screenshots:
-    if: always() && github.event_name == 'push'
+    # Only the default branch publishes ci-screenshots (other branches and Dependabot runs
+    # would overwrite it), one run at a time so concurrent force-pushes don't race.
+    if: always() && github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    concurrency:
+      group: ci-screenshots
+      cancel-in-progress: false
     needs: build
     runs-on: ubuntu-latest
     permissions:
