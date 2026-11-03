@@ -64,7 +64,18 @@ namespace InstaWords.UITests
                 number.Text = "";
                 number.Enter("45750");
                 AppSession.WaitUntil(() => s.Find("CleanedText")?.Name == "45,750.00", "number used 45,750.00, got «" + s.Find("CleanedText")?.Name + "»");
+
+                // Whole Iraqi dinars are written without fils (displayDigits 0); a fraction keeps all three digits.
                 number.Text = "";
+                PickUnit(s, "IQD", "IQD");
+                number.Enter("1750000");
+                AppSession.WaitUntil(() => s.Find("CleanedText")?.Name == "1,750,000", "number used 1,750,000, got «" + s.Find("CleanedText")?.Name + "»");
+                AppSession.WaitUntil(() => s.ResultText == Tafqit.Convert("1750000", Options("IQD", "ar")), "IQD words");
+                number.Text = "";
+                number.Enter("1750000.5");
+                AppSession.WaitUntil(() => s.Find("CleanedText")?.Name == "1,750,000.500", "number used 1,750,000.500, got «" + s.Find("CleanedText")?.Name + "»");
+                number.Text = "";
+                PickUnit(s, "SAR", "SAR");
                 number.Enter("1250.75");
                 AppSession.WaitUntil(() => s.ResultText == expected, "back to 1250.75");
 

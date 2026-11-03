@@ -12,8 +12,9 @@ namespace InstaWords.App.Services
         /// <summary>The engine's canonical form of the input (1234.5), whenever the input itself is valid.</summary>
         public string Cleaned { get; set; }
         /// <summary>
-        /// The amount the words state, without separators: money with its full subunit decimals and
-        /// rounded like the words (45750.50, 10.13); otherwise <see cref="Cleaned"/>. See <see cref="AmountFormat"/>.
+        /// The amount the words state, without separators: money rounded like the words, with its full
+        /// subunit decimals when it has a fraction (45750.50, 10.13, 1750000.500 IQD) and its usual
+        /// digits when whole (45750.00 SAR, 1750000 IQD); otherwise <see cref="Cleaned"/>. See <see cref="AmountFormat"/>.
         /// </summary>
         public string Amount { get; set; }
         public string ErrorCode { get; set; }
@@ -29,7 +30,7 @@ namespace InstaWords.App.Services
             {
                 var r = Tafqit.TryConvert(input ?? "", options);
                 // The figures follow the words only when there are words (an «error»-mode extra digit is not rounded).
-                var amount = r.Ok ? AmountFormat.Used(r.Cleaned, AmountFormat.DecimalsFor(options?.Unit)) : r.Cleaned;
+                var amount = r.Ok ? AmountFormat.Used(r.Cleaned, options?.Unit) : r.Cleaned;
                 // The engine's messages are Arabic; the English interface maps the code instead.
                 return new ConversionResult
                 {
