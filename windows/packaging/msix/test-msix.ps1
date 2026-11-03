@@ -80,7 +80,7 @@ if (-not $proc) { throw "InstaWords did not start from the package" }
 Check ($proc.Path -like "*\WindowsApps\*") "runs from the package: $($proc.Path)"
 
 # ---- Store mode, through UI Automation ----
-Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Drawing
+Add-Type -AssemblyName UIAutomationClient, UIAutomationTypes, System.Drawing, System.Windows.Forms
 $AE = [System.Windows.Automation.AutomationElement]
 $TS = [System.Windows.Automation.TreeScope]
 function Find-Id($root, [string]$automationId, [int]$timeoutMs = 10000) {
@@ -94,6 +94,18 @@ function Find-Id($root, [string]$automationId, [int]$timeoutMs = 10000) {
     Start-Sleep -Milliseconds 200
   } while ((Get-Date) -lt $deadline)
   return $null
+}
+# A real click (focus + Space): UIA's TogglePattern flips IsChecked without raising the app's Click handler.
+function Click-Box($element) {
+  $element.SetFocus()
+  Start-Sleep -Milliseconds 300
+  [System.Windows.Forms.SendKeys]::SendWait(" ")
+}
+function Toggle-State($element) { $element.GetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern).Current.ToggleState }
+# What Windows recorded for the startup task (2 = enabled, 0 = disabled), read from outside the package.
+function Startup-TaskState {
+  $key = "HKCU:\Software\Classes\Local Settings\Software\Microsoft\Windows\CurrentVersion\AppModel\SystemAppData\$($pkg.PackageFamilyName)\InstaWordsStartup"
+  try { return (Get-ItemProperty -Path $key -Name State -ErrorAction Stop).State } catch { return "n/a" }
 }
 function Save-Shot($element, [string]$name) {
   Start-Sleep -Milliseconds 400
@@ -126,24 +138,27 @@ if ($startup) {
   Start-Sleep -Milliseconds 500
   Save-Shot $window "store-settings"
   Check $startup.Current.IsEnabled "the startup task answered (box enabled)"
-  $toggle = $startup.GetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern)
-  $before = $toggle.Current.ToggleState
+  $before = Toggle-State $startup
   Check ($before -eq [System.Windows.Automation.ToggleState]::Off) "startup task is off by default ($before)"
   if ($startup.Current.IsEnabled) {
-    $toggle.Toggle()
+    Click-Box $startup
     Start-Sleep -Seconds 2
-    Check ($toggle.Current.ToggleState -eq [System.Windows.Automation.ToggleState]::On) "startup task switched on ($($toggle.Current.ToggleState))"
+    $on = Toggle-State $startup
+    Write-Host "startup task state recorded by Windows: $(Startup-TaskState)"
+    Check ($on -eq [System.Windows.Automation.ToggleState]::On) "startup task switched on through the StartupTask API ($on)"
     Save-Shot $window "store-settings-startup-on"
-    $toggle.Toggle()
+    Click-Box $startup
     Start-Sleep -Seconds 2
-    Check ($toggle.Current.ToggleState -eq [System.Windows.Automation.ToggleState]::Off) "startup task switched off again ($($toggle.Current.ToggleState))"
+    $off = Toggle-State $startup
+    Write-Host "startup task state recorded by Windows: $(Startup-TaskState)"
+    Check ($off -eq [System.Windows.Automation.ToggleState]::Off) "startup task switched off again ($off)"
   }
 }
 
 # A changed setting is saved (after 0.5 s) where MSIX redirects %APPDATA%.
 $toast = Find-Id $window "ShowToast"
 if ($toast) {
-  $toast.GetCurrentPattern([System.Windows.Automation.TogglePattern]::Pattern).Toggle()
+  Click-Box $toast
   Start-Sleep -Seconds 2
 }
 $redirected = Join-Path $env:LOCALAPPDATA "Packages\$($pkg.PackageFamilyName)\LocalCache\Roaming\FastKiwi\InstaWords\settings.json"

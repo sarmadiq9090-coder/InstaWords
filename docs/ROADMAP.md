@@ -12,6 +12,7 @@
 - 🟡 **جاهز وينتظر صاحب المشروع:**
   - 5: تجربة على جهاز حقيقي (`docs/TESTING-CHECKLIST.md`).
   - 7: إرسال ملفات winget وScoop (`docs/PACKAGING.md`، والملفات مرفقة بكل إصدار).
+  - 21: **Microsoft Store** (الاسم محجوز، Store ID ‏9P62P4WQSQNK): حزمة MSIX تُبنى وتُجرَّب تثبيتاً وتشغيلاً في CI مع كل إيداع (الملف المؤقت `store-package`)، ونصوص الصفحة بالعربية والإنجليزية جاهزة. يبقى الإرسال من Partner Center ونشر سياسة الخصوصية (`docs/distribution/microsoft-store.md`).
   - 8: طلب التوقيع المجاني من SignPath (`docs/CODE-SIGNING.md`).
   - 14: إعادة تسمية المستودع.
   - حذف الفروع المدموجة، وتفعيل Enforce HTTPS في إعدادات Pages.
@@ -40,6 +41,7 @@
 | 12 | **تدقيق الأداء وإمكانية الوصول** (Lighthouse، وقارئ الشاشة في برنامج ويندوز) | سرعة تحميل، واستخدام بلا عوائق |
 | 13 | **واجهة إنجليزية لبرنامج ويندوز** (الواجهة عربية فقط الآن، مع أن التفقيط ثلاثي اللغات) | الوصول للمستخدمين غير العرب |
 | 14 | **إعادة تسمية المستودع** من `tafket` إلى `instawords` 🔑 | اتساق الاسم (يحوّل GitHub الروابط القديمة تلقائياً) |
+| 21 | **النشر في Microsoft Store** (حزمة MSIX للبرنامج الأصلي) 🔑 | تثبيت وتحديث من المتجر دون تحذير SmartScreen؛ الحزمة جاهزة وتنتظر الإرسال |
 
 ### P2: ميزات جديدة (حسب الطلب)
 
@@ -104,5 +106,7 @@
 ## English summary
 
 v1.1.0 (done): rename to **InstaWords**; multi-language engine (Arabic + English + French, one module per language, unit names under `i18n`); language picker; UI polish; offline Windows app (Tauri, NSIS, built by GitHub Actions, published to Releases); Excel language parameter with exact parity; docs and deployment.
+
+Status (November 2026): a Microsoft Store MSIX of the native app is built and install-tested by CI on every push (artifact `store-package`, Store ID 9P62P4WQSQNK); the listing kit is in `docs/distribution/microsoft-store.md`, waiting for the owner's Partner Center submission.
 
 Later, on request: code signing, winget/Scoop, auto-update, print templates (cheque/invoice/receipt → PDF), npm package, Office/Sheets add-in, more languages (Turkish, Persian, Urdu, Spanish…), upper-case English option, specialist linguistic review, repository rename.
