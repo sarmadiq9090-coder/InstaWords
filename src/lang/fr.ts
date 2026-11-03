@@ -2,6 +2,7 @@
 import type { FrenchForms, Gender } from "../types.ts";
 import { splitGroups, type LanguageModule } from "./types.ts";
 
+// Word tables (exported for scripts/build-vba.mjs, which embeds them in the Excel module).
 const SMALL = [
   "zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix",
   "onze", "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf",
@@ -15,8 +16,22 @@ const MILLE = "mille";
 const SCALE_NOUNS = ["", "", "million", "milliard", "billion"];
 const POINT = "virgule";
 const SUBUNIT_JOINER = " et ";
+/** Inside numbers: vingt et un, soixante et onze. */
+const ET = " et ";
+const HYPHEN = "-";
+const PLURAL_S = "s";
+const ONE_F = "une";
+/** Before a noun that directly follows million/milliard/billion. */
+const DE = "de ";
+const DE_ELIDED = "d'";
+/** Nouns starting like this take d' (h is treated as mute). */
+const ELIDES = /^[aeiouhàâäéèêëîïôöûüœæ]/i;
 
-const one = (g: Gender) => (g === "f" ? "une" : "un");
+export const FR_WORDS = Object.freeze({
+  SMALL, TENS, FOUR_TWENTY, CENT, MILLE, SCALE_NOUNS, POINT, SUBUNIT_JOINER, ET, HYPHEN, PLURAL_S, ONE_F, DE, DE_ELIDED, ELIDES,
+});
+
+const one = (g: Gender) => (g === "f" ? ONE_F : SMALL[1]!);
 
 /**
  * 1..99. `final`: no other number word follows (only a noun, million/milliard/billion,
@@ -29,11 +44,11 @@ function below100(n: number, g: Gender, final: boolean): string {
   const u = n % 10;
   if (t === 7 || t === 9) {
     const base = t === 7 ? TENS[6]! : FOUR_TWENTY;
-    return t === 7 && u === 1 ? `${base} et ${SMALL[11]}` : `${base}-${SMALL[10 + u]}`; // soixante et onze, quatre-vingt-onze
+    return t === 7 && u === 1 ? base + ET + SMALL[11] : base + HYPHEN + SMALL[10 + u]; // soixante et onze, quatre-vingt-onze
   }
-  if (t === 8) return u === 0 ? FOUR_TWENTY + (final ? "s" : "") : `${FOUR_TWENTY}-${u === 1 ? one(g) : SMALL[u]}`;
+  if (t === 8) return u === 0 ? FOUR_TWENTY + (final ? PLURAL_S : "") : FOUR_TWENTY + HYPHEN + (u === 1 ? one(g) : SMALL[u]);
   if (u === 0) return TENS[t]!;
-  return u === 1 ? `${TENS[t]} et ${one(g)}` : `${TENS[t]}-${SMALL[u]}`;
+  return u === 1 ? TENS[t] + ET + one(g) : TENS[t] + HYPHEN + SMALL[u];
 }
 
 /** 1..999. cent takes s when multiplied and `final` with nothing after it in the group. */
@@ -42,7 +57,7 @@ function groupWords(g: number, gender: Gender, final: boolean): string {
   const r = g % 100;
   const parts: string[] = [];
   if (h === 1) parts.push(CENT);
-  else if (h > 1) parts.push(`${SMALL[h]} ${CENT}${r === 0 && final ? "s" : ""}`);
+  else if (h > 1) parts.push(`${SMALL[h]} ${CENT}${r === 0 && final ? PLURAL_S : ""}`);
   if (r > 0) parts.push(below100(r, gender, final));
   return parts.join(" ");
 }
@@ -56,7 +71,7 @@ function integerWords(digits: string, gender: Gender): string {
     const g = groups[k]!;
     if (g === 0) continue;
     if (k === 1) parts.push(g === 1 ? MILLE : `${groupWords(g, "m", false)} ${MILLE}`); // mille: invariable, never "un mille"
-    else parts.push(g === 1 ? `${one("m")} ${SCALE_NOUNS[k]}` : `${groupWords(g, "m", true)} ${SCALE_NOUNS[k]}s`);
+    else parts.push(g === 1 ? `${one("m")} ${SCALE_NOUNS[k]}` : `${groupWords(g, "m", true)} ${SCALE_NOUNS[k]}${PLURAL_S}`);
   }
   if (groups[0]! > 0) parts.push(groupWords(groups[0]!, gender, true));
   return parts.join(" ");
@@ -64,7 +79,7 @@ function integerWords(digits: string, gender: Gender): string {
 
 /** "de " or "d'" before a noun that directly follows million/milliard/billion. h is treated as mute. */
 function de(noun: string): string {
-  return /^[aeiouhàâäéèêëîïôöûüœæ]/i.test(noun) ? "d'" : "de ";
+  return ELIDES.test(noun) ? DE_ELIDED : DE;
 }
 
 export const french: LanguageModule<FrenchForms> = {

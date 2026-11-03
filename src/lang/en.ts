@@ -2,6 +2,7 @@
 import type { EnglishForms } from "../types.ts";
 import { splitGroups, type LanguageModule } from "./types.ts";
 
+// Word tables (exported for scripts/build-vba.mjs, which embeds them in the Excel module).
 const SMALL = [
   "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
   "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen",
@@ -11,6 +12,9 @@ const SCALES = ["", "Thousand", "Million", "Billion", "Trillion"];
 const HUNDRED = "Hundred";
 const POINT = "Point";
 const SUBUNIT_JOINER = " and ";
+const HYPHEN = "-";
+
+export const EN_WORDS = Object.freeze({ SMALL, TENS, SCALES, HUNDRED, POINT, SUBUNIT_JOINER, HYPHEN });
 
 /** 1..999: "Two Hundred Five", "Twenty-One". */
 function groupWords(g: number): string {
@@ -19,7 +23,7 @@ function groupWords(g: number): string {
   const parts: string[] = [];
   if (h > 0) parts.push(`${SMALL[h]} ${HUNDRED}`);
   if (r > 0 && r < 20) parts.push(SMALL[r]!);
-  else if (r >= 20) parts.push(TENS[Math.floor(r / 10)]! + (r % 10 ? "-" + SMALL[r % 10] : ""));
+  else if (r >= 20) parts.push(TENS[Math.floor(r / 10)]! + (r % 10 ? HYPHEN + SMALL[r % 10] : ""));
   return parts.join(" ");
 }
 
