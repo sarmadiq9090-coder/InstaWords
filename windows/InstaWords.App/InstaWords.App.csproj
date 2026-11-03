@@ -1,0 +1,65 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    InstaWords for Windows: a native WPF app (no browser control) on .NET Framework 4.8,
+    which ships with Windows 10 and 11, so users install nothing else.
+    Builds on Windows and, thanks to the NuGet reference assemblies, on Linux/macOS too.
+  -->
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <RootNamespace>InstaWords.App</RootNamespace>
+    <AssemblyName>InstaWords</AssemblyName>
+    <!-- Program.Main runs first: single-instance check before any UI is created. -->
+    <StartupObject>InstaWords.App.Program</StartupObject>
+    <ApplicationIcon>Assets\InstaWords.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+    <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
+    <DebugType>embedded</DebugType>
+    <Deterministic>true</Deterministic>
+
+    <Product>InstaWords</Product>
+    <AssemblyTitle>InstaWords — تفقيط</AssemblyTitle>
+    <Description>Amounts in words (tafqit) for cheques and invoices, in Arabic, English and French.</Description>
+    <Company>FastKiwi</Company>
+    <Authors>FastKiwi</Authors>
+    <Copyright>© FastKiwi. MIT License.</Copyright>
+    <NeutralLanguage>ar</NeutralLanguage>
+  </PropertyGroup>
+
+  <!-- The version comes from the repo package.json (CI may still pass -p:Version=...). -->
+  <PropertyGroup Condition="'$(Version)' == '' Or '$(Version)' == '1.0.0'">
+    <_PackageJson>$(MSBuildThisFileDirectory)..\..\package.json</_PackageJson>
+    <Version Condition="Exists('$(_PackageJson)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(_PackageJson)')), '"version"\s*:\s*"([0-9][^"]*)"').Groups[1].Value)</Version>
+    <Version Condition="'$(Version)' == ''">2.0.0</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Lets net48 compile anywhere (no Developer Pack needed); not shipped. -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- CoreProject can be overridden (-p:CoreProject=...) to build against another copy of the engine. -->
+    <ProjectReference Include="$(CoreProject)" Condition="'$(CoreProject)' != ''" />
+    <ProjectReference Include="..\InstaWords.Core\InstaWords.Core.csproj" Condition="'$(CoreProject)' == ''" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Fonts\*.ttf" />
+    <Resource Include="Assets\InstaWords.ico" />
+    <None Update="Fonts\OFL.txt" CopyToOutputDirectory="PreserveNewest" Link="Licenses\IBM-Plex-Sans-Arabic-OFL.txt" />
+    <None Include="..\..\LICENSE" CopyToOutputDirectory="PreserveNewest" Link="Licenses\InstaWords-LICENSE.txt" />
+  </ItemGroup>
+
+</Project>
