@@ -271,10 +271,19 @@ Upload them in this order, the same for both languages (Arabic listing: `store-a
 
 | # | File | Size | Content |
 |---|---|---|---|
-| 1 | `store-ar-1-convert.png` / `store-en-1-convert.png` | SIZE | Convert tab: 45,750.50 SAR (English: 18,945.75 USD) in words with «فقط … لا غير» / "… Only", the formatting options open, and five recent conversions in SAR, AED, IQD, USD (English: USD, AED, SAR, EUR) in the history |
-| 2 | `store-ar-2-print.png` / `store-en-2-print.png` | SIZE | Print dialog, maximised: a receipt voucher with a company name and logo (the app icon), number 1042, today's date, payer and purpose, and its live preview |
-| 3 | `store-ar-3-excel.png` / `store-en-3-excel.png` | SIZE | «عدة مبالغ» / Bulk tab: a column copied from Excel (header row and seven formatted amounts) pasted and converted, in SAR (English: AED) |
-| 4 | `store-ar-4-settings.png` / `store-en-4-settings.png` | SIZE | Settings, from the top: interface language, default conversion options, the Ctrl+Alt+T shortcut |
+| 1 | `store-ar-1-convert.png` / `store-en-1-convert.png` | 1920×1032 | Convert tab: 45,750.50 SAR (English: 18,945.75 USD) in words with «فقط … لا غير» / "… Only", the formatting options open, and five recent conversions in SAR, AED, IQD, USD (English: USD, AED, SAR, EUR) in the history |
+| 2 | `store-ar-2-print.png` / `store-en-2-print.png` | 1920×1032 | Print dialog, maximised: a receipt voucher with a company name and logo (the app icon), number 1042, today's date, payer and purpose, and its live preview |
+| 3 | `store-ar-3-excel.png` / `store-en-3-excel.png` | 1920×1032 | «عدة مبالغ» / Bulk tab: a column copied from Excel (header row and seven formatted amounts) pasted and converted, in SAR (English: AED) |
+| 4 | `store-ar-4-settings.png` / `store-en-4-settings.png` | 1920×1032 | Settings, from the top: interface language, default conversion options, the Ctrl+Alt+T shortcut |
+
+**Captions** (Partner Center allows one per screenshot, up to 200 characters). Paste the English ones in the English listing and the Arabic ones in the Arabic listing, beside the screenshot with the same number:
+
+| # | English | العربية |
+|---|---|---|
+| 1 | Type an amount and the words appear as you type, ready for the cheque. Recent amounts stay in the history. | <span dir="rtl">اكتب المبلغ فيظهر بالحروف فوراً، جاهزاً للشيك. وآخر المبالغ محفوظة في السجل.</span> |
+| 2 | Print receipt and payment vouchers with your company name and logo, or fill in your pre-printed cheques. | <span dir="rtl">اطبع سندات القبض والصرف باسم مؤسستك وشعارها، أو املأ شيكاتك المطبوعة مسبقاً.</span> |
+| 3 | Paste a column from Excel and get every amount in words at once. Copy the results back or export them to CSV. | <span dir="rtl">الصق عموداً من Excel فتحصل على كل المبالغ بالحروف في خطوة واحدة. انسخ النتائج أو صدّرها إلى CSV.</span> |
+| 4 | Arabic or English interface, your default currency and wording, and Ctrl+Alt+T to convert a copied number in any program. | <span dir="rtl">واجهة بالعربية أو الإنجليزية، وعملتك وصيغتك الافتراضيتان، وCtrl+Alt+T لتحويل الرقم الذي نسخته من أي برنامج.</span> |
 
 Get them from the workflow run's `InstaWords-<version>-screenshots` artifact. After the merge they also appear on `ci-screenshots`. The UI tests run the unpackaged build, so Settings shows the GitHub update options, which the Store copy replaces with "Updates come from Microsoft Store". If you want the Store-mode screens, the install test's screenshots are in the `store-package-checks` artifact (`store-settings.png`, `store-about.png`, at the default window size).
 
@@ -290,7 +299,7 @@ Get them from the workflow run's `InstaWords-<version>-screenshots` artifact. Af
    2. **Properties:** category Business → Accounting & finance, privacy policy URL, support info, product declarations.
    3. **Age ratings:** the questionnaire answers in section 4.
    4. **Packages:** drag in the `.msix`. Partner Center validates it, and the version must be higher than any earlier submission.
-   5. **Store listings:** English (United States) and Arabic. Paste section 3, then add the four screenshots per language in order (section 6). The Store takes the app's logos from the package.
+   5. **Store listings:** English (United States) and Arabic. Paste section 3, then add the four screenshots per language in order, each with its caption (section 6). The Store takes the app's logos from the package.
    6. **Submission options → Notes for certification:** section 5, including the runFullTrust justification.
 7. **Submit.** Certification usually takes 1 to 3 business days. Partner Center emails you the result.
 8. **Later versions:** bump `package.json` (`npm run release:prepare -- x.y.z`), let CI build `store-package`, then make a new submission with the new `.msix` (each version must be higher). The Store delivers the update. The app never self-updates in the Store copy.
