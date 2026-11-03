@@ -458,7 +458,7 @@ export function buildVba(unitsData, golden) {
   }
 
   const sourceHash = createHash("sha256")
-    .update(template).update(JSON.stringify(LX)).update(JSON.stringify(EN_WORDS)).update(JSON.stringify(FR_WORDS))
+    .update(template.replace(/\r\n/g, "\n")).update(JSON.stringify(LX)).update(JSON.stringify(EN_WORDS)).update(JSON.stringify(FR_WORDS))
     .update(String(FR_WORDS.ELIDES)).update(JSON.stringify(ERROR_MESSAGES)).update(JSON.stringify(unitsData))
     .digest("hex").slice(0, 12);
 
