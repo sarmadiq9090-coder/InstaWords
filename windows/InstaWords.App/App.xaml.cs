@@ -23,8 +23,11 @@ namespace InstaWords.App
         public ConversionState State { get; } = new ConversionState();
         public HistoryStore History { get; } = new HistoryStore();
         public HotkeyService Hotkey { get; private set; }
+        public UpdateService Updates { get; } = new UpdateService();
+        /// <summary>Code of the last conversion error (for problem reports; never the amount itself).</summary>
+        public string LastErrorCode { get; set; }
         public bool IsExiting => _exiting;
-        public MainWindow Main => MainWindow as MainWindow;
+        public MainWindow AppWindow => MainWindow as MainWindow;
 
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -42,8 +45,18 @@ namespace InstaWords.App
             _tray = new TrayService();
             _tray.OpenRequested += (s, a) => ShowMainWindow();
             _tray.ConvertRequested += (s, a) => ConvertClipboard();
-            _tray.SettingsRequested += (s, a) => ShowMainWindow(MainWindow.TabSettings);
+            _tray.SettingsRequested += (s, a) => ShowMainWindow(InstaWords.App.MainWindow.TabSettings);
             _tray.ExitRequested += (s, a) => ExitApp();
+            _tray.UpdateRequested += async (s, a) =>
+            {
+                ShowMainWindow();
+                await Updates.CheckAsync(interactive: true, owner: AppWindow);
+            };
+            _tray.ReportRequested += (s, a) =>
+            {
+                ShowMainWindow();
+                AppWindow?.ShowReport();
+            };
 
             Hotkey = new HotkeyService();
             Hotkey.Pressed += (s, a) => ConvertClipboard();
@@ -52,6 +65,7 @@ namespace InstaWords.App
             var window = new MainWindow();
             MainWindow = window;
             if (!StartHidden) window.Show();
+            Updates.CheckOnStartup();
 
             if (!hotkeyOk && Settings.HotkeyEnabled)
             {
@@ -91,7 +105,7 @@ namespace InstaWords.App
 
         public void ShowMainWindow(int? tab = null)
         {
-            var w = Main;
+            var w = AppWindow;
             if (w == null) return;
             w.ShowFromTray();
             if (tab.HasValue) w.SelectTab(tab.Value);
@@ -118,6 +132,7 @@ namespace InstaWords.App
                 var r = Conversion.Run(values[0], options);
                 if (!r.Ok)
                 {
+                    LastErrorCode = r.ErrorCode;
                     Notify(false, "تعذّر تحويل «" + Shorten(values[0], 40) + "»", r.ErrorMessage);
                     return;
                 }
@@ -173,7 +188,7 @@ namespace InstaWords.App
         {
             _saveTimer?.Stop();
             State.SaveTo(Settings);
-            Main?.CaptureWindowPlacement(Settings);
+            AppWindow?.CaptureWindowPlacement(Settings);
             JsonStore.Save(AppPaths.SettingsFile, Settings);
         }
 

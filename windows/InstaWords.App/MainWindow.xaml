@@ -40,7 +40,7 @@
         <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
           <Button x:Name="UpdateBadge" Style="{StaticResource ChipButton}" ui:Ui.Icon="{StaticResource IconDownload}" Margin="0,0,8,0" Visibility="Collapsed"
                   Click="OnUpdateBadgeClick" AutomationProperties.AutomationId="UpdateBadge" Content="تحديث متاح" />
-          <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconAlert}" Click="OnReportClick" Content="إبلاغ"
+          <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconMessage}" Click="OnReportClick" Content="إبلاغ"
                   ToolTip="الإبلاغ عن مشكلة أو اقتراح" AutomationProperties.Name="الإبلاغ عن مشكلة أو اقتراح" AutomationProperties.AutomationId="ReportButton" />
           <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconInfo}" Click="OnAboutClick" Content="حول" Margin="4,0,0,0"
                   ToolTip="حول InstaWords (F1)" AutomationProperties.Name="حول InstaWords" AutomationProperties.AutomationId="AboutButton" />

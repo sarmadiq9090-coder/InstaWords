@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstaWords.Core", "InstaWords.Core\InstaWords.Core.csproj", "{6E25A66F-EFD6-4519-B226-5DA187AD7363}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstaWords.Core.Tests", "InstaWords.Core.Tests\InstaWords.Core.Tests.csproj", "{6D489981-CCC2-4B02-9A18-961A68642AFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstaWords.App", "InstaWords.App\InstaWords.App.csproj", "{EE31C6C6-D761-4B7C-85C7-2BFF71D6F460}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstaWords.App.Tests", "InstaWords.App.Tests\InstaWords.App.Tests.csproj", "{F3024178-491A-4BDA-95E4-B8EE9B4F7AEE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstaWords.UITests", "InstaWords.UITests\InstaWords.UITests.csproj", "{6F02D3D1-2BC9-44EC-8FFC-BC6E4D023E5F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6E25A66F-EFD6-4519-B226-5DA187AD7363}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E25A66F-EFD6-4519-B226-5DA187AD7363}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E25A66F-EFD6-4519-B226-5DA187AD7363}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E25A66F-EFD6-4519-B226-5DA187AD7363}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D489981-CCC2-4B02-9A18-961A68642AFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D489981-CCC2-4B02-9A18-961A68642AFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D489981-CCC2-4B02-9A18-961A68642AFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D489981-CCC2-4B02-9A18-961A68642AFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE31C6C6-D761-4B7C-85C7-2BFF71D6F460}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE31C6C6-D761-4B7C-85C7-2BFF71D6F460}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE31C6C6-D761-4B7C-85C7-2BFF71D6F460}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE31C6C6-D761-4B7C-85C7-2BFF71D6F460}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3024178-491A-4BDA-95E4-B8EE9B4F7AEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3024178-491A-4BDA-95E4-B8EE9B4F7AEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3024178-491A-4BDA-95E4-B8EE9B4F7AEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3024178-491A-4BDA-95E4-B8EE9B4F7AEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F02D3D1-2BC9-44EC-8FFC-BC6E4D023E5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F02D3D1-2BC9-44EC-8FFC-BC6E4D023E5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F02D3D1-2BC9-44EC-8FFC-BC6E4D023E5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F02D3D1-2BC9-44EC-8FFC-BC6E4D023E5F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

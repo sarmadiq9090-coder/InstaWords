@@ -1,0 +1,20 @@
+<UserControl x:Class="InstaWords.App.Views.LanguagePicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="False" IsTabStop="False">
+  <!-- Built from the engine's language list (Tafqit.Languages). -->
+  <ListBox x:Name="List" Style="{StaticResource SegmentedList}" SelectedItem="{Binding LanguageItem, Mode=TwoWay}"
+           AutomationProperties.AutomationId="LanguagePicker" AutomationProperties.Name="لغة التفقيط">
+    <ListBox.ItemContainerStyle>
+      <Style TargetType="ListBoxItem" BasedOn="{StaticResource SegmentItem}">
+        <Setter Property="AutomationProperties.Name" Value="{Binding Label}" />
+        <Setter Property="AutomationProperties.AutomationId" Value="{Binding AutomationId}" />
+      </Style>
+    </ListBox.ItemContainerStyle>
+    <ListBox.ItemTemplate>
+      <DataTemplate>
+        <TextBlock Text="{Binding Label}" />
+      </DataTemplate>
+    </ListBox.ItemTemplate>
+  </ListBox>
+</UserControl>

@@ -459,8 +459,8 @@
             <ContentPresenter x:Name="Sel" Margin="{TemplateBinding Padding}" IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Stretch"
                               Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" />
             <ToggleButton Style="{StaticResource ComboToggle}" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
-            <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Placement="Bottom" PopupAnimation="Fade" Focusable="False"
-                   VerticalOffset="2">
+            <Popup x:Name="PART_Popup" IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" AllowsTransparency="True"
+                   Placement="Bottom" PopupAnimation="Fade" Focusable="False" VerticalOffset="2" HorizontalOffset="-10">
               <Grid Margin="10,2,10,14" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}">
                 <Border CornerRadius="12" Background="{StaticResource SurfaceBrush}" Effect="{StaticResource PopupShadow}" />
                 <Border CornerRadius="12" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Padding="0,5">
@@ -501,8 +501,8 @@
             <ContentPresenter x:Name="Sel" Margin="{TemplateBinding Padding}" IsHitTestVisible="False" VerticalAlignment="Center" HorizontalAlignment="Stretch"
                               Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" />
             <ToggleButton Style="{StaticResource ComboToggle}" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" />
-            <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Placement="Bottom" PopupAnimation="Fade"
-                   VerticalOffset="2">
+            <Popup x:Name="PART_Popup" IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" AllowsTransparency="True"
+                   Placement="Bottom" PopupAnimation="Fade" VerticalOffset="2" HorizontalOffset="-10">
               <Grid Margin="10,2,10,14" MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxWidth="560">
                 <Border CornerRadius="12" Background="{StaticResource SurfaceBrush}" Effect="{StaticResource PopupShadow}" />
                 <Border CornerRadius="12" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
@@ -927,6 +927,36 @@
         <Setter Property="TextDecorations" Value="Underline" />
       </Trigger>
     </Style.Triggers>
+  </Style>
+
+  <!-- ============ ProgressBar ============ -->
+  <Style TargetType="ProgressBar">
+    <Setter Property="Height" Value="10" />
+    <Setter Property="Foreground" Value="{StaticResource BrandGradientLightBrush}" />
+    <Setter Property="Background" Value="{StaticResource BrandSoftBrush}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="ProgressBar">
+          <Grid FlowDirection="LeftToRight">
+            <Border x:Name="PART_Track" CornerRadius="5" Background="{TemplateBinding Background}" />
+            <Border x:Name="PART_Indicator" CornerRadius="5" Background="{TemplateBinding Foreground}" HorizontalAlignment="Left" />
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Dialog windows: standard Windows frame, FastKiwi content. -->
+  <Style x:Key="DialogWindow" TargetType="Window">
+    <Setter Property="FlowDirection" Value="RightToLeft" />
+    <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    <Setter Property="Background" Value="{StaticResource BgSoftBrush}" />
+    <Setter Property="ShowInTaskbar" Value="False" />
+    <Setter Property="UseLayoutRounding" Value="True" />
+    <Setter Property="TextOptions.TextFormattingMode" Value="Display" />
+    <Setter Property="Icon" Value="pack://application:,,,/Assets/InstaWords.ico" />
   </Style>
 
   <!-- Thin separator line. -->

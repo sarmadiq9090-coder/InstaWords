@@ -31,6 +31,9 @@ namespace InstaWords.App.Models
             OptionsExpanded = false;
             WindowWidth = 1080;
             WindowHeight = 760;
+            AutoCheckUpdates = true;
+            LastUpdateCheck = null;
+            SkippedVersion = null;
             WindowLeft = null;
             WindowTop = null;
         }
@@ -51,6 +54,14 @@ namespace InstaWords.App.Models
         [DataMember(Name = "minimizeToTray", Order = 13)] public bool MinimizeToTray { get; set; }
         [DataMember(Name = "showToast", Order = 14)] public bool ShowToast { get; set; }
         [DataMember(Name = "trayHintShown", Order = 15)] public bool TrayHintShown { get; set; }
+
+        [DataMember(Name = "autoCheckUpdates", Order = 16)] public bool AutoCheckUpdates { get; set; }
+        /// <summary>ISO 8601 time of the last successful update check.</summary>
+        [DataMember(Name = "lastUpdateCheck", Order = 17)] public string LastUpdateCheck { get; set; }
+        /// <summary>A version the user chose to skip («تخطّي هذا الإصدار»).</summary>
+        [DataMember(Name = "skippedVersion", Order = 18)] public string SkippedVersion { get; set; }
+        /// <summary>The newest version already announced with a toast (announce once).</summary>
+        [DataMember(Name = "announcedVersion", Order = 19)] public string AnnouncedVersion { get; set; }
 
         [DataMember(Name = "optionsExpanded", Order = 20)] public bool OptionsExpanded { get; set; }
         [DataMember(Name = "windowLeft", Order = 21)] public double? WindowLeft { get; set; }

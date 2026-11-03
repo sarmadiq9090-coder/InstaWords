@@ -26,11 +26,15 @@ namespace InstaWords.App.Services
             };
             _convertItem = new Forms.ToolStripMenuItem("تحويل الحافظة", null, (s, e) => ConvertRequested?.Invoke(this, EventArgs.Empty));
             var settings = new Forms.ToolStripMenuItem("الإعدادات", null, (s, e) => SettingsRequested?.Invoke(this, EventArgs.Empty));
+            var update = new Forms.ToolStripMenuItem("التحقق من وجود تحديث", null, (s, e) => UpdateRequested?.Invoke(this, EventArgs.Empty));
+            var report = new Forms.ToolStripMenuItem("الإبلاغ عن مشكلة أو اقتراح", null, (s, e) => ReportRequested?.Invoke(this, EventArgs.Empty));
             var exit = new Forms.ToolStripMenuItem("خروج", null, (s, e) => ExitRequested?.Invoke(this, EventArgs.Empty));
-            foreach (Forms.ToolStripItem item in new Forms.ToolStripItem[] { open, _convertItem, settings })
+            foreach (Forms.ToolStripItem item in new Forms.ToolStripItem[] { open, _convertItem, settings, update, report, exit })
                 item.Padding = new Forms.Padding(4, 3, 4, 3);
-            exit.Padding = new Forms.Padding(4, 3, 4, 3);
-            menu.Items.AddRange(new Forms.ToolStripItem[] { open, _convertItem, settings, new Forms.ToolStripSeparator(), exit });
+            menu.Items.AddRange(new Forms.ToolStripItem[]
+            {
+                open, _convertItem, settings, new Forms.ToolStripSeparator(), update, report, new Forms.ToolStripSeparator(), exit,
+            });
 
             _icon = new Forms.NotifyIcon
             {
@@ -49,6 +53,8 @@ namespace InstaWords.App.Services
         public event EventHandler ConvertRequested;
         public event EventHandler SettingsRequested;
         public event EventHandler ExitRequested;
+        public event EventHandler UpdateRequested;
+        public event EventHandler ReportRequested;
 
         /// <summary>Shows the current hotkey next to «تحويل الحافظة».</summary>
         public void SetHotkeyText(string gesture) => _convertItem.ShortcutKeyDisplayString = gesture ?? "";

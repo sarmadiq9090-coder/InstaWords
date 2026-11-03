@@ -46,6 +46,7 @@
 
   <ItemGroup>
     <!-- Lets net48 compile anywhere (no Developer Pack needed); not shipped. -->
+    <Reference Include="System.Net.Http" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>
 
