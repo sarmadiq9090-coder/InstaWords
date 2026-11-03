@@ -71,7 +71,7 @@
 - **Ctrl+Alt+T from any program**: copy a number, press the hotkey, and the clipboard now holds the words; a small toast shows the result. If another program owns the hotkey, the app says so and you pick another one in Settings.
 - **Tray icon** (close/minimize to tray), single instance, optional start with Windows.
 - **Updates**: at most once a day (can be turned off) the app asks the GitHub Releases API for the latest version; the installer is downloaded only from GitHub hosts and its SHA-256 is verified against the API digest before it runs silently and relaunches the app. Portable copies open the release page instead. Nothing about your numbers is ever sent.
-- **Report a problem or suggestion**: builds a prefilled GitHub issue (opened in your browser for you to submit) or a report to copy, with a full preview. Nothing is sent automatically.
+- **Report a problem or suggestion**: the first option needs no GitHub account. "Send by email" opens a new message to FastKiwi in your own mail app with the report filled in (a report too long for an email link is shortened and the full text copied to paste); until the support address is set, "Contact FastKiwi" copies the report and opens the support page ([fastkiwi.app/support](https://fastkiwi.app/support/), Arabic interface: [/ar/support](https://fastkiwi.app/ar/support/)). A Telegram link appears once one is set. "Open a GitHub issue (needs a GitHub account)" builds a prefilled issue, and "Copy the report" copies the text; all with a full preview. Nothing is sent automatically: you send it yourself from your mail app or browser. The contact details are the constants in `InstaWords.App/Services/SupportContact.cs` (empty for now).
 - **Arabic or English interface**: Settings → «لغة الواجهة · Interface language»: العربية, English or Automatic (the Windows display language). It applies live to every window, menu, toast and error message, right-to-left in Arabic and left-to-right in English. The tafqit output language (ar/en/fr) is a separate option. On the first run after installing, the interface starts in the language picked in the installer.
 - **Cheque and voucher printing** («طباعة» / Print next to Copy, or Ctrl+P), four templates with a live preview that is exactly what prints:
   - **Cheque**: date, payee, the amount in figures in its box (`#1,250.75#`), the amount in words over two lines with a dashed filler after it like real cheques, and an optional signature line. Values only for pre-printed cheques, or with the frame and labels for plain paper.
@@ -103,7 +103,7 @@ Requirements: .NET 8 SDK (and Node.js 22 for the engine generator). The app targ
 
 ```sh
 npm ci && npm run test:dotnet                       # engine: generate, check, parity tests
-dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports, CSV, strings, print layout
+dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports (GitHub and mailto links), CSV, strings, print layout
 dotnet build windows/InstaWords.App -c Release      # → windows/InstaWords.App/bin/Release/net48/InstaWords.exe
 dotnet test  windows/InstaWords.UITests -c Release  # Windows only: FlaUI end-to-end tests + screenshots
 iscc /DAppVersion=2.1.0 windows\installer\InstaWords.iss   # Inno Setup 6 → out\InstaWords_2.1.0_x64-setup.exe
@@ -114,7 +114,7 @@ iscc /DAppVersion=2.1.0 windows\installer\InstaWords.iss   # Inno Setup 6 → ou
 | `InstaWords.Core/` | The tafqit engine (netstandard2.0), generated from `src/` and `data/units.json` |
 | `InstaWords.App/` | The WPF app: `Views/` (pages, dialogs, toast, print dialog and renderer), `Themes/` (FastKiwi styles), `Strings/` (interface strings), `Services/` (hotkey, tray, clipboard, CSV, settings, updates, reports, print layout) |
 | `InstaWords.App/Strings/` | `Strings.ar.xaml` and `Strings.en.xaml`: every interface string, same keys in both (a unit test checks the keys match, every key the app uses exists, English has no Arabic). XAML uses `{DynamicResource Key}`, code `Loc.T("Key")`; engine error codes map to `Err.CODE` in English |
-| `InstaWords.App.Tests/` | Unit tests of the app's pure logic (links source files from the app): updates, reports, CSV, interface strings, print layout (mm ↔ DIP, offsets, word wrap and filler, template fields) |
+| `InstaWords.App.Tests/` | Unit tests of the app's pure logic (links source files from the app): updates, reports (GitHub issue and mailto links, support contact), CSV, interface strings, print layout (mm ↔ DIP, offsets, word wrap and filler, template fields) |
 | `InstaWords.UITests/` | UI tests (FlaUI/UIA3). `INSTAWORDS_APP_PATH` and `INSTAWORDS_ARTIFACTS` override the exe and screenshot folder |
 | `installer/InstaWords.iss` | Inno Setup script (Arabic + English) |
 
