@@ -12,11 +12,11 @@
           <DockPanel>
             <Border DockPanel.Dock="Right" Style="{StaticResource SegmentShell}" VerticalAlignment="Center" AutomationProperties.AutomationId="UiLanguagePicker">
               <UniformGrid Rows="1">
-                <RadioButton x:Name="UiLangAr" Style="{StaticResource SegmentRadio}" Content="العربية" MinWidth="96" Click="OnUiLanguageClick" Tag="ar"
+                <RadioButton x:Name="UiLangAr" Style="{StaticResource SegmentRadio}" Content="العربية" MinWidth="96" Checked="OnUiLanguageChecked" Tag="ar"
                              AutomationProperties.AutomationId="UiLangAr" AutomationProperties.Name="العربية" />
-                <RadioButton x:Name="UiLangEn" Style="{StaticResource SegmentRadio}" Content="English" MinWidth="96" Click="OnUiLanguageClick" Tag="en"
+                <RadioButton x:Name="UiLangEn" Style="{StaticResource SegmentRadio}" Content="English" MinWidth="96" Checked="OnUiLanguageChecked" Tag="en"
                              AutomationProperties.AutomationId="UiLangEn" AutomationProperties.Name="English" />
-                <RadioButton x:Name="UiLangAuto" Style="{StaticResource SegmentRadio}" Content="{DynamicResource Settings.UiLangAuto}" MinWidth="96" Click="OnUiLanguageClick" Tag="auto"
+                <RadioButton x:Name="UiLangAuto" Style="{StaticResource SegmentRadio}" Content="{DynamicResource Settings.UiLangAuto}" MinWidth="96" Checked="OnUiLanguageChecked" Tag="auto"
                              AutomationProperties.AutomationId="UiLangAuto" AutomationProperties.Name="{DynamicResource Settings.UiLangAuto}" />
               </UniformGrid>
             </Border>

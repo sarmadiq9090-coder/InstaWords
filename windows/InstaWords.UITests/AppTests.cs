@@ -16,7 +16,7 @@ namespace InstaWords.UITests
             new TafqitOptions { Unit = unit, Language = language, Prefix = prefix, Suffix = suffix };
 
         /// <summary>Picks a unit the way a user does: focus the picker, type, Enter (UI Automation as a fallback).</summary>
-        private static void PickUnit(AppSession s, string query, string unitId)
+        internal static void PickUnit(AppSession s, string query, string unitId)
         {
             var combo = s.Get("UnitPicker");
             combo.Focus();

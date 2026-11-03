@@ -18,6 +18,14 @@
 - **شريط المهام**: يبقى البرنامج بجانب الساعة عند الإغلاق (قابل للتغيير)، وقائمته: فتح، تحويل الحافظة، الإعدادات، التحقق من وجود تحديث، الإبلاغ عن مشكلة أو اقتراح، خروج. ونسخة واحدة فقط تعمل، و«تشغيل مع Windows» اختياري.
 - **التحديث**: يتحقق مرة يومياً على الأكثر من صفحة الإصدارات في GitHub (يمكن إيقافه)، ويُنزّل المثبّت ويتحقق من بصمته SHA-256 قبل تشغيله. لا يُرسل أي رقم أو بيانات.
 - **الإبلاغ عن مشكلة أو اقتراح**: نموذج يفتح بلاغاً معبّأً في GitHub أو ينسخ التقرير، مع معاينة كاملة لما سيُرسل. لا يُرسل شيء تلقائياً.
+- **واجهة بالعربية أو الإنجليزية**: «لغة الواجهة» في الإعدادات: العربية أو English أو «تلقائي» (حسب لغة عرض Windows)، وتُطبَّق فوراً على كل النوافذ والقوائم والإشعارات ورسائل الأخطاء، من اليمين إلى اليسار بالعربية ومن اليسار إلى اليمين بالإنجليزية. لغة التفقيط (نص المبلغ) خيار مستقل. عند أول تشغيل بعد التثبيت تبدأ الواجهة بلغة معالج التثبيت.
+- **طباعة الشيكات والسندات** (زر «طباعة» بجانب «نسخ»، أو Ctrl+P): أربعة قوالب بمعاينة حيّة هي نفسها ما يُطبع:
+  - **شيك**: التاريخ والمستفيد والمبلغ بالأرقام في مربعه (‎#1,250.75#‎) والمبلغ بالحروف على سطرين مع خط متقطع يملأ ما بعده كما في الشيكات الحقيقية، وخط توقيع اختياري. يطبع القيم وحدها على شيك مطبوع مسبقاً، أو مع الإطار والعناوين على ورق عادي.
+  - **سند قبض** و**سند صرف** على A5 أو A4: اسم الجهة وشعارها (من الإعدادات، اختياريان)، والرقم (يزيد تلقائياً بعد الطباعة)، والتاريخ، و«استلمنا من / يُصرف للسيد»، والمبلغ بالأرقام والحروف، والغرض، والتواقيع.
+  - **شريط المبلغ**: المبلغ بالحروف وحده في إطار.
+  - **المعايرة**: مقاسات جاهزة (شيك 175 × 80 مم وغيره) أو مقاس مخصص، وإزاحة X/Y بالمليمتر لكل حقل (ولكل الحقول معاً لهوامش الطابعة)، محفوظة في «ملفات شيكات» متعددة، و«طباعة تجريبية» لشبكة مليمترية تضعها فوق شيك حقيقي.
+  - من تبويب «دفعة»: حدّد صفوفاً ثم «طباعة»، فيُطبع سند أو شيك لكل صف في صفحة مستقلة.
+  - الطباعة عبر نافذة الطباعة في Windows، ولحفظ PDF اختر الطابعة «Microsoft Print to PDF». الكلمات تتبع خيارات التفقيط الحالية (اللغة والعملة والنص قبل المبلغ وبعده).
 
 ### الاختصارات
 
@@ -25,6 +33,7 @@
 |---|---|
 | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd> | تحويل الرقم في الحافظة من أي برنامج |
 | <kbd>Ctrl</kbd>+<kbd>Enter</kbd> | نسخ النتيجة |
+| <kbd>Ctrl</kbd>+<kbd>P</kbd> | طباعة شيك أو سند (أو صفوف «دفعة» المحددة) |
 | <kbd>Esc</kbd> | مسح الرقم |
 | <kbd>Ctrl</kbd>+<kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | تفقيط رقم · دفعة · الإعدادات |
 | <kbd>Ctrl</kbd>+<kbd>V</kbd> | لصق عمود في «دفعة» |
@@ -63,6 +72,14 @@
 - **Tray icon** (close/minimize to tray), single instance, optional start with Windows.
 - **Updates**: at most once a day (can be turned off) the app asks the GitHub Releases API for the latest version; the installer is downloaded only from GitHub hosts and its SHA-256 is verified against the API digest before it runs silently and relaunches the app. Portable copies open the release page instead. Nothing about your numbers is ever sent.
 - **Report a problem or suggestion**: builds a prefilled GitHub issue (opened in your browser for you to submit) or a report to copy, with a full preview. Nothing is sent automatically.
+- **Arabic or English interface**: Settings → «لغة الواجهة · Interface language»: العربية, English or Automatic (the Windows display language). It applies live to every window, menu, toast and error message, right-to-left in Arabic and left-to-right in English. The tafqit output language (ar/en/fr) is a separate option. On the first run after installing, the interface starts in the language picked in the installer.
+- **Cheque and voucher printing** («طباعة» / Print next to Copy, or Ctrl+P), four templates with a live preview that is exactly what prints:
+  - **Cheque**: date, payee, the amount in figures in its box (`#1,250.75#`), the amount in words over two lines with a dashed filler after it like real cheques, and an optional signature line. Values only for pre-printed cheques, or with the frame and labels for plain paper.
+  - **Receipt voucher** (سند قبض) and **payment voucher** (سند صرف) on A5 or A4: optional company name and logo (Settings), number (auto-incremented after printing), date, received from / paid to, amount in figures and words, purpose, signatures.
+  - **Words strip**: just the amount in words, framed.
+  - **Calibration**: paper presets (175 × 80 mm cheque and others) or a custom size, per-field X/Y offsets in mm (plus an "all fields" offset for printer margins) saved in named cheque profiles, and a **test print** of a millimetre grid with the field boxes to lay over a real cheque.
+  - From the **Bulk** tab: select rows, then Print: one voucher or cheque per row, one per page.
+  - Printing uses the Windows print dialog; choose **Microsoft Print to PDF** to save a PDF. The words use the current conversion options (language, unit, prefix/suffix).
 
 ### Shortcuts
 
@@ -70,6 +87,7 @@
 |---|---|
 | <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd> | Convert the number in the clipboard, from any program |
 | <kbd>Ctrl</kbd>+<kbd>Enter</kbd> | Copy the result |
+| <kbd>Ctrl</kbd>+<kbd>P</kbd> | Print a cheque or voucher (or the selected Bulk rows) |
 | <kbd>Esc</kbd> | Clear the number |
 | <kbd>Ctrl</kbd>+<kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | Single · Bulk · Settings |
 | <kbd>Ctrl</kbd>+<kbd>V</kbd> | Paste a column on the Bulk tab |
@@ -85,17 +103,18 @@ Requirements: .NET 8 SDK (and Node.js 22 for the engine generator). The app targ
 
 ```sh
 npm ci && npm run test:dotnet                       # engine: generate, check, parity tests
-dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports, CSV
+dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports, CSV, strings, print layout
 dotnet build windows/InstaWords.App -c Release      # → windows/InstaWords.App/bin/Release/net48/InstaWords.exe
 dotnet test  windows/InstaWords.UITests -c Release  # Windows only: FlaUI end-to-end tests + screenshots
-iscc /DAppVersion=2.0.0 windows\installer\InstaWords.iss   # Inno Setup 6 → out\InstaWords_2.0.0_x64-setup.exe
+iscc /DAppVersion=2.1.0 windows\installer\InstaWords.iss   # Inno Setup 6 → out\InstaWords_2.1.0_x64-setup.exe
 ```
 
 | Path | What |
 |---|---|
 | `InstaWords.Core/` | The tafqit engine (netstandard2.0), generated from `src/` and `data/units.json` |
-| `InstaWords.App/` | The WPF app: `Views/` (pages, dialogs, toast), `Themes/` (FastKiwi styles), `Services/` (hotkey, tray, clipboard, CSV, settings, updates, reports) |
-| `InstaWords.App.Tests/` | Unit tests of the app's pure logic (links source files from the app) |
+| `InstaWords.App/` | The WPF app: `Views/` (pages, dialogs, toast, print dialog and renderer), `Themes/` (FastKiwi styles), `Strings/` (interface strings), `Services/` (hotkey, tray, clipboard, CSV, settings, updates, reports, print layout) |
+| `InstaWords.App/Strings/` | `Strings.ar.xaml` and `Strings.en.xaml`: every interface string, same keys in both (a unit test checks the keys match, every key the app uses exists, English has no Arabic). XAML uses `{DynamicResource Key}`, code `Loc.T("Key")`; engine error codes map to `Err.CODE` in English |
+| `InstaWords.App.Tests/` | Unit tests of the app's pure logic (links source files from the app): updates, reports, CSV, interface strings, print layout (mm ↔ DIP, offsets, word wrap and filler, template fields) |
 | `InstaWords.UITests/` | UI tests (FlaUI/UIA3). `INSTAWORDS_APP_PATH` and `INSTAWORDS_ARTIFACTS` override the exe and screenshot folder |
 | `installer/InstaWords.iss` | Inno Setup script (Arabic + English) |
 

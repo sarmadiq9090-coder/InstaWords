@@ -2,7 +2,7 @@
 ; the app runs on .NET Framework 4.8, which is part of Windows 10 and 11.
 ;
 ; Build (CI passes the version from package.json):
-;   iscc /DAppVersion=2.0.0 /DSourceDir=..\InstaWords.App\bin\Release\net48 /DOutputDir=..\..\out windows\installer\InstaWords.iss
+;   iscc /DAppVersion=2.1.0 /DSourceDir=..\InstaWords.App\bin\Release\net48 /DOutputDir=..\..\out windows\installer\InstaWords.iss
 ;
 ; Silent update (used by the app's «تحديث الآن»):
 ;   InstaWords_<ver>_x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /UPDATE
@@ -96,6 +96,10 @@ Name: "{autodesktop}\{#AppName}"; Filename: "{app}\{#AppExe}"; Comment: "{cm:App
 ; Same value the app's «تشغيل مع Windows» switch writes, so the two stay in agreement.
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "InstaWords"; \
   ValueData: """{app}\{#AppExe}"" --tray"; Flags: uninsdeletevalue; Tasks: startup
+
+; The wizard's language: on its first run the app's interface starts in it (UiLanguage.InstallerChoice).
+Root: HKCU; Subkey: "Software\FastKiwi\InstaWords"; ValueType: string; ValueName: "InstallerLanguage"; ValueData: "{language}"; \
+  Flags: uninsdeletevalue uninsdeletekeyifempty
 
 [Run]
 Filename: "{app}\{#AppExe}"; Description: "{cm:LaunchProgram,{#AppName}}"; Flags: nowait postinstall skipifsilent

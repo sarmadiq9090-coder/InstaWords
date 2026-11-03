@@ -41,7 +41,7 @@ namespace InstaWords.App.Views
                 ApplyHeaders();
                 OnGridSelectionChanged(null, null);
                 ConvertAll(); // error messages follow the interface language
-                if (_status != null) SetStatus(_status(), _statusOk);
+                if (_status != null) SetStatus(_status, _statusOk); // re-worded by its function
             };
         }
 

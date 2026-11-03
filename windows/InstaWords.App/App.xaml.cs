@@ -34,9 +34,12 @@ namespace InstaWords.App
             base.OnStartup(e);
             DispatcherUnhandledException += OnUnhandledException;
 
-            Settings = JsonStore.Load<AppSettings>(AppPaths.SettingsFile) ?? new AppSettings();
-            // First run: the language picked in the installer, else the Windows display language.
-            if (string.IsNullOrEmpty(Settings.UiLanguage)) Settings.UiLanguage = UiLanguage.InstallerChoice() ?? Loc.Auto;
+            var loaded = JsonStore.Load<AppSettings>(AppPaths.SettingsFile);
+            Settings = loaded ?? new AppSettings();
+            // «لغة الواجهة»: on the very first run, the language picked in the installer's wizard, else the
+            // Windows display language. Settings from a version without the option (always Arabic) stay Arabic.
+            if (string.IsNullOrEmpty(Settings.UiLanguage))
+                Settings.UiLanguage = loaded != null ? Loc.Arabic : UiLanguage.InstallerChoice() ?? Loc.Auto;
             Settings.UiLanguage = Loc.NormalizeSetting(Settings.UiLanguage);
             Settings.Print = Settings.Print ?? new PrintSettings();
             UiLanguage.Apply(Settings.UiLanguage);

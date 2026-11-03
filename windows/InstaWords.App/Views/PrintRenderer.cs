@@ -291,6 +291,13 @@ namespace InstaWords.App.Views
                 Padding = new Thickness(D(small ? 6 : 9), D(small ? 5 : 8), D(small ? 6 : 9), D(small ? 5 : 8)),
             };
             root.Child = frame;
+            if (job.HeightMm > job.WidthMm)
+            {
+                // Portrait sheet (A4/A5): the voucher takes the top part, like a printed voucher book.
+                var pad = small ? 10 : 14;
+                frame.VerticalAlignment = VerticalAlignment.Top;
+                frame.Height = D(Math.Min(job.HeightMm - 2 * pad, job.WidthMm * 0.72));
+            }
             var stack = new DockPanel { LastChildFill = true };
             frame.Child = stack;
             var items = PrintTemplates.Map(form);
@@ -357,7 +364,7 @@ namespace InstaWords.App.Views
 
             // Signatures at the foot.
             var signs = SignatureKeysFor(items);
-            var foot = new UniformGrid { Rows = 1, Columns = Math.Max(1, signs.Count), Margin = new Thickness(0, D(small ? 3 : 6), 0, 0) };
+            var foot = new System.Windows.Controls.Primitives.UniformGrid { Rows = 1, Columns = Math.Max(1, signs.Count), Margin = new Thickness(0, D(small ? 3 : 6), 0, 0) };
             foreach (var key in signs)
             {
                 var cell = new StackPanel { Margin = new Thickness(D(3), 0, D(3), 0) };

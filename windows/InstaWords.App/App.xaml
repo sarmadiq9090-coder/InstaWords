@@ -6,6 +6,8 @@
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="Themes/Controls.xaml" />
+        <!-- Interface strings; UiLanguage.Apply swaps this for Strings.en.xaml at startup or live. -->
+        <ResourceDictionary Source="Strings/Strings.ar.xaml" />
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Application.Resources>

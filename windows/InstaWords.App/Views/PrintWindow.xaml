@@ -9,7 +9,7 @@
     <!-- Actions -->
     <DockPanel DockPanel.Dock="Bottom" Margin="0,14,0,0" LastChildFill="True">
       <Button x:Name="PrintNow" DockPanel.Dock="Left" Style="{StaticResource PrimaryButton}" ui:Ui.Icon="{StaticResource IconPrint}" Content="{DynamicResource Print.PrintNow}"
-              MinWidth="130" Click="OnPrintClick" IsDefault="True" ToolTip="{DynamicResource Print.PdfHint}"
+              MinWidth="130" Click="OnPrintClick" ToolTip="{DynamicResource Print.PdfHint}"
               AutomationProperties.AutomationId="PrintNow" AutomationProperties.Name="{DynamicResource Print.PrintNow}" />
       <Button x:Name="TestPrint" DockPanel.Dock="Left" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconGrid}" Content="{DynamicResource Print.TestPrint}"
               Margin="8,0,0,0" Click="OnTestPrintClick" ToolTip="{DynamicResource Print.TestPrintTip}"
@@ -91,7 +91,7 @@
           </ContentControl>
 
           <!-- Details -->
-          <ContentControl Style="{StaticResource Card}" Padding="18,16" Margin="0,14,0,0">
+          <ContentControl x:Name="DetailsCard" Style="{StaticResource Card}" Padding="18,16" Margin="0,14,0,0">
             <StackPanel>
               <TextBlock Style="{StaticResource H2Text}" Text="{DynamicResource Print.Details}" Margin="0,0,0,10" />
               <ui:VoucherHeaderEditor x:Name="HeaderEditor" Margin="0,0,0,12" />
@@ -186,7 +186,7 @@
                     <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Print.PrintFrameHint}" />
                   </StackPanel>
                 </CheckBox>
-                <CheckBox x:Name="GridBox" Margin="0,12,0,0" Click="OnGridClick" AutomationProperties.AutomationId="PrintShowGrid">
+                <CheckBox x:Name="GridBox" Margin="0,12,0,0" Checked="OnGridClick" Unchecked="OnGridClick" AutomationProperties.AutomationId="PrintShowGrid">
                   <StackPanel>
                     <TextBlock Text="{DynamicResource Print.ShowGrid}" />
                     <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Print.ShowGridHint}" />

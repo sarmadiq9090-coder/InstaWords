@@ -479,15 +479,16 @@ namespace InstaWords.App.Services
             switch (f)
             {
                 case PrintField.Date: return new RectMm(128, 8, 38, 7);
-                case PrintField.Party: return new RectMm(24, 22, 140, 7);
-                case PrintField.Figures: return new RectMm(129, 39, 38, 9);
+                case PrintField.Party: return new RectMm(24, 20, 140, 7);
+                case PrintField.Figures: return new RectMm(129, 40, 38, 9);
                 case PrintField.Signature: return new RectMm(112, 60, 54, 10);
                 default: return new RectMm(0, 0, 0, 0);
             }
         }
 
         /// <summary>The two lines of the amount in words (the second one stops before the figures box).</summary>
-        private static RectMm[] ReferenceWords() => new[] { new RectMm(30, 31, 136, 7), new RectMm(10, 40, 114, 7) };
+        // Line 1 leaves room at its start for a pre-printed «the sum of»; line 2 runs from the edge.
+        private static RectMm[] ReferenceWords() => new[] { new RectMm(30, 32, 136, 7), new RectMm(10, 41, 114, 7) };
 
         private static RectMm Scale(RectMm r, double w, double h) =>
             new RectMm(r.X * w / RefWidth, r.Y * h / RefHeight, r.Width * w / RefWidth, r.Height * h / RefHeight);

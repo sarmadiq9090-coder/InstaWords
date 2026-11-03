@@ -23,17 +23,24 @@ namespace InstaWords.App.Views
             Loc.Changed += (s, e) => Refresh();
         }
 
+        private bool _showingUiLanguage;
+
         private void ShowUiLanguage()
         {
             var setting = App.Current.Settings.UiLanguage;
+            _showingUiLanguage = true;
             UiLangAr.IsChecked = setting == Loc.Arabic;
             UiLangEn.IsChecked = setting == Loc.English;
             UiLangAuto.IsChecked = setting != Loc.Arabic && setting != Loc.English;
+            _showingUiLanguage = false;
         }
 
-        private void OnUiLanguageClick(object sender, RoutedEventArgs e)
+        /// <summary>Checked (not Click), so keyboard, mouse and UI Automation all switch the language.</summary>
+        private void OnUiLanguageChecked(object sender, RoutedEventArgs e)
         {
+            if (_showingUiLanguage || App.Current?.Settings == null) return;
             var setting = (string)((FrameworkElement)sender).Tag;
+            if (setting == App.Current.Settings.UiLanguage) return;
             App.Current.SetUiLanguage(setting);
             Refresh(); // after the hotkey was registered again, so its status is in the new language too
         }
