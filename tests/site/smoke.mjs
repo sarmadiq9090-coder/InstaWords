@@ -1,5 +1,5 @@
 // End-to-end smoke test of the built site in _site/ (run via `npm run test:site`).
-// Serves _site/ under the sub-path /tafqit/ (like the real deployment) and drives Chromium with Playwright.
+// Serves _site/ under the sub-path /instawords/ (like the real deployment) and drives Chromium with Playwright.
 // Set TAFKET_SCREENSHOTS=<dir> to also save mobile (375px) and desktop (1280px) screenshots.
 import { createServer } from "node:http";
 import { createRequire } from "node:module";
@@ -32,7 +32,7 @@ const STUB_LANGUAGES = [
 ];
 const WINDOWS_URL = "https://github.com/sarmadiq9090-coder/tafket/releases/latest";
 
-const PREFIX = "/tafqit/";
+const PREFIX = "/instawords/";
 const MIME = {
   ".html": "text/html; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
@@ -136,7 +136,7 @@ try {
   try {
     app = ld.flatMap((t) => JSON.parse(t)["@graph"] ?? []).find((n) => n["@type"] === "WebApplication");
   } catch {}
-  check("JSON-LD WebApplication published by FastKiwi", app?.publisher?.["@id"] === "https://fastkiwi.app/#org" && app?.url === "https://fastkiwi.app/tafqit/");
+  check("JSON-LD WebApplication published by FastKiwi", app?.publisher?.["@id"] === "https://fastkiwi.app/#org" && app?.url === "https://fastkiwi.app/instawords/");
   check("Open Graph image", (await page.getAttribute('meta[property="og:image"]', "content")) === "https://fastkiwi.app/img/social-ar.png");
   const examples = await page.$$eval("[data-example]", (els) => els.map((e) => ({ n: e.dataset.n, unit: e.dataset.unit, text: e.textContent.trim() })));
   const wrong = examples.filter((e) => e.text !== tafqit(e.n, { unit: e.unit }));
