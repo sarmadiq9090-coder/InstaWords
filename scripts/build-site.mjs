@@ -4,11 +4,14 @@
 //   data/units.json   → _site/units.json
 //   LICENSE           → _site/LICENSE.txt
 //   vba/Tafqit.bas    → _site/Tafqit.bas (when present)
+// Writes the fallback release from site/release-fallback.json into the pages' static download
+// links, their version labels, the JSON-LD downloadUrl and assets/release.js.
 // Then stamps a content-hash cache version and the precache list into _site/sw.js.
 import { createHash } from "node:crypto";
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readFallback } from "./lib/release.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const out = join(root, "_site");
@@ -71,6 +74,44 @@ else {
   }
 }
 
+// 4b. Fallback release (site/release-fallback.json, the single source): every installer/portable
+// link to a release file, every version label in a download button, and release.js FALLBACK_DATA.
+let fallback;
+try {
+  fallback = readFallback(at("site", "release-fallback.json"));
+} catch (err) {
+  fail(err.message);
+}
+{
+  const SETUP_URL_RE = /https:\/\/github\.com\/sarmadiq9090-coder\/tafket\/releases\/download\/v[\d.]+\/InstaWords_[\d.]+_x64-setup\.exe/g;
+  const PORTABLE_URL_RE = /https:\/\/github\.com\/sarmadiq9090-coder\/tafket\/releases\/download\/v[\d.]+\/InstaWords_[\d.]+_x64-portable\.zip/g;
+  const VERSION_LABEL_RE = /(<span\b[^>]*\bdata-version\b[^>]*>)v[^<]*(<\/span>)/g;
+  for (const name of readdirSync(out)) {
+    if (!name.endsWith(".html")) continue;
+    const p = join(out, name);
+    let html = readFileSync(p, "utf8");
+    const links = html.match(SETUP_URL_RE)?.length ?? 0;
+    html = html
+      .replace(SETUP_URL_RE, () => fallback.setup.url)
+      .replace(PORTABLE_URL_RE, () => fallback.portable?.url ?? fallback.setup.url)
+      .replace(VERSION_LABEL_RE, (_, open, close) => `${open}v${fallback.version}${close}`);
+    const buttons = [...html.matchAll(/<a\b[^>]*\bdata-windows-download\b[^>]*>/g)];
+    for (const [tag] of buttons) {
+      if (!tag.includes(`href="${fallback.setup.url}"`)) fail(`${name}: a data-windows-download link does not point at the fallback installer: ${tag}`);
+    }
+    if (buttons.length && !links) fail(`${name}: no installer link to update`);
+    writeFileSync(p, html);
+  }
+  const jsPath = join(out, "assets", "release.js");
+  const js = readFileSync(jsPath, "utf8");
+  const MARK = "/* @release-fallback */ null";
+  if (js.split(MARK).length !== 2) fail(`assets/release.js: expected the marker \`${MARK}\` exactly once`);
+  writeFileSync(jsPath, js.replace(MARK, () => `/* @release-fallback */ ${JSON.stringify(fallback)}`));
+  if (!readFileSync(join(out, "index.html"), "utf8").includes(`"downloadUrl": "${fallback.setup.url}"`)) {
+    fail("index.html: JSON-LD downloadUrl does not name the fallback installer");
+  }
+}
+
 // 5. GitHub Pages: serve files as-is.
 writeFileSync(join(out, ".nojekyll"), "");
 
@@ -91,4 +132,4 @@ sw = sw.replace(/^const ASSETS = .*;$/m, () => `const ASSETS = ${JSON.stringify(
 if (sw === before || !sw.includes(version)) fail("could not stamp VERSION/ASSETS into sw.js");
 writeFileSync(swPath, sw);
 
-console.log(`build-site: _site/ ready (${assets.length + 1} files precached, cache version ${version})`);
+console.log(`build-site: _site/ ready (fallback release v${fallback.version}, ${assets.length + 1} files precached, cache version ${version})`);

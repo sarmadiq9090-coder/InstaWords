@@ -57,16 +57,16 @@ namespace InstaWords.App.Services
 
         public string LastCheckText => LastCheck.HasValue
             ? LastCheck.Value.ToLocalTime().ToString("yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture)
-            : "لم يتم بعد";
+            : Loc.T("Update.NeverChecked");
 
         public string StatusText
         {
             get
             {
-                if (_checking) return "جارٍ التحقق…";
-                if (Available != null) return "يتوفر الإصدار " + UpdateLogic.Display(AvailableVersion) + ". آخر تحقق: ‎" + LastCheckText + "‎";
-                if (LastError != null) return "تعذّر التحقق: " + LastError;
-                return LastCheck.HasValue ? "لديك أحدث إصدار. آخر تحقق: ‎" + LastCheckText + "‎" : "لم يُتحقق من التحديثات بعد.";
+                if (_checking) return Loc.T("Update.Checking");
+                if (Available != null) return Loc.F("Update.StatusAvailable", UpdateLogic.Display(AvailableVersion), LastCheckText);
+                if (LastError != null) return Loc.F("Update.StatusFailed", LastError);
+                return LastCheck.HasValue ? Loc.F("Update.StatusLatest", LastCheckText) : Loc.T("Update.StatusNever");
             }
         }
 
@@ -133,20 +133,20 @@ namespace InstaWords.App.Services
                         App.Current.SaveSettingsSoon();
                         var main = App.Current.AppWindow;
                         if (main != null && main.IsVisible) ShowAvailableUpdate(main);
-                        else ToastWindow.ShowMessage(true, "يتوفر إصدار جديد من InstaWords: " + version, "افتح البرنامج من شريط المهام لتحديثه.");
+                        else ToastWindow.ShowMessage(true, Loc.F("Update.ToastTitle", version), Loc.T("Update.ToastBody"));
                     }
                 }
                 else
                 {
                     Available = null;
                     App.Current.AppWindow?.SetUpdateBadge(null);
-                    if (interactive) ToastWindow.ShowMessage(true, "لديك أحدث إصدار", "InstaWords " + CurrentVersionText + " هو الإصدار الأحدث.");
+                    if (interactive) ToastWindow.ShowMessage(true, Loc.T("Update.LatestTitle"), Loc.F("Update.LatestBody", CurrentVersionText));
                 }
             }
             catch (Exception ex)
             {
                 LastError = Describe(ex);
-                if (interactive) ToastWindow.ShowMessage(false, "تعذّر التحقق من التحديثات", LastError);
+                if (interactive) ToastWindow.ShowMessage(false, Loc.T("Update.CheckFailedTitle"), LastError);
             }
             finally
             {
@@ -218,7 +218,7 @@ namespace InstaWords.App.Services
                         {
                             var next = new Uri(new Uri(url), response.Headers.Location);
                             if (next.Scheme != Uri.UriSchemeHttps || !next.Host.Equals("api.github.com", StringComparison.OrdinalIgnoreCase))
-                                throw new UpdateException("أعاد GitHub التوجيه إلى عنوان غير متوقع.");
+                                throw new UpdateException(Loc.T("Update.BadRedirect"));
                             url = next.AbsoluteUri;
                             continue;
                         }
@@ -237,11 +237,11 @@ namespace InstaWords.App.Services
         /// </summary>
         public static async Task<string> DownloadInstallerAsync(GitHubAsset asset, IProgress<double> progress, CancellationToken ct)
         {
-            if (asset == null) throw new UpdateException("لا يحتوي هذا الإصدار على ملف التثبيت المتوقع.");
+            if (asset == null) throw new UpdateException(Loc.T("Update.NoInstaller"));
             if (!UpdateLogic.TryParseSha256Digest(asset.Digest, out _))
-                throw new UpdateException("لم ينشر GitHub بصمة SHA-256 لملف التثبيت، فلا يمكن التحقق من سلامته. نزّله يدوياً من صفحة الإصدار.");
+                throw new UpdateException(Loc.T("Update.NoDigest"));
             var url = asset.BrowserDownloadUrl;
-            if (!UpdateLogic.IsAllowedDownloadUrl(url)) throw new UpdateException("رابط التنزيل ليس من GitHub، فلن يُستخدم.");
+            if (!UpdateLogic.IsAllowedDownloadUrl(url)) throw new UpdateException(Loc.T("Update.NotGitHub"));
 
             var dir = Path.Combine(Path.GetTempPath(), "InstaWords-update");
             Directory.CreateDirectory(dir);
@@ -263,7 +263,7 @@ namespace InstaWords.App.Services
                             var next = new Uri(new Uri(url), response.Headers.Location).AbsoluteUri;
                             response.Dispose();
                             response = null;
-                            if (hop >= 5 || !UpdateLogic.IsAllowedDownloadUrl(next)) throw new UpdateException("أعاد GitHub التوجيه إلى عنوان غير موثوق، فأُوقف التنزيل.");
+                            if (hop >= 5 || !UpdateLogic.IsAllowedDownloadUrl(next)) throw new UpdateException(Loc.T("Update.UntrustedRedirect"));
                             url = next;
                             continue;
                         }
@@ -282,7 +282,7 @@ namespace InstaWords.App.Services
                         {
                             await dst.WriteAsync(buffer, 0, read, ct).ConfigureAwait(false);
                             done += read;
-                            if (asset.Size > 0 && done > asset.Size) throw new UpdateException("الملف المنزّل أكبر من الحجم المنشور، فأُوقف التنزيل.");
+                            if (asset.Size > 0 && done > asset.Size) throw new UpdateException(Loc.T("Update.TooLarge"));
                             if (total > 0) progress?.Report(Math.Min(1.0, (double)done / total));
                         }
                     }
@@ -319,8 +319,8 @@ namespace InstaWords.App.Services
         {
             while (ex is AggregateException && ex.InnerException != null) ex = ex.InnerException;
             if (ex is UpdateException) return ex.Message;
-            if (ex is TaskCanceledException || ex is OperationCanceledException) return "انتهت مهلة الاتصال.";
-            if (ex is HttpRequestException || ex is WebException) return "لا يوجد اتصال بالإنترنت، أو تعذّر الوصول إلى GitHub.";
+            if (ex is TaskCanceledException || ex is OperationCanceledException) return Loc.T("Update.Timeout");
+            if (ex is HttpRequestException || ex is WebException) return Loc.T("Update.Offline");
             return ex.Message;
         }
     }
@@ -346,7 +346,7 @@ namespace InstaWords.App.Services
             }
             catch (Exception ex)
             {
-                ToastWindow.ShowMessage(false, "تعذّر فتح الرابط", ex.Message);
+                ToastWindow.ShowMessage(false, Loc.T("Common.OpenLinkFailed"), ex.Message);
             }
         }
     }

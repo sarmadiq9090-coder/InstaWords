@@ -23,11 +23,16 @@ namespace InstaWords.App.Services
             try
             {
                 var r = Tafqit.TryConvert(input ?? "", options);
-                return new ConversionResult { Ok = r.Ok, Text = r.Text ?? "", Cleaned = r.Cleaned, ErrorCode = r.ErrorCode, ErrorMessage = r.ErrorMessage };
+                // The engine's messages are Arabic; the English interface maps the code instead.
+                return new ConversionResult
+                {
+                    Ok = r.Ok, Text = r.Text ?? "", Cleaned = r.Cleaned, ErrorCode = r.ErrorCode,
+                    ErrorMessage = r.Ok ? null : Loc.Error(r.ErrorCode, r.ErrorMessage),
+                };
             }
             catch (Exception ex)
             {
-                return new ConversionResult { Ok = false, ErrorCode = "internal", ErrorMessage = "خطأ غير متوقع: " + ex.Message };
+                return new ConversionResult { Ok = false, ErrorCode = "internal", ErrorMessage = Loc.F("Err.Internal", ex.Message) };
             }
         }
 

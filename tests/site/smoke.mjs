@@ -6,6 +6,7 @@ import { createRequire } from "node:module";
 import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readFallback } from "../../scripts/lib/release.mjs";
 
 const require = createRequire(import.meta.url);
 let chromium;
@@ -32,25 +33,30 @@ const STUB_LANGUAGES = [
 ];
 const REPO_URL = "https://github.com/sarmadiq9090-coder/tafket";
 const RELEASE_API = "https://api.github.com/repos/sarmadiq9090-coder/tafket/releases/latest";
-// Direct installer used without JavaScript / when GitHub is unreachable (site/assets/release.js FALLBACK).
-const STATIC_EXE = `${REPO_URL}/releases/download/v2.0.0/InstaWords_2.0.0_x64-setup.exe`;
+// Direct installer used without JavaScript / when GitHub is unreachable: site/release-fallback.json,
+// which scripts/build-site.mjs writes into the pages and into release.js FALLBACK.
+const FB = readFallback();
+const STATIC_EXE = FB.setup.url;
+const FB_V = `v${FB.version}`;
 // GitHub API fixture: what the buttons and the #download dialog must show when the API answers.
-const FIXTURE_EXE = `${REPO_URL}/releases/download/v2.1.0/InstaWords_2.1.0_x64-setup.exe`;
-const FIXTURE_ZIP = `${REPO_URL}/releases/download/v2.1.0/InstaWords_2.1.0_x64-portable.zip`;
+// Its version is always newer than the fallback (next minor), so the two can never be confused.
+const FV = `${FB.version.split(".")[0]}.${Number(FB.version.split(".")[1]) + 1}.0`;
+const FIXTURE_EXE = `${REPO_URL}/releases/download/v${FV}/InstaWords_${FV}_x64-setup.exe`;
+const FIXTURE_ZIP = `${REPO_URL}/releases/download/v${FV}/InstaWords_${FV}_x64-portable.zip`;
 const FIXTURE_SHA = "ab".repeat(32);
 const FIXTURE = {
-  tag_name: "v2.1.0",
-  name: "InstaWords v2.1.0",
-  html_url: `${REPO_URL}/releases/tag/v2.1.0`,
+  tag_name: `v${FV}`,
+  name: `InstaWords v${FV}`,
+  html_url: `${REPO_URL}/releases/tag/v${FV}`,
   published_at: "2026-12-01T10:00:00Z",
   body: [
-    "## InstaWords — تفقيط v2.1.0",
+    `## InstaWords — تفقيط v${FV}`,
     "",
     '<div dir="rtl">',
     "",
     "**العربية**",
     "",
-    "- **`InstaWords_2.1.0_x64-setup.exe`**: المثبّت (موصى به).",
+    `- **\`InstaWords_${FV}_x64-setup.exe\`**: المثبّت (موصى به).`,
     '- تحسين التصدير <img src=x onerror="window.__pwned=1"> إلى CSV.',
     "",
     "<script>window.__pwned=2</script>",
@@ -62,9 +68,9 @@ const FIXTURE = {
     "</div>",
   ].join("\r\n"),
   assets: [
-    { name: "InstaWords_2.1.0_x64-setup.exe.blockmap", size: 10, digest: null, browser_download_url: `${FIXTURE_EXE}.blockmap` },
-    { name: "InstaWords_2.1.0_x64-portable.zip", size: 600000, digest: `sha256:${"cd".repeat(32)}`, browser_download_url: FIXTURE_ZIP },
-    { name: "InstaWords_2.1.0_x64-setup.exe", size: 2621440, digest: `sha256:${FIXTURE_SHA}`, browser_download_url: FIXTURE_EXE },
+    { name: `InstaWords_${FV}_x64-setup.exe.blockmap`, size: 10, digest: null, browser_download_url: `${FIXTURE_EXE}.blockmap` },
+    { name: `InstaWords_${FV}_x64-portable.zip`, size: 600000, digest: `sha256:${"cd".repeat(32)}`, browser_download_url: FIXTURE_ZIP },
+    { name: `InstaWords_${FV}_x64-setup.exe`, size: 2621440, digest: `sha256:${FIXTURE_SHA}`, browser_download_url: FIXTURE_EXE },
   ],
 };
 /** Answer the GitHub release API with the fixture ("ok") or fail it like an unreachable network ("down"). */
@@ -184,7 +190,7 @@ try {
   check("latest release resolved from the GitHub API", (await page.getAttribute("html", "data-release")) === "api", String(await page.getAttribute("html", "data-release")));
   const winLinks = await page.$$eval("[data-windows-download]", (as) => as.map((a) => ({ href: a.href, text: a.textContent })));
   check("Windows download links (hero, section, FAQ, footer) → direct installer of the latest release", winLinks.length >= 4 && winLinks.every((l) => l.href === FIXTURE_EXE), winLinks.map((l) => l.href).join(", "));
-  check("Windows download links show the latest version", winLinks.every((l) => l.text.includes("v2.1.0")), winLinks.map((l) => l.text.trim()).join(" | "));
+  check("Windows download links show the latest version", winLinks.every((l) => l.text.includes(`v${FV}`)), winLinks.map((l) => l.text.trim()).join(" | "));
   await releaseDialogChecks(page);
   check("Windows section says it works offline on Windows 10/11", /ويندوز 10 و11/.test(await page.textContent("#windows")));
   await page.evaluate(() => document.fonts.ready);
@@ -596,10 +602,10 @@ async function releaseDialogChecks(page) {
       github: [...document.querySelectorAll("#download-dialog a[href*='github.com']")].filter((a) => !a.href.includes("/releases/download/")).map((a) => ({ gh: a.hasAttribute("data-github"), text: a.textContent })),
     };
   });
-  check("dialog: version, date and installer size", d.version === "v2.1.0" && d.text.includes("2026") && d.text.includes("2.5 ميغابايت"), d.text.slice(0, 200));
+  check("dialog: version, date and installer size", d.version === `v${FV}` && d.text.includes("2026") && d.text.includes("2.5 ميغابايت"), d.text.slice(0, 200));
   check("dialog: SHA-256 from the asset digest", d.sha === FIXTURE_SHA, String(d.sha));
   check("dialog: requirements (Windows 10/11, no admin, offline)", /ويندوز 10 أو 11/.test(d.text) && d.text.includes("صلاحيات المسؤول") && d.text.includes("دون إنترنت"));
-  check("dialog: primary button downloads the installer directly", d.primary === FIXTURE_EXE && d.primaryText.includes("v2.1.0"), String(d.primary));
+  check("dialog: primary button downloads the installer directly", d.primary === FIXTURE_EXE && d.primaryText.includes(`v${FV}`), String(d.primary));
   check("dialog: portable zip is a direct link", d.portable === FIXTURE_ZIP, String(d.portable));
   check("dialog: one explicit GitHub link", d.github.length === 1 && d.github[0].gh && d.github[0].text.includes("GitHub"), JSON.stringify(d.github));
   const notes = await page.evaluate(() => {
@@ -615,7 +621,7 @@ async function releaseDialogChecks(page) {
       pwned: window.__pwned,
     };
   });
-  check("release notes: headings, lists, bold and code rendered", !!notes && notes.h.includes("InstaWords — تفقيط v2.1.0") && notes.h.includes("Fixes") && notes.li === 4 && notes.ol === 2 && notes.strong >= 2 && notes.code === "InstaWords_2.1.0_x64-setup.exe", JSON.stringify(notes));
+  check("release notes: headings, lists, bold and code rendered", !!notes && notes.h.includes(`InstaWords — تفقيط v${FV}`) && notes.h.includes("Fixes") && notes.li === 4 && notes.ol === 2 && notes.strong >= 2 && notes.code === `InstaWords_${FV}_x64-setup.exe`, JSON.stringify(notes));
   check("release notes: remote HTML stays text (no <script>/<img>, nothing executed)", !!notes && notes.elements.every((t) => ["h3", "h4", "p", "ul", "ol", "li", "strong", "code"].includes(t)) && notes.text.includes("<img src=x") && notes.text.includes("<script>") && notes.pwned === undefined, JSON.stringify(notes && { elements: [...new Set(notes.elements)], pwned: notes.pwned }));
   check("release notes: GitHub layout tags dropped", !!notes && !notes.text.includes("<div") && !notes.text.includes("</div>"));
   await page.keyboard.press("Escape");
@@ -627,7 +633,7 @@ async function releaseDialogChecks(page) {
   await ready(page);
   await page.waitForSelector("#download-dialog[open]", { timeout: 5000 }).catch(() => {});
   check("#download deep link opens the dialog", await page.isVisible("#download-dialog[open]"));
-  check("deep-linked dialog shows the latest release", (await page.textContent("#download-dialog [data-release-version]").catch(() => "")) === "v2.1.0");
+  check("deep-linked dialog shows the latest release", (await page.textContent("#download-dialog [data-release-version]").catch(() => "")) === `v${FV}`);
   await page.click("#download-dialog .dialog-close");
   await closed(page, "#download-dialog");
   check("close button closes the dialog", !(await page.isVisible("#download-dialog")));
@@ -655,7 +661,16 @@ async function githubLinkChecks() {
     const html = readFileSync(join(root, name), "utf8");
     const staticHrefs = [...html.matchAll(/<a\b[^>]*\bdata-windows-download\b[^>]*>/g)].map((m) => /href="([^"]+)"/.exec(m[0])?.[1]);
     check(`${name}: static (no-JS) Windows links download the installer directly`, staticHrefs.length >= 1 && staticHrefs.every((h) => h === STATIC_EXE), staticHrefs.join(", "));
+    const labels = [...html.matchAll(/<span\b[^>]*\bdata-version\b[^>]*>([^<]*)<\/span>/g)].map((m) => m[1]);
+    check(`${name}: static version labels show the fallback ${FB_V} (site/release-fallback.json)`, labels.length >= 1 && labels.every((l) => l === FB_V), labels.join(", "));
+    const files = [...html.matchAll(/https:\/\/github\.com\/[^"'\s<>]*\/releases\/download\/[^"'\s<>]+/g)].map((m) => m[0]);
+    check(`${name}: every release file named in the HTML is the fallback release`, files.every((f) => f === STATIC_EXE || f === FB.portable?.url), files.join(", "));
   }
+  const ld = /<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(readFileSync(join(root, "index.html"), "utf8"));
+  const app = ld && JSON.parse(ld[1])["@graph"]?.find?.((n) => n["@type"] === "WebApplication");
+  check("index.html: JSON-LD downloadUrl is the fallback installer", app?.downloadUrl === STATIC_EXE, String(app?.downloadUrl));
+  const releaseJs = readFileSync(join(root, "assets", "release.js"), "utf8");
+  check("assets/release.js: FALLBACK_DATA filled from site/release-fallback.json", releaseJs.includes(`/* @release-fallback */ ${JSON.stringify(FB)}`) && !releaseJs.includes("/* @release-fallback */ null"));
   const c = await newContext({ serviceWorkers: "block" });
   const p = watch(await c.newPage());
   try {
@@ -696,7 +711,7 @@ async function apiDownChecks() {
     await p.waitForSelector("html[data-release]", { timeout: 15000 }).catch(() => {});
     check("API down: release falls back", (await p.getAttribute("html", "data-release")) === "fallback");
     const links = await p.$$eval("[data-windows-download]", (as) => as.map((a) => ({ href: a.href, text: a.textContent })));
-    check("API down: buttons download the bundled installer directly and show v2.0.0", links.length >= 4 && links.every((l) => l.href === STATIC_EXE && l.text.includes("v2.0.0")), links.map((l) => l.href).join(", "));
+    check(`API down: buttons download the bundled installer directly and show ${FB_V}`, links.length >= 4 && links.every((l) => l.href === STATIC_EXE && l.text.includes(FB_V)), links.map((l) => l.href).join(", "));
     check("API down: dialog open and says GitHub is unreachable", (await p.isVisible("#download-dialog[open]")) && (await p.isVisible("#download-dialog [data-release-offline]")));
     const d = await p.evaluate(() => ({
       primary: document.querySelector("#download-dialog [data-dialog-download]")?.href,
@@ -704,7 +719,7 @@ async function apiDownChecks() {
       notes: !!document.querySelector("#download-dialog [data-release-notes-body]"),
       github: [...document.querySelectorAll("#download-dialog a[href*='github.com']")].filter((a) => !a.href.includes("/releases/download/")).map((a) => ({ gh: a.hasAttribute("data-github"), text: a.textContent })),
     }));
-    check("API down: dialog offers the v2.0.0 direct download (+ portable)", d.primary === STATIC_EXE && /InstaWords_2\.0\.0_x64-portable\.zip$/.test(d.portable ?? "") && !d.notes, JSON.stringify(d));
+    check(`API down: dialog offers the ${FB_V} direct download (+ portable)`, d.primary === STATIC_EXE && d.portable === FB.portable?.url && !d.notes, JSON.stringify(d));
     check("API down: exactly one clearly labelled GitHub link", d.github.length === 1 && d.github[0].gh && d.github[0].text.includes("GitHub"), JSON.stringify(d.github));
     check("API down: no page errors", errors.length === 0, errors.join(" | "));
   } finally {

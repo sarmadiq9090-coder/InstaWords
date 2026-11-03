@@ -27,7 +27,7 @@ namespace InstaWords.App.Services
 
         public HotkeyGesture Current { get; private set; }
         public bool IsRegistered => _registered;
-        /// <summary>Why the last Register failed, in Arabic (null on success).</summary>
+        /// <summary>Why the last Register failed, in the interface language (null on success).</summary>
         public string LastError { get; private set; }
 
         public bool Register(HotkeyGesture gesture)
@@ -37,7 +37,7 @@ namespace InstaWords.App.Services
             LastError = null;
             if (gesture == null || !gesture.IsValid)
             {
-                LastError = "اختصار غير صالح: استعمل Ctrl أو Alt مع حرف أو رقم.";
+                LastError = Loc.T("Hotkey.Invalid");
                 return false;
             }
             if (NativeMethods.RegisterHotKey(_source.Handle, HotkeyId, gesture.NativeModifiers, gesture.VirtualKey))
@@ -47,8 +47,8 @@ namespace InstaWords.App.Services
             }
             var err = Marshal.GetLastWin32Error();
             LastError = err == NativeMethods.ERROR_HOTKEY_ALREADY_REGISTERED
-                ? $"الاختصار {gesture} يستخدمه برنامج آخر. اختر اختصاراً آخر من الإعدادات."
-                : $"تعذّر تسجيل الاختصار {gesture} ({new Win32Exception(err).Message}).";
+                ? Loc.F("Hotkey.Taken", gesture)
+                : Loc.F("Hotkey.RegisterFailed", gesture, new Win32Exception(err).Message);
             return false;
         }
 

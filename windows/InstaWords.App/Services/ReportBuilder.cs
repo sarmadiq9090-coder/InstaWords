@@ -28,9 +28,10 @@ namespace InstaWords.App.Services
     {
         public const string NewIssueBase = "https://github.com/" + UpdateLogic.Owner + "/" + UpdateLogic.Repo + "/issues/new";
         public const int MaxUrlLength = 7000;
-        public const string TruncatedNote = "\n\n… (اختُصر النص ليتسع له الرابط. النص الكامل: «نسخ التقرير» في البرنامج.)";
+        /// <summary>Appended to a field shortened to fit the URL (in the interface language).</summary>
+        public static string TruncatedNote => "\n\n… (" + Loc.T("Report.Truncated") + ")";
 
-        public static string DefaultTitle(bool isBug) => isBug ? "مشكلة في برنامج InstaWords لـ Windows" : "اقتراح لبرنامج InstaWords لـ Windows";
+        public static string DefaultTitle(bool isBug) => Loc.T(isBug ? "Report.DefaultBugTitle" : "Report.DefaultIdeaTitle");
 
         public static string EffectiveTitle(ReportInput r) =>
             string.IsNullOrWhiteSpace(r.Title) ? DefaultTitle(r.IsBug) : r.Title.Trim();
@@ -45,16 +46,16 @@ namespace InstaWords.App.Services
         public static string BuildText(ReportInput r)
         {
             var sb = new StringBuilder();
-            sb.Append(r.IsBug ? "[مشكلة] " : "[اقتراح] ").Append(EffectiveTitle(r)).Append("\n\n");
-            sb.Append(r.IsBug ? "## وصف المشكلة\n" : "## الاقتراح\n");
-            sb.Append(string.IsNullOrWhiteSpace(r.Description) ? "(لا يوجد وصف)" : r.Description.Trim()).Append("\n");
+            sb.Append("[").Append(Loc.T(r.IsBug ? "Report.Bug" : "Report.Idea")).Append("] ").Append(EffectiveTitle(r)).Append("\n\n");
+            sb.Append("## ").Append(Loc.T(r.IsBug ? "Report.BugDescription" : "Report.IdeaDescription")).Append("\n");
+            sb.Append(string.IsNullOrWhiteSpace(r.Description) ? "(" + Loc.T("Report.NoDescription") + ")" : r.Description.Trim()).Append("\n");
             if (!string.IsNullOrWhiteSpace(r.Details))
             {
-                sb.Append("\n").Append(r.IsBug ? "## خطوات إعادة المشكلة\n" : "## لماذا تحتاجه؟\n");
+                sb.Append("\n## ").Append(Loc.T(r.IsBug ? "Report.StepsHeading" : "Report.WhyHeading")).Append("\n");
                 sb.Append(r.Details.Trim()).Append("\n");
             }
             var env = EnvironmentText(r);
-            if (env.Length > 0) sb.Append("\n## معلومات تقنية\n").Append(env).Append("\n");
+            if (env.Length > 0) sb.Append("\n## ").Append(Loc.T("Report.TechHeading")).Append("\n").Append(env).Append("\n");
             return sb.ToString();
         }
 

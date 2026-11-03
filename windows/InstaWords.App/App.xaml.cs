@@ -35,6 +35,12 @@ namespace InstaWords.App
             DispatcherUnhandledException += OnUnhandledException;
 
             Settings = JsonStore.Load<AppSettings>(AppPaths.SettingsFile) ?? new AppSettings();
+            // First run: the language picked in the installer, else the Windows display language.
+            if (string.IsNullOrEmpty(Settings.UiLanguage)) Settings.UiLanguage = UiLanguage.InstallerChoice() ?? Loc.Auto;
+            Settings.UiLanguage = Loc.NormalizeSetting(Settings.UiLanguage);
+            Settings.Print = Settings.Print ?? new PrintSettings();
+            UiLanguage.Apply(Settings.UiLanguage);
+            Loc.Changed += (s, a) => Catalog.RaiseLanguageChanged();
             State.Load(Settings);
             State.Changed += (s, a) => SaveSettingsSoon();
             History.Load();
@@ -71,8 +77,18 @@ namespace InstaWords.App
             {
                 // Tell the user right away, then let them pick another combination in the settings.
                 Dispatcher.BeginInvoke(new Action(() =>
-                    ToastWindow.ShowMessage(false, "تعذّر تفعيل اختصار الحافظة", Hotkey.LastError)), DispatcherPriority.ApplicationIdle);
+                    ToastWindow.ShowMessage(false, Loc.T("Hotkey.FailedTitle"), Hotkey.LastError)), DispatcherPriority.ApplicationIdle);
             }
+        }
+
+        /// <summary>«لغة الواجهة»: "ar", "en" or "auto". Applies live and is saved.</summary>
+        public void SetUiLanguage(string setting)
+        {
+            Settings.UiLanguage = Loc.NormalizeSetting(setting);
+            UiLanguage.Apply(Settings.UiLanguage);
+            _tray?.ApplyLanguage();
+            ApplyHotkeySettings();
+            SaveSettingsSoon();
         }
 
         /// <summary>Registers the hotkey from the settings. Returns false when it is enabled but could not be registered.</summary>
@@ -116,13 +132,13 @@ namespace InstaWords.App
         {
             if (!ClipboardService.TryGetText(out var text))
             {
-                Notify(false, "تعذّر الوصول إلى الحافظة", "برنامج آخر يستخدم الحافظة الآن. حاول مرة أخرى.");
+                Notify(false, Loc.T("Clip.NoAccessTitle"), Loc.T("Clip.NoAccessBody"));
                 return;
             }
             var values = Csv.PastedValues(text ?? "");
             if (values.Count == 0)
             {
-                Notify(false, "لا يوجد رقم في الحافظة", "انسخ رقماً (مثل 1250.75) ثم اضغط " + CurrentHotkeyText + ".");
+                Notify(false, Loc.T("Clip.NoNumberTitle"), Loc.F("Clip.NoNumberBody", CurrentHotkeyText));
                 return;
             }
 
@@ -133,38 +149,38 @@ namespace InstaWords.App
                 if (!r.Ok)
                 {
                     LastErrorCode = r.ErrorCode;
-                    Notify(false, "تعذّر تحويل «" + Shorten(values[0], 40) + "»", r.ErrorMessage);
+                    Notify(false, Loc.F("Clip.FailedTitle", Shorten(values[0], 40)), r.ErrorMessage);
                     return;
                 }
                 if (!ClipboardService.TrySetText(r.Text))
                 {
-                    Notify(false, "تعذّرت الكتابة في الحافظة", "حاول مرة أخرى.");
+                    Notify(false, Loc.T("Clip.WriteFailedTitle"), Loc.T("Clip.TryAgain"));
                     return;
                 }
                 History.Add(values[0], r.Cleaned, options.Unit, options.Language, r.Text);
-                Notify(true, "نُسخ المبلغ بالحروف · ‎" + Conversion.Grouped(r.Cleaned) + "‎", r.Text, Catalog.FlowFor(options.Language));
+                Notify(true, Loc.F("Clip.CopiedTitle", Conversion.Grouped(r.Cleaned)), r.Text, Catalog.FlowFor(options.Language));
                 return;
             }
 
             // A column copied from Excel: convert every line, keep the lines aligned.
             if (values.Count > 10000)
             {
-                Notify(false, "القائمة طويلة جداً", "استعمل تبويب «دفعة» لأكثر من 10,000 رقم.");
+                Notify(false, Loc.T("Clip.TooManyTitle"), Loc.T("Clip.TooManyBody"));
                 return;
             }
             var results = values.Select(v => Conversion.Run(v, options)).ToList();
             var firstError = results.FindIndex(r => !r.Ok);
             if (firstError >= 0)
             {
-                Notify(false, "تعذّر تحويل السطر " + (firstError + 1) + ": «" + Shorten(values[firstError], 30) + "»", results[firstError].ErrorMessage);
+                Notify(false, Loc.F("Clip.LineFailedTitle", firstError + 1, Shorten(values[firstError], 30)), results[firstError].ErrorMessage);
                 return;
             }
             if (!ClipboardService.TrySetText(string.Join("\r\n", results.Select(r => r.Text))))
             {
-                Notify(false, "تعذّرت الكتابة في الحافظة", "حاول مرة أخرى.");
+                Notify(false, Loc.T("Clip.WriteFailedTitle"), Loc.T("Clip.TryAgain"));
                 return;
             }
-            Notify(true, "نُسخ " + Conversion.FormatCount(results.Count) + " مبلغاً بالحروف", results[0].Text + "\n…", Catalog.FlowFor(options.Language));
+            Notify(true, Loc.F("Clip.CopiedManyTitle", Conversion.FormatCount(results.Count)), results[0].Text + "\n…", Catalog.FlowFor(options.Language));
         }
 
         public string CurrentHotkeyText => (HotkeyGesture.Parse(Settings.Hotkey) ?? HotkeyGesture.Default).ToString();
@@ -235,7 +251,7 @@ namespace InstaWords.App
             e.Handled = true;
             try
             {
-                ToastWindow.ShowMessage(false, "حدث خطأ غير متوقع", e.Exception.Message);
+                ToastWindow.ShowMessage(false, Loc.T("App.UnexpectedError"), e.Exception.Message);
             }
             catch
             {

@@ -22,14 +22,14 @@ namespace InstaWords.App.Views
             _release = release;
             _installed = UpdateService.IsInstalled;
             UpdateLogic.TryParseVersion(release.TagName, out var v, out _);
-            Headline.Text = "يتوفر إصدار جديد " + UpdateLogic.Display(v);
-            Subline.Text = "لديك الإصدار " + UpdateService.CurrentVersionText + (string.IsNullOrEmpty(release.Name) ? "" : " · " + release.Name);
+            Headline.Text = Loc.F("Update.Headline", UpdateLogic.Display(v));
+            Subline.Text = Loc.F("Update.YouHave", UpdateService.CurrentVersionText) + (string.IsNullOrEmpty(release.Name) ? "" : " · " + release.Name);
             var notes = UpdateLogic.PlainNotes(release.Body);
-            Notes.Text = notes.Length > 0 ? notes : "لا توجد ملاحظات لهذا الإصدار.";
+            Notes.Text = notes.Length > 0 ? notes : Loc.T("Update.NoNotes");
             if (!_installed)
             {
                 PortableNote.Visibility = Visibility.Visible;
-                UpdateNow.Content = "فتح صفحة التنزيل";
+                UpdateNow.SetResourceReference(ContentProperty, "Update.OpenPage");
             }
         }
 
@@ -45,7 +45,7 @@ namespace InstaWords.App.Views
             ProgressPanel.Visibility = Visibility.Visible;
             UpdateNow.IsEnabled = false;
             SkipButton.IsEnabled = false;
-            Later.Content = "إلغاء";
+            Later.SetResourceReference(ContentProperty, "Common.Cancel");
             _cts = new CancellationTokenSource();
             var progress = new Progress<double>(p =>
             {
@@ -56,7 +56,7 @@ namespace InstaWords.App.Views
             {
                 var asset = UpdateLogic.SelectSetupAsset(_release.Assets);
                 var path = await UpdateService.DownloadInstallerAsync(asset, progress, _cts.Token);
-                ProgressText.Text = "تم التحقق من الملف. جارٍ التثبيت…";
+                ProgressText.SetResourceReference(System.Windows.Controls.TextBlock.TextProperty, "Update.Installing");
                 UpdateService.RunInstallerAndExit(path);
             }
             catch (Exception ex) when (ex is OperationCanceledException && _cts.IsCancellationRequested)
@@ -79,7 +79,7 @@ namespace InstaWords.App.Views
             ProgressPanel.Visibility = Visibility.Collapsed;
             UpdateNow.IsEnabled = true;
             SkipButton.IsEnabled = true;
-            Later.Content = "لاحقاً";
+            Later.SetResourceReference(ContentProperty, "Update.Later");
             if (error != null)
             {
                 ErrorText.Text = error;

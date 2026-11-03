@@ -1,8 +1,20 @@
 name: CI
 
+# Every push and pull request: the TypeScript core, the Excel VBA module, the website (Playwright)
+# and the .NET engine's parity tests (Linux is enough: InstaWords.Core is netstandard2.0, its tests net8.0).
+# The Windows app itself, its UI tests and the installer are built by windows.yml.
+
 on:
   push:
   pull_request:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
 
 jobs:
   test:
@@ -13,12 +25,27 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
       - run: npm run test:vba
       - name: Check generated VBA is up to date
         run: git diff --exit-code -- vba/Tafqit.bas vba/TafqitTests.bas
+      # npm run build, build-dotnet.mjs --check (generated C# current), the corpus, dotnet test InstaWords.Core.Tests.
+      - name: .NET engine parity tests
+        run: npm run test:dotnet
+      # The committed winget/Scoop copies follow site/release-fallback.json (warning only: the
+      # site sync may refresh the JSON alone; `npm run release:fallback` updates both).
+      - name: Package manifests follow site/release-fallback.json
+        run: |
+          node scripts/package-manifests.mjs
+          if ! git diff --quiet -- packaging/ || [ -n "$(git status --porcelain -- packaging/)" ]; then
+            echo "::warning::packaging/ is behind site/release-fallback.json: run 'node scripts/package-manifests.mjs' and commit."
+            git status --short -- packaging/
+          fi
       - name: Install Playwright (Chromium)
         run: npm i --no-save playwright@1.63.0 && npx playwright install --with-deps chromium
       - run: npm run test:site

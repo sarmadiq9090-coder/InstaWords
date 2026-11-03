@@ -35,8 +35,8 @@ namespace InstaWords.App.Views
         {
             if (!_ready) return;
             var bug = TypeBug.IsChecked == true;
-            DescriptionLabel.Text = bug ? "وصف المشكلة" : "الاقتراح";
-            DetailsLabel.Text = bug ? "خطوات إعادة المشكلة (اختياري)" : "لماذا تحتاجه؟ (اختياري)";
+            DescriptionLabel.Text = Loc.T(bug ? "Report.BugDescription" : "Report.IdeaDescription");
+            DetailsLabel.Text = Loc.T(bug ? "Report.Steps" : "Report.Why");
             Preview.Text = ReportBuilder.BuildText(Input);
             Status.Text = "";
         }
@@ -46,20 +46,20 @@ namespace InstaWords.App.Views
             if (string.IsNullOrWhiteSpace(DescriptionBox.Text))
             {
                 Status.Foreground = (System.Windows.Media.Brush)FindResource("DangerBrush");
-                Status.Text = "اكتب وصفاً قصيراً أولاً.";
+                Status.Text = Loc.T("Report.NeedDescription");
                 DescriptionBox.Focus();
                 return;
             }
             Links.Open(ReportBuilder.BuildIssueUrl(Input));
             Status.Foreground = (System.Windows.Media.Brush)FindResource("OkBrush");
-            Status.Text = "فُتحت صفحة البلاغ في المتصفح. راجعها ثم اضغط «Submit».";
+            Status.Text = Loc.T("Report.Opened");
         }
 
         private void OnCopyClick(object sender, RoutedEventArgs e)
         {
             var ok = ClipboardService.TrySetText(ReportBuilder.BuildText(Input));
             Status.Foreground = (System.Windows.Media.Brush)FindResource(ok ? "OkBrush" : "DangerBrush");
-            Status.Text = ok ? "نُسخ التقرير. الصقه في بريد أو رسالة أو في GitHub." : "تعذّر النسخ.";
+            Status.Text = Loc.T(ok ? "Report.Copied" : "Report.CopyFailed");
         }
 
         private void OnCloseClick(object sender, RoutedEventArgs e) => Close();

@@ -1,0 +1,40 @@
+{
+    "version": "2.0.0",
+    "description": "InstaWords (تفقيط): amounts in words for cheques and invoices, in Arabic, English and French.",
+    "homepage": "https://fastkiwi.app/instawords/",
+    "license": "MIT",
+    "notes": [
+        "This is the portable build: InstaWords checks GitHub for new versions and opens the release page,",
+        "but 'scoop update instawords' is the way to upgrade a Scoop install.",
+        "Settings and history live in %APPDATA%\\FastKiwi\\InstaWords (not in the Scoop folder);",
+        "delete that folder yourself to remove all data."
+    ],
+    "url": "https://github.com/sarmadiq9090-coder/tafket/releases/download/v2.0.0/InstaWords_2.0.0_x64-portable.zip",
+    "hash": "82c489cb9cb72576ef17801972c6cffbb0a3426a9e57e3aa22f5dbe191ee4864",
+    "extract_dir": "InstaWords",
+    "bin": "InstaWords.exe",
+    "shortcuts": [
+        [
+            "InstaWords.exe",
+            "InstaWords"
+        ]
+    ],
+    "uninstaller": {
+        "script": [
+            "if ($cmd -eq 'uninstall') {",
+            "    $run = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run'",
+            "    $value = (Get-ItemProperty -Path $run -Name 'InstaWords' -ErrorAction SilentlyContinue).InstaWords",
+            "    if ($value -and $value.ToLower().Contains((Split-Path $dir).ToLower())) {",
+            "        Remove-ItemProperty -Path $run -Name 'InstaWords' -ErrorAction SilentlyContinue",
+            "    }",
+            "}"
+        ]
+    },
+    "checkver": "github",
+    "autoupdate": {
+        "url": "https://github.com/sarmadiq9090-coder/tafket/releases/download/v$version/InstaWords_$version_x64-portable.zip",
+        "hash": {
+            "url": "$baseurl/SHA256SUMS.txt"
+        }
+    }
+}

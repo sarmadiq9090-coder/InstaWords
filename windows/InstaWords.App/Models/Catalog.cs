@@ -4,17 +4,17 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using InstaWords.App.Services;
 using InstaWords.Core;
 
 namespace InstaWords.App.Models
 {
     /// <summary>A unit as shown in the picker: grouped by category, searchable in Arabic, English, French and by code.</summary>
-    public sealed class UnitItem
+    public sealed class UnitItem : System.ComponentModel.INotifyPropertyChanged
     {
         public UnitItem(UnitInfo info, string categoryLabel, int categoryOrder)
         {
             Info = info;
-            CategoryLabel = categoryLabel;
             CategoryOrder = categoryOrder;
             var parts = new List<string> { info.Id, info.Label, info.Code, info.EnglishName, info.FrenchName, categoryLabel };
             if (info.Aliases != null) parts.AddRange(info.Aliases);
@@ -23,10 +23,21 @@ namespace InstaWords.App.Models
 
         public UnitInfo Info { get; }
         public string Id => Info.Id;
-        public string Label => Info.Label;
+        /// <summary>The unit's name in the interface language (Arabic label, or the engine's English name).</summary>
+        public string Label => Loc.IsEnglish ? (string.IsNullOrEmpty(Info.EnglishName) ? Loc.T("Unit.None") : Info.EnglishName) : Info.Label;
         public string Code => string.IsNullOrEmpty(Info.Code) ? null : Info.Code;
         public bool HasCode => Code != null;
-        public string CategoryLabel { get; }
+        public string CategoryLabel => Catalog.CategoryLabel(Info.Category);
+
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>The interface language changed: names are re-read.</summary>
+        internal void RaiseLanguageChanged()
+        {
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(Label)));
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(Display)));
+            PropertyChanged?.Invoke(this, new System.ComponentModel.PropertyChangedEventArgs(nameof(CategoryLabel)));
+        }
         public int CategoryOrder { get; }
         public string Display => HasCode ? Label + " (" + Code + ")" : Label;
         /// <summary>Folded, space-delimited text all search terms are matched against.</summary>
@@ -74,7 +85,7 @@ namespace InstaWords.App.Models
                 foreach (var key in CategoryLabels.Keys) if (!order.ContainsKey(key)) order[key] = order.Count;
                 foreach (var u in Tafqit.Units) if (!order.ContainsKey(u.Category ?? "")) order[u.Category ?? ""] = order.Count;
                 _units = Tafqit.Units
-                    .Select(u => new UnitItem(u, CategoryLabel(u.Category), order[u.Category ?? ""]))
+                    .Select(u => new UnitItem(u, CategoryLabels.TryGetValue(u.Category ?? "", out var cat) ? cat : "", order[u.Category ?? ""]))
                     .ToList();
                 return _units;
             }
@@ -91,8 +102,19 @@ namespace InstaWords.App.Models
             }
         }
 
-        public static string CategoryLabel(string category) =>
-            category != null && CategoryLabels.TryGetValue(category, out var label) ? label : "وحدات أخرى";
+        /// <summary>A category's name in the interface language.</summary>
+        public static string CategoryLabel(string category)
+        {
+            if (Loc.IsEnglish) return Loc.Has("Cat." + category) ? Loc.T("Cat." + category) : Loc.T("Cat.other");
+            return category != null && CategoryLabels.TryGetValue(category, out var label) ? label : Loc.T("Cat.other");
+        }
+
+        /// <summary>Unit and category names follow the interface language.</summary>
+        public static void RaiseLanguageChanged()
+        {
+            if (_units == null) return;
+            foreach (var u in _units) u.RaiseLanguageChanged();
+        }
 
         public static UnitItem FindUnit(string id)
         {

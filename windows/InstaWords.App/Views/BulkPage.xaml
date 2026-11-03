@@ -14,28 +14,31 @@
       <StackPanel>
         <DockPanel>
           <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-            <Button x:Name="CopyAllButton" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconCopy}" Content="نسخ النتائج" IsEnabled="False"
-                    Click="OnCopyAllClick" Margin="0,0,8,0" ToolTip="سطر لكل رقم، وتبقى أسطر الأخطاء فارغة لتطابق ترتيب Excel"
-                    AutomationProperties.AutomationId="CopyAllButton" AutomationProperties.Name="نسخ النتائج" />
-            <Button x:Name="ExportButton" Style="{StaticResource PrimaryButton}" ui:Ui.Icon="{StaticResource IconDownload}" Content="تصدير CSV" IsEnabled="False"
-                    Click="OnExportClick" AutomationProperties.AutomationId="ExportButton" AutomationProperties.Name="تصدير CSV" />
+            <Button x:Name="PrintRowsButton" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconPrint}" Content="{DynamicResource Bulk.Print}" IsEnabled="False"
+                    Click="OnPrintClick" Margin="0,0,8,0" ToolTip="{DynamicResource Bulk.PrintTip}"
+                    AutomationProperties.AutomationId="BulkPrintButton" AutomationProperties.Name="{DynamicResource Bulk.Print}" />
+            <Button x:Name="CopyAllButton" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconCopy}" Content="{DynamicResource Bulk.CopyAll}" IsEnabled="False"
+                    Click="OnCopyAllClick" Margin="0,0,8,0" ToolTip="{DynamicResource Bulk.CopyAllTip}"
+                    AutomationProperties.AutomationId="CopyAllButton" AutomationProperties.Name="{DynamicResource Bulk.CopyAll}" />
+            <Button x:Name="ExportButton" Style="{StaticResource PrimaryButton}" ui:Ui.Icon="{StaticResource IconDownload}" Content="{DynamicResource Bulk.Export}" IsEnabled="False"
+                    Click="OnExportClick" AutomationProperties.AutomationId="ExportButton" AutomationProperties.Name="{DynamicResource Bulk.Export}" />
           </StackPanel>
           <StackPanel>
-            <TextBlock Style="{StaticResource H2Text}" FontSize="18" Text="تفقيط قائمة كاملة" />
+            <TextBlock Style="{StaticResource H2Text}" FontSize="18" Text="{DynamicResource Bulk.Title}" />
             <TextBlock Style="{StaticResource HintText}" Margin="0,3,0,0"
-                       Text="الصق عموداً من Excel (Ctrl+V)، أو استورد ملف CSV أو نصياً فيه عمود واحد. يمكنك تعديل أي رقم في الجدول مباشرة." />
+                       Text="{DynamicResource Bulk.Hint}" />
           </StackPanel>
         </DockPanel>
 
         <WrapPanel Margin="0,14,0,0">
-          <Button Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconPaste}" Content="لصق من الحافظة" Click="OnPasteClick" Margin="0,0,8,8"
-                  ToolTip="Ctrl+V" AutomationProperties.AutomationId="PasteButton" AutomationProperties.Name="لصق من الحافظة" />
-          <Button Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconUpload}" Content="استيراد ملف…" Click="OnImportClick" Margin="0,0,8,8"
-                  AutomationProperties.AutomationId="ImportButton" AutomationProperties.Name="استيراد ملف" />
-          <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconSparkle}" Content="مثال" Click="OnSampleClick" Margin="0,0,4,8"
-                  AutomationProperties.AutomationId="SampleButton" AutomationProperties.Name="مثال" />
-          <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconTrash}" Content="مسح" Click="OnClearClick" Margin="0,0,0,8"
-                  AutomationProperties.AutomationId="ClearRowsButton" AutomationProperties.Name="مسح الجدول" />
+          <Button Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconPaste}" ui:Ui.MirrorIcon="True" Content="{DynamicResource Bulk.Paste}" Click="OnPasteClick" Margin="0,0,8,8"
+                  ToolTip="Ctrl+V" AutomationProperties.AutomationId="PasteButton" AutomationProperties.Name="{DynamicResource Bulk.Paste}" />
+          <Button Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconUpload}" Content="{DynamicResource Bulk.Import}" Click="OnImportClick" Margin="0,0,8,8"
+                  AutomationProperties.AutomationId="ImportButton" AutomationProperties.Name="{DynamicResource Bulk.ImportName}" />
+          <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconSparkle}" Content="{DynamicResource Bulk.Sample}" Click="OnSampleClick" Margin="0,0,4,8"
+                  AutomationProperties.AutomationId="SampleButton" AutomationProperties.Name="{DynamicResource Bulk.Sample}" />
+          <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconTrash}" Content="{DynamicResource Common.Clear}" Click="OnClearClick" Margin="0,0,0,8"
+                  AutomationProperties.AutomationId="ClearRowsButton" AutomationProperties.Name="{DynamicResource Bulk.ClearName}" />
         </WrapPanel>
 
         <Grid Margin="0,6,0,0">
@@ -46,21 +49,21 @@
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
           <StackPanel>
-            <TextBlock Style="{StaticResource LabelText}" Text="العملة أو الوحدة" />
+            <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Common.Unit}" />
             <ui:UnitPicker />
           </StackPanel>
           <StackPanel Grid.Column="2">
-            <TextBlock Style="{StaticResource LabelText}" Text="لغة التفقيط" />
+            <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Common.OutputLanguage}" />
             <ui:LanguagePicker MinHeight="40" />
           </StackPanel>
         </Grid>
-        <Expander Margin="0,10,0,0" AutomationProperties.AutomationId="BulkOptionsExpander" AutomationProperties.Name="خيارات الصياغة">
+        <Expander Margin="0,10,0,0" AutomationProperties.AutomationId="BulkOptionsExpander" AutomationProperties.Name="{DynamicResource Options.Title}">
           <Expander.Header>
             <StackPanel Orientation="Horizontal">
               <ui:Icon Data="{StaticResource IconSettings}" Width="17" Height="17" Foreground="{StaticResource AccentTextBrush}" Margin="0,0,9,0" />
-              <TextBlock Text="خيارات الصياغة" FontWeight="Bold" FontSize="14.5" />
+              <TextBlock Text="{DynamicResource Options.Title}" FontWeight="Bold" FontSize="14.5" />
               <TextBlock Margin="12,0,0,0" FontSize="12.5" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center"
-                         Text="مشتركة مع «تفقيط رقم» واختصار الحافظة" />
+                         Text="{DynamicResource Bulk.OptionsShared}" />
             </StackPanel>
           </Expander.Header>
           <ui:FormattingOptions Margin="0,6,0,4" />
@@ -75,11 +78,11 @@
                 Background="{StaticResource BgSofterBrush}">
           <DockPanel>
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-              <TextBlock Style="{StaticResource HintText}" Text="الكل" />
+              <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Bulk.CountAll}" />
               <TextBlock x:Name="CountAll" Margin="5,0,14,0" FontWeight="Bold" Text="0" AutomationProperties.AutomationId="CountAll" />
-              <TextBlock Style="{StaticResource HintText}" Text="سليم" />
+              <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Bulk.CountOk}" />
               <TextBlock x:Name="CountOk" Margin="5,0,14,0" FontWeight="Bold" Foreground="{StaticResource OkBrush}" Text="0" AutomationProperties.AutomationId="CountOk" />
-              <TextBlock Style="{StaticResource HintText}" Text="أخطاء" />
+              <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Bulk.CountErr}" />
               <TextBlock x:Name="CountErr" Margin="5,0,0,0" FontWeight="Bold" Foreground="{StaticResource DangerBrush}" Text="0" AutomationProperties.AutomationId="CountErr" />
             </StackPanel>
             <TextBlock x:Name="Status" FontSize="13" FontWeight="SemiBold" Foreground="{StaticResource AccentTextBrush}" TextTrimming="CharacterEllipsis"
@@ -88,7 +91,7 @@
         </Border>
         <Grid>
           <DataGrid x:Name="Grid" Margin="8,8,8,0" BorderThickness="0" CanUserDeleteRows="True" Background="Transparent"
-                    AutomationProperties.AutomationId="BulkGrid" AutomationProperties.Name="جدول التفقيط">
+                    AutomationProperties.AutomationId="BulkGrid" AutomationProperties.Name="{DynamicResource Bulk.GridName}" SelectionChanged="OnGridSelectionChanged">
             <DataGrid.Columns>
               <DataGridTextColumn Header="#" Binding="{Binding Index}" IsReadOnly="True" Width="64">
                 <DataGridTextColumn.ElementStyle>
@@ -100,7 +103,7 @@
                   </Style>
                 </DataGridTextColumn.ElementStyle>
               </DataGridTextColumn>
-              <DataGridTextColumn Header="المدخل" Binding="{Binding Input, UpdateSourceTrigger=LostFocus}" Width="150">
+              <DataGridTextColumn x:Name="ColInput" Binding="{Binding Input, UpdateSourceTrigger=LostFocus}" Width="150">
                 <DataGridTextColumn.ElementStyle>
                   <Style TargetType="TextBlock">
                     <Setter Property="FlowDirection" Value="LeftToRight" />
@@ -119,7 +122,7 @@
                   </Style>
                 </DataGridTextColumn.EditingElementStyle>
               </DataGridTextColumn>
-              <DataGridTextColumn Header="بعد التنقية" Binding="{Binding Cleaned}" IsReadOnly="True" Width="140">
+              <DataGridTextColumn x:Name="ColCleaned" Binding="{Binding Cleaned}" IsReadOnly="True" Width="140">
                 <DataGridTextColumn.ElementStyle>
                   <Style TargetType="TextBlock">
                     <Setter Property="FlowDirection" Value="LeftToRight" />
@@ -129,7 +132,7 @@
                   </Style>
                 </DataGridTextColumn.ElementStyle>
               </DataGridTextColumn>
-              <DataGridTextColumn Header="النص" Binding="{Binding Text}" IsReadOnly="True" Width="*" MinWidth="260">
+              <DataGridTextColumn x:Name="ColText" Binding="{Binding Text}" IsReadOnly="True" Width="*" MinWidth="260">
                 <DataGridTextColumn.ElementStyle>
                   <Style TargetType="TextBlock">
                     <Setter Property="FlowDirection" Value="{Binding TextFlow}" />
@@ -139,7 +142,7 @@
                   </Style>
                 </DataGridTextColumn.ElementStyle>
               </DataGridTextColumn>
-              <DataGridTextColumn Header="الخطأ" Binding="{Binding Error}" IsReadOnly="True" Width="230">
+              <DataGridTextColumn x:Name="ColError" Binding="{Binding Error}" IsReadOnly="True" Width="230">
                 <DataGridTextColumn.ElementStyle>
                   <Style TargetType="TextBlock">
                     <Setter Property="Foreground" Value="{StaticResource DangerBrush}" />
@@ -155,11 +158,11 @@
           <!-- Empty state (drop target hint) -->
           <StackPanel x:Name="EmptyState" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False" Margin="0,40,0,0">
             <Border Width="56" Height="56" CornerRadius="28" Background="{StaticResource BrandSoftBrush}" HorizontalAlignment="Center">
-              <ui:Icon Data="{StaticResource IconList}" Width="26" Height="26" Foreground="{StaticResource BrandTextBrush}" />
+              <ui:Icon Data="{StaticResource IconList}" FlowDirection="{DynamicResource UiFlow}" Width="26" Height="26" Foreground="{StaticResource BrandTextBrush}" />
             </Border>
-            <TextBlock Margin="0,14,0,0" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Text="الصق عموداً من Excel هنا" />
+            <TextBlock Margin="0,14,0,0" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Text="{DynamicResource Bulk.EmptyTitle}" />
             <TextBlock Style="{StaticResource HintText}" Margin="0,4,0,0" HorizontalAlignment="Center" TextAlignment="Center" FontSize="13"
-                       Text="اضغط Ctrl+V، أو اسحب ملف CSV أو TXT وأفلته في هذه النافذة." />
+                       Text="{DynamicResource Bulk.EmptyHint}" />
           </StackPanel>
         </Grid>
       </DockPanel>

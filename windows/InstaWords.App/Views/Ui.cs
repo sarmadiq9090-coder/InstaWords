@@ -25,6 +25,15 @@ namespace InstaWords.App.Views
         public static Geometry GetIcon(DependencyObject o) => (Geometry)o.GetValue(IconProperty);
         public static void SetIcon(DependencyObject o, Geometry v) => o.SetValue(IconProperty, v);
 
+        /// <summary>
+        /// The button's icon implies a reading direction (text lines, a list): it mirrors with the
+        /// interface (right-to-left in Arabic). Other icons keep their drawn orientation.
+        /// </summary>
+        public static readonly DependencyProperty MirrorIconProperty = DependencyProperty.RegisterAttached(
+            "MirrorIcon", typeof(bool), typeof(Ui), new PropertyMetadata(false));
+        public static bool GetMirrorIcon(DependencyObject o) => (bool)o.GetValue(MirrorIconProperty);
+        public static void SetMirrorIcon(DependencyObject o, bool v) => o.SetValue(MirrorIconProperty, v);
+
         /// <summary>Error state for inputs: red border and ring.</summary>
         public static readonly DependencyProperty HasErrorProperty = DependencyProperty.RegisterAttached(
             "HasError", typeof(bool), typeof(Ui), new PropertyMetadata(false));
@@ -32,7 +41,10 @@ namespace InstaWords.App.Views
         public static void SetHasError(DependencyObject o, bool v) => o.SetValue(HasErrorProperty, v);
     }
 
-    /// <summary>A 24×24 line icon (stroked geometry) that scales with its size and never mirrors in RTL.</summary>
+    /// <summary>
+    /// A 24×24 line icon (stroked geometry) that scales with its size. It keeps its drawn orientation in
+    /// right-to-left layouts unless its FlowDirection is set (icons that imply a reading direction).
+    /// </summary>
     public sealed class Icon : Control
     {
         static Icon()

@@ -35,6 +35,17 @@ namespace InstaWords.App.Views
             Combo.PreviewKeyDown += OnComboKeyDown;
             Combo.Loaded += (s, e) => AttachSearchBox();
             DataContextChanged += (s, e) => Bind(DataContext as ConversionState);
+            Services.Loc.Changed += OnLanguageChanged;
+            Unloaded += (s, e) => Services.Loc.Changed -= OnLanguageChanged;
+            Loaded += (s, e) => { Services.Loc.Changed -= OnLanguageChanged; Services.Loc.Changed += OnLanguageChanged; };
+        }
+
+        /// <summary>Category headers are regrouped in the new language (unit names update by binding).</summary>
+        private void OnLanguageChanged(object sender, EventArgs e)
+        {
+            if (Combo.IsDropDownOpen) Combo.IsDropDownOpen = false;
+            _view.Refresh();
+            SyncFromState();
         }
 
         public ComboBox ComboBox => Combo;

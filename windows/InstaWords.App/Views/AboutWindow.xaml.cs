@@ -10,14 +10,15 @@ namespace InstaWords.App.Views
         public AboutWindow()
         {
             InitializeComponent();
-            VersionText.Text = "الإصدار " + UpdateService.CurrentVersionText + " · برنامج Windows أصلي (WPF، ‎.NET Framework 4.8)";
+            VersionText.Text = Loc.F("About.Version", UpdateService.CurrentVersionText);
             UpdateStatus.Text = App.Current.Updates.StatusText;
-            AddShortcut(App.Current.CurrentHotkeyText, "تحويل الرقم في الحافظة من أي برنامج");
-            AddShortcut("Ctrl+Enter", "نسخ النتيجة");
-            AddShortcut("Esc", "مسح الرقم");
-            AddShortcut("Ctrl+1 / 2 / 3", "تفقيط رقم · دفعة · الإعدادات");
-            AddShortcut("Ctrl+V", "لصق عمود في «دفعة»");
-            AddShortcut("F1", "هذه النافذة");
+            AddShortcut(App.Current.CurrentHotkeyText, Loc.T("About.KeyHotkey"));
+            AddShortcut("Ctrl+Enter", Loc.T("About.KeyCopy"));
+            AddShortcut("Ctrl+P", Loc.T("About.KeyPrint"));
+            AddShortcut("Esc", Loc.T("About.KeyClear"));
+            AddShortcut("Ctrl+1 / 2 / 3", Loc.T("About.KeyTabs"));
+            AddShortcut("Ctrl+V", Loc.T("About.KeyPaste"));
+            AddShortcut("F1", Loc.T("About.KeyAbout"));
         }
 
         private void AddShortcut(string keys, string what)
@@ -41,7 +42,7 @@ namespace InstaWords.App.Views
 
         private async void OnCheckClick(object sender, RoutedEventArgs e)
         {
-            UpdateStatus.Text = "جارٍ التحقق…";
+            UpdateStatus.Text = Loc.T("Update.Checking");
             await App.Current.Updates.CheckAsync(interactive: true, owner: this);
             UpdateStatus.Text = App.Current.Updates.StatusText;
         }

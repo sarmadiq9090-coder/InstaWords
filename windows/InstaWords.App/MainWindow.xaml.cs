@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using InstaWords.App.Models;
 using InstaWords.App.Services;
@@ -27,6 +28,8 @@ namespace InstaWords.App
             InputBindings.Add(new KeyBinding(new RelayCommand(() => SelectTab(TabBulk)), Key.NumPad2, ModifierKeys.Control));
             InputBindings.Add(new KeyBinding(new RelayCommand(() => SelectTab(TabSettings)), Key.NumPad3, ModifierKeys.Control));
             InputBindings.Add(new KeyBinding(new RelayCommand(ShowAbout), Key.F1, ModifierKeys.None));
+            // Ctrl+P: print the current amount, or the bulk tab's selected rows.
+            InputBindings.Add(new KeyBinding(new RelayCommand(PrintCurrent), Key.P, ModifierKeys.Control));
 
             // Ctrl+V anywhere on the bulk tab (outside a text box) pastes a column.
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Paste,
@@ -38,6 +41,8 @@ namespace InstaWords.App
                 if (WindowState == WindowState.Minimized && App.Current.Settings.MinimizeToTray) HideToTray();
             };
             Loaded += (s, e) => SinglePage.FocusInput();
+            Loc.Changed += OnLanguageChanged;
+            Closed += (s, e) => Loc.Changed -= OnLanguageChanged;
         }
 
         public int CurrentTab => Nav.SelectedIndex;
@@ -95,7 +100,32 @@ namespace InstaWords.App
         public void SetUpdateBadge(string version)
         {
             UpdateBadge.Visibility = string.IsNullOrEmpty(version) ? Visibility.Collapsed : Visibility.Visible;
-            UpdateBadge.Content = "تحديث متاح " + version;
+            _updateVersion = version;
+            if (string.IsNullOrEmpty(version)) UpdateBadge.SetResourceReference(ContentControl.ContentProperty, "Main.UpdateAvailable");
+            else UpdateBadge.Content = Loc.F("Main.UpdateAvailableVersion", version);
+        }
+
+        private string _updateVersion;
+
+        /// <summary>The interface language changed: text set from code follows.</summary>
+        private void OnLanguageChanged(object sender, EventArgs e)
+        {
+            if (!string.IsNullOrEmpty(_updateVersion)) SetUpdateBadge(_updateVersion);
+        }
+
+        /// <summary>Ctrl+P: the print dialog for the current tab (the amount, or the selected bulk rows).</summary>
+        public void PrintCurrent()
+        {
+            if (CurrentTab == TabBulk) BulkPage.PrintRows();
+            else SinglePage.Print();
+        }
+
+        /// <summary>Opens «طباعة» for one or more amounts (one page each).</summary>
+        public void ShowPrint(System.Collections.Generic.IList<string> amounts)
+        {
+            var w = new PrintWindow(amounts) { Owner = IsVisible ? this : null };
+            if (w.Owner == null) w.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            w.ShowDialog();
         }
 
         private void HideToTray()
@@ -106,8 +136,7 @@ namespace InstaWords.App
             {
                 s.TrayHintShown = true;
                 App.Current.SaveSettingsSoon();
-                ToastWindow.ShowMessage(true, "InstaWords ما زال يعمل",
-                    "تجده في شريط المهام بجانب الساعة، والاختصار " + App.Current.CurrentHotkeyText + " يعمل من أي برنامج.");
+                ToastWindow.ShowMessage(true, Loc.T("Tray.StillRunningTitle"), Loc.F("Tray.StillRunningBody", App.Current.CurrentHotkeyText));
             }
         }
 

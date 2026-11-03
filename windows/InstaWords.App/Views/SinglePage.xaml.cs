@@ -41,6 +41,7 @@ namespace InstaWords.App.Views
             _copiedTimer.Tick += (s, e) => { _copiedTimer.Stop(); ResetCopyButton(); };
 
             KeyDown += OnPageKeyDown;
+            Loc.Changed += (s, e) => { Convert(); UpdateOptionsSummary(); };
             SizeChanged += (s, e) => ApplyLayout(e.NewSize.Width);
             Convert();
         }
@@ -92,7 +93,7 @@ namespace InstaWords.App.Views
             }
             else
             {
-                ErrorText.Text = r.ErrorMessage ?? "تعذّر التحويل.";
+                ErrorText.Text = r.ErrorMessage ?? Loc.T("Err.Generic");
                 App.Current.LastErrorCode = r.ErrorCode;
                 ShowState(empty: false, ok: false);
             }
@@ -123,23 +124,23 @@ namespace InstaWords.App.Views
             {
                 _historyTimer.Stop();
                 Remember();
-                CopyButton.Content = "تم النسخ";
+                CopyButton.SetResourceReference(ContentProperty, "Single.Copied");
                 Ui.SetIcon(CopyButton, (Geometry)FindResource("IconCheck"));
                 CopyStatus.Foreground = (Brush)FindResource("OkBrush");
-                CopyStatus.Text = "نُسخ النص إلى الحافظة.";
+                CopyStatus.Text = Loc.T("Single.CopiedStatus");
                 _copiedTimer.Stop();
                 _copiedTimer.Start();
             }
             else
             {
                 CopyStatus.Foreground = (Brush)FindResource("DangerBrush");
-                CopyStatus.Text = "تعذّر النسخ، حدّد النص وانسخه يدوياً.";
+                CopyStatus.Text = Loc.T("Single.CopyFailed");
             }
         }
 
         private void ResetCopyButton()
         {
-            CopyButton.Content = "نسخ";
+            CopyButton.SetResourceReference(ContentProperty, "Single.Copy");
             Ui.SetIcon(CopyButton, (Geometry)FindResource("IconCopy"));
         }
 
@@ -176,6 +177,15 @@ namespace InstaWords.App.Views
         }
 
         private void OnCopyClick(object sender, RoutedEventArgs e) => CopyResult();
+        private void OnPrintClick(object sender, RoutedEventArgs e) => Print();
+
+        /// <summary>«طباعة» (Ctrl+P): the print dialog with the amount typed here (or empty).</summary>
+        public void Print()
+        {
+            _historyTimer.Stop();
+            Remember();
+            App.Current.AppWindow?.ShowPrint(new[] { NumberBox.Text ?? "" });
+        }
         private void OnClearClick(object sender, RoutedEventArgs e) => ClearInput();
 
         private void OnSampleClick(object sender, RoutedEventArgs e)
@@ -197,7 +207,7 @@ namespace InstaWords.App.Views
             var s = App.Current.State;
             var parts = new System.Collections.Generic.List<string>();
             if (s.SupportsHundredsForm) parts.Add(s.HundredsForm);
-            parts.Add(s.Decimals == "error" ? "إظهار خطأ للخانات الزائدة" : "تقريب");
+            parts.Add(Loc.T(s.Decimals == "error" ? "Options.Summary.Error" : "Options.Summary.Round"));
             var affix = (s.Prefix.Trim() + " … " + s.Suffix.Trim()).Trim();
             if (s.Prefix.Trim().Length > 0 || s.Suffix.Trim().Length > 0) parts.Add(affix.Length > 40 ? affix.Substring(0, 40) + "…" : affix);
             OptionsSummary.Text = OptionsExpander.IsExpanded ? "" : string.Join(" · ", parts);

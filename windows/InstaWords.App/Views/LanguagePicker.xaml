@@ -4,7 +4,7 @@
              Focusable="False" IsTabStop="False">
   <!-- Built from the engine's language list (Tafqit.Languages). -->
   <ListBox x:Name="List" Style="{StaticResource SegmentedList}" SelectedItem="{Binding LanguageItem, Mode=TwoWay}"
-           AutomationProperties.AutomationId="LanguagePicker" AutomationProperties.Name="لغة التفقيط">
+           AutomationProperties.AutomationId="LanguagePicker" AutomationProperties.Name="{DynamicResource Common.OutputLanguage}">
     <ListBox.ItemContainerStyle>
       <Style TargetType="ListBoxItem" BasedOn="{StaticResource SegmentItem}">
         <Setter Property="AutomationProperties.Name" Value="{Binding Label}" />

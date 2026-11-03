@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tag": "v2.0.0",
+  "date": "2026-11-03T11:17:02Z",
+  "setup": {
+    "name": "InstaWords_2.0.0_x64-setup.exe",
+    "url": "https://github.com/sarmadiq9090-coder/tafket/releases/download/v2.0.0/InstaWords_2.0.0_x64-setup.exe",
+    "size": 2515272,
+    "sha256": "c93ef0e18cf52b684bdc5e19f52fa261e91067b845d9fc73cc988542698759b7"
+  },
+  "portable": {
+    "name": "InstaWords_2.0.0_x64-portable.zip",
+    "url": "https://github.com/sarmadiq9090-coder/tafket/releases/download/v2.0.0/InstaWords_2.0.0_x64-portable.zip",
+    "size": 591396,
+    "sha256": "82c489cb9cb72576ef17801972c6cffbb0a3426a9e57e3aa22f5dbe191ee4864"
+  }
+}

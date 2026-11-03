@@ -1,0 +1,37 @@
+# Template: scripts/package-manifests.mjs fills ${...} and writes manifests/s/Sarmad/InstaWords/<version>/
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.1.12.0.schema.json
+
+PackageIdentifier: Sarmad.InstaWords
+PackageVersion: ${VERSION}
+PackageLocale: ar-SA
+Publisher: FastKiwi
+PublisherUrl: https://fastkiwi.app/ar/
+PublisherSupportUrl: https://github.com/sarmadiq9090-coder/tafket/issues
+Author: Sarmad
+PackageName: "InstaWords — تفقيط"
+PackageUrl: https://fastkiwi.app/instawords/
+License: MIT
+LicenseUrl: https://github.com/sarmadiq9090-coder/tafket/blob/HEAD/LICENSE
+Copyright: "© FastKiwi · MIT License"
+ShortDescription: "تفقيط المبالغ بالحروف للشيكات والفواتير، بالعربية والإنجليزية والفرنسية."
+Description: |-
+  برنامج Windows أصلي يكتب المبالغ بالحروف للشيكات والفواتير والسندات، بالعربية والإنجليزية والفرنسية، بأكثر من 100 عملة ووحدة مع الهللات والفلوس.
+  تفقيط فوري أثناء الكتابة، بالأرقام العربية (١٢٣) أو الإنجليزية، مع «مائة» أو «مئة» وصيغ جاهزة مثل «فقط ... لا غير».
+  تبويب «دفعة»: الصق عموداً كاملاً من Excel أو استورد CSV، ثم انسخ النتائج أو صدّرها CSV بترميز UTF-8.
+  Ctrl+Alt+T من أي برنامج: يصبح الرقم المنسوخ في الحافظة مبلغاً مكتوباً بالحروف جاهزاً للصق.
+  أيقونة بجانب الساعة، وتشغيل مع Windows اختياري، وتحديثات من داخل البرنامج يُتحقق من بصمتها SHA-256. يعمل كله دون إنترنت ولا يُرسل أي رقم.
+  لا يحتاج تثبيت أي شيء إضافي على Windows 10 و11 ولا صلاحيات المسؤول. مجاني ومفتوح المصدر (MIT).
+Tags:
+- تفقيط
+- المبلغ-بالحروف
+- شيكات
+- فواتير
+- محاسبة
+- عربي
+- tafqit
+- arabic
+- cheque
+- invoice
+ReleaseNotesUrl: https://github.com/sarmadiq9090-coder/tafket/releases/tag/v${VERSION}
+ManifestType: locale
+ManifestVersion: 1.12.0

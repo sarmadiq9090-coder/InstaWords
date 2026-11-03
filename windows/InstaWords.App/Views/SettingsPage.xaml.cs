@@ -20,6 +20,22 @@ namespace InstaWords.App.Views
             DataContext = App.Current.State;
             DataPath.Text = AppPaths.DataDir;
             Refresh();
+            Loc.Changed += (s, e) => Refresh();
+        }
+
+        private void ShowUiLanguage()
+        {
+            var setting = App.Current.Settings.UiLanguage;
+            UiLangAr.IsChecked = setting == Loc.Arabic;
+            UiLangEn.IsChecked = setting == Loc.English;
+            UiLangAuto.IsChecked = setting != Loc.Arabic && setting != Loc.English;
+        }
+
+        private void OnUiLanguageClick(object sender, RoutedEventArgs e)
+        {
+            var setting = (string)((FrameworkElement)sender).Tag;
+            App.Current.SetUiLanguage(setting);
+            Refresh(); // after the hotkey was registered again, so its status is in the new language too
         }
 
         /// <summary>Re-reads the settings (the Run key may have been changed by the installer).</summary>
@@ -37,15 +53,16 @@ namespace InstaWords.App.Views
             SaveHotkeyButton.IsEnabled = false;
             ShowHotkeyStatus();
             UpdateStatus.Text = App.Current.Updates.StatusText;
+            ShowUiLanguage();
         }
 
         private void ShowHotkeyStatus(string error = null)
         {
             var app = App.Current;
             var s = app.Settings;
-            if (error == null && !s.HotkeyEnabled) SetStatus("الاختصار معطّل.", kind: 0);
-            else if (error == null && app.Hotkey.IsRegistered) SetStatus("الاختصار " + app.CurrentHotkeyText + " يعمل من أي برنامج.", kind: 1);
-            else SetStatus(error ?? app.Hotkey.LastError ?? "تعذّر تسجيل الاختصار.", kind: 2);
+            if (error == null && !s.HotkeyEnabled) SetStatus(Loc.T("Settings.HotkeyDisabled"), kind: 0);
+            else if (error == null && app.Hotkey.IsRegistered) SetStatus(Loc.F("Settings.HotkeyWorks", app.CurrentHotkeyText), kind: 1);
+            else SetStatus(error ?? app.Hotkey.LastError ?? Loc.T("Settings.HotkeyFailed"), kind: 2);
         }
 
         /// <summary>kind: 0 neutral, 1 ok, 2 error.</summary>
@@ -65,7 +82,7 @@ namespace InstaWords.App.Views
         {
             // While choosing, the current hotkey must not fire (it would swallow the key press).
             App.Current.Hotkey.Unregister();
-            SetStatus("اضغط الاختصار الجديد الآن، مثل Ctrl+Alt+T أو Ctrl+Shift+W.", kind: 0);
+            SetStatus(Loc.T("Settings.HotkeyPressNow"), kind: 0);
         }
 
         private void OnHotkeyBlur(object sender, KeyboardFocusChangedEventArgs e)
@@ -73,7 +90,7 @@ namespace InstaWords.App.Views
             if (App.Current.IsExiting) return;
             App.Current.ApplyHotkeySettings();
             if (_pending == null) ShowHotkeyStatus();
-            else SetStatus("اضغط «حفظ الاختصار» لاعتماد " + _pending + ".", kind: 0);
+            else SetStatus(Loc.F("Settings.HotkeyPressSave", _pending), kind: 0);
         }
 
         private void OnHotkeyKeyDown(object sender, KeyEventArgs e)
@@ -93,12 +110,12 @@ namespace InstaWords.App.Views
             {
                 _pending = null;
                 SaveHotkeyButton.IsEnabled = false;
-                SetStatus("استعمل Ctrl أو Alt (أو كليهما) مع حرف أو رقم أو مفتاح وظيفي.", kind: 2);
+                SetStatus(Loc.T("Settings.HotkeyInvalid"), kind: 2);
                 return;
             }
             _pending = g;
             SaveHotkeyButton.IsEnabled = true;
-            SetStatus("اضغط «حفظ الاختصار» لاعتماد " + g + ".", kind: 0);
+            SetStatus(Loc.F("Settings.HotkeyPressSave", g), kind: 0);
         }
 
         private void OnSaveHotkeyClick(object sender, RoutedEventArgs e) => SaveHotkey(_pending);
@@ -156,7 +173,7 @@ namespace InstaWords.App.Views
 
         private async void OnCheckUpdateClick(object sender, RoutedEventArgs e)
         {
-            UpdateStatus.Text = "جارٍ التحقق…";
+            UpdateStatus.Text = Loc.T("Update.Checking");
             await App.Current.Updates.CheckAsync(interactive: true, owner: Window.GetWindow(this));
             UpdateStatus.Text = App.Current.Updates.StatusText;
         }
@@ -177,7 +194,7 @@ namespace InstaWords.App.Views
             }
             catch (Exception ex)
             {
-                ToastWindow.ShowMessage(false, "تعذّر فتح المجلد", ex.Message);
+                ToastWindow.ShowMessage(false, Loc.T("Settings.OpenFolderFailed"), ex.Message);
             }
         }
 

@@ -16,15 +16,17 @@ namespace InstaWords.App.Services
             var s = app.State;
             var list = new List<KeyValuePair<string, string>>
             {
-                Pair("إصدار البرنامج", "InstaWords " + UpdateService.CurrentVersionText + (UpdateService.IsInstalled ? " (مثبّت)" : " (نسخة محمولة)")),
+                Pair(Loc.T("Tech.Version"), "InstaWords " + UpdateService.CurrentVersionText + " (" + Loc.T(UpdateService.IsInstalled ? "Tech.Installed" : "Tech.Portable") + ")"),
                 Pair("Windows", WindowsVersion()),
                 Pair(".NET Framework", DotNetRelease()),
-                Pair("لغة الواجهة", CultureInfo.CurrentUICulture.Name + " / " + CultureInfo.CurrentCulture.Name),
-                Pair("دقة العرض", DisplayScale()),
-                Pair("خيارات التحويل", "language=" + s.Language + ", unit=" + s.Unit + ", hundreds=" + s.HundredsForm + ", decimals=" + s.Decimals),
-                Pair("اختصار الحافظة", app.Settings.HotkeyEnabled ? app.CurrentHotkeyText + (app.Hotkey?.IsRegistered == true ? "" : " (غير مسجّل)") : "معطّل"),
+                Pair(Loc.T("Tech.UiLanguage"), Loc.Language + " (" + app.Settings.UiLanguage + ") · Windows " + CultureInfo.CurrentUICulture.Name + " / " + CultureInfo.CurrentCulture.Name),
+                Pair(Loc.T("Tech.Scale"), DisplayScale()),
+                Pair(Loc.T("Tech.Options"), "language=" + s.Language + ", unit=" + s.Unit + ", hundreds=" + s.HundredsForm + ", decimals=" + s.Decimals),
+                Pair(Loc.T("Tech.Hotkey"), app.Settings.HotkeyEnabled
+                    ? app.CurrentHotkeyText + (app.Hotkey?.IsRegistered == true ? "" : " (" + Loc.T("Tech.NotRegistered") + ")")
+                    : Loc.T("Tech.Off")),
             };
-            if (!string.IsNullOrEmpty(app.LastErrorCode)) list.Add(Pair("آخر رمز خطأ", app.LastErrorCode));
+            if (!string.IsNullOrEmpty(app.LastErrorCode)) list.Add(Pair(Loc.T("Tech.LastError"), app.LastErrorCode));
             return list;
         }
 

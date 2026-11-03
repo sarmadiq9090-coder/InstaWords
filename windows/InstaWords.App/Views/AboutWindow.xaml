@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="clr-namespace:InstaWords.App.Views"
         Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner"
-        Title="حول InstaWords" AutomationProperties.AutomationId="AboutWindow"
+        Title="{DynamicResource Main.AboutName}" AutomationProperties.AutomationId="AboutWindow"
         Width="560" SizeToContent="Height" ResizeMode="NoResize">
   <StackPanel Margin="20">
     <ContentControl Style="{StaticResource Card}" Padding="26,24">
@@ -11,34 +11,34 @@
         <StackPanel Orientation="Horizontal">
           <Image Source="{StaticResource LogoImage}" Width="64" Height="64" FlowDirection="LeftToRight" />
           <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
-            <TextBlock FontSize="24" FontWeight="Bold"><Run Text="InstaWords" /><Run Text=" · تفقيط" Foreground="{StaticResource AccentTextBrush}" /></TextBlock>
+            <TextBlock FontSize="24" FontWeight="Bold"><Run Text="InstaWords" /><Run Text="{DynamicResource About.TitleSuffix}" Foreground="{StaticResource AccentTextBrush}" /></TextBlock>
             <TextBlock x:Name="VersionText" Style="{StaticResource HintText}" FontSize="13.5" Margin="0,2,0,0" AutomationProperties.AutomationId="AboutVersion" />
           </StackPanel>
         </StackPanel>
 
         <TextBlock Margin="0,18,0,0" TextWrapping="Wrap" LineHeight="24"
-                   Text="كتابة المبالغ بالحروف للشيكات والفواتير والسندات، بالعربية والإنجليزية والفرنسية، بأكثر من 100 عملة ووحدة. برنامج Windows أصلي يعمل كله دون إنترنت، ولا يغادر أي رقم جهازك." />
+                   Text="{DynamicResource About.Description}" />
 
         <StackPanel Margin="0,16,0,0">
           <TextBlock Margin="0,0,0,6"><Hyperlink NavigateUri="https://fastkiwi.app/instawords/" RequestNavigate="OnLink">fastkiwi.app/instawords</Hyperlink>
-            <Run Text=" · من برامج FastKiwi" Foreground="{StaticResource MutedBrush}" /></TextBlock>
-          <TextBlock Margin="0,0,0,6"><Hyperlink NavigateUri="https://github.com/sarmadiq9090-coder/tafket" RequestNavigate="OnLink">الشيفرة المصدرية على GitHub</Hyperlink></TextBlock>
-          <TextBlock Margin="0,0,0,6"><Run Text="مجاني ومفتوح المصدر بترخيص " /><Hyperlink NavigateUri="https://github.com/sarmadiq9090-coder/tafket/blob/HEAD/LICENSE" RequestNavigate="OnLink">MIT</Hyperlink><Run Text=". الخط: IBM Plex Sans Arabic بترخيص SIL OFL 1.1." /></TextBlock>
+            <Run Text="{DynamicResource About.ByFastKiwi}" Foreground="{StaticResource MutedBrush}" /></TextBlock>
+          <TextBlock Margin="0,0,0,6"><Hyperlink NavigateUri="https://github.com/sarmadiq9090-coder/tafket" RequestNavigate="OnLink"><Run Text="{DynamicResource About.Source}" /></Hyperlink></TextBlock>
+          <TextBlock Margin="0,0,0,6"><Run Text="{DynamicResource About.License1}" /><Hyperlink NavigateUri="https://github.com/sarmadiq9090-coder/tafket/blob/HEAD/LICENSE" RequestNavigate="OnLink">MIT</Hyperlink><Run Text="{DynamicResource About.License2}" /></TextBlock>
         </StackPanel>
 
         <Border Style="{StaticResource Rule}" Margin="0,14" />
         <DockPanel>
-          <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconRefresh}" Content="التحقق من وجود تحديث"
+          <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconRefresh}" Content="{DynamicResource Common.CheckUpdate}"
                   Click="OnCheckClick" AutomationProperties.AutomationId="AboutCheckUpdate" />
           <StackPanel VerticalAlignment="Center">
             <TextBlock x:Name="UpdateStatus" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" AutomationProperties.AutomationId="AboutUpdateStatus" />
             <TextBlock Style="{StaticResource HintText}" FontSize="12" Margin="0,2,0,0"
-                       Text="التحقق من التحديثات يتصل بخوادم GitHub (api.github.com) ولا يرسل سوى طلب الإصدار الأحدث ورقم إصدارك. يمكنك إيقافه من الإعدادات." />
+                       Text="{DynamicResource About.UpdatePrivacy}" />
           </StackPanel>
         </DockPanel>
 
         <Border Style="{StaticResource Rule}" Margin="0,14" />
-        <TextBlock Style="{StaticResource LabelText}" Text="اختصارات لوحة المفاتيح" />
+        <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource About.Shortcuts}" />
         <Grid x:Name="Shortcuts" Margin="0,2,0,0">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -48,9 +48,9 @@
       </StackPanel>
     </ContentControl>
     <DockPanel Margin="0,16,0,0" LastChildFill="False">
-      <Button DockPanel.Dock="Left" Style="{StaticResource PrimaryButton}" Content="إغلاق" IsDefault="True" IsCancel="True" Click="OnCloseClick" MinWidth="110"
+      <Button DockPanel.Dock="Left" Style="{StaticResource PrimaryButton}" Content="{DynamicResource Common.Close}" IsDefault="True" IsCancel="True" Click="OnCloseClick" MinWidth="110"
               AutomationProperties.AutomationId="AboutClose" />
-      <Button DockPanel.Dock="Right" Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconMessage}" Content="الإبلاغ عن مشكلة أو اقتراح"
+      <Button DockPanel.Dock="Right" Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconMessage}" ui:Ui.MirrorIcon="True" Content="{DynamicResource Main.ReportTip}"
               Click="OnReportClick" AutomationProperties.AutomationId="AboutReport" />
     </DockPanel>
   </StackPanel>

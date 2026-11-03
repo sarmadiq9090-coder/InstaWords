@@ -19,7 +19,7 @@
     </Grid.RowDefinitions>
 
     <StackPanel Grid.Column="0" Visibility="{Binding SupportsHundredsForm, Converter={StaticResource Visible}}">
-      <TextBlock Style="{StaticResource LabelText}" Text="رسم المئة" />
+      <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Options.Hundreds}" />
       <Border Style="{StaticResource SegmentShell}" HorizontalAlignment="Stretch">
         <UniformGrid Rows="1">
           <RadioButton Style="{StaticResource SegmentRadio}"
@@ -37,42 +37,42 @@
     </StackPanel>
 
     <StackPanel Grid.Column="2">
-      <TextBlock Style="{StaticResource LabelText}" Text="الخانات العشرية الزائدة" />
+      <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Options.Decimals}" />
       <Border Style="{StaticResource SegmentShell}">
         <UniformGrid Rows="1">
           <RadioButton Style="{StaticResource SegmentRadio}"
                        IsChecked="{Binding Decimals, Converter={StaticResource Eq}, ConverterParameter=round}"
-                       AutomationProperties.AutomationId="DecimalsRound" AutomationProperties.Name="تقريب"
-                       ToolTip="تقريب نصفي للأعلى إلى دقة العملة: 10.125 ريال تصبح 10.13">
-            <TextBlock Text="تقريب" TextTrimming="CharacterEllipsis" />
+                       AutomationProperties.AutomationId="DecimalsRound" AutomationProperties.Name="{DynamicResource Options.Round}"
+                       ToolTip="{DynamicResource Options.RoundTip}">
+            <TextBlock Text="{DynamicResource Options.Round}" TextTrimming="CharacterEllipsis" />
           </RadioButton>
           <RadioButton Style="{StaticResource SegmentRadio}"
                        IsChecked="{Binding Decimals, Converter={StaticResource Eq}, ConverterParameter=error}"
-                       AutomationProperties.AutomationId="DecimalsError" AutomationProperties.Name="إظهار خطأ"
-                       ToolTip="لا تقريب: يظهر خطأ إذا زادت الخانات العشرية على دقة العملة، للتدقيق">
-            <TextBlock Text="إظهار خطأ" TextTrimming="CharacterEllipsis" />
+                       AutomationProperties.AutomationId="DecimalsError" AutomationProperties.Name="{DynamicResource Options.Error}"
+                       ToolTip="{DynamicResource Options.ErrorTip}">
+            <TextBlock Text="{DynamicResource Options.Error}" TextTrimming="CharacterEllipsis" />
           </RadioButton>
         </UniformGrid>
       </Border>
     </StackPanel>
 
     <StackPanel Grid.Row="2" Grid.Column="0">
-      <TextBlock Style="{StaticResource LabelText}" Text="نص قبل المبلغ" />
-      <TextBox Text="{Binding Prefix, UpdateSourceTrigger=PropertyChanged}" FlowDirection="{Binding ResultFlow}" ui:Ui.Placeholder="مثل: فقط"
-               AutomationProperties.AutomationId="PrefixInput" AutomationProperties.Name="نص قبل المبلغ" />
+      <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Options.Prefix}" />
+      <TextBox Text="{Binding Prefix, UpdateSourceTrigger=PropertyChanged}" FlowDirection="{Binding ResultFlow}" ui:Ui.Placeholder="{DynamicResource Options.PrefixPlaceholder}"
+               AutomationProperties.AutomationId="PrefixInput" AutomationProperties.Name="{DynamicResource Options.Prefix}" />
     </StackPanel>
     <StackPanel Grid.Row="2" Grid.Column="2">
-      <TextBlock Style="{StaticResource LabelText}" Text="نص بعد المبلغ" />
-      <TextBox Text="{Binding Suffix, UpdateSourceTrigger=PropertyChanged}" FlowDirection="{Binding ResultFlow}" ui:Ui.Placeholder="مثل: لا غير"
-               AutomationProperties.AutomationId="SuffixInput" AutomationProperties.Name="نص بعد المبلغ" />
+      <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Options.Suffix}" />
+      <TextBox Text="{Binding Suffix, UpdateSourceTrigger=PropertyChanged}" FlowDirection="{Binding ResultFlow}" ui:Ui.Placeholder="{DynamicResource Options.SuffixPlaceholder}"
+               AutomationProperties.AutomationId="SuffixInput" AutomationProperties.Name="{DynamicResource Options.Suffix}" />
     </StackPanel>
 
     <WrapPanel Grid.Row="4" Grid.ColumnSpan="3" VerticalAlignment="Center">
-      <TextBlock Style="{StaticResource HintText}" Text="صيغ جاهزة:" VerticalAlignment="Center" Margin="0,0,8,0" />
+      <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Options.Presets}" VerticalAlignment="Center" Margin="0,0,8,0" />
       <Button Style="{StaticResource ChipButton}" Content="{Binding PresetLabel}" Click="OnPresetClick" Margin="0,0,6,0" MaxWidth="420"
-              AutomationProperties.AutomationId="PresetOnly" AutomationProperties.Name="صيغة جاهزة" />
-      <Button Style="{StaticResource ChipButton}" Content="بلا إضافات" Click="OnNoneClick"
-              AutomationProperties.AutomationId="PresetNone" AutomationProperties.Name="بلا إضافات" />
+              AutomationProperties.AutomationId="PresetOnly" AutomationProperties.Name="{DynamicResource Options.PresetName}" />
+      <Button Style="{StaticResource ChipButton}" Content="{DynamicResource Options.NoAffix}" Click="OnNoneClick"
+              AutomationProperties.AutomationId="PresetNone" AutomationProperties.Name="{DynamicResource Options.NoAffix}" />
     </WrapPanel>
   </Grid>
 </UserControl>

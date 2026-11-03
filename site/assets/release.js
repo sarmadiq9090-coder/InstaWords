@@ -2,7 +2,7 @@
 // and the "report a problem or suggestion" dialog (#support). Shared by every page.
 //
 // Download buttons ([data-windows-download]) always point straight at the installer file: the
-// static href in the HTML is the FALLBACK release below, and once the latest release is known
+// static href in the built HTML is the FALLBACK release below, and once the latest release is known
 // (GitHub API, cached in localStorage for an hour) every button is pointed at its installer.
 // Remote text (release notes) is only ever put into the page as DOM text nodes, never as HTML.
 import { copyText, flash } from "./app.js";
@@ -20,27 +20,20 @@ const SETUP_RE = /^InstaWords_[\d.]+_x64-setup\.exe$/;
 const PORTABLE_RE = /^InstaWords_[\d.]+_x64-portable\.zip$/;
 
 /**
- * Release used without JavaScript, offline, or when GitHub cannot be reached. Keep it in step with
- * the static hrefs of the download buttons in site/*.html (they must name this same file).
+ * Release used without JavaScript, offline, or when GitHub cannot be reached.
+ * Single source: site/release-fallback.json. scripts/build-site.mjs writes that file over the
+ * `null` below and over the static download links of every page (so they name the same file);
+ * scripts/update-release-fallback.mjs refreshes the JSON after each release. Do not edit here.
  */
+const FALLBACK_DATA = /* @release-fallback */ null;
 const FALLBACK = {
   source: "fallback",
-  version: "2.0.0",
-  date: "2026-11-03T11:17:02Z",
+  version: FALLBACK_DATA.version,
+  date: FALLBACK_DATA.date,
   pageUrl: RELEASES_PAGE,
   notes: "",
-  setup: {
-    name: "InstaWords_2.0.0_x64-setup.exe",
-    url: `${DOWNLOAD_PREFIX}v2.0.0/InstaWords_2.0.0_x64-setup.exe`,
-    size: 2515272,
-    sha256: "c93ef0e18cf52b684bdc5e19f52fa261e91067b845d9fc73cc988542698759b7",
-  },
-  portable: {
-    name: "InstaWords_2.0.0_x64-portable.zip",
-    url: `${DOWNLOAD_PREFIX}v2.0.0/InstaWords_2.0.0_x64-portable.zip`,
-    size: 591396,
-    sha256: "82c489cb9cb72576ef17801972c6cffbb0a3426a9e57e3aa22f5dbe191ee4864",
-  },
+  setup: { ...FALLBACK_DATA.setup },
+  portable: FALLBACK_DATA.portable ? { ...FALLBACK_DATA.portable } : null,
 };
 
 /* ---------- Release data ---------- */

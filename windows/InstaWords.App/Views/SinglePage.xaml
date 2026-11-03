@@ -18,28 +18,30 @@
           <DockPanel Margin="0,0,0,16">
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
               <Border Style="{StaticResource KbdText}"><TextBlock Text="Ctrl+Enter" /></Border>
-              <TextBlock Style="{StaticResource HintText}" Text="للنسخ" Margin="2,0,10,0" VerticalAlignment="Center" />
+              <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Single.KbdCopy}" Margin="2,0,10,0" VerticalAlignment="Center" />
+              <Border Style="{StaticResource KbdText}"><TextBlock Text="Ctrl+P" /></Border>
+              <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Single.KbdPrint}" Margin="2,0,10,0" VerticalAlignment="Center" />
               <Border Style="{StaticResource KbdText}"><TextBlock Text="Esc" /></Border>
-              <TextBlock Style="{StaticResource HintText}" Text="للمسح" Margin="2,0,0,0" VerticalAlignment="Center" />
+              <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Single.KbdClear}" Margin="2,0,0,0" VerticalAlignment="Center" />
             </StackPanel>
-            <TextBlock Style="{StaticResource H2Text}" FontSize="18" Text="حوّل مبلغاً" VerticalAlignment="Center" />
+            <TextBlock Style="{StaticResource H2Text}" FontSize="18" Text="{DynamicResource Single.Title}" VerticalAlignment="Center" />
           </DockPanel>
 
           <!-- Number -->
-          <TextBlock Style="{StaticResource LabelText}" Text="المبلغ أو الرقم" />
+          <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Single.NumberLabel}" />
           <Grid FlowDirection="LeftToRight">
             <TextBox x:Name="NumberBox" FontSize="28" FontWeight="SemiBold" MinHeight="62" Padding="14,6,52,6"
                      ui:Ui.Placeholder="0.00" ui:Ui.CornerRadius="12" MaxLength="400"
                      TextChanged="OnNumberChanged" PreviewKeyDown="OnNumberKeyDown"
-                     AutomationProperties.AutomationId="NumberInput" AutomationProperties.Name="المبلغ أو الرقم"
-                     AutomationProperties.HelpText="أرقام عربية أو إنجليزية، مع فواصل الآلاف أو بدونها" />
+                     AutomationProperties.AutomationId="NumberInput" AutomationProperties.Name="{DynamicResource Single.NumberLabel}"
+                     AutomationProperties.HelpText="{DynamicResource Single.NumberHelp}" />
             <Button x:Name="ClearButton" Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconClose}" HorizontalAlignment="Right"
                     VerticalAlignment="Center" Margin="0,0,10,0" Padding="7" MinHeight="0" ui:Ui.CornerRadius="16" Visibility="Collapsed"
-                    Click="OnClearClick" ToolTip="مسح (Esc)" IsTabStop="False"
-                    AutomationProperties.AutomationId="ClearButton" AutomationProperties.Name="مسح الرقم" />
+                    Click="OnClearClick" ToolTip="{DynamicResource Single.ClearTip}" IsTabStop="False"
+                    AutomationProperties.AutomationId="ClearButton" AutomationProperties.Name="{DynamicResource Single.ClearName}" />
           </Grid>
           <TextBlock Style="{StaticResource HintText}" Margin="2,7,0,0"
-                     Text="أرقام عربية (١٢٣) أو إنجليزية (123)، مع فواصل الآلاف أو بدونها، والفاصلة العشرية «.» أو «٫»." />
+                     Text="{DynamicResource Single.NumberHint}" />
 
           <!-- Unit + language -->
           <Grid Margin="0,18,0,0">
@@ -49,11 +51,11 @@
               <ColumnDefinition Width="Auto" MinWidth="260" />
             </Grid.ColumnDefinitions>
             <StackPanel>
-              <TextBlock Style="{StaticResource LabelText}" Text="العملة أو الوحدة" />
+              <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Common.Unit}" />
               <ui:UnitPicker x:Name="Units" />
             </StackPanel>
             <StackPanel Grid.Column="2">
-              <TextBlock Style="{StaticResource LabelText}" Text="لغة التفقيط" />
+              <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Common.OutputLanguage}" />
               <ui:LanguagePicker MinHeight="40" />
             </StackPanel>
           </Grid>
@@ -66,24 +68,24 @@
               <DockPanel>
                 <Border x:Name="CleanedPill" DockPanel.Dock="Right" Style="{StaticResource Pill}" Visibility="Collapsed" VerticalAlignment="Center">
                   <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="الرقم المعتمد" FontSize="12.5" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" />
+                    <TextBlock Text="{DynamicResource Single.Cleaned}" FontSize="12.5" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" />
                     <TextBlock x:Name="CleanedText" Margin="8,0,0,0" FontSize="14" FontWeight="Bold" Foreground="{StaticResource AccentTextBrush}"
                                FlowDirection="LeftToRight" VerticalAlignment="Center"
                                AutomationProperties.AutomationId="CleanedText" />
                   </StackPanel>
                 </Border>
-                <TextBlock Text="المبلغ كتابةً" FontSize="13" FontWeight="Bold" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" />
+                <TextBlock Text="{DynamicResource Single.InWords}" FontSize="13" FontWeight="Bold" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" />
               </DockPanel>
 
               <TextBox x:Name="ResultText" Style="{StaticResource SelectableText}" Margin="0,10,0,0" MinHeight="74"
                        FontSize="23" FontWeight="SemiBold" TextOptions.TextFormattingMode="Ideal"
                        FlowDirection="{Binding ResultFlow}" Visibility="Collapsed"
-                       AutomationProperties.AutomationId="ResultText" AutomationProperties.Name="المبلغ كتابةً" />
+                       AutomationProperties.AutomationId="ResultText" AutomationProperties.Name="{DynamicResource Single.InWords}" />
 
               <StackPanel x:Name="EmptyState" Margin="0,12,0,4">
-                <TextBlock Text="اكتب رقماً لتظهر كتابته هنا." FontSize="17" Foreground="{StaticResource SubtleBrush}" />
+                <TextBlock Text="{DynamicResource Single.Empty}" FontSize="17" Foreground="{StaticResource SubtleBrush}" />
                 <WrapPanel Margin="0,12,0,0">
-                  <TextBlock Style="{StaticResource HintText}" Text="جرّب:" VerticalAlignment="Center" Margin="0,0,8,0" />
+                  <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Single.Try}" VerticalAlignment="Center" Margin="0,0,8,0" />
                   <Button Style="{StaticResource ChipButton}" Content="1250.75" Tag="1250.75" Click="OnSampleClick" Margin="0,0,6,0" />
                   <Button Style="{StaticResource ChipButton}" Content="15,000" Tag="15,000" Click="OnSampleClick" Margin="0,0,6,0" />
                   <Button Style="{StaticResource ChipButton}" Content="٢٠٠" Tag="٢٠٠" Click="OnSampleClick" Margin="0,0,6,0" />
@@ -101,8 +103,11 @@
 
               <DockPanel Margin="0,14,0,0" LastChildFill="True">
                 <Button x:Name="CopyButton" DockPanel.Dock="Left" Style="{StaticResource PrimaryButton}" ui:Ui.Icon="{StaticResource IconCopy}"
-                        Content="نسخ" MinWidth="128" IsEnabled="False" Click="OnCopyClick" ToolTip="نسخ النص (Ctrl+Enter)"
-                        AutomationProperties.AutomationId="CopyButton" AutomationProperties.Name="نسخ" />
+                        Content="{DynamicResource Single.Copy}" MinWidth="128" IsEnabled="False" Click="OnCopyClick" ToolTip="{DynamicResource Single.CopyTip}"
+                        AutomationProperties.AutomationId="CopyButton" AutomationProperties.Name="{DynamicResource Single.Copy}" />
+                <Button x:Name="PrintButton" DockPanel.Dock="Left" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconPrint}" Margin="8,0,0,0"
+                        Content="{DynamicResource Single.Print}" MinWidth="110" Click="OnPrintClick" ToolTip="{DynamicResource Single.PrintTip}"
+                        AutomationProperties.AutomationId="PrintButton" AutomationProperties.Name="{DynamicResource Single.Print}" />
                 <TextBlock x:Name="CopyStatus" Margin="14,0,0,0" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
                            Foreground="{StaticResource OkBrush}" AutomationProperties.AutomationId="CopyStatus" AutomationProperties.LiveSetting="Polite" />
               </DockPanel>
@@ -112,11 +117,11 @@
           <!-- Options -->
           <Border Style="{StaticResource Rule}" Margin="0,20,0,4" />
           <Expander x:Name="OptionsExpander" Expanded="OnOptionsToggled" Collapsed="OnOptionsToggled"
-                    AutomationProperties.AutomationId="OptionsExpander" AutomationProperties.Name="خيارات الصياغة">
+                    AutomationProperties.AutomationId="OptionsExpander" AutomationProperties.Name="{DynamicResource Options.Title}">
             <Expander.Header>
               <StackPanel Orientation="Horizontal">
                 <ui:Icon Data="{StaticResource IconSettings}" Width="17" Height="17" Foreground="{StaticResource AccentTextBrush}" Margin="0,0,9,0" />
-                <TextBlock Text="خيارات الصياغة" FontWeight="Bold" FontSize="15" />
+                <TextBlock Text="{DynamicResource Options.Title}" FontWeight="Bold" FontSize="15" />
                 <TextBlock x:Name="OptionsSummary" Margin="12,0,0,0" FontSize="12.5" Foreground="{StaticResource MutedBrush}" VerticalAlignment="Center" />
               </StackPanel>
             </Expander.Header>
@@ -130,24 +135,24 @@
     <ContentControl x:Name="HistoryCard" Grid.Column="2" Style="{StaticResource Card}" Padding="16,16,10,12" VerticalAlignment="Stretch">
       <DockPanel>
         <DockPanel DockPanel.Dock="Top" Margin="4,0,4,10">
-          <Button DockPanel.Dock="Right" Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconTrash}" Content="مسح" FontSize="12.5"
-                  Click="OnClearHistoryClick" ToolTip="مسح السجل" AutomationProperties.AutomationId="ClearHistory" AutomationProperties.Name="مسح السجل"
+          <Button DockPanel.Dock="Right" Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconTrash}" Content="{DynamicResource Common.Clear}" FontSize="12.5"
+                  Click="OnClearHistoryClick" ToolTip="{DynamicResource History.ClearName}" AutomationProperties.AutomationId="ClearHistory" AutomationProperties.Name="{DynamicResource History.ClearName}"
                   IsEnabled="{Binding HasItems, ElementName=HistoryList}" />
           <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
             <ui:Icon Data="{StaticResource IconHistory}" Width="18" Height="18" Foreground="{StaticResource AccentTextBrush}" Margin="0,0,8,0" />
-            <TextBlock Style="{StaticResource H2Text}" Text="السجل" />
+            <TextBlock Style="{StaticResource H2Text}" Text="{DynamicResource History.Title}" />
           </StackPanel>
         </DockPanel>
         <Grid>
           <TextBlock x:Name="HistoryEmpty" Style="{StaticResource HintText}" Margin="4,6,4,0" FontSize="13"
-                     Text="تظهر هنا التحويلات التي تنسخها أو تتوقف عندها، وتلك التي تحوّلها بالاختصار. انقر أيّاً منها لإعادة استخدامه." />
+                     Text="{DynamicResource History.Empty}" />
           <ListBox x:Name="HistoryList" Style="{StaticResource PlainList}" Padding="0,0,6,0"
-                   AutomationProperties.AutomationId="HistoryList" AutomationProperties.Name="السجل"
+                   AutomationProperties.AutomationId="HistoryList" AutomationProperties.Name="{DynamicResource History.Title}"
                    PreviewMouseLeftButtonUp="OnHistoryClick" KeyDown="OnHistoryKeyDown">
             <ListBox.ItemContainerStyle>
               <Style TargetType="ListBoxItem" BasedOn="{StaticResource HistoryItem}">
                 <Setter Property="AutomationProperties.Name" Value="{Binding Text}" />
-                <Setter Property="ToolTip" Value="انقر لإعادة الاستخدام" />
+                <Setter Property="ToolTip" Value="{DynamicResource History.ItemTip}" />
               </Style>
             </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>

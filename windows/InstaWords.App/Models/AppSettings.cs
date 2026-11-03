@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using InstaWords.App.Services;
 
 namespace InstaWords.App.Models
 {
@@ -36,6 +37,8 @@ namespace InstaWords.App.Models
             SkippedVersion = null;
             WindowLeft = null;
             WindowTop = null;
+            UiLanguage = null;
+            Print = new PrintSettings();
         }
 
         [DataMember(Name = "schema", Order = 0)] public int Schema { get; set; }
@@ -69,6 +72,12 @@ namespace InstaWords.App.Models
         [DataMember(Name = "windowWidth", Order = 23)] public double WindowWidth { get; set; }
         [DataMember(Name = "windowHeight", Order = 24)] public double WindowHeight { get; set; }
         [DataMember(Name = "windowMaximized", Order = 25)] public bool WindowMaximized { get; set; }
+
+        /// <summary>«لغة الواجهة»: "ar", "en" or "auto" (Windows display language). Null until the first run sets it.</summary>
+        [DataMember(Name = "uiLanguage", Order = 30)] public string UiLanguage { get; set; }
+
+        /// <summary>«طباعة»: last template, cheque profiles (paper and calibration), voucher header.</summary>
+        [DataMember(Name = "print", Order = 31)] public PrintSettings Print { get; set; }
     }
 
     /// <summary>One remembered conversion (history.json).</summary>

@@ -114,6 +114,9 @@
       <Trigger Property="ui:Ui.Icon" Value="{x:Null}">
         <Setter TargetName="Ico" Property="Visibility" Value="Collapsed" />
       </Trigger>
+      <Trigger Property="ui:Ui.MirrorIcon" Value="True">
+        <Setter TargetName="Ico" Property="FlowDirection" Value="{DynamicResource UiFlow}" />
+      </Trigger>
       <Trigger Property="Content" Value="{x:Null}">
         <Setter TargetName="Ico" Property="Margin" Value="0" />
       </Trigger>
@@ -510,14 +513,14 @@
                     <Border DockPanel.Dock="Top" Padding="8,8,8,6" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
                       <Grid>
                         <TextBox x:Name="SearchBox" Padding="34,6,10,6" MinHeight="36" FontSize="14"
-                                 ui:Ui.Placeholder="ابحث: ريال، دولار، USD، kg…"
-                                 AutomationProperties.AutomationId="UnitSearch" AutomationProperties.Name="بحث في الوحدات" />
+                                 ui:Ui.Placeholder="{DynamicResource Unit.SearchPlaceholder}"
+                                 AutomationProperties.AutomationId="UnitSearch" AutomationProperties.Name="{DynamicResource Unit.SearchName}" />
                         <ui:Icon Data="{StaticResource IconSearch}" Width="16" Height="16" Foreground="{StaticResource MutedBrush}"
                                  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" IsHitTestVisible="False"
                                  FlowDirection="LeftToRight" />
                       </Grid>
                     </Border>
-                    <TextBlock x:Name="NoMatch" DockPanel.Dock="Top" Text="لا توجد وحدة بهذا الاسم." Margin="16,12" Foreground="{StaticResource MutedBrush}"
+                    <TextBlock x:Name="NoMatch" DockPanel.Dock="Top" Text="{DynamicResource Unit.NoMatch}" Margin="16,12" Foreground="{StaticResource MutedBrush}"
                                Visibility="Collapsed" />
                     <ScrollViewer x:Name="ItemsScroller" MaxHeight="{TemplateBinding MaxDropDownHeight}" CanContentScroll="False" Padding="0,4">
                       <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained" />
@@ -949,7 +952,7 @@
 
   <!-- Dialog windows: standard Windows frame, FastKiwi content. -->
   <Style x:Key="DialogWindow" TargetType="Window">
-    <Setter Property="FlowDirection" Value="RightToLeft" />
+    <Setter Property="FlowDirection" Value="{DynamicResource UiFlow}" />
     <Setter Property="FontFamily" Value="{StaticResource AppFont}" />
     <Setter Property="FontSize" Value="14" />
     <Setter Property="Foreground" Value="{StaticResource TextBrush}" />

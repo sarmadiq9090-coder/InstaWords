@@ -150,17 +150,17 @@ namespace InstaWords.App.Services
         public static bool VerifyDownload(string path, GitHubAsset asset, out string error)
         {
             error = null;
-            if (asset == null) { error = "بيانات الملف غير متاحة."; return false; }
+            if (asset == null) { error = Loc.T("Update.NoAssetInfo"); return false; }
             if (!TryParseSha256Digest(asset.Digest, out var expected))
             {
-                error = "لم ينشر GitHub بصمة SHA-256 لهذا الملف، فلا يمكن التحقق من سلامته. نزّله يدوياً من صفحة الإصدار.";
+                error = Loc.T("Update.NoDigest");
                 return false;
             }
             var info = new FileInfo(path);
-            if (!info.Exists) { error = "لم يُعثر على الملف المنزّل."; return false; }
+            if (!info.Exists) { error = Loc.T("Update.FileMissing"); return false; }
             if (asset.Size > 0 && info.Length != asset.Size)
             {
-                error = "حجم الملف المنزّل لا يطابق الحجم المنشور، فلن يُشغَّل. حاول مرة أخرى.";
+                error = Loc.T("Update.SizeMismatch");
                 return false;
             }
             byte[] actual;
@@ -169,7 +169,7 @@ namespace InstaWords.App.Services
                 actual = sha.ComputeHash(fs);
             if (!actual.SequenceEqual(expected))
             {
-                error = "بصمة الملف المنزّل (SHA-256) لا تطابق البصمة المنشورة، فلن يُشغَّل. حاول مرة أخرى أو نزّله يدوياً.";
+                error = Loc.T("Update.DigestMismatch");
                 return false;
             }
             return true;

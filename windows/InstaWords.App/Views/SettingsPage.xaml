@@ -6,12 +6,36 @@
   <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False">
     <StackPanel Margin="24,20,24,24" MaxWidth="900" HorizontalAlignment="Stretch">
 
+      <!-- Interface language («لغة الواجهة»): independent of the tafqit output language. -->
+      <ContentControl Style="{StaticResource Card}" Margin="0,0,0,16">
+        <StackPanel>
+          <DockPanel>
+            <Border DockPanel.Dock="Right" Style="{StaticResource SegmentShell}" VerticalAlignment="Center" AutomationProperties.AutomationId="UiLanguagePicker">
+              <UniformGrid Rows="1">
+                <RadioButton x:Name="UiLangAr" Style="{StaticResource SegmentRadio}" Content="العربية" MinWidth="96" Click="OnUiLanguageClick" Tag="ar"
+                             AutomationProperties.AutomationId="UiLangAr" AutomationProperties.Name="العربية" />
+                <RadioButton x:Name="UiLangEn" Style="{StaticResource SegmentRadio}" Content="English" MinWidth="96" Click="OnUiLanguageClick" Tag="en"
+                             AutomationProperties.AutomationId="UiLangEn" AutomationProperties.Name="English" />
+                <RadioButton x:Name="UiLangAuto" Style="{StaticResource SegmentRadio}" Content="{DynamicResource Settings.UiLangAuto}" MinWidth="96" Click="OnUiLanguageClick" Tag="auto"
+                             AutomationProperties.AutomationId="UiLangAuto" AutomationProperties.Name="{DynamicResource Settings.UiLangAuto}" />
+              </UniformGrid>
+            </Border>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+              <ui:Icon Data="{StaticResource IconGlobe}" Width="20" Height="20" Foreground="{StaticResource AccentTextBrush}" Margin="0,0,9,0" />
+              <TextBlock Style="{StaticResource H2Text}" Text="{DynamicResource Settings.UiLanguage}" VerticalAlignment="Center"
+                         AutomationProperties.AutomationId="UiLanguageTitle" />
+            </StackPanel>
+          </DockPanel>
+          <TextBlock x:Name="UiLanguageHint" Style="{StaticResource HintText}" Margin="0,8,0,0" FontSize="13" Text="{DynamicResource Settings.UiLanguageHint}" />
+        </StackPanel>
+      </ContentControl>
+
       <!-- Conversion defaults -->
       <ContentControl Style="{StaticResource Card}">
         <StackPanel>
-          <TextBlock Style="{StaticResource H2Text}" Text="خيارات التحويل الافتراضية" />
+          <TextBlock Style="{StaticResource H2Text}" Text="{DynamicResource Settings.Defaults}" />
           <TextBlock Style="{StaticResource HintText}" Margin="0,3,0,16"
-                     Text="تُستعمل في «تفقيط رقم» و«دفعة» واختصار الحافظة، وتُحفظ تلقائياً عند تغييرها." />
+                     Text="{DynamicResource Settings.DefaultsHint}" />
           <Grid>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*" />
@@ -19,11 +43,11 @@
               <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <StackPanel>
-              <TextBlock Style="{StaticResource LabelText}" Text="لغة التفقيط" />
+              <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Common.OutputLanguage}" />
               <ui:LanguagePicker MinHeight="40" />
             </StackPanel>
             <StackPanel Grid.Column="2">
-              <TextBlock Style="{StaticResource LabelText}" Text="العملة أو الوحدة" />
+              <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Common.Unit}" />
               <ui:UnitPicker />
             </StackPanel>
           </Grid>
@@ -35,27 +59,27 @@
       <ContentControl Style="{StaticResource Card}" Margin="0,16,0,0">
         <StackPanel>
           <DockPanel>
-            <CheckBox x:Name="HotkeyEnabled" DockPanel.Dock="Right" VerticalAlignment="Center" Content="مفعّل" Click="OnHotkeyEnabledClick"
-                      AutomationProperties.AutomationId="HotkeyEnabled" AutomationProperties.Name="تفعيل اختصار الحافظة" />
+            <CheckBox x:Name="HotkeyEnabled" DockPanel.Dock="Right" VerticalAlignment="Center" Content="{DynamicResource Settings.HotkeyOn}" Click="OnHotkeyEnabledClick"
+                      AutomationProperties.AutomationId="HotkeyEnabled" AutomationProperties.Name="{DynamicResource Settings.HotkeyOnName}" />
             <StackPanel Orientation="Horizontal">
               <ui:Icon Data="{StaticResource IconKeyboard}" Width="20" Height="20" Foreground="{StaticResource AccentTextBrush}" Margin="0,0,9,0" />
-              <TextBlock Style="{StaticResource H2Text}" Text="اختصار الحافظة" VerticalAlignment="Center" />
+              <TextBlock Style="{StaticResource H2Text}" Text="{DynamicResource Settings.Hotkey}" VerticalAlignment="Center" />
             </StackPanel>
           </DockPanel>
           <TextBlock Style="{StaticResource HintText}" Margin="0,6,0,14" FontSize="13"
-                     Text="انسخ رقماً من أي برنامج (Excel أو المتصفح أو برنامج المحاسبة)، ثم اضغط الاختصار: يصبح ما في الحافظة المبلغَ مكتوباً بالحروف، فالصقه حيث تشاء. يعمل والنافذة مغلقة ما دام InstaWords في شريط المهام." />
+                     Text="{DynamicResource Settings.HotkeyHint}" />
           <WrapPanel>
             <TextBox x:Name="HotkeyBox" Width="220" FontSize="16" FontWeight="SemiBold" IsReadOnly="True" IsReadOnlyCaretVisible="False"
                      HorizontalContentAlignment="Center" TextAlignment="Center" FlowDirection="LeftToRight" Margin="0,0,10,8" Cursor="Hand"
-                     ui:Ui.Placeholder="اضغط الاختصار الجديد…" ToolTip="انقر هنا ثم اضغط الاختصار الذي تريده، مثل Ctrl+Alt+T"
+                     ui:Ui.Placeholder="{DynamicResource Settings.HotkeyPlaceholder}" ToolTip="{DynamicResource Settings.HotkeyBoxTip}"
                      PreviewKeyDown="OnHotkeyKeyDown" GotKeyboardFocus="OnHotkeyFocus" LostKeyboardFocus="OnHotkeyBlur"
-                     AutomationProperties.AutomationId="HotkeyBox" AutomationProperties.Name="الاختصار" />
-            <Button x:Name="SaveHotkeyButton" Style="{StaticResource PrimaryButton}" Content="حفظ الاختصار" Click="OnSaveHotkeyClick" Margin="0,0,8,8"
-                    IsEnabled="False" AutomationProperties.AutomationId="SaveHotkey" AutomationProperties.Name="حفظ الاختصار" />
-            <Button Style="{StaticResource GhostButton}" Content="الافتراضي (Ctrl+Alt+T)" Click="OnDefaultHotkeyClick" Margin="0,0,8,8"
-                    AutomationProperties.AutomationId="DefaultHotkey" AutomationProperties.Name="الاختصار الافتراضي" />
-            <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconPaste}" Content="جرّب الآن على الحافظة" Click="OnTryClick" Margin="0,0,0,8"
-                    AutomationProperties.AutomationId="TryHotkey" AutomationProperties.Name="تحويل الحافظة الآن" />
+                     AutomationProperties.AutomationId="HotkeyBox" AutomationProperties.Name="{DynamicResource Settings.HotkeyBoxName}" />
+            <Button x:Name="SaveHotkeyButton" Style="{StaticResource PrimaryButton}" Content="{DynamicResource Settings.SaveHotkey}" Click="OnSaveHotkeyClick" Margin="0,0,8,8"
+                    IsEnabled="False" AutomationProperties.AutomationId="SaveHotkey" AutomationProperties.Name="{DynamicResource Settings.SaveHotkey}" />
+            <Button Style="{StaticResource GhostButton}" Content="{DynamicResource Settings.DefaultHotkey}" Click="OnDefaultHotkeyClick" Margin="0,0,8,8"
+                    AutomationProperties.AutomationId="DefaultHotkey" AutomationProperties.Name="{DynamicResource Settings.DefaultHotkeyName}" />
+            <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconPaste}" ui:Ui.MirrorIcon="True" Content="{DynamicResource Settings.TryHotkey}" Click="OnTryClick" Margin="0,0,0,8"
+                    AutomationProperties.AutomationId="TryHotkey" AutomationProperties.Name="{DynamicResource Settings.TryHotkeyName}" />
           </WrapPanel>
           <Border x:Name="HotkeyStatusBox" CornerRadius="10" Padding="12,8" Margin="0,4,0,0" Background="{StaticResource BrandSofterBrush}">
             <DockPanel>
@@ -64,7 +88,7 @@
                          AutomationProperties.AutomationId="HotkeyStatus" AutomationProperties.LiveSetting="Polite" />
             </DockPanel>
           </Border>
-          <CheckBox x:Name="ShowToast" Margin="0,16,0,0" Content="إظهار إشعار صغير بالنتيجة بعد التحويل" Click="OnShowToastClick"
+          <CheckBox x:Name="ShowToast" Margin="0,16,0,0" Content="{DynamicResource Settings.ShowToast}" Click="OnShowToastClick"
                     AutomationProperties.AutomationId="ShowToast" />
         </StackPanel>
       </ContentControl>
@@ -72,46 +96,58 @@
       <!-- Startup and window -->
       <ContentControl Style="{StaticResource Card}" Margin="0,16,0,0">
         <StackPanel>
-          <TextBlock Style="{StaticResource H2Text}" Text="التشغيل والنافذة" Margin="0,0,0,14" />
+          <TextBlock Style="{StaticResource H2Text}" Text="{DynamicResource Settings.Startup}" Margin="0,0,0,14" />
           <CheckBox x:Name="StartWithWindows" Click="OnStartWithWindowsClick" AutomationProperties.AutomationId="StartWithWindows">
             <StackPanel>
-              <TextBlock Text="تشغيل مع Windows" />
-              <TextBlock Style="{StaticResource HintText}" Text="يبدأ في شريط المهام دون فتح النافذة، ليعمل الاختصار من أول لحظة." />
+              <TextBlock Text="{DynamicResource Settings.StartWithWindows}" />
+              <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Settings.StartWithWindowsHint}" />
             </StackPanel>
           </CheckBox>
           <CheckBox x:Name="CloseToTray" Margin="0,14,0,0" Click="OnTrayClick" AutomationProperties.AutomationId="CloseToTray">
             <StackPanel>
-              <TextBlock Text="زر الإغلاق يُبقي البرنامج في شريط المهام" />
-              <TextBlock Style="{StaticResource HintText}" Text="للخروج نهائياً: انقر أيقونته بجانب الساعة بالزر الأيمن ثم «خروج»." />
+              <TextBlock Text="{DynamicResource Settings.CloseToTray}" />
+              <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Settings.CloseToTrayHint}" />
             </StackPanel>
           </CheckBox>
-          <CheckBox x:Name="MinimizeToTray" Margin="0,14,0,0" Content="التصغير إلى شريط المهام بدل شريط البرامج" Click="OnTrayClick"
+          <CheckBox x:Name="MinimizeToTray" Margin="0,14,0,0" Content="{DynamicResource Settings.MinimizeToTray}" Click="OnTrayClick"
                     AutomationProperties.AutomationId="MinimizeToTray" />
           <CheckBox x:Name="AutoUpdate" Margin="0,14,0,0" Click="OnAutoUpdateClick" AutomationProperties.AutomationId="AutoUpdate">
             <StackPanel>
-              <TextBlock Text="التحقق من التحديثات تلقائياً" />
-              <TextBlock Style="{StaticResource HintText}" Text="مرة يومياً على الأكثر، من صفحة الإصدارات في GitHub. لا يُرسل أي رقم أو بيانات." />
+              <TextBlock Text="{DynamicResource Settings.AutoUpdate}" />
+              <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Settings.AutoUpdateHint}" />
             </StackPanel>
           </CheckBox>
           <WrapPanel Margin="0,14,0,0">
-            <Button Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconRefresh}" Content="التحقق من وجود تحديث" Click="OnCheckUpdateClick"
-                    Margin="0,0,10,0" AutomationProperties.AutomationId="CheckUpdate" AutomationProperties.Name="التحقق من وجود تحديث" />
+            <Button Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconRefresh}" Content="{DynamicResource Common.CheckUpdate}" Click="OnCheckUpdateClick"
+                    Margin="0,0,10,0" AutomationProperties.AutomationId="CheckUpdate" AutomationProperties.Name="{DynamicResource Common.CheckUpdate}" />
             <TextBlock x:Name="UpdateStatus" Style="{StaticResource HintText}" VerticalAlignment="Center" AutomationProperties.AutomationId="UpdateStatus" />
           </WrapPanel>
+        </StackPanel>
+      </ContentControl>
+
+      <!-- Printing: voucher header (company name and logo) -->
+      <ContentControl Style="{StaticResource Card}" Margin="0,16,0,0">
+        <StackPanel>
+          <StackPanel Orientation="Horizontal">
+            <ui:Icon Data="{StaticResource IconPrint}" Width="20" Height="20" Foreground="{StaticResource AccentTextBrush}" Margin="0,0,9,0" />
+            <TextBlock Style="{StaticResource H2Text}" Text="{DynamicResource Settings.Printing}" VerticalAlignment="Center" />
+          </StackPanel>
+          <TextBlock Style="{StaticResource HintText}" Margin="0,6,0,14" FontSize="13" Text="{DynamicResource Settings.PrintingHint}" />
+          <ui:VoucherHeaderEditor />
         </StackPanel>
       </ContentControl>
 
       <!-- Data -->
       <ContentControl Style="{StaticResource Card}" Margin="0,16,0,0">
         <StackPanel>
-          <TextBlock Style="{StaticResource H2Text}" Text="البيانات" Margin="0,0,0,8" />
+          <TextBlock Style="{StaticResource H2Text}" Text="{DynamicResource Settings.Data}" Margin="0,0,0,8" />
           <TextBlock Style="{StaticResource HintText}" FontSize="13"
-                     Text="الإعدادات والسجل محفوظة على جهازك فقط، في ملفين JSON. لا يتصل البرنامج بالإنترنت إلا للتحقق من التحديثات إن سمحت بذلك." />
+                     Text="{DynamicResource Settings.DataHint}" />
           <TextBlock x:Name="DataPath" Margin="0,8,0,10" FontFamily="{StaticResource MonoFont}" FontSize="12.5" FlowDirection="LeftToRight"
                      HorizontalAlignment="Left" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" />
           <WrapPanel>
-            <Button Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconFile}" Content="فتح المجلد" Click="OnOpenFolderClick" Margin="0,0,8,0" />
-            <Button Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconTrash}" Content="مسح السجل" Click="OnClearHistoryClick" />
+            <Button Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconFile}" ui:Ui.MirrorIcon="True" Content="{DynamicResource Settings.OpenFolder}" Click="OnOpenFolderClick" Margin="0,0,8,0" />
+            <Button Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconTrash}" Content="{DynamicResource History.ClearName}" Click="OnClearHistoryClick" />
           </WrapPanel>
         </StackPanel>
       </ContentControl>

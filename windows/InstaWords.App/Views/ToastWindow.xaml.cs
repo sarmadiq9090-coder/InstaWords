@@ -60,12 +60,12 @@ namespace InstaWords.App.Views
         {
             TitleText.Text = title ?? "";
             BodyText.Text = body ?? "";
-            BodyText.FlowDirection = bodyFlow ?? FlowDirection.RightToLeft;
+            BodyText.FlowDirection = bodyFlow ?? UiLanguage.Flow;
             BodyText.TextAlignment = TextAlignment.Left; // start of the paragraph in its own direction
             BodyText.Visibility = string.IsNullOrEmpty(body) ? Visibility.Collapsed : Visibility.Visible;
             AutomationPropertiesHelper(ok);
             var hotkey = App.Current?.CurrentHotkeyText;
-            HintText.Text = ok ? "الصقه حيث تشاء (Ctrl+V) · InstaWords" : "InstaWords · " + (hotkey ?? "");
+            HintText.Text = ok ? Loc.T("Toast.PasteHint") : "InstaWords · " + (hotkey ?? "");
 
             if (ok)
             {
@@ -91,7 +91,7 @@ namespace InstaWords.App.Views
         }
 
         private void AutomationPropertiesHelper(bool ok) =>
-            System.Windows.Automation.AutomationProperties.SetName(this, (ok ? "نجاح: " : "خطأ: ") + TitleText.Text);
+            System.Windows.Automation.AutomationProperties.SetName(this, Loc.F(ok ? "Toast.OkName" : "Toast.ErrorName", TitleText.Text));
 
         private void PlaceInCorner()
         {

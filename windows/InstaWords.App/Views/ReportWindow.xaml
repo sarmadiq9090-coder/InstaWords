@@ -3,15 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:ui="clr-namespace:InstaWords.App.Views"
         Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner"
-        Title="الإبلاغ عن مشكلة أو اقتراح" AutomationProperties.AutomationId="ReportWindow"
+        Title="{DynamicResource Main.ReportTip}" AutomationProperties.AutomationId="ReportWindow"
         Width="760" Height="720" MinWidth="620" MinHeight="560">
   <DockPanel Margin="20">
     <DockPanel DockPanel.Dock="Bottom" Margin="0,14,0,0" LastChildFill="False">
-      <Button DockPanel.Dock="Left" Style="{StaticResource PrimaryButton}" ui:Ui.Icon="{StaticResource IconExternal}" Content="فتح في GitHub"
+      <Button DockPanel.Dock="Left" Style="{StaticResource PrimaryButton}" ui:Ui.Icon="{StaticResource IconExternal}" Content="{DynamicResource Report.OpenGitHub}"
               Click="OnOpenGitHubClick" AutomationProperties.AutomationId="ReportOpenGitHub" />
-      <Button DockPanel.Dock="Left" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconCopy}" Content="نسخ التقرير" Margin="8,0,0,0"
+      <Button DockPanel.Dock="Left" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconCopy}" Content="{DynamicResource Report.Copy}" Margin="8,0,0,0"
               Click="OnCopyClick" AutomationProperties.AutomationId="ReportCopy" />
-      <Button DockPanel.Dock="Right" Style="{StaticResource QuietButton}" Content="إغلاق" IsCancel="True" Click="OnCloseClick"
+      <Button DockPanel.Dock="Right" Style="{StaticResource QuietButton}" Content="{DynamicResource Common.Close}" IsCancel="True" Click="OnCloseClick"
               AutomationProperties.AutomationId="ReportClose" />
       <TextBlock x:Name="Status" DockPanel.Dock="Left" Margin="14,0,0,0" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
                  Foreground="{StaticResource OkBrush}" TextWrapping="Wrap" MaxWidth="300" AutomationProperties.AutomationId="ReportStatus" />
@@ -20,9 +20,9 @@
     <ContentControl Style="{StaticResource Card}">
       <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False" Margin="0,0,-8,0" Padding="0,0,8,0">
         <StackPanel>
-          <TextBlock Style="{StaticResource TitleText}" Text="الإبلاغ عن مشكلة أو اقتراح" />
+          <TextBlock Style="{StaticResource TitleText}" Text="{DynamicResource Main.ReportTip}" />
           <TextBlock Style="{StaticResource HintText}" Margin="0,4,0,16" FontSize="13"
-                     Text="لا يُرسَل شيء تلقائياً: «فتح في GitHub» يفتح صفحة بلاغ جديد معبّأة في متصفحك لتراجعها وترسلها بنفسك، و«نسخ التقرير» ينسخ النص لتلصقه في بريد أو رسالة إن لم يكن لديك حساب GitHub." />
+                     Text="{DynamicResource Report.Hint}" />
 
           <Grid>
             <Grid.ColumnDefinitions>
@@ -31,45 +31,45 @@
               <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <StackPanel>
-              <TextBlock Style="{StaticResource LabelText}" Text="النوع" />
+              <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Report.Type}" />
               <Border Style="{StaticResource SegmentShell}">
                 <UniformGrid Rows="1">
-                  <RadioButton x:Name="TypeBug" Style="{StaticResource SegmentRadio}" Content="مشكلة" IsChecked="True" Checked="OnChanged" MinWidth="90"
+                  <RadioButton x:Name="TypeBug" Style="{StaticResource SegmentRadio}" Content="{DynamicResource Report.Bug}" IsChecked="True" Checked="OnChanged" MinWidth="90"
                                AutomationProperties.AutomationId="ReportTypeBug" />
-                  <RadioButton x:Name="TypeIdea" Style="{StaticResource SegmentRadio}" Content="اقتراح" Checked="OnChanged" MinWidth="90"
+                  <RadioButton x:Name="TypeIdea" Style="{StaticResource SegmentRadio}" Content="{DynamicResource Report.Idea}" Checked="OnChanged" MinWidth="90"
                                AutomationProperties.AutomationId="ReportTypeIdea" />
                 </UniformGrid>
               </Border>
             </StackPanel>
             <StackPanel Grid.Column="2">
-              <TextBlock Style="{StaticResource LabelText}" Text="العنوان" />
-              <TextBox x:Name="TitleBox" TextChanged="OnChanged" ui:Ui.Placeholder="باختصار: ما الذي حدث أو ما الذي تقترحه؟" MaxLength="200"
-                       AutomationProperties.AutomationId="ReportTitle" AutomationProperties.Name="العنوان" />
+              <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Report.TitleLabel}" />
+              <TextBox x:Name="TitleBox" TextChanged="OnChanged" ui:Ui.Placeholder="{DynamicResource Report.TitlePlaceholder}" MaxLength="200"
+                       AutomationProperties.AutomationId="ReportTitle" AutomationProperties.Name="{DynamicResource Report.TitleLabel}" />
             </StackPanel>
           </Grid>
 
-          <TextBlock x:Name="DescriptionLabel" Style="{StaticResource LabelText}" Text="الوصف" Margin="0,14,0,6" />
+          <TextBlock x:Name="DescriptionLabel" Style="{StaticResource LabelText}" Text="{DynamicResource Report.Description}" Margin="0,14,0,6" />
           <TextBox x:Name="DescriptionBox" TextChanged="OnChanged" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="96" MaxHeight="200"
                    VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto" MaxLength="8000"
-                   AutomationProperties.AutomationId="ReportDescription" AutomationProperties.Name="الوصف" />
+                   AutomationProperties.AutomationId="ReportDescription" AutomationProperties.Name="{DynamicResource Report.Description}" />
 
-          <TextBlock x:Name="DetailsLabel" Style="{StaticResource LabelText}" Text="خطوات إعادة المشكلة (اختياري)" Margin="0,14,0,6" />
+          <TextBlock x:Name="DetailsLabel" Style="{StaticResource LabelText}" Text="{DynamicResource Report.Steps}" Margin="0,14,0,6" />
           <TextBox x:Name="DetailsBox" TextChanged="OnChanged" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="72" MaxHeight="160"
                    VerticalContentAlignment="Top" VerticalScrollBarVisibility="Auto" MaxLength="8000"
-                   AutomationProperties.AutomationId="ReportDetails" AutomationProperties.Name="تفاصيل إضافية" />
+                   AutomationProperties.AutomationId="ReportDetails" AutomationProperties.Name="{DynamicResource Report.DetailsName}" />
 
           <CheckBox x:Name="IncludeTech" Margin="0,16,0,0" IsChecked="True" Click="OnChanged" AutomationProperties.AutomationId="ReportIncludeTech">
             <StackPanel>
-              <TextBlock Text="إرفاق معلومات تقنية" />
+              <TextBlock Text="{DynamicResource Report.IncludeTech}" />
               <TextBlock Style="{StaticResource HintText}"
-                         Text="إصدار البرنامج وWindows و.NET، ولغة الواجهة، وخيارات التحويل، وآخر رمز خطأ. لا تُرفق أي أرقام أو محتوى الحافظة أو السجل." />
+                         Text="{DynamicResource Report.IncludeTechHint}" />
             </StackPanel>
           </CheckBox>
 
-          <TextBlock Style="{StaticResource LabelText}" Text="معاينة ما سيُرسل" Margin="0,16,0,6" />
+          <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Report.Preview}" Margin="0,16,0,6" />
           <Border CornerRadius="10" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BgSofterBrush}" Padding="12,10">
             <TextBox x:Name="Preview" Style="{StaticResource SelectableText}" FontSize="12.5" MaxHeight="220"
-                     AutomationProperties.AutomationId="ReportPreview" AutomationProperties.Name="معاينة التقرير" />
+                     AutomationProperties.AutomationId="ReportPreview" AutomationProperties.Name="{DynamicResource Report.PreviewName}" />
           </Border>
         </StackPanel>
       </ScrollViewer>

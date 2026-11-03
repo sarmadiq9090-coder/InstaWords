@@ -5,48 +5,67 @@ using Forms = System.Windows.Forms;
 
 namespace InstaWords.App.Services
 {
-    /// <summary>Notification-area icon with the فتح / تحويل الحافظة / الإعدادات / خروج menu.</summary>
+    /// <summary>Notification-area icon with the open / convert clipboard / settings / exit menu.</summary>
     public sealed class TrayService : IDisposable
     {
         private readonly Forms.NotifyIcon _icon;
+        private readonly Forms.ContextMenuStrip _menu;
+        private readonly Forms.ToolStripMenuItem _openItem;
         private readonly Forms.ToolStripMenuItem _convertItem;
+        private readonly Forms.ToolStripMenuItem _settingsItem;
+        private readonly Forms.ToolStripMenuItem _updateItem;
+        private readonly Forms.ToolStripMenuItem _reportItem;
+        private readonly Forms.ToolStripMenuItem _exitItem;
 
         public TrayService()
         {
-            var menu = new Forms.ContextMenuStrip
+            _menu = new Forms.ContextMenuStrip
             {
-                RightToLeft = Forms.RightToLeft.Yes,
                 ShowImageMargin = false,
                 Font = new Font("Segoe UI", 10f),
                 Renderer = new Forms.ToolStripProfessionalRenderer(new TrayColors()),
             };
-            var open = new Forms.ToolStripMenuItem("فتح InstaWords", null, (s, e) => OpenRequested?.Invoke(this, EventArgs.Empty))
+            _openItem = new Forms.ToolStripMenuItem("", null, (s, e) => OpenRequested?.Invoke(this, EventArgs.Empty))
             {
                 Font = new Font("Segoe UI", 10f, System.Drawing.FontStyle.Bold),
             };
-            _convertItem = new Forms.ToolStripMenuItem("تحويل الحافظة", null, (s, e) => ConvertRequested?.Invoke(this, EventArgs.Empty));
-            var settings = new Forms.ToolStripMenuItem("الإعدادات", null, (s, e) => SettingsRequested?.Invoke(this, EventArgs.Empty));
-            var update = new Forms.ToolStripMenuItem("التحقق من وجود تحديث", null, (s, e) => UpdateRequested?.Invoke(this, EventArgs.Empty));
-            var report = new Forms.ToolStripMenuItem("الإبلاغ عن مشكلة أو اقتراح", null, (s, e) => ReportRequested?.Invoke(this, EventArgs.Empty));
-            var exit = new Forms.ToolStripMenuItem("خروج", null, (s, e) => ExitRequested?.Invoke(this, EventArgs.Empty));
-            foreach (Forms.ToolStripItem item in new Forms.ToolStripItem[] { open, _convertItem, settings, update, report, exit })
+            _convertItem = new Forms.ToolStripMenuItem("", null, (s, e) => ConvertRequested?.Invoke(this, EventArgs.Empty));
+            _settingsItem = new Forms.ToolStripMenuItem("", null, (s, e) => SettingsRequested?.Invoke(this, EventArgs.Empty));
+            _updateItem = new Forms.ToolStripMenuItem("", null, (s, e) => UpdateRequested?.Invoke(this, EventArgs.Empty));
+            _reportItem = new Forms.ToolStripMenuItem("", null, (s, e) => ReportRequested?.Invoke(this, EventArgs.Empty));
+            _exitItem = new Forms.ToolStripMenuItem("", null, (s, e) => ExitRequested?.Invoke(this, EventArgs.Empty));
+            foreach (Forms.ToolStripItem item in new Forms.ToolStripItem[] { _openItem, _convertItem, _settingsItem, _updateItem, _reportItem, _exitItem })
                 item.Padding = new Forms.Padding(4, 3, 4, 3);
-            menu.Items.AddRange(new Forms.ToolStripItem[]
+            _menu.Items.AddRange(new Forms.ToolStripItem[]
             {
-                open, _convertItem, settings, new Forms.ToolStripSeparator(), update, report, new Forms.ToolStripSeparator(), exit,
+                _openItem, _convertItem, _settingsItem, new Forms.ToolStripSeparator(), _updateItem, _reportItem, new Forms.ToolStripSeparator(), _exitItem,
             });
 
             _icon = new Forms.NotifyIcon
             {
-                Text = "InstaWords — تفقيط",
                 Icon = LoadIcon(),
-                ContextMenuStrip = menu,
+                ContextMenuStrip = _menu,
                 Visible = true,
             };
             _icon.MouseClick += (s, e) =>
             {
                 if (e.Button == Forms.MouseButtons.Left) OpenRequested?.Invoke(this, EventArgs.Empty);
             };
+            ApplyLanguage();
+        }
+
+        /// <summary>Menu texts and direction in the interface language.</summary>
+        public void ApplyLanguage()
+        {
+            _menu.RightToLeft = Loc.IsRightToLeft ? Forms.RightToLeft.Yes : Forms.RightToLeft.No;
+            _openItem.Text = Loc.T("Tray.Open");
+            _convertItem.Text = Loc.T("Tray.Convert");
+            _settingsItem.Text = Loc.T("Nav.Settings");
+            _updateItem.Text = Loc.T("Common.CheckUpdate");
+            _reportItem.Text = Loc.T("Main.ReportTip");
+            _exitItem.Text = Loc.T("Tray.Exit");
+            var tip = Loc.T("App.Title");
+            _icon.Text = tip.Length > 63 ? tip.Substring(0, 63) : tip; // NotifyIcon limit
         }
 
         public event EventHandler OpenRequested;
@@ -56,7 +75,7 @@ namespace InstaWords.App.Services
         public event EventHandler UpdateRequested;
         public event EventHandler ReportRequested;
 
-        /// <summary>Shows the current hotkey next to «تحويل الحافظة».</summary>
+        /// <summary>Shows the current hotkey next to «تحويل الحافظة» (convert the clipboard).</summary>
         public void SetHotkeyText(string gesture) => _convertItem.ShortcutKeyDisplayString = gesture ?? "";
 
         private static Icon LoadIcon()

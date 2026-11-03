@@ -35,6 +35,23 @@ namespace InstaWords.App.Views
             SetRows(new List<BulkRow>());
             Drop += OnDrop;
             DragOver += OnDragOver;
+            ApplyHeaders();
+            Loc.Changed += (s, e) =>
+            {
+                ApplyHeaders();
+                OnGridSelectionChanged(null, null);
+                ConvertAll(); // error messages follow the interface language
+                if (_status != null) SetStatus(_status(), _statusOk);
+            };
+        }
+
+        /// <summary>Column headers (DataGrid columns are not in the visual tree, so no DynamicResource there).</summary>
+        private void ApplyHeaders()
+        {
+            ColInput.Header = Loc.T("Bulk.ColInput");
+            ColCleaned.Header = Loc.T("Bulk.ColCleaned");
+            ColText.Header = Loc.T("Bulk.ColText");
+            ColError.Header = Loc.T("Bulk.ColError");
         }
 
         public IReadOnlyList<BulkRow> Rows => _rows;
@@ -61,10 +78,11 @@ namespace InstaWords.App.Views
             UpdateCounts();
         }
 
-        public void LoadValues(IEnumerable<string> values, string status)
+        /// <summary>Replaces the rows; <paramref name="statusKey"/> is the Strings key of the status message.</summary>
+        public void LoadValues(IEnumerable<string> values, string statusKey, params object[] args)
         {
             SetRows(values.Select(v => new BulkRow(v)).ToList());
-            SetStatus(status, ok: true);
+            SetStatus(statusKey, true, args);
         }
 
         /// <summary>Converts every row on a worker thread, then applies the results in one pass.</summary>
@@ -81,12 +99,14 @@ namespace InstaWords.App.Views
             if (rows.Length <= 300) results = inputs.Select(i => Conversion.Run(i, options)).ToArray();
             else
             {
-                var previous = Status.Text;
-                var progress = "جارٍ التحويل… " + Conversion.FormatCount(rows.Length) + " صفاً";
+                var previous = _status;
+                var previousOk = _statusOk;
+                var count = rows.Length;
+                Func<string> progress = () => Loc.F("Bulk.Converting", Conversion.FormatCount(count));
                 SetStatus(progress, ok: true);
                 results = await Task.Run(() => inputs.AsParallel().AsOrdered().Select(i => Conversion.Run(i, options)).ToArray());
                 if (version != _version) return; // options or rows changed meanwhile
-                if (Status.Text == progress) SetStatus(previous, ok: true);
+                if (_status == progress) SetStatus(previous, previousOk);
             }
             for (var i = 0; i < rows.Length; i++)
             {
@@ -113,12 +133,53 @@ namespace InstaWords.App.Views
             CountErr.Text = Conversion.FormatCount(all - ok);
             CopyAllButton.IsEnabled = ok > 0;
             ExportButton.IsEnabled = all > 0;
+            PrintRowsButton.IsEnabled = ok > 0;
         }
 
-        private void SetStatus(string text, bool ok)
+        private Func<string> _status;
+        private bool _statusOk = true;
+
+        /// <summary>The status line; kept as a function so it is re-worded when the interface language changes.</summary>
+        private void SetStatus(Func<string> text, bool ok)
         {
-            Status.Text = text ?? "";
+            _status = text;
+            _statusOk = ok;
+            Status.Text = text?.Invoke() ?? "";
             Status.Foreground = (Brush)FindResource(ok ? "AccentTextBrush" : "DangerBrush");
+        }
+
+        private void SetStatus(string key, bool ok, params object[] args) => SetStatus(() => Loc.F(key, args), ok);
+
+        // ---------- Print ----------
+
+        /// <summary>The rows to print: the selected ones, or every row when none is selected (errors skipped).</summary>
+        public IList<string> RowsToPrint()
+        {
+            var selected = Grid.SelectedItems.OfType<BulkRow>().ToList();
+            var source = selected.Count > 0 ? selected.OrderBy(r => r.Index) : (IEnumerable<BulkRow>)_rows;
+            return source.Where(r => r.Ok).Select(r => r.Input).ToList();
+        }
+
+        /// <summary>«طباعة» on this tab (and Ctrl+P): one page per row.</summary>
+        public void PrintRows()
+        {
+            var rows = RowsToPrint();
+            if (rows.Count == 0)
+            {
+                SetStatus("Bulk.PrintNothing", ok: false);
+                return;
+            }
+            App.Current.AppWindow?.ShowPrint(rows);
+        }
+
+        private void OnPrintClick(object sender, RoutedEventArgs e) => PrintRows();
+
+        private void OnGridSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // «طباعة 3 صفوف» when several rows are selected, plain «طباعة» otherwise.
+            var n = Grid.SelectedItems.OfType<BulkRow>().Count(r => r.Ok);
+            if (n > 1) PrintRowsButton.Content = Loc.F("Bulk.PrintSelected", Conversion.FormatCount(n));
+            else PrintRowsButton.SetResourceReference(ContentProperty, "Bulk.Print");
         }
 
         // ---------- Paste / import ----------
@@ -127,13 +188,13 @@ namespace InstaWords.App.Views
         {
             if (!ClipboardService.TryGetText(out var text) || string.IsNullOrWhiteSpace(text))
             {
-                SetStatus("الحافظة لا تحتوي على نص. انسخ عموداً من Excel ثم اضغط Ctrl+V.", ok: false);
+                SetStatus("Bulk.ClipboardEmpty", ok: false);
                 return;
             }
             var values = Csv.PastedValues(text);
             // A pasted header ("المبلغ") is skipped like in CSV files.
             if (values.Count > 1 && !values[0].Any(Csv.IsDigit)) values.RemoveAt(0);
-            LoadValues(values, "لُصق " + Conversion.FormatCount(values.Count) + " رقماً من الحافظة.");
+            LoadValues(values, "Bulk.Pasted", Conversion.FormatCount(values.Count));
         }
 
         public void ImportFile(string path)
@@ -141,11 +202,11 @@ namespace InstaWords.App.Views
             try
             {
                 var values = Csv.ColumnValues(Csv.ReadText(path));
-                LoadValues(values, "استُورد " + Conversion.FormatCount(values.Count) + " رقماً من الملف «" + Path.GetFileName(path) + "».");
+                LoadValues(values, "Bulk.Imported", Conversion.FormatCount(values.Count), Path.GetFileName(path));
             }
             catch (Exception ex)
             {
-                SetStatus("تعذّرت قراءة الملف. تأكد أنه ملف CSV أو نصي. (" + ex.Message + ")", ok: false);
+                SetStatus("Bulk.ImportFailed", false, ex.Message);
             }
         }
 
@@ -155,8 +216,8 @@ namespace InstaWords.App.Views
         {
             var dlg = new OpenFileDialog
             {
-                Title = "استيراد أرقام",
-                Filter = "ملفات CSV أو نصية (*.csv;*.txt;*.tsv)|*.csv;*.txt;*.tsv|كل الملفات (*.*)|*.*",
+                Title = Loc.T("Bulk.ImportTitle"),
+                Filter = Loc.T("Bulk.ImportFilter") + " (*.csv;*.txt;*.tsv)|*.csv;*.txt;*.tsv|" + Loc.T("Bulk.AllFiles") + " (*.*)|*.*",
                 CheckFileExists = true,
             };
             if (dlg.ShowDialog(Window.GetWindow(this)) == true) ImportFile(dlg.FileName);
@@ -173,15 +234,15 @@ namespace InstaWords.App.Views
         {
             if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) ImportFile(files[0]);
             else if (e.Data.GetData(DataFormats.UnicodeText) is string text)
-                LoadValues(Csv.PastedValues(text), "أُضيفت الأرقام المسحوبة.");
+                LoadValues(Csv.PastedValues(text), "Bulk.Dropped");
         }
 
-        private void OnSampleClick(object sender, RoutedEventArgs e) => LoadValues(Sample, "مثال: سبعة أرقام، منها سطر خاطئ عمداً.");
+        private void OnSampleClick(object sender, RoutedEventArgs e) => LoadValues(Sample, "Bulk.SampleLoaded");
 
         private void OnClearClick(object sender, RoutedEventArgs e)
         {
             SetRows(new List<BulkRow>());
-            SetStatus("", ok: true);
+            SetStatus((Func<string>)null, ok: true);
         }
 
         // ---------- Copy / export ----------
@@ -191,20 +252,23 @@ namespace InstaWords.App.Views
             // One line per input row; rows with an error stay empty so the lines match the pasted column.
             var text = string.Join("\r\n", _rows.Select(r => r.Ok ? r.Text : ""));
             var errs = _rows.Count(r => !r.Ok);
+            var lines = Conversion.FormatCount(_rows.Count);
             if (ClipboardService.TrySetText(text))
-                SetStatus("نُسخ " + Conversion.FormatCount(_rows.Count) + " سطراً" +
-                          (errs > 0 ? "، وتُركت أسطر الأخطاء (" + Conversion.FormatCount(errs) + ") فارغة." : "."), ok: true);
-            else SetStatus("تعذّر النسخ.", ok: false);
+            {
+                if (errs > 0) SetStatus("Bulk.CopiedWithErrors", true, lines, Conversion.FormatCount(errs));
+                else SetStatus("Bulk.Copied", true, lines);
+            }
+            else SetStatus("Bulk.CopyFailed", ok: false);
         }
 
         private void OnExportClick(object sender, RoutedEventArgs e)
         {
             var dlg = new SaveFileDialog
             {
-                Title = "تصدير النتائج",
+                Title = Loc.T("Bulk.ExportTitle"),
                 FileName = "tafqit.csv",
                 DefaultExt = ".csv",
-                Filter = "CSV بترميز UTF-8 (*.csv)|*.csv",
+                Filter = Loc.T("Bulk.ExportFilter") + " (*.csv)|*.csv",
                 AddExtension = true,
                 OverwritePrompt = true,
             };
@@ -212,17 +276,17 @@ namespace InstaWords.App.Views
             try
             {
                 ExportTo(dlg.FileName);
-                SetStatus("صُدّر " + Conversion.FormatCount(_rows.Count) + " صفاً إلى «" + Path.GetFileName(dlg.FileName) + "».", ok: true);
+                SetStatus("Bulk.Exported", true, Conversion.FormatCount(_rows.Count), Path.GetFileName(dlg.FileName));
             }
             catch (Exception ex)
             {
-                SetStatus("تعذّر حفظ الملف: " + ex.Message, ok: false);
+                SetStatus("Bulk.ExportFailed", false, ex.Message);
             }
         }
 
         public void ExportTo(string path)
         {
-            var rows = new List<IEnumerable<string>> { new[] { "الرقم", "الرقم بعد التنقية", "التفقيط", "الخطأ" } };
+            var rows = new List<IEnumerable<string>> { new[] { Loc.T("Bulk.CsvNumber"), Loc.T("Bulk.CsvCleaned"), Loc.T("Bulk.CsvWords"), Loc.T("Bulk.CsvError") } };
             rows.AddRange(_rows.Select(r => (IEnumerable<string>)new[]
             {
                 Csv.SafeCell(r.Input), Csv.SafeCell(r.Cleaned ?? ""), Csv.SafeCell(r.Ok ? r.Text : ""), Csv.SafeCell(r.Ok ? "" : r.Error ?? ""),

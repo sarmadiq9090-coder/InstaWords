@@ -40,6 +40,7 @@
 - الأرقام تُعالج نصوصاً، ولا يُستعمل `float` في المبالغ.
 - مخرجات VBA تطابق النواة حرفاً بحرف، ويتحقق من ذلك `npm run test:vba`.
 - ملفات `.bas` بترميز ASCII فقط، ونهايات أسطرها CRLF، ويولّدها السكربت.
+- الإصدارات: [`RELEASING.md`](RELEASING.md)، والنشر في winget وScoop: [`docs/PACKAGING.md`](docs/PACKAGING.md)، والتوقيع الرقمي: [`docs/CODE-SIGNING.md`](docs/CODE-SIGNING.md)، وقائمة الفحص على أجهزة حقيقية: [`docs/TESTING-CHECKLIST.md`](docs/TESTING-CHECKLIST.md).
 
 </div>
 
@@ -49,3 +50,4 @@
 - **Add a unit:** edit only `data/units.json` with every form spelled out, keep it schema-valid, then run `npm test && npm run build:vba && npm run test:vba` and commit the regenerated `vba/Tafqit.bas`.
 - **Change a rule:** issue → `docs/SPEC.md` → `tests/golden/cases.json` → `src/` → `vba/Tafqit.template.bas`, then `npm run test:all` must pass.
 - **Site:** no external resources (offline-first); `npm run test:site`.
+- **Releases:** [`RELEASING.md`](RELEASING.md) (`npm run release:prepare -- <version>`); winget/Scoop: [`docs/PACKAGING.md`](docs/PACKAGING.md); signing: [`docs/CODE-SIGNING.md`](docs/CODE-SIGNING.md); manual checks: [`docs/TESTING-CHECKLIST.md`](docs/TESTING-CHECKLIST.md).

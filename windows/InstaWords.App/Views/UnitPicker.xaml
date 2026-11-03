@@ -4,8 +4,8 @@
              xmlns:m="clr-namespace:InstaWords.App.Models"
              Focusable="False" IsTabStop="False">
   <ComboBox x:Name="Combo" Style="{StaticResource SearchComboBox}" IsTextSearchEnabled="False"
-            AutomationProperties.AutomationId="UnitPicker" AutomationProperties.Name="العملة أو الوحدة"
-            ToolTip="اكتب للبحث عن عملة أو وحدة">
+            AutomationProperties.AutomationId="UnitPicker" AutomationProperties.Name="{DynamicResource Common.Unit}"
+            ToolTip="{DynamicResource Unit.Tip}">
     <ComboBox.ItemTemplate>
       <DataTemplate DataType="{x:Type m:UnitItem}">
         <DockPanel LastChildFill="True">
