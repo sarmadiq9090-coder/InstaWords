@@ -1067,6 +1067,9 @@ async function englishChecks() {
       const rows = await p.$$eval(".params tbody tr", (trs) => trs.map((tr) => tr.children[1].textContent));
       check("en/excel: the seven arguments, Language last", rows.join() === "Number,Unit,HundredsForm,Prefix,Suffix,Decimals,Language", rows.join());
       check("en/excel: Tafqit.bas download", (await p.$eval('a[download="Tafqit.bas"]', (a) => a.href)) === `${BASE}Tafqit.bas`);
+      const enXlam = await p.$$eval('a[download="InstaWords.xlam"]', (as) => as.map((a) => a.href));
+      check("en/excel: InstaWords.xlam is the main download (same-site file)", enXlam.length >= 1 && enXlam.every((h) => h === `${BASE}InstaWords.xlam`) && (await p.$eval(".hero-cta .btn-primary", (a) => a.getAttribute("download"))) === "InstaWords.xlam", JSON.stringify(enXlam));
+      check("en/excel: Unblock and Trusted Location steps", /Unblock/.test(await p.textContent("#install")) && /Trusted Location/.test(await p.textContent("#trust")));
       const eChrome = await arabicChrome(p);
       check("en/excel: no Arabic UI text outside lang=ar", eChrome.length === 0, eChrome.join(" | "));
       await p.click('[data-copy-from="js-snippet"]');

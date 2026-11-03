@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Amounts in words in Excel: the TAFQIT function, offline — InstaWords | FastKiwi</title>
-  <meta name="description" content="A free, open-source VBA module from InstaWords that adds a TAFQIT function to Excel to write amounts in words in English, Arabic or French, with 100+ currencies and units, on your computer without internet. Plus a JavaScript library for developers.">
+  <meta name="description" content="A free, open-source Excel add-in from InstaWords (InstaWords.xlam) that adds a TAFQIT function to Excel to write amounts in words in English, Arabic or French, with 100+ currencies and units, on your computer without internet. Plus a JavaScript library for developers.">
   <meta name="theme-color" content="#3f8a1c">
   <meta name="color-scheme" content="light">
   <link rel="canonical" href="https://fastkiwi.app/instawords/en/excel.html">
@@ -61,17 +61,17 @@
   <div class="wrap">
     <div>
       <p class="app-label"><img src="../icon.svg" width="28" height="28" alt="">InstaWords for Excel</p>
-      <p class="eyebrow">Free VBA module · No internet · No subscription</p>
+      <p class="eyebrow">Free Excel add-in · No internet · No subscription</p>
       <h1 id="page-title"><span class="grad">Amounts in words inside Excel</span>, on your computer and offline</h1>
-      <p class="lead">One file adds a function called <code dir="ltr">TAFQIT</code> to your spreadsheet. It runs locally, with no connection and no external add-ins, and gives exactly the same English, Arabic or French text as InstaWords in the browser.</p>
+      <p class="lead">Install one add-in in Excel once, and the <code dir="ltr">TAFQIT</code> function is available in every workbook you open. It runs locally, with no connection, and gives exactly the same English, Arabic or French text as InstaWords in the browser.</p>
       <div class="actions hero-cta">
-        <a class="btn btn-primary" href="../Tafqit.bas" download="Tafqit.bas">
+        <a class="btn btn-primary" href="../InstaWords.xlam" download="InstaWords.xlam">
           <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></svg>
-          Download Tafqit.bas
+          Download the InstaWords.xlam add-in
         </a>
         <a class="btn btn-ghost" href="#install">How to install</a>
       </div>
-      <p class="hint">A single text file with the function and every currency and unit · for Windows and macOS.</p>
+      <p class="hint">One file with the function and every currency and unit · Excel for Windows. For macOS or a single workbook: <a href="../Tafqit.bas" download="Tafqit.bas"><span dir="ltr">Tafqit.bas</span></a> (<a href="#bas">how</a>).</p>
     </div>
   </div>
 </section>
@@ -80,13 +80,14 @@
   <div class="wrap">
     <div class="grid two">
       <article class="card prose">
-        <h2 id="install-title">Install once per workbook</h2>
+        <h2 id="install-title">Install the add-in once</h2>
         <ol class="steps">
-          <li>Open the workbook in Excel, then press <kbd>Alt</kbd> + <kbd>F11</kbd> to open the Visual Basic editor (on a Mac: <kbd>Option</kbd> + <kbd>F11</kbd>, or Tools → Macro → Visual Basic Editor).</li>
-          <li>In the File menu choose Import File… and select the <span dir="ltr">Tafqit.bas</span> file you downloaded.</li>
-          <li>Close the editor and save the workbook as an Excel Macro-Enabled Workbook <span dir="ltr">(.xlsm)</span> so the function stays with it.</li>
+          <li>Save <span dir="ltr">InstaWords.xlam</span> in a folder you will keep, such as an <span dir="ltr">InstaWords</span> folder in Documents. Excel loads the add-in from there every time.</li>
+          <li><strong>Unblock it first:</strong> right-click the file → <b>Properties</b> → at the bottom of the General tab tick <b>Unblock</b> → OK. Windows marks every file downloaded from the internet, and Excel blocks the macros in marked files, so the function will not work without this step. (If the option is not there, the file is not blocked.)</li>
+          <li>In Excel: <b>File → Options → Add-ins</b> → Manage: <b>Excel Add-ins</b> → <b>Go…</b> → <b>Browse…</b> → pick <span dir="ltr">InstaWords.xlam</span> → OK.</li>
+          <li>Make sure “InstaWords” is ticked in the list, then OK. Now type <code dir="ltr">=TAFQIT(A1, "USD", , , , , "en")</code> in any workbook; there is no need to save it as <span dir="ltr">.xlsm</span>.</li>
         </ol>
-        <p class="note">If a security warning appears when you open the workbook later, choose “Enable Content”. If Excel blocks macros in a file downloaded from the internet, open the file's Properties in Windows and tick “Unblock”.</p>
+        <p class="note">The add-in is built to the Excel file-format specifications and checked automatically by reading the produced file back, but it has not yet been tried in a real Excel. If it does not work for you, use <a href="#bas">the <span dir="ltr">Tafqit.bas</span> method</a> and tell us through “Report a problem” at the bottom of the page.</p>
       </article>
 
       <article class="card prose" aria-labelledby="use-title">
@@ -96,6 +97,30 @@
         <p>If <span dir="ltr">A1</span> holds <span dir="ltr">2500</span>, the result is:</p>
         <p class="example-out" data-excel-example data-n="2500" data-unit="USD" data-suffix="Only" data-lang="en">Two Thousand Five Hundred US Dollars Only</p>
         <p>The arguments after the number are optional, and <code dir="ltr">"en"</code> (the seventh) selects English; <code dir="ltr">=TAFQIT(B2, "SAR", , , , , "en")</code> gives “One Thousand Two Hundred Fifty Saudi Riyals and Seventy-Five Halalas” for <span dir="ltr">1250.75</span>. Leave the language out for Arabic, or use <code dir="ltr">"fr"</code> for French.</p>
+      </article>
+    </div>
+
+    <div class="grid two">
+      <article class="card prose" id="trust" aria-labelledby="trust-title">
+        <h2 id="trust-title">If a security notice appears: the Trust Center</h2>
+        <p>If Excel shows a security notice about the add-in when it starts, or the function returns <code dir="ltr">#NAME?</code>, the safest fix is to make the add-in's folder a Trusted Location:</p>
+        <ol class="steps">
+          <li><b>File → Options → Trust Center → Trust Center Settings…</b></li>
+          <li><b>Trusted Locations → Add new location…</b> → choose the folder that holds <span dir="ltr">InstaWords.xlam</span> → OK.</li>
+          <li>Close Excel and open it again.</li>
+        </ol>
+        <p class="note">Do not choose “Enable all macros” under Macro Settings: it lets any file run programs on your computer. The default (“Disable all macros with notification”) plus a Trusted Location is enough.</p>
+      </article>
+
+      <article class="card prose" id="bas" aria-labelledby="bas-title">
+        <h2 id="bas-title">Alternative: the <span dir="ltr">Tafqit.bas</span> module in one workbook</h2>
+        <p>For Excel on macOS, or if you want the function inside a particular workbook that you send to others. <a href="../Tafqit.bas" download="Tafqit.bas">Download <span dir="ltr">Tafqit.bas</span></a>, then:</p>
+        <ol class="steps">
+          <li>Open the workbook in Excel, then press <kbd>Alt</kbd> + <kbd>F11</kbd> to open the Visual Basic editor (on a Mac: <kbd>Option</kbd> + <kbd>F11</kbd>, or Tools → Macro → Visual Basic Editor).</li>
+          <li>In the File menu choose Import File… and select the <span dir="ltr">Tafqit.bas</span> file you downloaded.</li>
+          <li>Close the editor and save the workbook as an Excel Macro-Enabled Workbook <span dir="ltr">(.xlsm)</span> so the function stays with it.</li>
+        </ol>
+        <p class="note">If a security warning appears when you open the workbook later, choose “Enable Content”. If Excel blocks macros in a file downloaded from the internet, open the file's Properties in Windows and tick “Unblock”.</p>
       </article>
     </div>
 
