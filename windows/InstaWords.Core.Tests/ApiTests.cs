@@ -144,6 +144,14 @@ namespace InstaWords.Core.Tests
                 Assert.Equal(j.TryGetProperty("subunit", out var subunit), u.HasSubunit);
                 // ratio is a power of ten: its digits after the leading 1.
                 Assert.Equal(u.HasSubunit ? subunit.GetProperty("ratio").GetRawText().Length - 1 : 0, u.SubunitDigits);
+                // displayDigits when set (only with a subunit, at most its digits), else the subunit's digits.
+                if (j.TryGetProperty("displayDigits", out var displayDigits))
+                {
+                    Assert.True(u.HasSubunit, u.Id);
+                    Assert.Equal(displayDigits.GetInt32(), u.DisplayDigits);
+                    Assert.InRange(u.DisplayDigits, 0, u.SubunitDigits);
+                }
+                else Assert.Equal(u.SubunitDigits, u.DisplayDigits);
                 bool hasI18n = j.TryGetProperty("i18n", out var i18n);
                 Assert.Equal(hasI18n ? i18n.GetProperty("en").GetProperty("singular").GetString() : null, u.EnglishName);
                 Assert.Equal(hasI18n ? i18n.GetProperty("fr").GetProperty("singular").GetString() : null, u.FrenchName);
@@ -164,6 +172,14 @@ namespace InstaWords.Core.Tests
             Assert.True(sar.HasSubunit);
             Assert.Equal(2, sar.SubunitDigits);
             Assert.Equal(3, Tafqit.FindUnit("KWD")!.SubunitDigits);
+            Assert.Equal(2, sar.DisplayDigits);
+            Assert.Equal(3, Tafqit.FindUnit("KWD")!.DisplayDigits);
+            // Whole Iraqi dinars are written without the unused fils (1,750,000); a fraction still takes 3 digits.
+            Assert.Equal(3, Tafqit.FindUnit("IQD")!.SubunitDigits);
+            Assert.Equal(0, Tafqit.FindUnit("IQD")!.DisplayDigits);
+            Assert.Equal(0, Tafqit.FindUnit("LBP")!.DisplayDigits);
+            Assert.Equal(0, Tafqit.FindUnit("SYP")!.DisplayDigits);
+            Assert.Equal(0, Tafqit.FindUnit("YER")!.DisplayDigits);
             Assert.Equal("Saudi Riyal", sar.EnglishName);
             Assert.Equal("riyal saoudien", sar.FrenchName);
             Assert.Same(sar, Tafqit.FindUnit("  sAr "));
@@ -172,6 +188,7 @@ namespace InstaWords.Core.Tests
             Assert.Equal("none", Tafqit.FindUnit("بدون")!.Id);
             Assert.False(Tafqit.FindUnit("none")!.HasSubunit);
             Assert.Equal(0, Tafqit.FindUnit("none")!.SubunitDigits);
+            Assert.Equal(0, Tafqit.FindUnit("none")!.DisplayDigits);
             Assert.Null(Tafqit.FindUnit("none")!.EnglishName);
             Assert.Null(Tafqit.FindUnit(""));
             Assert.Null(Tafqit.FindUnit(" "));

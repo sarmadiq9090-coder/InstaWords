@@ -86,7 +86,7 @@ namespace InstaWords.Core
     public sealed class UnitInfo
     {
         internal UnitInfo(string id, string category, string label, string? code, IReadOnlyList<string> aliases,
-            bool hasSubunit, int subunitDigits, string? englishName, string? frenchName)
+            bool hasSubunit, int subunitDigits, int displayDigits, string? englishName, string? frenchName)
         {
             Id = id;
             Category = category;
@@ -95,6 +95,7 @@ namespace InstaWords.Core
             Aliases = aliases;
             HasSubunit = hasSubunit;
             SubunitDigits = subunitDigits;
+            DisplayDigits = displayDigits;
             EnglishName = englishName;
             FrenchName = frenchName;
         }
@@ -122,6 +123,15 @@ namespace InstaWords.Core
         /// (100 → 2 for SAR, 1000 → 3 for KWD), the precision amounts are rounded to; 0 without a subunit.
         /// </summary>
         public int SubunitDigits { get; }
+
+        /// <summary>
+        /// Decimals to show for a whole amount (no fraction, so the words name no subunit): the
+        /// unit's <c>displayDigits</c> in data/units.json, where the subunit is unused in everyday
+        /// writing (0 for IQD: 1,750,000, not 1,750,000.000), else <see cref="SubunitDigits"/>.
+        /// An amount with a fraction shows all <see cref="SubunitDigits"/>. Display only: the words
+        /// and the rounding never depend on it.
+        /// </summary>
+        public int DisplayDigits { get; }
 
         /// <summary>English singular name, e.g. "Saudi Riyal"; null for "none".</summary>
         public string? EnglishName { get; }

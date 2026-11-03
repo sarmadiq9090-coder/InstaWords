@@ -76,8 +76,8 @@ namespace InstaWords.App.Services
             var unit = Catalog.FindUnit(e.Unit);
             var unitText = unit == null ? e.Unit : (unit.Code ?? unit.Label);
             var lang = Catalog.FindLanguage(e.Language)?.Label ?? e.Language;
-            // Entries are successful conversions: money shows its subunit decimals, rounded like the words.
-            var number = e.Cleaned != null ? AmountFormat.Display(e.Cleaned, AmountFormat.DecimalsFor(e.Unit)) : Conversion.Grouped(e.Input);
+            // Entries are successful conversions: money as written in practice (45,750.00 SAR, 1,750,000 IQD), rounded like the words.
+            var number = e.Cleaned != null ? AmountFormat.Display(e.Cleaned, e.Unit) : Conversion.Grouped(e.Input);
             return "\u200E" + number + "\u200E · " + unitText + " · " + lang;
         }
     }
