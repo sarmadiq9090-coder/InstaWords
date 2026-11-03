@@ -125,6 +125,19 @@
 
 على Excel لـ Windows (وMac إن توفر):
 
+**أ. الإضافة `InstaWords.xlam`.** بُنيت وفق المواصفات وتحققنا منها آلياً بقراءة الملف الناتج (`tests/vba/xlam.test.mjs` وolevba)، لكنها **لم تُفتح بعد في Excel حقيقي**، فهذه البنود هي أول تجربة لها. صوّر أي رسالة تظهر.
+
+- [ ] نزّل `InstaWords.xlam` من https://fastkiwi.app/instawords/excel.html وضعه في مجلد مثل `المستندات\InstaWords`. زر الفأرة الأيمن ← خصائص. ← يظهر خيار «إلغاء الحظر» في أسفل تبويب «عام». فعّله ← موافق.
+- [ ] Excel ← ملف ← خيارات ← الوظائف الإضافية ← إدارة: وظائف Excel الإضافية ← انتقال… ← استعراض… ← `InstaWords.xlam`. ← لا رسالة «تالف» أو «إصلاح» ولا خطأ VBA، و«InstaWords — تفقيط (TAFQIT)» يظهر في القائمة محدداً مع وصفه.
+- [ ] في مصنف جديد عادي (‎.xlsx) جرّب جدول الصيغ أدناه. ← النتائج نفسها، و`TAFQIT` تظهر في الإكمال التلقائي وفي «إدراج دالة» ← «معرّفة من قبل المستخدم».
+- [ ] Alt+F11. ← مشروع «InstaWords (InstaWords.xlam)» فيه `ThisWorkbook` و`Sheet1` و`TafqitLib`، وDebug ← Compile InstaWords لا يعطي خطأ.
+- [ ] أغلق Excel وافتحه. ← الدالة تعمل مباشرة (الإضافة تُحمَّل مع Excel)، ولا يسأل Excel عند الإغلاق عن حفظ `InstaWords.xlam` (اكتب إن سأل).
+- [ ] **دون إلغاء الحظر:** كرر التثبيت بنسخة منزّلة جديدة دون الخطوة الأولى. ← اكتب ما يحدث بالضبط (المتوقع: Excel يحظر الماكرو، والدالة تعطي `#NAME?`).
+- [ ] **الموقع الموثوق:** مركز التوثيق ← إعدادات مركز التوثيق… ← المواقع الموثوقة ← إضافة موقع جديد… ← مجلد الإضافة، ثم أعد تشغيل Excel. ← تعمل الإضافة دون أي تنبيه.
+- [ ] نسخة Excel (32 أو 64 بت: ملف ← حساب ← حول Excel) ولغتها مكتوبة في جدول النتائج. وإن توفر Excel لـ Mac: Tools ← Excel Add-ins ← Browse.
+
+**ب. وحدة `Tafqit.bas` (البديل).**
+
 - [ ] نزّل `Tafqit.bas` من https://fastkiwi.app/instawords/excel.html. افتح مصنفاً جديداً ← Alt+F11 ← File ← Import File… ← `Tafqit.bas` (و`TafqitTests.bas` من المستودع للاختبار الذاتي). احفظ بصيغة ‎.xlsm وأعد فتحه وفعّل الماكرو. ← لا رسائل خطأ، والوحدة باسم `TafqitLib`.
 - [ ] في A1 اكتب `1250.75` ثم جرّب:
 
@@ -196,7 +209,7 @@ Manual checks of the Windows app, the Excel module and the website on real hardw
 - **6. Tray**, **7. Start with Windows** (on and off, after a reboot), **8. UI language / cheque printing** if the build has them.
 - **9. Update** from an older version: check for update, update now, silent install and relaunch, settings and history kept; offline message; portable opens the release page.
 - **10. In-app report** shows a full preview and sends nothing automatically. **11. Portable zip** from USB and paths with Arabic/spaces. **12. Uninstall** removes shortcuts and the Run value.
-- **13. Excel VBA**: import `Tafqit.bas` (+ `TafqitTests.bas`), save as .xlsm; the `=TAFQIT` examples (including the 7th `Language` argument "en"/"fr", case-insensitive), `TAFQIT_CLEAN`, and `TafqitSelfTest` → "N of N golden cases passed".
+- **13. Excel**: (a) **the `InstaWords.xlam` add-in is built to spec and verified by round-trip parsing, but has never been opened by a real Excel: this is its smoke test.** Download, Properties → Unblock, File → Options → Add-ins → Manage Excel Add-ins → Go → Browse; no "corrupt/repair" or VBA error, the add-in is listed and ticked, the formula table works in a plain .xlsx, VBE shows project InstaWords with `TafqitLib` and Debug → Compile passes, it still works after restarting Excel (note any "save InstaWords.xlam?" prompt), what happens without Unblock, and that a Trusted Location removes any prompt; Excel bitness and language. (b) The .bas: import `Tafqit.bas` (+ `TafqitTests.bas`), save as .xlsm; the `=TAFQIT` examples (including the 7th `Language` argument "en"/"fr", case-insensitive), `TAFQIT_CLEAN`, and `TafqitSelfTest` → "N of N golden cases passed".
 - **14. Website**: all download buttons are direct, the release-notes dialog (version, date, size, SHA-256, portable, notes), the releases link, offline behaviour after one visit (conversions work, dialog shows the bundled release), the support dialog, phone layout at 375 px.
 - **15. winget / Scoop** once published.
 - **Reporting**: in the app (tray → report a problem or suggestion), the site footer's report link, or the issue form at https://github.com/sarmadiq9090-coder/tafket/issues/new/choose. Include the item number, `winver`, scaling, app version (F1), Excel version, steps, expected vs actual, and a screenshot. Fill in the results table.

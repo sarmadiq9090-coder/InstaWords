@@ -1,6 +1,6 @@
 name: CI
 
-# Every push and pull request: the TypeScript core, the Excel VBA module, the website (Playwright)
+# Every push and pull request: the TypeScript core, the Excel VBA module and add-in, the website (Playwright)
 # and the .NET engine's parity tests (Linux is enough: InstaWords.Core is netstandard2.0, its tests net8.0).
 # The Windows app itself, its UI tests and the installer are built by windows.yml.
 
@@ -31,7 +31,18 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      # oletools (olevba) reads InstaWords.xlam as an independent check in tests/vba/xlam.test.mjs.
+      - name: Install oletools for the Excel add-in check
+        run: |
+          python3 -m venv "$RUNNER_TEMP/oletools"
+          "$RUNNER_TEMP/oletools/bin/pip" install --quiet oletools==0.60.2
+      # Includes the Excel add-in: scripts/build-xlam.mjs is read back stream by stream and compared
+      # with vba/Tafqit.bas, by the Node readers and by olevba.
       - run: npm run test:vba
+        env:
+          OLETOOLS_PYTHON: ${{ runner.temp }}/oletools/bin/python
+      - name: Excel add-in builds (InstaWords.xlam)
+        run: node scripts/build-xlam.mjs --out out/InstaWords.xlam
       - name: Check generated VBA is up to date
         run: git diff --exit-code -- vba/Tafqit.bas vba/TafqitTests.bas
       # npm run build, build-dotnet.mjs --check (generated C# current), the corpus, dotnet test InstaWords.Core.Tests.
