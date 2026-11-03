@@ -30,7 +30,7 @@ Files, in `windows/packaging/msix/`:
 
 | File | What it is |
 |---|---|
-| `AppxManifest.xml` | Template: `Windows.Desktop` MinVersion **10.0.17763.0** (Windows 10 1809), MaxVersionTested 10.0.26100.0, `x64`, `runFullTrust`, `EntryPoint="Windows.FullTrustApplication"`, a `uap5:StartupTask` (off by default), resources **en-US** and **ar**. `{{Name}}`, `{{Publisher}}`, `{{PublisherDisplayName}}` and `{{Version}}` are filled in at build time. |
+| `AppxManifest.xml` | Template: `Windows.Desktop` MinVersion **10.0.19041.0** (Windows 10 2004, the first version with .NET Framework 4.8 built in), MaxVersionTested 10.0.26100.0, `x64`, `runFullTrust`, `EntryPoint="Windows.FullTrustApplication"`, a `uap5:StartupTask` (off by default), resources **en-US** and **ar**. `{{Name}}`, `{{Publisher}}`, `{{PublisherDisplayName}}` and `{{Version}}` are filled in at build time. |
 | `identity.json` | The Partner Center identity (table above). `"placeholder": true` (or the test publisher `CN=InstaWords-Test`) makes the build warn that the Store would reject the package. |
 | `Strings/en-US/resources.resw`, `Strings/ar/resources.resw` | `AppDisplayName` (**InstaWords** in both languages: it must be a reserved name) and `AppDescription` (localized). |
 | `Assets/*.png` | 35 logos: `Square44x44Logo` at scale-100/125/150/200/400 and targetsize-16/24/32/48/256 (plain, `altform-unplated`, `altform-lightunplated`), `Square150x150Logo`, `Wide310x150Logo` and `StoreLogo` at scale-100/125/150/200/400. **They are committed.** |
@@ -208,7 +208,7 @@ Partner Center → InstaWords → Store listings → add **English (United State
 
 - **Category:** Business → *Accounting & finance*. Secondary category, if offered: Productivity.
 - **Privacy policy:** https://fastkiwi.app/privacy/. It is being built on the site repository's `claude/privacy` branch, so make sure the page is live before you submit.
-- **System requirements:** none special. It runs on Windows 10 1809 or later and Windows 11, x64. It also runs on ARM64 Windows 11 under x64 emulation.
+- **System requirements:** none special. It runs on Windows 10 version 2004 or later and Windows 11, x64. It also runs on ARM64 Windows 11 under x64 emulation.
 - **Product declarations:** leave "accessibility guidelines" unticked unless it has been tested on real hardware with a screen reader. Tick "customers can install to alternate drives" (it can). Untick "uses Windows Mixed Reality".
 - **Age rating (IARC questionnaire):** category **Productivity / utility app** (not a game).
   - Violence, fear, sexuality, gambling, language, drugs, alcohol, tobacco: **No**.
@@ -225,7 +225,7 @@ Partner Center → InstaWords → Store listings → add **English (United State
 
 Paste into Submission → **Notes for certification**:
 
-> InstaWords is a classic WPF desktop application (.NET Framework 4.8, part of Windows 10 1809+ and Windows 11) packaged as MSIX. It declares the restricted capability **runFullTrust** because it is a Win32/WPF desktop app (EntryPoint Windows.FullTrustApplication); it does not use any other restricted capability.
+> InstaWords is a classic WPF desktop application (.NET Framework 4.8, built into Windows 10 version 2004 and later and Windows 11) packaged as MSIX. It declares the restricted capability **runFullTrust** because it is a Win32/WPF desktop app (EntryPoint Windows.FullTrustApplication); it does not use any other restricted capability.
 >
 > - **Global hotkey:** the app registers Ctrl+Alt+T with RegisterHotKey (user-changeable or can be turned off in Settings). Pressing it converts a number on the clipboard to words and puts the words back on the clipboard. It only reads/writes the clipboard when the user presses the hotkey or a button.
 > - **Notification area:** the app keeps a tray icon; closing the window keeps it running in the tray (a Settings option). "Exit" in the tray menu quits.

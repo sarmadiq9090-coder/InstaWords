@@ -24,8 +24,8 @@
   </Properties>
 
   <Dependencies>
-    <!-- .NET Framework 4.8 is part of Windows 10 1809+ (via Windows Update) and Windows 11. -->
-    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+    <!-- Windows 10 2004 (10.0.19041) and later ship .NET Framework 4.8 in the box, so the app never needs it installed. -->
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
   </Dependencies>
 
   <Resources>

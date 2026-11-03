@@ -53,7 +53,7 @@ describe("MSIX package (Microsoft Store)", () => {
     assert.doesNotMatch(xml, /\{\{\w+\}\}/);
     assert.match(xml, /<Identity Name="FastKiwi\.InstaWords" Publisher="CN=8EFD6949-D088-481F-886D-82300679C5E5" Version="2\.1\.0\.0" ProcessorArchitecture="x64" \/>/);
     assert.match(xml, /<PublisherDisplayName>FastKiwi<\/PublisherDisplayName>/);
-    assert.match(xml, /<TargetDeviceFamily Name="Windows\.Desktop" MinVersion="10\.0\.17763\.0"/);
+    assert.match(xml, /<TargetDeviceFamily Name="Windows\.Desktop" MinVersion="10\.0\.19041\.0"/);
     assert.match(xml, /<rescap:Capability Name="runFullTrust" \/>/);
     assert.match(xml, /<Application Id="App" Executable="InstaWords\.exe" EntryPoint="Windows\.FullTrustApplication">/);
     assert.match(xml, /<uap5:StartupTask TaskId="InstaWordsStartup" Enabled="false"/);
