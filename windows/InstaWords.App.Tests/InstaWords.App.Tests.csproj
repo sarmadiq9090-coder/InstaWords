@@ -3,7 +3,8 @@
   <!--
     Unit tests for the WPF app's pure logic (no UI, runs on any OS): update checks (version compare,
     asset selection, download URL allow-list, SHA-256 digest), problem-report URLs, CSV import/export,
-    interface strings (Strings.ar.xaml / Strings.en.xaml: same keys, every key the app uses), and the
+    interface strings (Strings.ar.xaml / Strings.en.xaml: same keys, every key the app uses), Store mode
+    (package detection, install kind, MSIX data folder, startup task states), and the
     print layout math (mm/DIP, cheque calibration offsets, word wrap and filler, template fields).
     The source files are linked from InstaWords.App, which itself targets net48.
   -->
@@ -32,6 +33,7 @@
     <Compile Include="..\InstaWords.App\Services\Csv.cs" Link="Linked\Csv.cs" />
     <Compile Include="..\InstaWords.App\Services\Loc.cs" Link="Linked\Loc.cs" />
     <Compile Include="..\InstaWords.App\Services\PrintLayout.cs" Link="Linked\PrintLayout.cs" />
+    <Compile Include="..\InstaWords.App\Services\StoreLogic.cs" Link="Linked\StoreLogic.cs" />
   </ItemGroup>
 
 </Project>

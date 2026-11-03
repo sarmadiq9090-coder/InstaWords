@@ -28,11 +28,11 @@
 
         <Border Style="{StaticResource Rule}" Margin="0,14" />
         <DockPanel>
-          <Button DockPanel.Dock="Right" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconRefresh}" Content="{DynamicResource Common.CheckUpdate}"
+          <Button x:Name="CheckButton" DockPanel.Dock="Right" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconRefresh}" Content="{DynamicResource Common.CheckUpdate}"
                   Click="OnCheckClick" AutomationProperties.AutomationId="AboutCheckUpdate" />
           <StackPanel VerticalAlignment="Center">
             <TextBlock x:Name="UpdateStatus" FontSize="13" FontWeight="SemiBold" TextWrapping="Wrap" AutomationProperties.AutomationId="AboutUpdateStatus" />
-            <TextBlock Style="{StaticResource HintText}" FontSize="12" Margin="0,2,0,0"
+            <TextBlock x:Name="UpdatePrivacy" Style="{StaticResource HintText}" FontSize="12" Margin="0,2,0,0"
                        Text="{DynamicResource About.UpdatePrivacy}" />
           </StackPanel>
         </DockPanel>

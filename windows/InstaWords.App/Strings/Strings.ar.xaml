@@ -217,6 +217,8 @@
   <sys:String x:Key="Settings.Startup">التشغيل والنافذة</sys:String>
   <sys:String x:Key="Settings.StartWithWindows">تشغيل مع Windows</sys:String>
   <sys:String x:Key="Settings.StartWithWindowsHint">يبدأ في شريط المهام دون فتح النافذة، ليعمل الاختصار من أول لحظة.</sys:String>
+  <sys:String x:Key="Settings.StartupDisabledByUser">أوقفتَ التشغيل مع Windows من «إدارة المهام» ← «تطبيقات بدء التشغيل» (أو الإعدادات ← التطبيقات ← بدء التشغيل)، فلا يمكن تشغيله من هنا. فعّله من هناك.</sys:String>
+  <sys:String x:Key="Settings.StartupByPolicy">تتحكم مؤسستك في هذا الإعداد.</sys:String>
   <sys:String x:Key="Settings.CloseToTray">زر الإغلاق يُبقي البرنامج في شريط المهام</sys:String>
   <sys:String x:Key="Settings.CloseToTrayHint">للخروج نهائياً: انقر أيقونته بجانب الساعة بالزر الأيمن ثم «خروج».</sys:String>
   <sys:String x:Key="Settings.MinimizeToTray">التصغير إلى شريط المهام بدل شريط البرامج</sys:String>
@@ -226,6 +228,7 @@
   <sys:String x:Key="Settings.PrintingHint">رأس سندات القبض والصرف: اسم الجهة وشعارها (اختياريان). مواضع الشيكات ومقاساتها تُضبط من نافذة «طباعة» (Ctrl+P).</sys:String>
   <sys:String x:Key="Settings.Data">البيانات</sys:String>
   <sys:String x:Key="Settings.DataHint">الإعدادات والسجل محفوظة على جهازك فقط، في ملفين JSON. لا يتصل البرنامج بالإنترنت إلا للتحقق من التحديثات إن سمحت بذلك.</sys:String>
+  <sys:String x:Key="Settings.DataHintStore">الإعدادات والسجل محفوظة على جهازك فقط، في ملفين JSON داخل مجلد البرنامج الخاص الذي ينشئه Windows لنسخة المتجر، وتُحذف عند إزالته. لا تتصل هذه النسخة بالإنترنت.</sys:String>
   <sys:String x:Key="Settings.OpenFolder">فتح المجلد</sys:String>
   <sys:String x:Key="Settings.OpenFolderFailed">تعذّر فتح المجلد</sys:String>
 
@@ -237,6 +240,7 @@
   <sys:String x:Key="About.License1" xml:space="preserve">مجاني ومفتوح المصدر بترخيص </sys:String>
   <sys:String x:Key="About.License2">. الخط: IBM Plex Sans Arabic بترخيص SIL OFL 1.1.</sys:String>
   <sys:String x:Key="About.UpdatePrivacy">التحقق من التحديثات يتصل بخوادم GitHub (api.github.com) ولا يرسل سوى طلب الإصدار الأحدث ورقم إصدارك. يمكنك إيقافه من الإعدادات.</sys:String>
+  <sys:String x:Key="About.StorePrivacy">هذه النسخة من Microsoft Store لا تتصل بالإنترنت؛ المتجر هو الذي يحدّثها.</sys:String>
   <sys:String x:Key="About.Shortcuts">اختصارات لوحة المفاتيح</sys:String>
   <sys:String x:Key="About.KeyHotkey">تحويل الرقم في الحافظة من أي برنامج</sys:String>
   <sys:String x:Key="About.KeyCopy">نسخ النتيجة</sys:String>
@@ -279,6 +283,7 @@
   <sys:String x:Key="Tech.Version">إصدار البرنامج</sys:String>
   <sys:String x:Key="Tech.Installed">مثبّت</sys:String>
   <sys:String x:Key="Tech.Portable">نسخة محمولة</sys:String>
+  <sys:String x:Key="Tech.Store">من متجر Microsoft</sys:String>
   <sys:String x:Key="Tech.UiLanguage">لغة الواجهة</sys:String>
   <sys:String x:Key="Tech.Scale">دقة العرض</sys:String>
   <sys:String x:Key="Tech.Options">خيارات التحويل</sys:String>
@@ -307,6 +312,7 @@
   <sys:String x:Key="Update.StatusFailed">تعذّر التحقق: {0}</sys:String>
   <sys:String x:Key="Update.StatusLatest">لديك أحدث إصدار. آخر تحقق: ‎{0}‎</sys:String>
   <sys:String x:Key="Update.StatusNever">لم يُتحقق من التحديثات بعد.</sys:String>
+  <sys:String x:Key="Update.FromStore">التحديثات تأتي من Microsoft Store</sys:String>
   <sys:String x:Key="Update.ToastTitle">يتوفر إصدار جديد من InstaWords: {0}</sys:String>
   <sys:String x:Key="Update.ToastBody">افتح البرنامج من شريط المهام لتحديثه.</sys:String>
   <sys:String x:Key="Update.LatestTitle">لديك أحدث إصدار</sys:String>

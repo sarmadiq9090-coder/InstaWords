@@ -103,6 +103,9 @@
               <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Settings.StartWithWindowsHint}" />
             </StackPanel>
           </CheckBox>
+          <!-- Store copy: why the box cannot be changed here (turned off in Task Manager, or by policy). -->
+          <TextBlock x:Name="StartupNote" Style="{StaticResource HintText}" Margin="28,4,0,0" FontSize="12.5" TextWrapping="Wrap" Visibility="Collapsed"
+                     AutomationProperties.AutomationId="StartupNote" />
           <CheckBox x:Name="CloseToTray" Margin="0,14,0,0" Click="OnTrayClick" AutomationProperties.AutomationId="CloseToTray">
             <StackPanel>
               <TextBlock Text="{DynamicResource Settings.CloseToTray}" />
@@ -118,7 +121,7 @@
             </StackPanel>
           </CheckBox>
           <WrapPanel Margin="0,14,0,0">
-            <Button Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconRefresh}" Content="{DynamicResource Common.CheckUpdate}" Click="OnCheckUpdateClick"
+            <Button x:Name="CheckUpdateButton" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconRefresh}" Content="{DynamicResource Common.CheckUpdate}" Click="OnCheckUpdateClick"
                     Margin="0,0,10,0" AutomationProperties.AutomationId="CheckUpdate" AutomationProperties.Name="{DynamicResource Common.CheckUpdate}" />
             <TextBlock x:Name="UpdateStatus" Style="{StaticResource HintText}" VerticalAlignment="Center" AutomationProperties.AutomationId="UpdateStatus" />
           </WrapPanel>
@@ -141,7 +144,7 @@
       <ContentControl Style="{StaticResource Card}" Margin="0,16,0,0">
         <StackPanel>
           <TextBlock Style="{StaticResource H2Text}" Text="{DynamicResource Settings.Data}" Margin="0,0,0,8" />
-          <TextBlock Style="{StaticResource HintText}" FontSize="13"
+          <TextBlock x:Name="DataHint" Style="{StaticResource HintText}" FontSize="13"
                      Text="{DynamicResource Settings.DataHint}" />
           <TextBlock x:Name="DataPath" Margin="0,8,0,10" FontFamily="{StaticResource MonoFont}" FontSize="12.5" FlowDirection="LeftToRight"
                      HorizontalAlignment="Left" Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" />

@@ -16,7 +16,7 @@ namespace InstaWords.App
                     instance.SignalFirst();
                     return 0;
                 }
-                var app = new App { StartHidden = Array.IndexOf(args, StartupService.TrayArgument) >= 0 };
+                var app = new App { StartHidden = StartupService.IsStartupLaunch(args) };
                 instance.Listen(() => app.Dispatcher.BeginInvoke(new Action(() => app.ShowMainWindow())));
                 app.InitializeComponent();
                 return app.Run();
