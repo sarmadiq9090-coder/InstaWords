@@ -12,7 +12,7 @@ PackageName: InstaWords
 PackageUrl: https://fastkiwi.app/instawords/
 License: MIT
 LicenseUrl: https://github.com/sarmadiq9090-coder/tafket/blob/HEAD/LICENSE
-Copyright: "© FastKiwi · MIT License"
+Copyright: "© 2026 FastKiwi (Sarmad) · MIT License"
 ShortDescription: "Amounts in words (tafqit) for cheques and invoices, in Arabic, English and French."
 Description: |-
   InstaWords (تفقيط) is a native Windows app that writes amounts in words for cheques, invoices and receipts, in Arabic, English and French, with 100+ currencies and units (halalas, fils, cents...).
