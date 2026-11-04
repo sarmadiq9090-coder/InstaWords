@@ -304,6 +304,16 @@ jobs:
           sha256sum "InstaWords_${VERSION}_x64-setup.exe" "InstaWords_${VERSION}_x64-portable.zip" InstaWords.xlam > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
+      # This version's notes from CHANGELOG.md (the job fails if the section is missing).
+      - name: Release notes from CHANGELOG.md
+        id: notes
+        run: |
+          {
+            echo 'notes<<CHANGELOG_EOF'
+            node scripts/changelog-section.mjs "$VERSION"
+            echo 'CHANGELOG_EOF'
+          } >> "$GITHUB_OUTPUT"
+
       - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           tag_name: v${{ needs.build.outputs.version }}
@@ -318,6 +328,10 @@ jobs:
           fail_on_unmatched_files: true
           body: |
             ## InstaWords — تفقيط v${{ needs.build.outputs.version }}
+
+            ### الجديد في هذا الإصدار · What's new
+
+            ${{ steps.notes.outputs.notes }}
 
             <div dir="rtl">
 

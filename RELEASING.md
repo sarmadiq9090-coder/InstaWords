@@ -16,6 +16,8 @@
 
    يرفع الرقم في `package.json` و`package-lock.json`، والرقم الافتراضي لبناء البرنامج محلياً (`windows/InstaWords.App/InstaWords.App.csproj`)، وأمثلة البناء في `windows/README.md` و`windows/installer/InstaWords.iss`، ثم يطبع قائمة الخطوات التالية. أضف `--dry-run` لترى التغييرات دون كتابة شيء.
 
+   ثم أضف قسماً `## <الإصدار>` في [`CHANGELOG.md`](CHANGELOG.md) بما تغيّر (بالعربية ثم الإنجليزية). ينسخه سير العمل إلى ملاحظات الإصدار تحت «الجديد في هذا الإصدار»، ويفشل الاختبار `tests/changelog.test.ts` وتشغيل النشر إن غاب القسم.
+
 2. **الاختبارات**: `npm run test:all` (و`npm run test:dotnet` إن كان ‎.NET SDK مثبتاً).
 3. **الحفظ والرفع**: `git commit -am "Release v2.1.0"` ثم `git push`، وانتظر نجاح سير العمل «Windows (native app)» على هذا الإيداع (البناء، اختبارات الواجهة، الصور).
 4. **النشر**: في GitHub ← Actions ← «Windows (native app)» ← Run workflow، وفعّل الخيار **release**. ينشئ CI الوسم `v2.1.0` وإصدار GitHub بستة ملفات:
@@ -62,7 +64,7 @@ The version lives in one authoritative place, `package.json`: CI takes the Windo
 
 ### Steps
 
-1. **Prepare** (locally): `npm run release:prepare -- 2.1.0` bumps `package.json` and `package-lock.json`, the app project's default `<Version>` (local builds; CI passes `-p:Version`), and the build examples in `windows/README.md` and `windows/installer/InstaWords.iss`, then prints the checklist. `--dry-run` shows the changes without writing.
+1. **Prepare** (locally): `npm run release:prepare -- 2.1.0` bumps `package.json` and `package-lock.json`, the app project's default `<Version>` (local builds; CI passes `-p:Version`), and the build examples in `windows/README.md` and `windows/installer/InstaWords.iss`, then prints the checklist. `--dry-run` shows the changes without writing. Then add a `## <version>` section to [`CHANGELOG.md`](CHANGELOG.md) (Arabic, then English): the workflow copies it into the release notes under "What's new", and both `tests/changelog.test.ts` and the release run fail without it.
 2. **Test**: `npm run test:all` (and `npm run test:dotnet` with the .NET SDK).
 3. **Commit and push**, then wait for the "Windows (native app)" workflow on that commit to pass.
 4. **Publish**: Actions → "Windows (native app)" → Run workflow → tick **release**. CI creates tag `v2.1.0` and the GitHub release with six assets: the setup exe and the portable zip (keep these names, the in-app updater looks for them), the Excel add-in `InstaWords.xlam`, `SHA256SUMS.txt`, and `winget-manifests.zip` + `instawords.json` (winget and Scoop manifests with the real SHA-256, see [`docs/PACKAGING.md`](docs/PACKAGING.md)). With the `SIGNPATH_API_TOKEN` secret configured, the app and the installer are signed first ([`docs/CODE-SIGNING.md`](docs/CODE-SIGNING.md)).
