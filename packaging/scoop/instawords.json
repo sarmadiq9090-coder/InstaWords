@@ -9,7 +9,7 @@
         "Settings and history live in %APPDATA%\\FastKiwi\\InstaWords (not in the Scoop folder);",
         "delete that folder yourself to remove all data."
     ],
-    "url": "https://github.com/sarmadiq9090-coder/tafket/releases/download/v2.2.0/InstaWords_2.2.0_x64-portable.zip",
+    "url": "https://github.com/sarmadiq9090-coder/InstaWords/releases/download/v2.2.0/InstaWords_2.2.0_x64-portable.zip",
     "hash": "d203ff70fa729b1ee6a54a1034d6662dcadfa0c6e69086c09a375ad65ddcb788",
     "extract_dir": "InstaWords",
     "bin": "InstaWords.exe",
@@ -32,7 +32,7 @@
     },
     "checkver": "github",
     "autoupdate": {
-        "url": "https://github.com/sarmadiq9090-coder/tafket/releases/download/v$version/InstaWords_$version_x64-portable.zip",
+        "url": "https://github.com/sarmadiq9090-coder/InstaWords/releases/download/v$version/InstaWords_$version_x64-portable.zip",
         "hash": {
             "url": "$baseurl/SHA256SUMS.txt"
         }

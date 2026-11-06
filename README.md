@@ -1,6 +1,6 @@
 # InstaWords — تفقيط
 
-**🌐 https://fastkiwi.app/instawords/** · **🪟 [برنامج ويندوز / Windows app](https://github.com/sarmadiq9090-coder/tafket/releases/latest)** · من برامج [FastKiwi](https://fastkiwi.app/ar/)
+**🌐 https://fastkiwi.app/instawords/** · **🪟 [برنامج ويندوز / Windows app](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest)** · من برامج [FastKiwi](https://fastkiwi.app/ar/)
 
 [العربية](#العربية) · [English](#english)
 
@@ -23,7 +23,7 @@
 ### المزايا
 
 - **ثلاث لغات للتفقيط**: العربية والإنجليزية والفرنسية (وحدة مستقلة لكل لغة، وتُضاف لغات أخرى بسهولة).
-- **برنامج ويندوز 10/11 أصلي** (WPF، بلا متصفح) يعمل دون إنترنت ولا يحتاج تثبيت أي متطلبات: تحويل فوري، وتبويب دفعة يُلصق فيه عمود من Excel، واختصار **Ctrl+Alt+T** لتحويل الرقم في الحافظة من أي برنامج، وتحديث تلقائي من GitHub، والإبلاغ عن مشكلة أو اقتراح ([التنزيل](https://github.com/sarmadiq9090-coder/tafket/releases/latest)، والتفاصيل في [`windows/README.md`](windows/README.md)).
+- **برنامج ويندوز 10/11 أصلي** (WPF، بلا متصفح) يعمل دون إنترنت ولا يحتاج تثبيت أي متطلبات: تحويل فوري، وتبويب دفعة يُلصق فيه عمود من Excel، واختصار **Ctrl+Alt+T** لتحويل الرقم في الحافظة من أي برنامج، وتحديث تلقائي من GitHub، والإبلاغ عن مشكلة أو اقتراح ([التنزيل](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest)، والتفاصيل في [`windows/README.md`](windows/README.md)).
 - **تذكير وتأنيث صحيحان** للعدد والمعدود (ثلاثة ريالات، ثلاث ليرات، إحدى عشرة هللة).
 - **صيغ مطابقة لعرف المالية والحسابات**: مائتان ريال، ألفان ريال، أحد عشر ألف ريال، مائتا ألف ريال.
 - **أجزاء العملة** بأي نسبة من قوى العشرة: 100 هللة، و1000 فلس للدينار العراقي والكويتي والبحريني والأردني والريال العماني.
@@ -120,7 +120,7 @@ MIT. انظر [`LICENSE`](LICENSE). كُتب المشروع بأسلوب «ال�
 ### Features
 
 - Three output languages: Arabic, English (British spelling, Title Case) and French (traditional orthography), one module per language.
-- Native Windows 10/11 app (WPF, no browser engine), fully offline with nothing extra to install: instant conversion, bulk tab (paste a column from Excel), **Ctrl+Alt+T** converts the number on the clipboard from any program, auto-update from GitHub Releases, in-app problem/suggestion reports: [Releases](https://github.com/sarmadiq9090-coder/tafket/releases/latest), details in [`windows/README.md`](windows/README.md).
+- Native Windows 10/11 app (WPF, no browser engine), fully offline with nothing extra to install: instant conversion, bulk tab (paste a column from Excel), **Ctrl+Alt+T** converts the number on the clipboard from any program, auto-update from GitHub Releases, in-app problem/suggestion reports: [Releases](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest), details in [`windows/README.md`](windows/README.md).
 - Correct masculine/feminine agreement, dual and plural forms, following common finance/accounting usage (مائتان ريال، ألفان ريال، أحد عشر ألف ريال).
 - Subunits with any power-of-ten ratio (100 halalas; 1000 fils for IQD/KWD/BHD/JOD, 1000 baisa for OMR).
 - Accepts Arabic-Indic, Persian and Western digits, thousands separators and the Arabic decimal separator.

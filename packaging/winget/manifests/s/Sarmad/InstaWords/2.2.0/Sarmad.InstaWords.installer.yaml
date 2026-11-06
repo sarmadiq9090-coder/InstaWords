@@ -27,7 +27,7 @@ AppsAndFeaturesEntries:
   ProductCode: '{8F3B6C2A-5D4E-4A7B-9C1F-2E6D8A0B4C71}_is1'
 Installers:
 - Architecture: x64
-  InstallerUrl: https://github.com/sarmadiq9090-coder/tafket/releases/download/v2.2.0/InstaWords_2.2.0_x64-setup.exe
+  InstallerUrl: https://github.com/sarmadiq9090-coder/InstaWords/releases/download/v2.2.0/InstaWords_2.2.0_x64-setup.exe
   InstallerSha256: D3EBE2850ABE951D1E588ED5DAC7933FAE840CF4279DD8383BF9881AABF40B4B
 ManifestType: installer
 ManifestVersion: 1.12.0

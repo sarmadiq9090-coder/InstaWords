@@ -37,7 +37,7 @@ namespace InstaWords.App.Services
     public static class UpdateLogic
     {
         public const string Owner = "sarmadiq9090-coder";
-        public const string Repo = "tafket";
+        public const string Repo = "InstaWords";
         public const string LatestReleaseApi = "https://api.github.com/repos/" + Owner + "/" + Repo + "/releases/latest";
         public const string ReleasesPage = "https://github.com/" + Owner + "/" + Repo + "/releases/latest";
 

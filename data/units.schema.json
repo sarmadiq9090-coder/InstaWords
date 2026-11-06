@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/sarmadiq9090-coder/tafket/blob/main/data/units.schema.json",
+  "$id": "https://github.com/sarmadiq9090-coder/InstaWords/blob/main/data/units.schema.json",
   "title": "Tafqit units catalog",
   "description": "Catalog of counted nouns (currencies, measures, counts). Every grammatical form is stored explicitly; the engine never derives forms. Optional `i18n` holds the forms in languages other than Arabic (docs/SPEC.md §17).",
   "type": "object",

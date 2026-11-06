@@ -41,7 +41,7 @@
 
 ### التثبيت
 
-من [صفحة الإصدارات](https://github.com/sarmadiq9090-coder/tafket/releases/latest):
+من [صفحة الإصدارات](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest):
 
 - `InstaWords_<الإصدار>_x64-setup.exe`: المثبّت (موصى به). يثبّت للمستخدم الحالي في `%LOCALAPPDATA%\Programs\InstaWords` دون صلاحيات المسؤول، مع اختصار في قائمة ابدأ، واختياري على سطح المكتب ومع تشغيل Windows.
 - `InstaWords_<الإصدار>_x64-portable.zip`: نسخة محمولة: فكّ الضغط وشغّل `InstaWords.exe`.
@@ -95,7 +95,7 @@
 
 ### Install
 
-From [Releases](https://github.com/sarmadiq9090-coder/tafket/releases/latest): `InstaWords_<version>_x64-setup.exe` (per-user, no admin rights; Start menu shortcut, optional desktop shortcut and start with Windows; uninstaller) or `InstaWords_<version>_x64-portable.zip`. The app is not code-signed yet, so SmartScreen may warn: **More info → Run anyway**. Settings and history live in `%APPDATA%\FastKiwi\InstaWords`; unexpected errors (UI thread, background threads and unobserved tasks) are appended to `crash.log` there (time, version, exception and stack trace only, capped at 256 KB). It stays on your PC; attach it to a problem report if you like.
+From [Releases](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest): `InstaWords_<version>_x64-setup.exe` (per-user, no admin rights; Start menu shortcut, optional desktop shortcut and start with Windows; uninstaller) or `InstaWords_<version>_x64-portable.zip`. The app is not code-signed yet, so SmartScreen may warn: **More info → Run anyway**. Settings and history live in `%APPDATA%\FastKiwi\InstaWords`; unexpected errors (UI thread, background threads and unobserved tasks) are appended to `crash.log` there (time, version, exception and stack trace only, capped at 256 KB). It stays on your PC; attach it to a problem report if you like.
 
 ### Build
 

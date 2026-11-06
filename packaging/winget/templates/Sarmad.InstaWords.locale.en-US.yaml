@@ -6,12 +6,12 @@ PackageVersion: ${VERSION}
 PackageLocale: en-US
 Publisher: FastKiwi
 PublisherUrl: https://fastkiwi.app/
-PublisherSupportUrl: https://github.com/sarmadiq9090-coder/tafket/issues
+PublisherSupportUrl: https://github.com/sarmadiq9090-coder/InstaWords/issues
 Author: Sarmad
 PackageName: InstaWords
 PackageUrl: https://fastkiwi.app/instawords/
 License: MIT
-LicenseUrl: https://github.com/sarmadiq9090-coder/tafket/blob/HEAD/LICENSE
+LicenseUrl: https://github.com/sarmadiq9090-coder/InstaWords/blob/HEAD/LICENSE
 Copyright: "© FastKiwi · MIT License"
 ShortDescription: "Amounts in words (tafqit) for cheques and invoices, in Arabic, English and French."
 Description: |-
@@ -35,9 +35,9 @@ Tags:
 - excel
 - french
 - offline
-ReleaseNotesUrl: https://github.com/sarmadiq9090-coder/tafket/releases/tag/v${VERSION}
+ReleaseNotesUrl: https://github.com/sarmadiq9090-coder/InstaWords/releases/tag/v${VERSION}
 Documentations:
 - DocumentLabel: README
-  DocumentUrl: https://github.com/sarmadiq9090-coder/tafket/blob/HEAD/windows/README.md
+  DocumentUrl: https://github.com/sarmadiq9090-coder/InstaWords/blob/HEAD/windows/README.md
 ManifestType: defaultLocale
 ManifestVersion: 1.12.0

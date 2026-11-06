@@ -7,7 +7,7 @@
 // Remote text (release notes) is only ever put into the page as DOM text nodes, never as HTML.
 import { copyText, flash } from "./app.js";
 
-const REPO = "sarmadiq9090-coder/tafket";
+const REPO = "sarmadiq9090-coder/InstaWords";
 const API = `https://api.github.com/repos/${REPO}/releases/latest`;
 const DOWNLOAD_PREFIX = `https://github.com/${REPO}/releases/download/`;
 const RELEASE_PAGE_PREFIX = `https://github.com/${REPO}/releases/`;
