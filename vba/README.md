@@ -4,7 +4,7 @@
 
 دالة `TAFQIT` من InstaWords تكتب المبلغ بالحروف داخل Excel بالعربية أو الإنجليزية أو الفرنسية، **بلا إنترنت**، وتعطي النص نفسه حرفاً بحرف الذي تعطيه مكتبة InstaWords (TypeScript) والموقع. تعمل على Windows وMac.
 
-## التثبيت: الإضافة InstaWords.xlam (موصى به)
+## التثبيت: الإضافة InstaWords.xlam (تجريبية، موصى بها)
 
 الإضافة ملف واحد تثبّته في Excel مرة واحدة، فتعمل الدالة في كل مصنف تفتحه دون استيراد أي شيء ودون حفظ المصنف بصيغة ‎.xlsm. نزّلها من [صفحة Excel في الموقع](https://fastkiwi.app/instawords/excel.html) أو من ملفات [آخر إصدار](https://github.com/sarmadiq9090-coder/tafket/releases/latest/download/InstaWords.xlam) (`InstaWords.xlam`).
 
