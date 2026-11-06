@@ -33,6 +33,9 @@ env:
   DOTNET_NOLOGO: "true"
   DOTNET_CLI_TELEMETRY_OPTOUT: "true"
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+  # Inno Setup is pinned to this exact 6.x release (free; preinstalled on windows-latest, otherwise
+  # installed from Chocolatey's checksummed package). Raise it on purpose, never by drift.
+  INNO_SETUP_VERSION: "6.7.1"
 
 jobs:
   build:
@@ -75,7 +78,42 @@ jobs:
 
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
+
+      # Fails fast, before the build, unless ISCC.exe is exactly Inno Setup $INNO_SETUP_VERSION (a 6.x release):
+      # uses the runner's copy when it is that version, otherwise installs it with Chocolatey.
+      # Exports ISCC (the compiler's path) for the installer step.
+      - name: Inno Setup ${{ env.INNO_SETUP_VERSION }} (pinned)
+        shell: pwsh
+        run: |
+          $want = $env:INNO_SETUP_VERSION
+          if ($want -notmatch '^6\.\d+\.\d+$') { throw "INNO_SETUP_VERSION must be a 6.x.y release, got '$want'." }
+          function Find-Iscc {
+            @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe") |
+              Where-Object { Test-Path $_ } | Select-Object -First 1
+          }
+          function Get-IsccVersion([string]$path) {
+            $info = (Get-Item $path).VersionInfo
+            foreach ($v in @($info.ProductVersion, $info.FileVersion)) {
+              if ($v -match '^\s*(\d+\.\d+\.\d+)') { return $Matches[1] }
+            }
+            return "unknown"
+          }
+          $iscc = Find-Iscc
+          $have = if ($iscc) { Get-IsccVersion $iscc } else { "none" }
+          "Runner's Inno Setup: $have $iscc"
+          if ($have -ne $want) {
+            "Installing Inno Setup $want (Chocolatey package innosetup)"
+            choco install innosetup --version $want --allow-downgrade --no-progress -y
+            if ($LASTEXITCODE -ne 0) { throw "choco install innosetup --version $want failed (exit $LASTEXITCODE)." }
+            $iscc = Find-Iscc
+            $have = if ($iscc) { Get-IsccVersion $iscc } else { "none" }
+          }
+          if (-not $iscc) { throw "ISCC.exe not found after installing Inno Setup $want." }
+          if ($have -notmatch '^6\.') { throw "ISCC.exe at $iscc is Inno Setup $have; Inno Setup 6.x is required." }
+          if ($have -ne $want) { throw "ISCC.exe at $iscc is Inno Setup $have; the workflow pins $want (INNO_SETUP_VERSION)." }
+          "Using Inno Setup $have : $iscc"
+          "ISCC=$iscc" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Read version
         id: version
@@ -167,15 +205,7 @@ jobs:
       - name: Installer (Inno Setup)
         shell: pwsh
         run: |
-          $iscc = @(
-            "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
-            "$env:ProgramFiles\Inno Setup 6\ISCC.exe"
-          ) | Where-Object { Test-Path $_ } | Select-Object -First 1
-          if (-not $iscc) {
-            choco install innosetup --no-progress -y
-            $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
-          }
-          & $iscc /Qp `
+          & $env:ISCC /Qp `
             "/DAppVersion=${{ steps.version.outputs.version }}" `
             "/DNumericVersion=${{ steps.version.outputs.numeric }}" `
             "/DSourceDir=$env:GITHUB_WORKSPACE\windows\InstaWords.App\bin\Release\net48" `
