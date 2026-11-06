@@ -389,6 +389,8 @@ function unitsFile(units) {
     } else {
       L.push("                    subunit: null,");
     }
+    // Decimals shown for a whole amount (apps only): displayDigits, else the subunit's digits.
+    L.push(`                    displayDigits: ${u.displayDigits ?? (u.subunit ? String(u.subunit.ratio).length - 1 : 0)},`);
     L.push(`                    keys: ${csArray(unitKeysOf(u))}),`);
     return L.join("\n");
   });

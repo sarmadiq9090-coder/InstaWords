@@ -55,6 +55,30 @@ namespace InstaWords.UITests
                 Assert.Equal("1,250.75", s.Get("CleanedText").Name);
                 s.Screenshot(s.Window, "01-main-ar");
 
+                // Money keeps its subunit decimals: 45,750.50 and 45,750.00, not 45,750.5 / 45,750.
+                number.Text = "";
+                number.Enter("45750.5");
+                AppSession.WaitUntil(() => s.Find("CleanedText")?.Name == "45,750.50", "number used 45,750.50, got «" + s.Find("CleanedText")?.Name + "»");
+                Assert.Equal(Tafqit.Convert("45750.5", Options("SAR", "ar")), s.ResultText);
+                s.Screenshot(s.Window, "01b-main-decimals");
+                number.Text = "";
+                number.Enter("45750");
+                AppSession.WaitUntil(() => s.Find("CleanedText")?.Name == "45,750.00", "number used 45,750.00, got «" + s.Find("CleanedText")?.Name + "»");
+
+                // Whole Iraqi dinars are written without fils (displayDigits 0); a fraction keeps all three digits.
+                number.Text = "";
+                PickUnit(s, "IQD", "IQD");
+                number.Enter("1750000");
+                AppSession.WaitUntil(() => s.Find("CleanedText")?.Name == "1,750,000", "number used 1,750,000, got «" + s.Find("CleanedText")?.Name + "»");
+                AppSession.WaitUntil(() => s.ResultText == Tafqit.Convert("1750000", Options("IQD", "ar")), "IQD words");
+                number.Text = "";
+                number.Enter("1750000.5");
+                AppSession.WaitUntil(() => s.Find("CleanedText")?.Name == "1,750,000.500", "number used 1,750,000.500, got «" + s.Find("CleanedText")?.Name + "»");
+                number.Text = "";
+                PickUnit(s, "SAR", "SAR");
+                number.Enter("1250.75");
+                AppSession.WaitUntil(() => s.ResultText == expected, "back to 1250.75");
+
                 s.Get("lang-en").Click();
                 var english = Tafqit.Convert("1250.75", Options("SAR", "en"));
                 AppSession.WaitUntil(() => s.ResultText == english, "English result «" + english + "», got «" + s.ResultText + "»");

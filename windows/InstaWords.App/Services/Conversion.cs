@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Text;
 using InstaWords.Core;
 
 namespace InstaWords.App.Services
@@ -10,7 +9,14 @@ namespace InstaWords.App.Services
     {
         public bool Ok { get; set; }
         public string Text { get; set; } = "";
+        /// <summary>The engine's canonical form of the input (1234.5), whenever the input itself is valid.</summary>
         public string Cleaned { get; set; }
+        /// <summary>
+        /// The amount the words state, without separators: money rounded like the words, with its full
+        /// subunit decimals when it has a fraction (45750.50, 10.13, 1750000.500 IQD) and its usual
+        /// digits when whole (45750.00 SAR, 1750000 IQD); otherwise <see cref="Cleaned"/>. See <see cref="AmountFormat"/>.
+        /// </summary>
+        public string Amount { get; set; }
         public string ErrorCode { get; set; }
         public string ErrorMessage { get; set; }
     }
@@ -23,10 +29,12 @@ namespace InstaWords.App.Services
             try
             {
                 var r = Tafqit.TryConvert(input ?? "", options);
+                // The figures follow the words only when there are words (an «error»-mode extra digit is not rounded).
+                var amount = r.Ok ? AmountFormat.Used(r.Cleaned, options?.Unit) : r.Cleaned;
                 // The engine's messages are Arabic; the English interface maps the code instead.
                 return new ConversionResult
                 {
-                    Ok = r.Ok, Text = r.Text ?? "", Cleaned = r.Cleaned, ErrorCode = r.ErrorCode,
+                    Ok = r.Ok, Text = r.Text ?? "", Cleaned = r.Cleaned, Amount = amount, ErrorCode = r.ErrorCode,
                     ErrorMessage = r.Ok ? null : Loc.Error(r.ErrorCode, r.ErrorMessage),
                 };
             }
@@ -36,25 +44,8 @@ namespace InstaWords.App.Services
             }
         }
 
-        /// <summary>«الرقم المعتمد» for display: the cleaned number with thousands separators (1,250.75).</summary>
-        public static string Grouped(string cleaned)
-        {
-            if (string.IsNullOrEmpty(cleaned)) return "";
-            var s = cleaned.Trim();
-            var sign = "";
-            if (s.StartsWith("-", StringComparison.Ordinal) || s.StartsWith("+", StringComparison.Ordinal)) { sign = s.Substring(0, 1); s = s.Substring(1); }
-            var dot = s.IndexOf('.');
-            var intPart = dot < 0 ? s : s.Substring(0, dot);
-            var frac = dot < 0 ? "" : s.Substring(dot);
-            foreach (var ch in intPart) if (ch < '0' || ch > '9') return cleaned; // not a plain number: show as is
-            var b = new StringBuilder();
-            for (var i = 0; i < intPart.Length; i++)
-            {
-                if (i > 0 && (intPart.Length - i) % 3 == 0) b.Append(',');
-                b.Append(intPart[i]);
-            }
-            return sign + b + frac;
-        }
+        /// <summary>«الرقم المعتمد» for display: thousands separators (1,250.75); pass <see cref="ConversionResult.Amount"/>.</summary>
+        public static string Grouped(string number) => AmountFormat.Grouped(number);
 
         public static string FormatCount(int n) => n.ToString("N0", CultureInfo.InvariantCulture);
     }

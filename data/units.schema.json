@@ -188,10 +188,21 @@
         "subunit": {
           "$ref": "#/$defs/subunit"
         },
+        "displayDigits": {
+          "description": "Decimals an app shows for a whole amount of this money (no fraction, so the words name no subunit): 0 where the subunit is unused in everyday writing (IQD: 1,750,000, not 1,750,000.000). Absent: the subunit's digits (ratio 100 → 2). An amount with a fraction always shows every subunit digit (1,750,000.500). Display only: never affects the words or the rounding. Requires a subunit and must not exceed its digits (checked by the engine).",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 8
+        },
         "note": {
           "description": "Reviewer note. Never affects output.",
           "type": "string"
         }
+      },
+      "dependentRequired": {
+        "displayDigits": [
+          "subunit"
+        ]
       },
       "allOf": [
         {

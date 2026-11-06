@@ -39,6 +39,7 @@
    السكربت `scripts/update-release-fallback.mjs` يقرأ آخر إصدار من واجهة GitHub (ويقبل `GITHUB_TOKEN` اختيارياً)، ويختار الملفين بالاسم، ويأخذ SHA-256 من بصمة GitHub لكل ملف (`digest`)، ولا يكتب إلا إذا كان الإصدار أحدث. دون إنترنت ينتهي بنجاح مع رسالة ولا يغيّر شيئاً.
    وتلتقط المزامنة اليومية لموقع FastKiwi الإصدار الجديد أيضاً، فهذه الخطوة تضمن أن المستودع نفسه محدّث.
 7. **winget وScoop**: اتبع [`docs/PACKAGING.md`](docs/PACKAGING.md).
+8. **Microsoft Store**: نزّل الملف المؤقت `store-package` من تشغيل «Windows (native app)» لهذا الإيداع (حزمة `InstaWords_<الإصدار>.0_x64.msix` غير موقّعة، فالمتجر يوقّعها)، ثم أرسلها في Partner Center كإرسال جديد. كل إرسال يحتاج رقماً أعلى من السابق. التفاصيل في [`docs/distribution/microsoft-store.md`](docs/distribution/microsoft-store.md).
 
 ### أين يظهر رقم الإصدار الاحتياطي؟
 
@@ -71,7 +72,8 @@ The version lives in one authoritative place, `package.json`: CI takes the Windo
 5. **Review** the release page; try updating from an older version ([`docs/TESTING-CHECKLIST.md`](docs/TESTING-CHECKLIST.md)).
 6. **Website fallback**, after publishing: `npm run release:fallback` (refreshes `site/release-fallback.json` from the latest release, then `packaging/`), `npm run test:site`, commit and push. `scripts/update-release-fallback.mjs` reads the GitHub API (optional `GITHUB_TOKEN`), picks the assets by name, takes the SHA-256 from each asset's `digest`, and writes only when the release is newer; offline it exits 0 with a message. The FastKiwi site's daily sync also picks up new releases; this step keeps the repository itself current.
 7. **winget and Scoop**: see [`docs/PACKAGING.md`](docs/PACKAGING.md).
+8. **Microsoft Store**: download the `store-package` artifact from that commit's "Windows (native app)" run (`InstaWords_<version>.0_x64.msix`, unsigned: the Store signs it) and upload it as a new Partner Center submission. Each submission needs a higher version. See [`docs/distribution/microsoft-store.md`](docs/distribution/microsoft-store.md).
 
 Everything derived from `site/release-fallback.json` at build time (do not edit by hand): the download buttons' hrefs and version labels in `site/*.html` (the sources may keep v2.0.0; `_site/` carries the JSON's release), the JSON-LD `downloadUrl`, `FALLBACK` in `site/assets/release.js` (written over `/* @release-fallback */ null`), `STATIC_EXE` in `tests/site/smoke.mjs`, and the committed winget/Scoop copies in `packaging/`.
 
-Pre-releases (`2.1.0-rc.1`) are published as GitHub pre-releases: the in-app updater ignores them and `releases/latest` does not return them, so the website is unchanged. Do not submit them to winget or Scoop.
+Pre-releases (`2.1.0-rc.1`) are published as GitHub pre-releases: the in-app updater ignores them and `releases/latest` does not return them, so the website is unchanged. Do not submit them to winget, Scoop or the Microsoft Store (an MSIX version drops the pre-release suffix).

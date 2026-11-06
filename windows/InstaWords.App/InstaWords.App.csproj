@@ -33,7 +33,7 @@
     <Description>Amounts in words (tafqit) for cheques and invoices, in Arabic, English and French.</Description>
     <Company>FastKiwi</Company>
     <Authors>FastKiwi</Authors>
-    <Copyright>© FastKiwi. MIT License.</Copyright>
+    <Copyright>© 2026 FastKiwi (Sarmad). MIT License. InstaWords and FastKiwi are trademarks of FastKiwi (Sarmad).</Copyright>
     <NeutralLanguage>ar</NeutralLanguage>
   </PropertyGroup>
 
@@ -51,6 +51,9 @@
     <Reference Include="ReachFramework" />
     <Reference Include="System.Printing" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <!-- WinRT metadata only (nothing is copied to bin/): the Store copy's startup task (StartupService).
+         Windows 10/11 provide the runtime; unpackaged copies never call it. -->
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1" />
   </ItemGroup>
 
   <ItemGroup>

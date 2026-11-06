@@ -31,7 +31,7 @@
 ## 2. التشغيل الأول
 
 - [ ] يفتح خلال ثانيتين تقريباً، دون رسائل خطأ، والنافذة كاملة داخل الشاشة (لا أزرار مقطوعة) بكل تكبير.
-- [ ] الخط العربي واضح، والاتجاه من اليمين لليسار، ولا نص متداخل أو مقصوص في التبويبات الثلاثة (تفقيط رقم، دفعة، الإعدادات).
+- [ ] الخط العربي واضح، والاتجاه من اليمين لليسار، ولا نص متداخل أو مقصوص في التبويبات الثلاثة (تفقيط رقم، عدة مبالغ، الإعدادات).
 - [ ] يعمل دون إنترنت: افصل الشبكة ثم شغّله. ← كل التحويلات تعمل، ولا رسالة خطأ.
 - [ ] تشغيله مرة ثانية (من قائمة ابدأ) لا يفتح نسخة ثانية، بل يُظهر النافذة الموجودة.
 - [ ] الوضع الداكن (الإعدادات ← التخصيص ← الألوان ← داكن)، إن كان البرنامج يتبعه: النصوص مقروءة.
@@ -53,6 +53,7 @@
 | [ ] | `1250` | MAD | Français | mille deux cent cinquante dirhams marocains |
 
 - [ ] **فواصل الآلاف:** `1,250.75` و`1٬250٫75` ← النتيجة نفسها (ألف ومائتان وخمسون ريالاً سعودياً وخمس وسبعون هللة)، و«الرقم المعتمد» يظهر الرقم منقّى بفواصل الآلاف.
+- [ ] **خانات الكسر:** `45750.5` و`45750` ريال سعودي ← «الرقم المعتمد» ‎45,750.50‎ و‎45,750.00‎، و`5.25` دينار كويتي ← ‎5.250‎، و`10.125` ريال مع التقريب ← ‎10.13‎، و`12.5` بلا وحدة ← ‎12.5‎. والدينار العراقي يُكتب بلا فلوس إن لم يكن فيه كسر: `1750000` ← ‎1,750,000‎ (لا ‎1,750,000.000‎)، و`1750000.5` ← ‎1,750,000.500‎ (ومثله الليرة اللبنانية والسورية والريال اليمني). ومربع المبلغ في معاينة الطباعة مثلها (‎#45,750.50#‎، ‎#1,750,000#‎).
 - [ ] **الأخطاء:** `abc` ← «صيغة الرقم غير صحيحة.»؛ `12.345` مع SAR وخيار «إظهار خطأ» ← رسالة أن الخانات العشرية أكثر من المسموح؛ ومع «تقريب» ← اثنا عشر ريالاً سعودياً وخمس وثلاثون هللة.
 - [ ] **البحث عن عملة:** في قائمة العملات اكتب `دينار` ثم `KWD` ثم `euro`. ← تظهر العملات المطابقة، وEnter يختار.
 - [ ] **اتجاه النص:** الناتج الإنجليزي والفرنسي من اليسار لليمين، والعربي من اليمين لليسار.
@@ -60,9 +61,9 @@
 - [ ] **السجل:** آخر التحويلات تظهر، والنقر على أحدها يعيده.
 - [ ] تطابق الموقع: الرقم نفسه في https://fastkiwi.app/instawords/ يعطي النص نفسه حرفاً بحرف.
 
-## 4. الدفعة: اللصق من Excel
+## 4. عدة مبالغ: اللصق من Excel
 
-- [ ] في Excel اكتب عموداً: عنوان «المبلغ» ثم `100` و`2500.5` و`١٢٣` وخلية فارغة و`abc`. انسخ العمود والصقه في تبويب «دفعة» (Ctrl+V). ← يتعرّف على سطر العنوان، ولكل رقم نتيجة، والخلية الفارغة والقيمة الخاطئة معلّمتان دون توقف.
+- [ ] في Excel اكتب عموداً: عنوان «المبلغ» ثم `100` و`2500.5` و`١٢٣` وخلية فارغة و`abc`. انسخ العمود والصقه في تبويب «عدة مبالغ» (Ctrl+V). ← يتعرّف على سطر العنوان، ولكل رقم نتيجة، والخلية الفارغة والقيمة الخاطئة معلّمتان دون توقف.
 - [ ] **ألف صف أو أكثر:** في Excel اكتب `=RANDBETWEEN(1,1000000)/100` في A1:A10000، انسخ والصق. ← النتائج تظهر خلال ثوانٍ، والنافذة لا تتجمّد، والتمرير سلس.
 - [ ] **نسخ النتائج** والصقها في عمود B بجانب الأرقام. ← سطر لكل رقم، بالترتيب نفسه.
 - [ ] **تصدير CSV** وافتحه بالنقر المزدوج في Excel. ← العربية سليمة (ليست رموزاً مثل Ø§Ù„)، والأعمدة صحيحة.
@@ -203,7 +204,7 @@ Manual checks of the Windows app, the Excel module and the website on real hardw
 - **Setup**: Windows 10 22H2 and Windows 11; display scaling 100%, 125%, 150% (restart the app after each change). Sections 1 to 12 in full on each OS at 100%; sections 2, 3, 4 and 6 again at 125% and 150%. Have an older release (e.g. v2.0.0) for the update test, plus Excel, Word, a browser and Notepad.
 - **1. Install**: the site's download button downloads the setup directly with the latest version; optional `Get-FileHash` matches the site/`SHA256SUMS.txt`; SmartScreen behaviour recorded (unsigned: More info → Run anyway); no UAC; per-user install to `%LOCALAPPDATA%\Programs\InstaWords`; Apps & features shows "InstaWords — تفقيط", publisher FastKiwi.
 - **2. First run**: fast start, nothing clipped at any scaling, RTL layout, works offline, single instance.
-- **3. Conversions**: the table above gives the exact expected text in Arabic, English and French (e.g. `1250.75` SAR → "One Thousand Two Hundred Fifty Saudi Riyals and Seventy-Five Halalas"), plus thousands separators, error messages, currency search, copy, history, identical to the website.
+- **3. Conversions**: the table above gives the exact expected text in Arabic, English and French (e.g. `1250.75` SAR → "One Thousand Two Hundred Fifty Saudi Riyals and Seventy-Five Halalas"), plus thousands separators, money shown as it is written ("45,750.50", "45,750.00", "5.250" KWD; `10.125` SAR rounded → "10.13"; `12.5` with no unit stays "12.5"; whole IQD/LBP/SYP/YER without the unused subunit: `1750000` IQD → "1,750,000", but `1750000.5` → "1,750,000.500") in «الرقم المعتمد», the print amount box and the Bulk grid, error messages, currency search, copy, history, identical to the website.
 - **4. Bulk**: paste a column from Excel (header, blank, invalid cells), 10,000 rows without freezing, copy results back, CSV export opens in Excel with intact Arabic, CSV import.
 - **5. Ctrl+Alt+T** in Excel, Word and a browser (toast + clipboard replaced), non-numbers left alone, works while minimised, hotkey conflict handled.
 - **6. Tray**, **7. Start with Windows** (on and off, after a reboot), **8. UI language / cheque printing** if the build has them.

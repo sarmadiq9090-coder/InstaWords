@@ -18,7 +18,14 @@ namespace InstaWords.App.Views
             InitializeComponent();
             if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this)) return;
             DataContext = App.Current.State;
-            DataPath.Text = AppPaths.DataDir;
+            DataPath.Text = AppPackage.DataDirOnDisk;
+            if (!UpdateService.IsEnabled)
+            {
+                // Store copy: the Store updates it, and MSIX keeps its files in the package's own folder.
+                AutoUpdate.Visibility = Visibility.Collapsed;
+                CheckUpdateButton.Visibility = Visibility.Collapsed;
+                DataHint.SetResourceReference(TextBlock.TextProperty, "Settings.DataHintStore");
+            }
             Refresh();
             Loc.Changed += (s, e) => Refresh();
         }
@@ -45,7 +52,7 @@ namespace InstaWords.App.Views
             Refresh(); // after the hotkey was registered again, so its status is in the new language too
         }
 
-        /// <summary>Re-reads the settings (the Run key may have been changed by the installer).</summary>
+        /// <summary>Re-reads the settings (the Run key or startup task may have been changed outside the app).</summary>
         public void Refresh()
         {
             var s = App.Current.Settings;
@@ -54,7 +61,7 @@ namespace InstaWords.App.Views
             CloseToTray.IsChecked = s.CloseToTray;
             MinimizeToTray.IsChecked = s.MinimizeToTray;
             AutoUpdate.IsChecked = s.AutoCheckUpdates;
-            StartWithWindows.IsChecked = StartupService.IsEnabled;
+            ShowStartup(StartupService.GetViewAsync());
             _pending = null;
             HotkeyBox.Text = App.Current.CurrentHotkeyText;
             SaveHotkeyButton.IsEnabled = false;
@@ -185,11 +192,30 @@ namespace InstaWords.App.Views
             UpdateStatus.Text = App.Current.Updates.StatusText;
         }
 
-        private void OnStartWithWindowsClick(object sender, RoutedEventArgs e)
+        private void OnStartWithWindowsClick(object sender, RoutedEventArgs e) =>
+            ShowStartup(StartupService.SetEnabledAsync(StartWithWindows.IsChecked == true));
+
+        /// <summary>Run key: completes at once. Store copy: the startup task answers asynchronously.</summary>
+        private async void ShowStartup(System.Threading.Tasks.Task<StartupView> pending)
         {
-            var want = StartWithWindows.IsChecked == true;
-            if (!StartupService.SetEnabled(want)) StartWithWindows.IsChecked = !want;
-            StartWithWindows.IsChecked = StartupService.IsEnabled;
+            StartupView view;
+            try
+            {
+                view = await pending;
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Start with Windows: " + ex.Message);
+                return;
+            }
+            StartWithWindows.IsChecked = view.IsChecked;
+            StartWithWindows.IsEnabled = view.CanChange;
+            if (view.NoteKey == null) StartupNote.Visibility = Visibility.Collapsed;
+            else
+            {
+                StartupNote.SetResourceReference(TextBlock.TextProperty, view.NoteKey);
+                StartupNote.Visibility = Visibility.Visible;
+            }
         }
 
         private void OnOpenFolderClick(object sender, RoutedEventArgs e)
@@ -197,7 +223,10 @@ namespace InstaWords.App.Views
             try
             {
                 Directory.CreateDirectory(AppPaths.DataDir);
-                Process.Start(new ProcessStartInfo("explorer.exe", "\"" + AppPaths.DataDir + "\"") { UseShellExecute = true });
+                // Store copy: the folder where MSIX really keeps the files (Explorer runs outside the package).
+                var dir = AppPackage.DataDirOnDisk;
+                DataPath.Text = dir;
+                Process.Start(new ProcessStartInfo("explorer.exe", "\"" + dir + "\"") { UseShellExecute = true });
             }
             catch (Exception ex)
             {
