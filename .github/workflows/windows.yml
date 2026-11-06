@@ -211,6 +211,7 @@ jobs:
           wait-for-completion-timeout-in-seconds: 3600
           output-artifact-directory: windows/InstaWords.App/bin/Release/net48
 
+      # Ships out/InstaWords.xlam (built above) inside the setup for its optional «تثبيت إضافة Excel» task.
       - name: Installer (Inno Setup)
         shell: pwsh
         run: |
@@ -219,6 +220,7 @@ jobs:
             "/DNumericVersion=${{ steps.version.outputs.numeric }}" `
             "/DSourceDir=$env:GITHUB_WORKSPACE\windows\InstaWords.App\bin\Release\net48" `
             "/DOutputDir=$env:GITHUB_WORKSPACE\out" `
+            "/DXlamFile=$env:GITHUB_WORKSPACE\out\InstaWords.xlam" `
             windows\installer\InstaWords.iss
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
@@ -266,6 +268,20 @@ jobs:
           if ($expectSigned -and $valid -ne $files.Count) { throw "Signing was requested but not every file has a valid signature." }
           if (-not $expectSigned) { "Not signed: SIGNPATH_ORGANIZATION_ID not set, or not a release run from the default branch (docs/CODE-SIGNING.md)." }
           "signed=$($expectSigned.ToString().ToLower())" >> $env:GITHUB_OUTPUT
+
+      # The setup's Excel add-in task, end to end with no Excel: silent installs with and without the task,
+      # a silent update while the add-in is held open, and a silent uninstall; checks the file in
+      # %APPDATA%\Microsoft\AddIns (no Mark of the Web) and the OPENn values in a faked Excel registry.
+      - name: Installer test (Excel add-in task)
+        shell: pwsh
+        run: windows/installer/test-xlam-task.ps1 -Setup "out\InstaWords_${{ steps.version.outputs.version }}_x64-setup.exe" -Xlam out\InstaWords.xlam -OutDir out\installer-test
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: installer-test-logs
+          path: out/installer-test/*.log
+          if-no-files-found: ignore
 
       - name: Portable zip
         shell: pwsh
@@ -489,7 +505,7 @@ jobs:
             - **`InstaWords_${{ needs.build.outputs.version }}_x64-portable.zip`**: نسخة محمولة: فكّ الضغط وشغّل `InstaWords.exe`.
             - **Ctrl+Alt+T** من أي برنامج: انسخ رقماً، اضغط الاختصار، فيصبح ما في الحافظة المبلغَ مكتوباً بالحروف جاهزاً للصق.
             - تبويب «عدة مبالغ» لتحويل عمود كامل من Excel، مع تصدير CSV.
-            - **`InstaWords.xlam`** (تجريبية): إضافة Excel تضيف الدالة `=TAFQIT(A1, "SAR")` إلى كل مصنف دون إنترنت. قبل تثبيتها: زر الفأرة الأيمن ← خصائص ← «إلغاء الحظر»، ثم في Excel: ملف ← خيارات ← الوظائف الإضافية ← انتقال ← استعراض. (مبنية وفق المواصفات ومختبرة آلياً، ولم تُجرَّب بعد في Excel حقيقي.) التفاصيل في `vba/README.md`.
+            - **`InstaWords.xlam`** (تجريبية): إضافة Excel تضيف الدالة `=TAFQIT(A1, "SAR")` إلى كل مصنف دون إنترنت. أسهل طريقة: اختر «تثبيت إضافة Excel» أثناء تثبيت البرنامج. أو يدوياً: زر الفأرة الأيمن على الملف ← خصائص ← «إلغاء الحظر»، ثم في Excel: ملف ← خيارات ← الوظائف الإضافية ← انتقال ← استعراض. (مبنية وفق المواصفات ومختبرة آلياً، ولم تُجرَّب بعد في Excel حقيقي.) التفاصيل في `vba/README.md`.
             - ${{ needs.build.outputs.signed == 'true' && 'البرنامج والمثبّت موقّعان رقمياً.' || 'البرنامج غير موقّع رقمياً بعد، لذا قد يظهر تحذير SmartScreen: اختر «مزيد من المعلومات» ثم «تشغيل على أي حال».' }}
             - بصمات SHA-256 في `SHA256SUMS.txt`.
 
@@ -503,7 +519,7 @@ jobs:
             - **`InstaWords_${{ needs.build.outputs.version }}_x64-portable.zip`**: portable: unzip and run `InstaWords.exe`.
             - **Ctrl+Alt+T** from any program: copy a number, press the shortcut, and the clipboard now holds the amount in words, ready to paste.
             - Bulk tab to convert a whole Excel column, with CSV export.
-            - **`InstaWords.xlam`** (experimental): Excel add-in adding `=TAFQIT(A1, "SAR")` to every workbook, offline. Before installing: right-click → Properties → Unblock; then Excel → File → Options → Add-ins → Go → Browse. (Built to spec and verified by parsing; not yet smoke-tested in a real Excel.) See `vba/README.md`.
+            - **`InstaWords.xlam`** (experimental): Excel add-in adding `=TAFQIT(A1, "SAR")` to every workbook, offline. Easiest: tick "Install the Excel add-in" in the installer. Or by hand: right-click the file → Properties → Unblock; then Excel → File → Options → Add-ins → Go → Browse. (Built to spec and verified by parsing; not yet smoke-tested in a real Excel.) See `vba/README.md`.
             - ${{ needs.build.outputs.signed == 'true' && 'The app and the installer are code-signed.' || 'The app is not code-signed yet, so SmartScreen may warn: click "More info" → "Run anyway".' }}
             - SHA-256 checksums: `SHA256SUMS.txt`. winget and Scoop manifests for this version: `winget-manifests.zip`, `instawords.json` (docs/PACKAGING.md).
 
