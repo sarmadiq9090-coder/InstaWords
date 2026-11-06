@@ -8,7 +8,7 @@
 
 ### المزايا
 
-- **تفقيط فوري أثناء الكتابة**: أرقام عربية (١٢٣) أو إنجليزية، بفواصل الآلاف أو بدونها، ويظهر «الرقم المعتمد» منسّقاً لتتحقق منه.
+- **تفقيط فوري أثناء الكتابة**: أرقام عربية (١٢٣) أو إنجليزية، بفواصل الآلاف أو بدونها، ويظهر «الرقم المعتمد» منسّقاً لتتحقق منه. المبالغ تظهر كما يكتبها المحاسب، وهي نفسها المكتوبة بالحروف بعد التقريب: ‎45,750.50‎ و‎45,750.00‎ ريال، و‎5.250‎ دينار كويتي (عدد الخانات من نسبة الفئة الصغرى في `data/units.json`)، أما العملة التي لا تُستعمل فئتها الصغرى في الواقع فالمبلغ الصحيح فيها بلا كسور: ‎1,750,000‎ دينار عراقي لا ‎1,750,000.000‎ (الحقل `displayDigits`: الدينار العراقي والليرة اللبنانية والسورية والريال اليمني)، وإن كان فيه كسر ظهرت خانات الفلوس كلها (‎1,750,000.500‎). ويظهر ذلك في «الرقم المعتمد» ومربع المبلغ عند الطباعة و«عدة مبالغ» والسجل. أما الأرقام بلا وحدة والوحدات الأخرى فتظهر كما هي (‎12.5‎).
 - **العملة أو الوحدة** مجمّعة حسب الفئة، مع بحث بالعربية أو الرمز (SAR) أو الاسم الإنجليزي والفرنسي: اكتب وأنت على القائمة ثم Enter.
 - **لغة التفقيط**: العربية والإنجليزية والفرنسية، والنص يُعرض بالاتجاه الصحيح لكل لغة.
 - **خيارات الصياغة**: مائة أو مئة، وتقريب الخانات الزائدة أو إظهار خطأ، ونص قبل المبلغ وبعده مع صيغ جاهزة لكل لغة: «فقط … لا غير»، و"… Only"، و«Arrêtée la présente facture à la somme de …».
@@ -62,7 +62,7 @@
 
 ### Features
 
-- **Live conversion as you type**: Arabic-Indic (١٢٣) or Western digits, with or without thousands separators; the cleaned number («الرقم المعتمد») is shown with separators for checking.
+- **Live conversion as you type**: Arabic-Indic (١٢٣) or Western digits, with or without thousands separators; the number used («الرقم المعتمد») is shown with separators for checking. Money is shown the way it is written, and equals the amount the words state after rounding: an amount with a fraction shows every subunit digit (45,750.50 SAR, 5.250 KWD, 1,750,000.500 IQD; digits from the subunit ratio in `data/units.json`); a whole amount shows the unit's `displayDigits` when set, else every subunit digit (45,750.00 SAR, 5.000 KWD, but 1,750,000 IQD, since the fils is never written; likewise LBP, SYP and YER). This applies in «الرقم المعتمد», the printed amount box, the Bulk grid and CSV (without separators: `45750.50`, `1750000`) and the history. Plain numbers and other units are shown as cleaned (12.5).
 - **Currency/unit picker** grouped by category, searchable in Arabic, by code (SAR) or English/French name: just type on it and press Enter.
 - **Output language**: Arabic, English, French, each shown in its own text direction.
 - **Formatting options**: مائة/مئة, round or reject extra decimals, prefix/suffix with per-language presets.
@@ -103,7 +103,7 @@ Requirements: .NET 8 SDK (and Node.js 22 for the engine generator). The app targ
 
 ```sh
 npm ci && npm run test:dotnet                       # engine: generate, check, parity tests
-dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports, CSV, strings, print layout
+dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports, CSV, strings, print layout, amounts
 dotnet build windows/InstaWords.App -c Release      # → windows/InstaWords.App/bin/Release/net48/InstaWords.exe
 dotnet test  windows/InstaWords.UITests -c Release  # Windows only: FlaUI end-to-end tests + screenshots
 iscc /DAppVersion=2.2.0 windows\installer\InstaWords.iss   # Inno Setup 6 → out\InstaWords_2.2.0_x64-setup.exe
@@ -114,7 +114,7 @@ iscc /DAppVersion=2.2.0 windows\installer\InstaWords.iss   # Inno Setup 6 → ou
 | `InstaWords.Core/` | The tafqit engine (netstandard2.0), generated from `src/` and `data/units.json` |
 | `InstaWords.App/` | The WPF app: `Views/` (pages, dialogs, toast, print dialog and renderer), `Themes/` (FastKiwi styles), `Strings/` (interface strings), `Services/` (hotkey, tray, clipboard, CSV, settings, updates, reports, print layout) |
 | `InstaWords.App/Strings/` | `Strings.ar.xaml` and `Strings.en.xaml`: every interface string, same keys in both (a unit test checks the keys match, every key the app uses exists, English has no Arabic). XAML uses `{DynamicResource Key}`, code `Loc.T("Key")`; engine error codes map to `Err.CODE` in English |
-| `InstaWords.App.Tests/` | Unit tests of the app's pure logic (links source files from the app): updates, reports, CSV, interface strings, print layout (mm ↔ DIP, offsets, word wrap and filler, template fields) |
+| `InstaWords.App.Tests/` | Unit tests of the app's pure logic (links source files from the app): updates, reports, CSV, interface strings, print layout (mm ↔ DIP, offsets, word wrap and filler, template fields), the amount shown with the words (`AmountFormat`: subunit decimals, `displayDigits` for whole amounts, rounding, large amounts as strings) |
 | `InstaWords.UITests/` | UI tests (FlaUI/UIA3). `INSTAWORDS_APP_PATH` and `INSTAWORDS_ARTIFACTS` override the exe and screenshot folder |
 | `installer/InstaWords.iss` | Inno Setup script (Arabic + English) |
 

@@ -18,6 +18,7 @@
 3. تنوين النصب يُكتب ألفاً تليها الفتحتان (`ريالاً`)، وما ينتهي بتاء مربوطة يُكتب بلا ألف (`هللة`). لا تضف أي تشكيل آخر.
 4. إذا كانت الوحدة موصوفة فصِف كل صيغة: «ريالان سعوديان»، «ريالات سعودية».
 5. الجزء الفرعي (`subunit`) نسبته قوة للعدد 10 فقط.
+   - الحقل الاختياري `displayDigits` (عدد صحيح من 0 إلى عدد أصفار `ratio`) يحدد عدد الخانات العشرية التي يعرضها التطبيق للمبلغ الصحيح بالأرقام. اكتب `0` فقط إن كانت الفئة الصغرى غير مستعملة في الكتابة اليومية (الدينار العراقي: ‎1,750,000‎ لا ‎1,750,000.000‎)، واذكر السبب في `note`. إن غاب الحقل عُرضت خانات `ratio` كلها (‎45,750.00‎ ريال، ‎5.000‎ دينار كويتي). المبلغ الذي فيه كسر يُعرض دائماً بكل الخانات (‎1,750,000.500‎)، والحقل لا يغيّر التفقيط ولا التقريب.
 6. إن شككت في صيغة فاكتب الشك في `note`، ولا تخمّن.
 7. شغّل `npm test && npm run build:vba && npm run test:vba`، وأرفق ملف `vba/Tafqit.bas` المُعاد توليده في طلب الدمج.
 
@@ -48,6 +49,7 @@
 
 - **Clean-room:** never copy code, text, data or design from other tafqit products.
 - **Add a unit:** edit only `data/units.json` with every form spelled out, keep it schema-valid, then run `npm test && npm run build:vba && npm run test:vba` and commit the regenerated `vba/Tafqit.bas`.
+- **`displayDigits`** (optional, an integer from 0 to the subunit's digits, only with a `subunit`): the decimals an app shows for a whole amount. Set it to `0` only where the subunit is unused in everyday writing (IQD: "1,750,000", not "1,750,000.000") and say why in `note`. Absent, a whole amount shows every subunit digit ("45,750.00" SAR, "5.000" KWD). An amount with a fraction always shows every subunit digit ("1,750,000.500"); the words and the rounding never depend on it.
 - **Change a rule:** issue → `docs/SPEC.md` → `tests/golden/cases.json` → `src/` → `vba/Tafqit.template.bas`, then `npm run test:all` must pass.
 - **Site:** no external resources (offline-first); `npm run test:site`.
 - **Releases:** [`RELEASING.md`](RELEASING.md) (`npm run release:prepare -- <version>`); winget/Scoop: [`docs/PACKAGING.md`](docs/PACKAGING.md); signing: [`docs/CODE-SIGNING.md`](docs/CODE-SIGNING.md); manual checks: [`docs/TESTING-CHECKLIST.md`](docs/TESTING-CHECKLIST.md).

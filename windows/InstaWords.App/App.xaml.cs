@@ -161,7 +161,7 @@ namespace InstaWords.App
                     return;
                 }
                 History.Add(values[0], r.Cleaned, options.Unit, options.Language, r.Text);
-                Notify(true, Loc.F("Clip.CopiedTitle", Conversion.Grouped(r.Cleaned)), r.Text, Catalog.FlowFor(options.Language));
+                Notify(true, Loc.F("Clip.CopiedTitle", Conversion.Grouped(r.Amount)), r.Text, Catalog.FlowFor(options.Language));
                 return;
             }
 
