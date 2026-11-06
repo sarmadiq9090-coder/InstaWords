@@ -4,6 +4,7 @@
 //   data/units.json   → _site/units.json
 //   LICENSE           → _site/LICENSE.txt
 //   vba/Tafqit.bas    → _site/Tafqit.bas (when present)
+//                     → _site/InstaWords.xlam (Excel add-in, built by scripts/build-xlam.mjs)
 // Writes the fallback release from site/release-fallback.json into the pages' static download
 // links, their version labels, the JSON-LD downloadUrl and assets/release.js.
 // Then stamps a content-hash cache version and the precache list into _site/sw.js.
@@ -12,6 +13,7 @@ import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statS
 import { dirname, join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readFallback } from "./lib/release.mjs";
+import { buildXlam } from "./build-xlam.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const out = join(root, "_site");
@@ -57,8 +59,12 @@ cpSync(at("LICENSE"), join(out, "LICENSE.txt"));
 // 4. Excel VBA module (built separately; optional here).
 // Without the module the Excel page would offer a broken download, so it is left out of the
 // build and its navigation links are removed until vba/Tafqit.bas exists.
-if (existsSync(at("vba", "Tafqit.bas"))) cpSync(at("vba", "Tafqit.bas"), join(out, "Tafqit.bas"));
-else {
+if (existsSync(at("vba", "Tafqit.bas"))) {
+  cpSync(at("vba", "Tafqit.bas"), join(out, "Tafqit.bas"));
+  // The add-in is served by the site itself, so its download link works before any release has it.
+  const { version } = JSON.parse(readFileSync(at("package.json"), "utf8"));
+  writeFileSync(join(out, "InstaWords.xlam"), buildXlam(readFileSync(at("vba", "Tafqit.bas"), "latin1"), { version }));
+} else {
   console.warn("build-site: warning: vba/Tafqit.bas not found; the Excel page is left out of this build.");
   rmSync(join(out, "excel.html"));
   for (const name of readdirSync(out)) {

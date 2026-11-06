@@ -48,7 +48,7 @@
 
 البرنامج غير موقّع رقمياً بعد، لذا قد يظهر تحذير SmartScreen: اختر «مزيد من المعلومات» ثم «تشغيل على أي حال».
 
-الإعدادات والسجل في `%APPDATA%\FastKiwi\InstaWords` (ملفّا `settings.json` و`history.json`).
+الإعدادات والسجل في `%APPDATA%\FastKiwi\InstaWords` (ملفّا `settings.json` و`history.json`). وإذا وقع خطأ غير متوقع كُتب في `crash.log` في المجلد نفسه (الوقت والإصدار ونص الخطأ فقط، بلا مبالغ)، ولا يُرسل إلى أي مكان؛ يمكنك إرفاقه بنفسك عند الإبلاغ عن مشكلة.
 
 ### البناء
 
@@ -95,7 +95,7 @@
 
 ### Install
 
-From [Releases](https://github.com/sarmadiq9090-coder/tafket/releases/latest): `InstaWords_<version>_x64-setup.exe` (per-user, no admin rights; Start menu shortcut, optional desktop shortcut and start with Windows; uninstaller) or `InstaWords_<version>_x64-portable.zip`. The app is not code-signed yet, so SmartScreen may warn: **More info → Run anyway**. Settings and history live in `%APPDATA%\FastKiwi\InstaWords`.
+From [Releases](https://github.com/sarmadiq9090-coder/tafket/releases/latest): `InstaWords_<version>_x64-setup.exe` (per-user, no admin rights; Start menu shortcut, optional desktop shortcut and start with Windows; uninstaller) or `InstaWords_<version>_x64-portable.zip`. The app is not code-signed yet, so SmartScreen may warn: **More info → Run anyway**. Settings and history live in `%APPDATA%\FastKiwi\InstaWords`; unexpected errors (UI thread, background threads and unobserved tasks) are appended to `crash.log` there (time, version, exception and stack trace only, capped at 256 KB). It stays on your PC; attach it to a problem report if you like.
 
 ### Build
 
@@ -106,7 +106,7 @@ npm ci && npm run test:dotnet                       # engine: generate, check, p
 dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports (GitHub and mailto links), CSV, strings, print layout
 dotnet build windows/InstaWords.App -c Release      # → windows/InstaWords.App/bin/Release/net48/InstaWords.exe
 dotnet test  windows/InstaWords.UITests -c Release  # Windows only: FlaUI end-to-end tests + screenshots
-iscc /DAppVersion=2.1.0 windows\installer\InstaWords.iss   # Inno Setup 6 → out\InstaWords_2.1.0_x64-setup.exe
+iscc /DAppVersion=2.2.0 windows\installer\InstaWords.iss   # Inno Setup 6 → out\InstaWords_2.2.0_x64-setup.exe
 ```
 
 | Path | What |
