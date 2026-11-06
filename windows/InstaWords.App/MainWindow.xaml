@@ -23,7 +23,7 @@
           <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-          <Image Source="{StaticResource LogoImage}" Width="34" Height="34" FlowDirection="LeftToRight" RenderOptions.BitmapScalingMode="HighQuality" />
+          <Image Source="{StaticResource LogoImageSmall}" Width="34" Height="34" FlowDirection="LeftToRight" RenderOptions.BitmapScalingMode="HighQuality" />
           <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
             <TextBlock FontSize="17" FontWeight="Bold" FlowDirection="LeftToRight" HorizontalAlignment="Left" Text="InstaWords" />
             <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource AccentTextBrush}" Margin="0,-3,0,0" Text="{DynamicResource App.Tagline}" />
