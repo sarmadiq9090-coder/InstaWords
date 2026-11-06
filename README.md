@@ -107,7 +107,7 @@ npm run build:site  # يبني الموقع في _site/
 
 ### الترخيص
 
-MIT. انظر [`LICENSE`](LICENSE). كُتب المشروع بأسلوب «الغرفة النظيفة»، من قواعد العربية وحدها، دون نسخ شيفرة أو نصوص من أي منتج آخر.
+MIT. انظر [`LICENSE`](LICENSE). كُتب المشروع بأسلوب «الغرفة النظيفة»، من قواعد العربية وحدها، دون نسخ شيفرة أو نصوص من أي منتج آخر. والاسمان InstaWords™ وFastKiwi™ علامتان تجاريتان لا تشملهما الرخصة: النسخ المعدّلة تحمل اسماً وأيقونة مختلفين، انظر [`TRADEMARKS.md`](TRADEMARKS.md) ومصادر التنزيل الرسمية فيه.
 
 </div>
 
@@ -161,4 +161,4 @@ Production: **https://fastkiwi.app/instawords/**. Build with `npm run build:site
 
 Excel: install the `InstaWords.xlam` add-in (built by `scripts/build-xlam.mjs`; Unblock it, then File → Options → Add-ins → Go → Browse), or import `vba/Tafqit.bas` (module `TafqitLib`), then `=TAFQIT(A1, "ريال سعودي", "مائة", "فقط", "لا غير", "round")`. VBA output is verified against the core on ~30,000 inputs via a VBA-subset harness.
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md). License: MIT.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). License: MIT. "InstaWords" and "FastKiwi" are trademarks and not covered by the licence: forks must use a different name and icon; see [`TRADEMARKS.md`](TRADEMARKS.md), which also lists the official download sources.
