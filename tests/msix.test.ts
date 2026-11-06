@@ -43,16 +43,15 @@ describe("MSIX package (Microsoft Store)", () => {
     for (const bad of ["2.2", "2.2.1.0", "v2.2.1", "2.2.1-beta", "0.1.0"]) assert.throws(() => storeVersion({ storeVersion: bad }, "1.0.0"), bad);
   });
 
-  test("identity.json storeVersion is 2.2.1 (package 2.2.1.0) and not behind package.json", () => {
-    // Raise storeVersion for every Store submission (Partner Center needs a higher package version each
-    // time) and update this test with it; see docs/distribution/microsoft-store.md, "Version of each submission".
-    assert.equal(identity.storeVersion, "2.2.1");
+  test("Store build follows package.json (2.3.0 → package 2.3.0.0) when no storeVersion is set", () => {
+    // v2.3.0 ships the Store build itself, so the 2.2.1 override is gone; set storeVersion again only when a
+    // Store submission must run ahead of package.json (docs/distribution/microsoft-store.md).
+    assert.equal(identity.storeVersion, undefined);
     const v = storeVersion(identity, pkgVersion);
-    assert.equal(v, "2.2.1");
-    assert.ok(compareVersions(v, pkgVersion) >= 0);
-    assert.equal(packageVersion(v), "2.2.1.0");
-    assert.equal(packageFileName(v), "InstaWords_2.2.1.0_x64.msix");
-    assert.match(renderManifest(template, identity, v), /<Identity Name="FastKiwi\.InstaWords" [^>]*Version="2\.2\.1\.0"/);
+    assert.equal(v, pkgVersion);
+    assert.equal(packageVersion(v), pkgVersion + ".0");
+    assert.equal(packageFileName(v), `InstaWords_${pkgVersion}.0_x64.msix`);
+    assert.match(renderManifest(template, identity, v), new RegExp(`<Identity Name="FastKiwi\\.InstaWords" [^>]*Version="${pkgVersion.replace(/\./g, "\\.")}\\.0"`));
   });
 
   test("identity.json is usable", () => {

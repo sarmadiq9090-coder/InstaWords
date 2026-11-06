@@ -41,7 +41,7 @@
   <PropertyGroup Condition="'$(Version)' == '' Or '$(Version)' == '1.0.0'">
     <_PackageJson>$(MSBuildThisFileDirectory)..\..\package.json</_PackageJson>
     <Version Condition="Exists('$(_PackageJson)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(_PackageJson)')), '"version"\s*:\s*"([0-9][^"]*)"').Groups[1].Value)</Version>
-    <Version Condition="'$(Version)' == ''">2.2.0</Version>
+    <Version Condition="'$(Version)' == ''">2.3.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

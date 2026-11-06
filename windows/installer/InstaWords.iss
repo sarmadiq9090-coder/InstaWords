@@ -2,7 +2,7 @@
 ; the app runs on .NET Framework 4.8, which is part of Windows 10 and 11.
 ;
 ; Build (CI passes the version from package.json):
-;   iscc /DAppVersion=2.2.0 /DSourceDir=..\InstaWords.App\bin\Release\net48 /DOutputDir=..\..\out windows\installer\InstaWords.iss
+;   iscc /DAppVersion=2.3.0 /DSourceDir=..\InstaWords.App\bin\Release\net48 /DOutputDir=..\..\out windows\installer\InstaWords.iss
 ;
 ; Silent update (used by the app's «تحديث الآن»):
 ;   InstaWords_<ver>_x64-setup.exe /VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /UPDATE

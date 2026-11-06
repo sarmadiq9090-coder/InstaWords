@@ -3,6 +3,24 @@
 Each version's section is copied into its GitHub release notes by the release workflow
 (`scripts/changelog-section.mjs`). Earlier versions: [GitHub Releases](https://github.com/sarmadiq9090-coder/tafket/releases).
 
+## 2.3.0
+
+<div dir="rtl">
+
+- **InstaWords في متجر Microsoft**: حزمة MSIX رسمية، تتحدث من المتجر نفسه (المحدّث الداخلي معطّل في نسخة المتجر ويقول «التحديثات تأتي من Microsoft Store»)، وتبدأ مع Windows عبر مهمة بدء التشغيل الخاصة بالحزمة.
+- **«عدة مبالغ»** بدل «دفعة» اسماً لتبويب تحويل عمود كامل، و«ما نسخته (الحافظة)» بدل «الحافظة».
+- **إصلاحات**: شعار السند لم يكن يُحمَّل أبداً؛ عمود فارغ في «خيارات الصياغة» حين تكون لغة التفقيط إنجليزية أو فرنسية؛ حقول نافذة الطباعة المقصوصة؛ معاينة الطباعة تعرض الصفحة كاملة.
+- **الحد الأدنى**: Windows 10 الإصدار 2004 (‏10.0.19041) أو أحدث.
+- **العلامات التجارية**: InstaWords™ وFastKiwi™ باسم FastKiwi (Sarmad)؛ الرخصة تبقى MIT (انظر `TRADEMARKS.md`).
+
+</div>
+
+- **InstaWords on the Microsoft Store**: an official MSIX package that updates through the Store (the in-app updater is off in the Store build and says "Updates come from Microsoft Store") and starts with Windows through the package's startup task.
+- **«عدة مبالغ»** is the Arabic name of the bulk tab (was «دفعة»), and the clipboard is now «ما نسخته (الحافظة)».
+- **Fixes**: the voucher logo never loaded; an empty column in "Formatting options" for English/French output; clipped print-window fields; the print preview now shows the whole page.
+- **Minimum**: Windows 10 version 2004 (10.0.19041) or later.
+- **Trademarks**: InstaWords™ and FastKiwi™ of FastKiwi (Sarmad); the licence stays MIT (see `TRADEMARKS.md`).
+
 ## 2.2.0
 
 <div dir="rtl">
