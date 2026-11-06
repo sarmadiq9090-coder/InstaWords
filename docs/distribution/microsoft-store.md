@@ -2,7 +2,9 @@
 
 <div dir="rtl">
 
-**الخلاصة بالعربية:** برنامج InstaWords الأصلي (WPF) يُعبّأ حزمة **MSIX** يبنيها GitHub Actions مع كل إيداع، باسم الملف المؤقت `store-package`. الحزمة غير موقّعة لأن المتجر يوقّعها بنفسه، وهوية Partner Center الحقيقية موجودة في `windows/packaging/msix/identity.json`. في نسخة المتجر لا يتحقق البرنامج من التحديثات ولا ينزّل شيئاً، ويعرض بدلاً من ذلك «التحديثات تأتي من Microsoft Store». ويعمل «التشغيل مع Windows» عبر مهمة بدء التشغيل الخاصة بالحزمة. نصوص صفحة المتجر بالعربية والإنجليزية، وقائمة خطوات الإرسال، في الأقسام أدناه.
+**الخلاصة بالعربية:** برنامج InstaWords الأصلي (WPF) يُعبّأ حزمة **MSIX** يبنيها GitHub Actions مع كل إيداع، باسم الملف المؤقت `store-package`. الحزمة غير موقّعة لأن المتجر يوقّعها بنفسه، وهوية Partner Center الحقيقية موجودة في `windows/packaging/msix/identity.json`. في نسخة المتجر لا يتحقق البرنامج من التحديثات ولا ينزّل شيئاً، ويعرض بدلاً من ذلك «التحديثات تأتي من Microsoft Store». ويعمل «التشغيل مع Windows» عبر مهمة بدء التشغيل الخاصة بالحزمة. إصدار نسخة المتجر الحالي **2.2.1** (الحزمة 2.2.1.0) من الحقل `storeVersion` في `identity.json`، ويجب رفعه قبل كل إرسال جديد (القسم 1). نصوص صفحة المتجر بالعربية والإنجليزية، وقائمة خطوات الإرسال، في الأقسام أدناه.
+
+**دليل المالك خطوة بخطوة بالعربية:** [`microsoft-store-owner-ar.md`](microsoft-store-owner-ar.md) (روابط التنزيل المباشرة، وكل ما يُلصق في Partner Center).
 
 </div>
 
@@ -14,8 +16,13 @@
 | Package/Identity/Publisher | `CN=8EFD6949-D088-481F-886D-82300679C5E5` |
 | Package/Properties/PublisherDisplayName | `FastKiwi` |
 | Package family name | `FastKiwi.InstaWords_sm1xjmj6v76yc` (CI checks the installed test copy against it) |
-| Privacy policy | https://fastkiwi.app/privacy/ |
-| Package file | `InstaWords_<x.y.z>.0_x64.msix`, workflow artifact **`store-package`** |
+| Store version (this submission) | **2.2.1**, package version **2.2.1.0** (`storeVersion` in `identity.json`; `package.json` stays 2.2.0) |
+| Privacy policy | https://fastkiwi.app/privacy/ (live; it has an InstaWords section that covers the Store copy) |
+| Website | https://fastkiwi.app/instawords/ |
+| Support email | support@fastkiwi.app |
+| Package file | `InstaWords_2.2.1.0_x64.msix`, workflow artifact **`store-package`**: [run 42218450222 → store-package](https://github.com/sarmadiq9090-coder/tafket/actions/runs/42218450222/artifacts/13502541588) |
+| Store screenshots | [run 42218450222 → InstaWords-2.2.0-screenshots](https://github.com/sarmadiq9090-coder/tafket/actions/runs/42218450222/artifacts/13501703662) (the eight `store-*.png`) |
+| Owner guide (Arabic) | [`microsoft-store-owner-ar.md`](microsoft-store-owner-ar.md) |
 
 ## 1. How the package is built
 
@@ -31,40 +38,57 @@ Files, in `windows/packaging/msix/`:
 | File | What it is |
 |---|---|
 | `AppxManifest.xml` | Template: `Windows.Desktop` MinVersion **10.0.19041.0** (Windows 10 2004, the first version with .NET Framework 4.8 built in), MaxVersionTested 10.0.26100.0, `x64`, `runFullTrust`, `EntryPoint="Windows.FullTrustApplication"`, a `uap5:StartupTask` (off by default), resources **en-US** and **ar**. `{{Name}}`, `{{Publisher}}`, `{{PublisherDisplayName}}` and `{{Version}}` are filled in at build time. |
-| `identity.json` | The Partner Center identity (table above). `"placeholder": true` (or the test publisher `CN=InstaWords-Test`) makes the build warn that the Store would reject the package. |
+| `identity.json` | The Partner Center identity (table above). `"placeholder": true` (or the test publisher `CN=InstaWords-Test`) makes the build warn that the Store would reject the package. Optional `"storeVersion"`: the version of the Store build when it runs ahead of `package.json` (see [Version of each submission](#version-of-each-submission)). |
 | `Strings/en-US/resources.resw`, `Strings/ar/resources.resw` | `AppDisplayName` (**InstaWords** in both languages: it must be a reserved name) and `AppDescription` (localized). |
 | `Assets/*.png` | 35 logos: `Square44x44Logo` at scale-100/125/150/200/400 and targetsize-16/24/32/48/256 (plain, `altform-unplated`, `altform-lightunplated`), `Square150x150Logo`, `Wide310x150Logo` and `StoreLogo` at scale-100/125/150/200/400. **They are committed.** |
 | `make-assets.py` | Regenerates `Assets/` from the icon (`site/icon.svg`, redrawn with Pillow so the output is the same everywhere). Run `python3 windows/packaging/msix/make-assets.py` only when the icon changes, then commit. The assets are committed rather than generated in CI because then CI needs no Python or Pillow, and any change to them shows up in review. |
-| `build-msix.ps1` | Builds the package. It runs (1) `scripts/msix-stage.mjs`, which copies `InstaWords.exe`, `.exe.config`, `InstaWords.Core.dll`, `Licenses\`, the assets and strings, and writes the manifest with the `package.json` version as **x.y.z.0**; (2) `makepri` → `resources.pri`; (3) `makeappx pack` → the `.msix`. MakeAppx validates the manifest against the schema while it packs. |
+| `build-msix.ps1` | Builds the package. It runs (1) `scripts/msix-stage.mjs`, which copies `InstaWords.exe`, `.exe.config`, `InstaWords.Core.dll`, `Licenses\`, the assets and strings, and writes the manifest with the Store version as **x.y.z.0** (`storeVersion`, else `package.json`); (2) `makepri` → `resources.pri`; (3) `makeappx pack` → the `.msix`. MakeAppx validates the manifest against the schema while it packs. |
 | `test-msix.ps1` | CI-only install test (see below). Do not run it on your own PC, because it trusts a new certificate. |
 
 To build it on a Windows PC with the SDK and Node 22.18 or later:
 
 ```powershell
 dotnet build windows/InstaWords.App -c Release
-pwsh windows/packaging/msix/build-msix.ps1        # → out\msix\InstaWords_2.1.0.0_x64.msix
+$v = node scripts/msix-version.mjs                 # 2.2.1 (storeVersion, else package.json)
+dotnet build windows/InstaWords.App -c Release -p:Version=$v
+pwsh windows/packaging/msix/build-msix.ps1 -Version $v   # → out\msix\InstaWords_2.2.1.0_x64.msix
 ```
+
+### Version of each submission
+
+Partner Center accepts a package only if its version is **higher** than every package it already has for InstaWords, and the fourth number must stay 0. The Store version is:
+
+- `storeVersion` in `windows/packaging/msix/identity.json`, when it is set (now **2.2.1**: the first Store submission, a Store build on top of the 2.2.0 code with the Store fixes, while `package.json` and the GitHub release stay 2.2.0);
+- otherwise the `package.json` version.
+
+`scripts/msix-version.mjs` prints it, and the `store-package` job uses it twice: `dotnet build -p:Version=<it>` (so About in the Store copy shows 2.2.1) and the MSIX `Version` `<it>.0`. It refuses a `storeVersion` that is not plain `x.y.z` or is **lower** than `package.json` (`npm test` fails too, in `tests/msix.test.ts`), so the Store copy can never look older than the GitHub one.
+
+**Before each new Store submission:**
+
+1. Pick the next version, higher than the one last uploaded to Partner Center (the last one is in Partner Center → InstaWords → Packages; this branch's is 2.2.1.0).
+2. If `package.json` already has a higher version (a normal release, `npm run release:prepare -- x.y.z`), delete `storeVersion` from `identity.json`: the Store build then follows `package.json`. Otherwise set `"storeVersion": "x.y.z"` (for example 2.2.2 for another Store-only fix).
+3. Update the version in the `identity.json storeVersion` test of `tests/msix.test.ts` (it pins the value on purpose, so a change is always deliberate), run `npm test`, push, and upload the new `store-package`.
 
 ### What CI produces and checks
 
 The `store-package` job in `.github/workflows/windows.yml` runs on every push, beside the existing build/installer job, and changes nothing in the `build`, `screenshots` or `release` jobs:
 
-1. Builds the app (Release, `-p:Version=<package.json>`).
+1. Reads the Store version (`node scripts/msix-version.mjs`, 2.2.1 now) and builds the app with it (Release, `-p:Version=2.2.1`).
 2. Runs `build-msix.ps1`, which includes MakeAppx's manifest validation.
 3. Uploads the **unsigned** `.msix` as artifact **`store-package`**. This is the file you upload to Partner Center.
 4. **Install test** (`test-msix.ps1`) on a **copy** of the package:
    - Signs the copy with a throwaway self-signed certificate whose subject is exactly the Publisher, then trusts it on the runner.
-   - Runs `Add-AppxPackage`, then checks the package family name is `FastKiwi.InstaWords_sm1xjmj6v76yc`.
+   - Runs `Add-AppxPackage`, then checks the package family name is `FastKiwi.InstaWords_sm1xjmj6v76yc` and the package version is the Store version `.0` (2.2.1.0).
    - Launches the app through `shell:AppsFolder\…!App`, as the Start menu does, and checks it runs from `WindowsApps` and shows its window.
    - Checks Store mode through UI Automation:
      - Settings shows "Updates come from Microsoft Store", with no check button and no auto-update box.
      - "Start with Windows" reads the startup task, switches it on and back off.
      - A changed setting is saved under `%LOCALAPPDATA%\Packages\<family>\LocalCache\Roaming\FastKiwi\InstaWords`.
-     - About shows the Store text and has no check button.
+     - About shows the Store text, has no check button, and shows the Store version (2.2.1).
    - Uninstalls the app.
 5. **Windows App Certification Kit**, if the runner's SDK has it. This step is informational (`continue-on-error`). Its report and the test screenshots go to the artifact `store-package-checks`.
 
-   Latest result: **overall PASS**. 23 tests passed. One optional test, "Blocked executables", is flagged because `InstaWords.exe` references `Process.Start`. The app uses it to open https links in the default browser, to open the data folder in Explorer, and, only outside the Store, to run the verified installer. The certification notes explain this.
+   Latest result (run [42218450222](https://github.com/sarmadiq9090-coder/tafket/actions/runs/42218450222), package 2.2.1.0): **overall PASS**. 23 tests passed. One optional test, "Blocked executables", is flagged because `InstaWords.exe` references `Process.Start`. The app uses it to open https links in the default browser, to open the data folder in Explorer, and, only outside the Store, to run the verified installer. The certification notes explain this.
 
 The uploaded `store-package` is never signed: the Store signs it.
 
@@ -78,7 +102,7 @@ The app detects the package with kernel32 `GetCurrentPackageFullName`: `APPMODEL
 | **Settings, About, tray** | Show «التحديثات تأتي من Microsoft Store» / "Updates come from Microsoft Store" in place of "Check for updates". The auto-update box is hidden. About shows "This Microsoft Store copy does not connect to the internet…" in place of the GitHub note. The tray item shows that text, disabled. |
 | **Start with Windows** | The Run key does not work from a package, because its registry writes stay inside the package. So the manifest declares `windows.startupTask` (`TaskId="InstaWordsStartup"`, `Enabled="false"`), and the check box drives it through the WinRT `StartupTask` API (`Microsoft.Windows.SDK.Contracts`, which provides reference metadata only: nothing is added to `bin/`). If the user turned it off in Task Manager → Startup apps, the box is greyed with a note saying to turn it back on there. A policy-controlled state is shown the same way. A launch by the startup task is detected with `AppInstance.GetActivatedEventArgs()` and starts in the tray, like `--tray`. This was chosen over hiding the option because it is the supported mechanism and it keeps the feature; any WinRT error falls back to showing the window, or to a disabled box. |
 | **Data folder** | The app still reads and writes `%APPDATA%\FastKiwi\InstaWords`, but MSIX stores the new files in `%LOCALAPPDATA%\Packages\FastKiwi.InstaWords_sm1xjmj6v76yc\LocalCache\Roaming\FastKiwi\InstaWords`. Explorer runs outside the package, so Settings shows that real path and "Open data folder" opens it. The settings hint says the files are removed when the app is uninstalled. |
-| **Problem reports** | Technical info says `InstaWords 2.1.0 (Microsoft Store)` and adds the package full name (`MSIX: FastKiwi.InstaWords_2.1.0.0_x64__sm1xjmj6v76yc`). |
+| **Problem reports** | Technical info says `InstaWords 2.2.1 (Microsoft Store)` and adds the package full name (`MSIX: FastKiwi.InstaWords_2.2.1.0_x64__sm1xjmj6v76yc`). |
 | **Global hotkey** (Ctrl+Alt+T, `RegisterHotKey`) | Unchanged. A full-trust app is not in an AppContainer, so `RegisterHotKey` works as usual. |
 | **Single instance** | Unchanged: a named mutex plus a named event (`Local\FastKiwi.InstaWords.*`; there is no pipe). Full trust uses the session namespace, so an installed copy and a Store copy also count as one instance. |
 | **Printing** | Unchanged: the WPF `PrintDialog` and the "Microsoft Print to PDF" printer work in full trust. |
@@ -86,7 +110,7 @@ The app detects the package with kernel32 `GetCurrentPackageFullName`: `APPMODEL
 
 ## 3. Listing text
 
-Partner Center → InstaWords → Store listings → add **English (United States)** and **Arabic**. The package declares `en-US` and `ar`, and each language in the package needs a listing.
+Partner Center → InstaWords → Store listings → add **English (United States)** and **Arabic**. The package declares exactly two languages, `en-US` and `ar` (the manifest's `<Resources>` and the two `Strings/<language>/resources.resw`), and each language in the package needs a listing. If Partner Center lists any other listing language, remove it (Store listings → Manage additional languages): the app's interface is translated only into Arabic and English. The owner guide has every field: [`microsoft-store-owner-ar.md`](microsoft-store-owner-ar.md).
 
 ### English
 
@@ -94,7 +118,7 @@ Partner Center → InstaWords → Store listings → add **English (United State
 
 **Short description**
 
-> Turn any amount into correct words for cheques, invoices and vouchers, in Arabic, English or French. 50+ currencies, cheque printing, whole Excel columns. Offline and free.
+> Turn any amount into correct words for cheques, invoices and vouchers, in Arabic, English or French. More than 50 currencies, cheque printing, whole Excel columns. Offline and free.
 
 **Description**
 
@@ -111,7 +135,7 @@ Partner Center → InstaWords → Store listings → add **English (United State
 **Product features** (up to 20)
 
 1. Amounts in words in Arabic, English and French
-2. 50+ currencies, with fractions such as halalas, fils and cents, and over 50 units of measure
+2. More than 50 currencies, with fractions such as halalas, fils and cents, and over 50 units of measure
 3. Live conversion as you type, with Arabic-Indic (١٢٣) or Western digits
 4. Correct Arabic grammar: dual forms, agreement, مائة or مئة
 5. Ready phrases: «فقط … لا غير», "… Only", "Arrêtée la présente facture à la somme de …"
@@ -134,15 +158,15 @@ Partner Center → InstaWords → Store listings → add **English (United State
 
 **What's new in this version**
 
-> First Microsoft Store release of InstaWords 2.1: cheque and voucher printing with calibration, an English interface, Bulk conversion of whole Excel columns, and the Ctrl+Alt+T clipboard shortcut. The Store keeps the app up to date.
+> First Microsoft Store release (version 2.2.1): amounts in words in Arabic, English and French, cheque and voucher printing with calibration and a print preview that fits the whole page, Bulk conversion of whole Excel columns, and the Ctrl+Alt+T clipboard shortcut. The Store keeps the app up to date.
 
-**Copyright and trademark info:** © 2026 FastKiwi. MIT License.
+**Copyright and trademark info:** © 2026 FastKiwi (Sarmad)
 
 **Additional license terms:** https://github.com/sarmadiq9090-coder/tafket/blob/HEAD/LICENSE
 
 **Website:** https://fastkiwi.app/instawords/
 
-**Support contact info:** https://github.com/sarmadiq9090-coder/tafket/issues. In the app, "Report a problem or suggestion" opens a prefilled GitHub issue (Settings or the tray menu).
+**Support contact info:** support@fastkiwi.app. (In the app, "Report a problem or suggestion" opens a prefilled GitHub issue: Settings or the tray menu.)
 
 **Privacy policy URL:** https://fastkiwi.app/privacy/
 
@@ -194,11 +218,11 @@ Partner Center → InstaWords → Store listings → add **English (United State
 
 **ما الجديد في هذا الإصدار**
 
-> أول إصدار من InstaWords 2.1 في Microsoft Store: طباعة الشيكات والسندات مع المعايرة، وواجهة إنجليزية، وتحويل أعمدة Excel كاملة في «عدة مبالغ»، واختصار Ctrl+Alt+T لتحويل ما نسخته. يحدّث المتجر البرنامج تلقائياً.
+> أول إصدار في Microsoft Store (الإصدار 2.2.1): المبلغ بالحروف بالعربية والإنجليزية والفرنسية، وطباعة الشيكات والسندات مع المعايرة ومعاينة تعرض الصفحة كاملة، وتحويل أعمدة Excel كاملة في «عدة مبالغ»، واختصار Ctrl+Alt+T لتحويل ما نسخته. يحدّث المتجر البرنامج تلقائياً.
 
-**حقوق النشر:** ‏© 2026 FastKiwi. رخصة MIT.
+**حقوق النشر:** ‏© 2026 FastKiwi (Sarmad)
 
-**الدعم:** https://github.com/sarmadiq9090-coder/tafket/issues (أو «الإبلاغ عن مشكلة أو اقتراح» داخل البرنامج).
+**الدعم:** support@fastkiwi.app (أو «الإبلاغ عن مشكلة أو اقتراح» داخل البرنامج).
 
 **سياسة الخصوصية:** https://fastkiwi.app/privacy/
 
@@ -207,7 +231,9 @@ Partner Center → InstaWords → Store listings → add **English (United State
 ## 4. Properties, age rating, pricing
 
 - **Category:** Business → *Accounting & finance*. Secondary category, if offered: Productivity.
-- **Privacy policy:** https://fastkiwi.app/privacy/. It is being built on the site repository's `claude/privacy` branch, so make sure the page is live before you submit.
+- **Privacy policy:** https://fastkiwi.app/privacy/ (live; its InstaWords part says the Store copy makes no network connections of its own).
+- **Website:** https://fastkiwi.app/instawords/
+- **Support contact info:** support@fastkiwi.app
 - **System requirements:** none special. It runs on Windows 10 version 2004 or later and Windows 11, x64. It also runs on ARM64 Windows 11 under x64 emulation.
 - **Product declarations:** leave "accessibility guidelines" unticked unless it has been tested on real hardware with a screen reader. Tick "customers can install to alternate drives" (it can). Untick "uses Windows Mixed Reality".
 - **Age rating (IARC questionnaire):** category **Productivity / utility app** (not a game).
@@ -219,11 +245,12 @@ Partner Center → InstaWords → Store listings → add **English (United State
   - Unrestricted web access (an in-app browser): **No**. Links open in the user's own browser only when clicked.
 
   The expected rating is **3+ / Everyone**.
-- **Pricing and availability:** **Free**, all markets, no free trial, no in-app products. Visibility: public (or "private audience" for a first test).
+- **Pricing and availability:** **Free**, all markets, no free trial, no in-app products. Visibility: public.
+- **Publishing:** Submission options → publish automatically as soon as it passes certification.
 
 ## 5. Notes for certification
 
-Paste into Submission → **Notes for certification**:
+Partner Center has moved this box: paste it into **Supplemental info → Additional Testing Information** (formerly Submission options → Notes for certification):
 
 > InstaWords is a classic WPF desktop application (.NET Framework 4.8, built into Windows 10 version 2004 and later and Windows 11) packaged as MSIX. It declares the restricted capability **runFullTrust** because it is a Win32/WPF desktop app (EntryPoint Windows.FullTrustApplication); it does not use any other restricted capability.
 >
@@ -234,12 +261,12 @@ Paste into Submission → **Notes for certification**:
 > - **No account, no sign-in, no ads, no telemetry, no in-app purchases.**
 > - **Network:** none. The Store build makes no network connections of its own: the GitHub update check of the non-Store build is disabled in the package (the Store updates the app). The only internet use is user-initiated links (website, source code, license, "Report a problem", which builds a prefilled GitHub issue URL) that open in the user's default browser.
 > - **Process.Start** (flagged by the optional WACK "Blocked executables" test): used only to open https links in the user's default browser and the data folder in File Explorer, on the user's click. The non-Store build also uses it to run its downloaded installer; that code path is disabled in the package.
-> - **Data:** settings and history are two local JSON files under the user's AppData (redirected by MSIX to the package's LocalCache); nothing is sent anywhere.
+> - **Data:** settings and history are two local JSON files, plus a local crash log, under the user's AppData (redirected by MSIX to the package's LocalCache); nothing is sent anywhere.
 > - **Testing:** no test account is needed. Type a number on the first screen; press Ctrl+P for the print preview; Ctrl+2 for bulk conversion.
 
-**Restricted capability justification** (Partner Center asks for it with runFullTrust):
+**Restricted capability justification** (Partner Center asks for it with runFullTrust; the box takes at most 500 characters, and this text is 447):
 
-> InstaWords is a desktop (WPF, .NET Framework 4.8) application converted to MSIX; runFullTrust is required for every packaged Win32 desktop app. The app uses it for its normal desktop behaviour: a global hotkey (RegisterHotKey), a notification-area icon, clipboard access on the user's command, and printing via the Windows print dialog.
+> InstaWords is a classic WPF desktop app (.NET Framework 4.8) packaged as MSIX, so it needs runFullTrust like every packaged Win32 app. It uses it only for normal desktop behaviour: a global hotkey (Ctrl+Alt+T, RegisterHotKey), a notification-area icon, clipboard access when the user asks, printing through the Windows print dialog, and an optional startup task. It needs no other restricted capability and makes no network connections of its own.
 
 **What touches the network in the Store build?** I checked every `HttpClient` use, `Process.Start` call and URL in the app:
 
@@ -271,7 +298,7 @@ Upload them in this order, the same for both languages (Arabic listing: `store-a
 
 | # | File | Size | Content |
 |---|---|---|---|
-| 1 | `store-ar-1-convert.png` / `store-en-1-convert.png` | 1920×1032 | Convert tab: 45,750.50 SAR (English: 18,945.75 USD) in words with «فقط … لا غير» / "… Only", the formatting options open, and five recent conversions in SAR, AED, IQD, USD (English: USD, AED, SAR, EUR) in the history |
+| 1 | `store-ar-1-convert.png` / `store-en-1-convert.png` | 1920×1032 | Convert tab: 45,750.25 SAR (English: 18,945.75 USD) in words with «فقط … لا غير» / "… Only", the formatting options open, and five recent conversions in SAR, AED, IQD, USD (English: USD, AED, SAR, EUR) in the history |
 | 2 | `store-ar-2-print.png` / `store-en-2-print.png` | 1920×1032 | Print dialog, maximised: a receipt voucher with a company name and logo (the app icon), number 1042, today's date, payer and purpose, and its live preview |
 | 3 | `store-ar-3-excel.png` / `store-en-3-excel.png` | 1920×1032 | «عدة مبالغ» / Bulk tab: a column copied from Excel (header row and seven formatted amounts) pasted and converted, in SAR (English: AED) |
 | 4 | `store-ar-4-settings.png` / `store-en-4-settings.png` | 1920×1032 | Settings, from the top: interface language, default conversion options, the Ctrl+Alt+T shortcut |
@@ -285,24 +312,25 @@ Upload them in this order, the same for both languages (Arabic listing: `store-a
 | 3 | Paste a column from Excel and get every amount in words at once. Copy the results back or export them to CSV. | <span dir="rtl">الصق عموداً من Excel فتحصل على كل المبالغ بالحروف في خطوة واحدة. انسخ النتائج أو صدّرها إلى CSV.</span> |
 | 4 | Arabic or English interface, your default currency and wording, and Ctrl+Alt+T to convert a copied number in any program. | <span dir="rtl">واجهة بالعربية أو الإنجليزية، وعملتك وصيغتك الافتراضيتان، وCtrl+Alt+T لتحويل الرقم الذي نسخته من أي برنامج.</span> |
 
-Get them from the workflow run's `InstaWords-<version>-screenshots` artifact. After the merge they also appear on `ci-screenshots`. The UI tests run the unpackaged build, so Settings shows the GitHub update options, which the Store copy replaces with "Updates come from Microsoft Store". If you want the Store-mode screens, the install test's screenshots are in the `store-package-checks` artifact (`store-settings.png`, `store-about.png`, at the default window size).
+Get them from the workflow run's `InstaWords-<version>-screenshots` artifact (the UI tests build the app from `package.json`, so the artifact is named `InstaWords-2.2.0-screenshots`; the screens show no version number). The direct links of the run used for this submission are in [`microsoft-store-owner-ar.md`](microsoft-store-owner-ar.md). After the merge they also appear on `ci-screenshots`. The UI tests run the unpackaged build, so Settings shows the GitHub update options, which the Store copy replaces with "Updates come from Microsoft Store". If you want the Store-mode screens, the install test's screenshots are in the `store-package-checks` artifact (`store-settings.png`, `store-about.png`, at the default window size).
 
 ## 7. Submission checklist (owner)
 
 1. ✅ **Reserve the name** "InstaWords" (done: Store ID 9P62P4WQSQNK).
 2. ✅ **Copy the identity**: Partner Center → Apps and games → InstaWords → **Product management → Product identity** shows `Package/Identity/Name`, `Package/Identity/Publisher` and `Package/Properties/PublisherDisplayName`. They are already in `windows/packaging/msix/identity.json` (done on this branch). If you ever change the publisher display name, update that file too.
-3. **Publish the privacy policy** at https://fastkiwi.app/privacy/ (site repository, branch `claude/privacy`).
+3. ✅ **Privacy policy** is live at https://fastkiwi.app/privacy/.
 4. **Build:** push to the branch you release from, or run Actions → "Windows (native app)" → Run workflow. Wait for the `store-package` job to pass. The install test must be green.
-5. **Download** the `store-package` artifact from that run (a zip containing `InstaWords_<version>.0_x64.msix`) and unzip it. Do **not** sign it.
+5. **Download** the `store-package` artifact from that run (a zip containing `InstaWords_2.2.1.0_x64.msix`) and unzip it. Do **not** sign it.
 6. Partner Center → InstaWords → **Start your submission**:
    1. **Pricing and availability:** Free, markets, visibility (section 4).
-   2. **Properties:** category Business → Accounting & finance, privacy policy URL, support info, product declarations.
+   2. **Properties:** category Business → Accounting & finance, privacy policy URL, website, support email support@fastkiwi.app, product declarations.
    3. **Age ratings:** the questionnaire answers in section 4.
    4. **Packages:** drag in the `.msix`. Partner Center validates it, and the version must be higher than any earlier submission.
-   5. **Store listings:** English (United States) and Arabic. Paste section 3, then add the four screenshots per language in order, each with its caption (section 6). The Store takes the app's logos from the package.
-   6. **Submission options → Notes for certification:** section 5, including the runFullTrust justification.
+   5. **Store listings:** English (United States) and Arabic only (remove any other language Partner Center adds). Paste section 3, then add the four screenshots per language in order, each with its caption (section 6). The Store takes the app's logos from the package.
+   6. **Supplemental info → Additional Testing Information:** section 5; the runFullTrust justification goes in the restricted-capability box.
+   7. **Submission options:** publish automatically as soon as it passes certification.
 7. **Submit.** Certification usually takes 1 to 3 business days. Partner Center emails you the result.
-8. **Later versions:** bump `package.json` (`npm run release:prepare -- x.y.z`), let CI build `store-package`, then make a new submission with the new `.msix` (each version must be higher). The Store delivers the update. The app never self-updates in the Store copy.
+8. **Later versions:** raise the Store version first ([Version of each submission](#version-of-each-submission)): either bump `package.json` (`npm run release:prepare -- x.y.z`) and delete `storeVersion`, or raise `storeVersion`. Let CI build `store-package`, then make a new submission with the new `.msix` (each version must be higher). The Store delivers the update. The app never self-updates in the Store copy.
 
 ## 8. PWA alternative
 
@@ -327,5 +355,5 @@ The web app at https://fastkiwi.app/instawords/ is already a PWA: it has `site/m
   - uninstall removes the data.
 - **Partner Center validation of this exact package** happens only when you upload it. MakeAppx schema validation and the (informational) WACK run in CI are the closest checks available. WACK ran on the Windows Server runner "without application deployment", so its runtime tests (launch and suspend times, crashes) were not part of it.
 - **Installed copy and Store copy side by side:** both share one single-instance lock. The Store copy reads an existing `%APPDATA%\FastKiwi\InstaWords` (MSIX shows the real folder merged with its own). New files go to its LocalCache. This has not been tested on a PC that has both.
-- **The privacy policy page** is not live yet (site branch `claude/privacy`).
+- **The Excel add-in** (`InstaWords.xlam`, GitHub releases only) is not in the Store package and is not mentioned in the listing.
 
