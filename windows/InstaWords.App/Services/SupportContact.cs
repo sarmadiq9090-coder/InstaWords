@@ -15,9 +15,8 @@ namespace InstaWords.App.Services
         //   Email:    e.g. "support@fastkiwi.app". Set → «إرسال بالبريد الإلكتروني» opens a prefilled mailto: message.
         //   Telegram: e.g. "fastkiwi", "@fastkiwi" or "https://t.me/fastkiwi". Set → an extra «عبر Telegram» button.
         // While Email is empty the primary button copies the report and opens the support page instead.
-        // APPROVED: support@fastkiwi.app (owner, 2026-11-05, Cloudflare Email Routing). Set Email to it only
-        // after the owner confirms a test mail arrives, and in the same release as the site's SUPPORT_CONTACT.
-        public const string Email = "";
+        // support@fastkiwi.app is live (Cloudflare Email Routing; MX + SPF verified 2026-11-06), same as the site's SUPPORT_CONTACT.
+        public const string Email = "support@fastkiwi.app";
         public const string Telegram = "";
 
         /// <summary>The site's support page (explains how to reach FastKiwi without GitHub). English at the root, Arabic under /ar/.</summary>
