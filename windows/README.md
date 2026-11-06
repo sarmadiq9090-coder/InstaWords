@@ -44,6 +44,7 @@
 من [صفحة الإصدارات](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest):
 
 - `InstaWords_<الإصدار>_x64-setup.exe`: المثبّت (موصى به). يثبّت للمستخدم الحالي في `%LOCALAPPDATA%\Programs\InstaWords` دون صلاحيات المسؤول، مع اختصار في قائمة ابدأ، واختياري على سطح المكتب ومع تشغيل Windows.
+  - خيار «تثبيت إضافة Excel ‏(InstaWords.xlam)» (تجريبية، غير محدد افتراضياً): ينسخ الإضافة إلى `%APPDATA%\Microsoft\AddIns` دون «علامة الويب» فلا حاجة إلى «إلغاء الحظر»، ويفعّلها بأول قيمة `OPEN`/`OPEN1`/… غير مستخدمة لكل إصدار Excel سبق تشغيله، دون Excel ودون المساس بالإضافات الأخرى. أغلق Excel قبل التثبيت. إلغاء التثبيت يحذف الملف وقيمته فقط. التفاصيل في [`vba/README.md`](../vba/README.md)، والتجربة على جهاز حقيقي مع Excel في البند 13 (ج) من [`docs/TESTING-CHECKLIST.md`](../docs/TESTING-CHECKLIST.md).
 - `InstaWords_<الإصدار>_x64-portable.zip`: نسخة محمولة: فكّ الضغط وشغّل `InstaWords.exe`.
 
 البرنامج غير موقّع رقمياً بعد، لذا قد يظهر تحذير SmartScreen: اختر «مزيد من المعلومات» ثم «تشغيل على أي حال».
@@ -95,7 +96,7 @@
 
 ### Install
 
-From [Releases](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest): `InstaWords_<version>_x64-setup.exe` (per-user, no admin rights; Start menu shortcut, optional desktop shortcut and start with Windows; uninstaller) or `InstaWords_<version>_x64-portable.zip`. The app is not code-signed yet, so SmartScreen may warn: **More info → Run anyway**. Settings and history live in `%APPDATA%\FastKiwi\InstaWords`; unexpected errors (UI thread, background threads and unobserved tasks) are appended to `crash.log` there (time, version, exception and stack trace only, capped at 256 KB). It stays on your PC; attach it to a problem report if you like.
+From [Releases](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest): `InstaWords_<version>_x64-setup.exe` (per-user, no admin rights; Start menu shortcut, optional desktop shortcut and start with Windows, optional (unchecked) **Install the Excel add-in** task; uninstaller) or `InstaWords_<version>_x64-portable.zip`. The app is not code-signed yet, so SmartScreen may warn: **More info → Run anyway**. Settings and history live in `%APPDATA%\FastKiwi\InstaWords`; unexpected errors (UI thread, background threads and unobserved tasks) are appended to `crash.log` there (time, version, exception and stack trace only, capped at 256 KB). It stays on your PC; attach it to a problem report if you like.
 
 ### Build
 
@@ -106,8 +107,12 @@ npm ci && npm run test:dotnet                       # engine: generate, check, p
 dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports (GitHub and mailto links), CSV, strings, print layout, amounts
 dotnet build windows/InstaWords.App -c Release      # → windows/InstaWords.App/bin/Release/net48/InstaWords.exe
 dotnet test  windows/InstaWords.UITests -c Release  # Windows only: FlaUI end-to-end tests + screenshots
+npm run build:xlam                                  # → out/InstaWords.xlam, shipped inside the setup
 iscc /DAppVersion=2.2.0 windows\installer\InstaWords.iss   # Inno Setup 6 (CI pins 6.7.1) → out\InstaWords_2.2.0_x64-setup.exe
+pwsh windows/installer/test-xlam-task.ps1 -Setup out\InstaWords_2.2.0_x64-setup.exe -Xlam out\InstaWords.xlam   # CI only: installs, updates, uninstalls
 ```
+
+**The Excel add-in task** (`xlamaddin`, unchecked: the add-in is experimental, most users have no Excel, and a silent in-app update keeps each user's previous choice, so nobody gets an add-in they did not tick). When ticked, `[Code]` in `InstaWords.iss` copies `InstaWords.xlam` to `%APPDATA%\Microsoft\AddIns` (no Mark of the Web, since setup writes it) and, for each `HKCU\Software\Microsoft\Office\<n>.0\Excel` key (Excel 2007 and later that has run for the user), writes `"<path>"` to the first free `OPEN`, `OPEN1`, `OPEN2`… value under `Options`. It writes nothing when the add-in is already there (also as a bare file name) or when another `InstaWords.xlam` is enabled from elsewhere (Excel cannot open two workbooks with one name). With no Excel key it relies on the AddIns folder: Excel lists the add-in and the user ticks it once. Excel holds an open add-in locked: interactive setup asks to close Excel (before installing, and again if the copy fails), a silent update keeps the existing copy and logs it; setup never closes Excel. Uninstall (only when `HKCU\Software\FastKiwi\InstaWords\ExcelAddIn` says setup installed it) deletes the file and the `OPEN` value pointing to it, moving later values down one. Excel saves its add-in list when it closes, so a value written while Excel runs may be dropped by Excel; the AddIns folder is the fallback. `test-xlam-task.ps1` checks all of this on the CI runner with a faked Excel registry, the setup carrying a Mark of the Web, and the add-in held open during an update. What only a real PC with Excel can show (Excel loading it, security notices, Excel renumbering or dropping the value, the prompts with Excel open) is item 13 (c) of [`docs/TESTING-CHECKLIST.md`](../docs/TESTING-CHECKLIST.md).
 
 | Path | What |
 |---|---|
@@ -116,9 +121,10 @@ iscc /DAppVersion=2.2.0 windows\installer\InstaWords.iss   # Inno Setup 6 (CI pi
 | `InstaWords.App/Strings/` | `Strings.ar.xaml` and `Strings.en.xaml`: every interface string, same keys in both (a unit test checks the keys match, every key the app uses exists, English has no Arabic). XAML uses `{DynamicResource Key}`, code `Loc.T("Key")`; engine error codes map to `Err.CODE` in English |
 | `InstaWords.App.Tests/` | Unit tests of the app's pure logic (links source files from the app): updates, reports (GitHub issue and mailto links, support contact), CSV, interface strings, print layout (mm ↔ DIP, offsets, word wrap and filler, template fields), the amount shown with the words (`AmountFormat`: subunit decimals, `displayDigits` for whole amounts, rounding, large amounts as strings) |
 | `InstaWords.UITests/` | UI tests (FlaUI/UIA3). `INSTAWORDS_APP_PATH` and `INSTAWORDS_ARTIFACTS` override the exe and screenshot folder |
-| `installer/InstaWords.iss` | Inno Setup script (Arabic + English) |
+| `installer/InstaWords.iss` | Inno Setup script (Arabic + English), with the optional Excel add-in task |
+| `installer/test-xlam-task.ps1` | CI test of that task: silent install, update (add-in locked and free) and uninstall, no Excel needed |
 
-The version comes from the repo `package.json`. CI (`.github/workflows/windows.yml`) runs everything above on every push and uploads the installer, the portable zip and the screenshots; a manual run with **release** ticked publishes GitHub Release `v<version>`.
+The version comes from the repo `package.json`. CI (`.github/workflows/windows.yml`) runs everything above on every push and uploads the installer, the portable zip, the Excel add-in and the screenshots; a manual run with **release** ticked publishes GitHub Release `v<version>`.
 
 Test hooks (used only when set): `INSTAWORDS_DATA_DIR` (settings folder), `INSTAWORDS_UPDATE_FEED` (path to a release JSON instead of the GitHub API).
 
