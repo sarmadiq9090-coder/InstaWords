@@ -344,10 +344,10 @@ end;
 // Asks whether to try again while Excel holds the add-in. Suppressed message boxes answer "no".
 function AskRetryXlam(const MessageName, LeaveName, LeaveNoteName, Target: String): Boolean;
 begin
+  // (No line of [Code] may start with "[": Inno would read it as a section tag.)
   Result := SuppressibleTaskDialogMsgBox(CustomMessage('ExcelOpenTitle'),
-    FmtMessage(CustomMessage(MessageName), [Target]), mbError, MB_YESNO,
-    [CustomMessage('XlamRetry'), CustomMessage(LeaveName) + #13#10 + CustomMessage(LeaveNoteName)],
-    0, IDNO) = IDYES;
+    FmtMessage(CustomMessage(MessageName), [Target]), mbError, MB_YESNO, [CustomMessage('XlamRetry'),
+    CustomMessage(LeaveName) + #13#10 + CustomMessage(LeaveNoteName)], 0, IDNO) = IDYES;
 end;
 
 procedure InstallExcelAddIn;
@@ -409,8 +409,8 @@ begin
   // Excel saves its add-in list when it closes, so it is best closed before the add-in is enabled.
   if (CurPageID = wpReady) and not WizardSilent and WizardIsTaskSelected('xlamaddin') then
     while ExcelRunning do
-      if TaskDialogMsgBox(CustomMessage('ExcelOpenTitle'), CustomMessage('ExcelOpenText'), mbInformation, MB_YESNO,
-           [CustomMessage('ExcelCheckAgain'), CustomMessage('ExcelContinue') + #13#10 + CustomMessage('ExcelContinueNote')], 0) <> IDYES then
+      if TaskDialogMsgBox(CustomMessage('ExcelOpenTitle'), CustomMessage('ExcelOpenText'), mbInformation, MB_YESNO, [CustomMessage('ExcelCheckAgain'),
+           CustomMessage('ExcelContinue') + #13#10 + CustomMessage('ExcelContinueNote')], 0) <> IDYES then
         Break;
 end;
 
