@@ -12,7 +12,8 @@
 
 سير العمل `.github/workflows/windows.yml` فيه خطوات توقيع **اختيارية**:
 
-- تعمل فقط في **تشغيل الإصدار** (Run workflow مع `release`)، وفقط إذا كان السر `SIGNPATH_API_TOKEN` موجوداً. بدونه تُتخطى بهدوء ويُبنى كل شيء كما الآن دون توقيع.
+- تعمل فقط في **تشغيل الإصدار** (Run workflow مع `release`) من الفرع الافتراضي، وفقط إذا كان المتغيّر `SIGNPATH_ORGANIZATION_ID` معرَّفاً. بدونه تُتخطى بهدوء ويُبنى كل شيء كما الآن دون توقيع.
+- الرمز السري `SIGNPATH_API_TOKEN` محفوظ في بيئة GitHub محمية اسمها `signing` لا يدخلها إلا تشغيل الإصدار من الفرع الافتراضي، ولا تراه إلا خطوتا SignPath نفسيهما؛ فلا يصل إلى `npm ci` ولا إلى البناء والاختبارات، ولا إلى أي دفع (push) إلى فرع آخر.
 - توقّع أولاً `InstaWords.exe` و`InstaWords.Core.dll` قبل بناء المثبّت والنسخة المحمولة (فهما يحملان الملفات الموقّعة)، ثم توقّع `InstaWords_<الإصدار>_x64-setup.exe`.
 - خطوة «Verify signatures» تطبع حالة توقيع كل ملف، وتُفشل البناء إذا طُلب التوقيع ولم يكتمل. وملاحظات الإصدار تقول «موقّع» أو «غير موقّع» حسب النتيجة.
 - البصمات (SHA-256) في الموقع وwinget وScoop والمحدِّث داخل البرنامج تُحسب من الملفات المنشورة، أي الموقّعة، فلا يلزم تغيير آخر.
@@ -63,20 +64,21 @@
      </artifact-configuration>
      ```
 4. أنشئ مستخدماً آلياً (CI user) في SignPath وانسخ رمزه (API token)، وامنحه صلاحية «submitter» على السياسة.
-5. في GitHub ← Settings ← Secrets and variables ← Actions أضف:
+5. في GitHub ← Settings ← Environments ← New environment أنشئ بيئة باسم `signing`، وفي «Deployment branches and tags» اختر «Selected branches» وأضف الفرع الافتراضي وحده (ويُستحسن تفعيل «Required reviewers» بنفسك). ثم في هذه البيئة نفسها ← «Environment secrets» أضف السر `SIGNPATH_API_TOKEN` (لا تضعه في أسرار المستودع العامة).
+6. وفي Settings ← Secrets and variables ← Actions ← Variables أضف:
 
 | النوع | الاسم | القيمة |
 |---|---|---|
-| Secret | `SIGNPATH_API_TOKEN` | رمز المستخدم الآلي (وجوده هو ما يفعّل التوقيع) |
-| Variable | `SIGNPATH_ORGANIZATION_ID` | معرّف المنظمة (GUID) من SignPath |
+| Secret (في بيئة `signing`) | `SIGNPATH_API_TOKEN` | رمز المستخدم الآلي |
+| Variable | `SIGNPATH_ORGANIZATION_ID` | معرّف المنظمة (GUID) من SignPath؛ وجوده هو ما يفعّل التوقيع |
 | Variable | `SIGNPATH_PROJECT_SLUG` | اختياري، الافتراضي `tafket` |
 | Variable | `SIGNPATH_SIGNING_POLICY_SLUG` | اختياري، الافتراضي `release-signing` |
 | Variable | `SIGNPATH_APP_ARTIFACT_CONFIGURATION_SLUG` | اختياري، الافتراضي `app` |
 | Variable | `SIGNPATH_SETUP_ARTIFACT_CONFIGURATION_SLUG` | اختياري، الافتراضي `setup` |
 
-6. شغّل الإصدار التالي كالعادة، ووافق على طلبي التوقيع في SignPath عندما يصلان. تحقق: زر الفأرة الأيمن على الملف ← خصائص ← التوقيعات الرقمية.
+7. شغّل الإصدار التالي كالعادة، ووافق على طلبي التوقيع في SignPath عندما يصلان. تحقق: زر الفأرة الأيمن على الملف ← خصائص ← التوقيعات الرقمية.
 
-لإيقاف التوقيع مؤقتاً احذف السر `SIGNPATH_API_TOKEN` أو أفرغه.
+لإيقاف التوقيع مؤقتاً احذف المتغيّر `SIGNPATH_ORGANIZATION_ID`.
 
 ### البديل المدفوع
 
@@ -100,21 +102,21 @@
 
 **Now:** the app and installer are unsigned, so SmartScreen warns and shows "Unknown publisher". Signing names a verified publisher and proves the file is unchanged; SmartScreen reputation still builds up with downloads, but signing is the prerequisite.
 
-**What is wired up** in `.github/workflows/windows.yml`: optional SignPath steps that run only on **release** runs and only when the `SIGNPATH_API_TOKEN` secret exists (otherwise they are skipped and the build is unchanged). `InstaWords.exe` and `InstaWords.Core.dll` are signed before the installer and portable zip are built, then the setup exe is signed. "Verify signatures" prints each file's status, fails the build if signing was requested but incomplete, and the release notes say signed/unsigned accordingly. All SHA-256 values (site, winget, Scoop, in-app updater) are computed from the published, i.e. signed, files. Inno's uninstaller (`unins000.exe`) is not signed this way (it needs Inno's `SignTool`).
+**What is wired up** in `.github/workflows/windows.yml`: optional SignPath steps that run only on **release** runs from the default branch and only when the `SIGNPATH_ORGANIZATION_ID` variable is set (otherwise they are skipped and the build is unchanged). The `SIGNPATH_API_TOKEN` secret is an *environment* secret of the protected `signing` environment, which only those runs enter; only the two SignPath steps receive it, so `npm ci`, builds, tests and pushes to other branches never see it. `InstaWords.exe` and `InstaWords.Core.dll` are signed before the installer and portable zip are built, then the setup exe is signed. "Verify signatures" prints each file's status, fails the build if signing was requested but incomplete, and the release notes say signed/unsigned accordingly. All SHA-256 values (site, winget, Scoop, in-app updater) are computed from the published, i.e. signed, files. Inno's uninstaller (`unins000.exe`) is not signed this way (it needs Inno's `SignTool`).
 
 **Recommended: SignPath Foundation** (free for open source). Certificates are issued to *SignPath Foundation*, which is the publisher name Windows shows. Requirements (check https://signpath.org/terms): OSI-approved licence (MIT ✔) and no proprietary components in what is signed, an existing maintained project with a released version (✔), no malware/PUA and a clear description (mention the update check to GitHub, which can be turned off, and that no data is sent), builds on a verifiable build system (GitHub Actions ✔), MFA for every team member on GitHub and SignPath, a code signing policy on the website/README (draft above, in Arabic: "Free code signing provided by SignPath.io, certificate by SignPath Foundation", roles, privacy), and a manual approval for each release signing request.
 
-How to apply: submit the application at https://signpath.org; once accepted, in https://app.signpath.io create a project linked to `sarmadiq9090-coder/tafket` with GitHub as trusted build system, a signing policy (e.g. `release-signing`, manual approval), the artifact configurations `app` and `setup` (XML above), and a CI user with submitter rights. Then add in GitHub → Settings → Secrets and variables → Actions:
+How to apply: submit the application at https://signpath.org; once accepted, in https://app.signpath.io create a project linked to `sarmadiq9090-coder/tafket` with GitHub as trusted build system, a signing policy (e.g. `release-signing`, manual approval), the artifact configurations `app` and `setup` (XML above), and a CI user with submitter rights. Then in GitHub → Settings → Environments create `signing` with Deployment branches = the default branch only (Required reviewers recommended) and add the token there as an environment secret; add the variables under Settings → Secrets and variables → Actions:
 
 | Kind | Name | Value |
 |---|---|---|
-| Secret | `SIGNPATH_API_TOKEN` | CI user's API token (its presence turns signing on) |
-| Variable | `SIGNPATH_ORGANIZATION_ID` | SignPath organization ID |
+| Environment secret (`signing`) | `SIGNPATH_API_TOKEN` | CI user's API token |
+| Variable | `SIGNPATH_ORGANIZATION_ID` | SignPath organization ID (its presence turns signing on) |
 | Variable | `SIGNPATH_PROJECT_SLUG` | optional, default `tafket` |
 | Variable | `SIGNPATH_SIGNING_POLICY_SLUG` | optional, default `release-signing` |
 | Variable | `SIGNPATH_APP_ARTIFACT_CONFIGURATION_SLUG` | optional, default `app` |
 | Variable | `SIGNPATH_SETUP_ARTIFACT_CONFIGURATION_SLUG` | optional, default `setup` |
 
-Each signing step waits up to one hour for the approval. Remove the secret to switch signing off.
+Each signing step waits up to one hour for the approval. Remove the `SIGNPATH_ORGANIZATION_ID` variable to switch signing off.
 
 **Paid alternatives** (to have FastKiwi as the publisher, or if the application is declined): **Azure Trusted Signing** (possibly shown as Artifact Signing in the Azure portal; monthly subscription; identity validated by Microsoft; eligibility is limited by country and account type, so check the current terms; swap the two SignPath steps for `azure/trusted-signing-action`), or an **OV code signing certificate** from a CA such as DigiCert, Sectigo, SSL.com or Certum (some have open-source offers). Since 2023 the private key must live in hardware (token, HSM or the CA's cloud signing service), so for GitHub Actions use the CA's cloud signing; sign with `signtool sign /fd sha256 /tr <timestamp-url> /td sha256`. Prices vary by CA and term: check the vendors directly.

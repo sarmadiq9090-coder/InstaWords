@@ -4,7 +4,32 @@
 
 دالة `TAFQIT` من InstaWords تكتب المبلغ بالحروف داخل Excel بالعربية أو الإنجليزية أو الفرنسية، **بلا إنترنت**، وتعطي النص نفسه حرفاً بحرف الذي تعطيه مكتبة InstaWords (TypeScript) والموقع. تعمل على Windows وMac.
 
-## التثبيت
+## التثبيت: الإضافة InstaWords.xlam (موصى به)
+
+الإضافة ملف واحد تثبّته في Excel مرة واحدة، فتعمل الدالة في كل مصنف تفتحه دون استيراد أي شيء ودون حفظ المصنف بصيغة ‎.xlsm. نزّلها من [صفحة Excel في الموقع](https://fastkiwi.app/instawords/excel.html) أو من ملفات [آخر إصدار](https://github.com/sarmadiq9090-coder/tafket/releases/latest/download/InstaWords.xlam) (`InstaWords.xlam`).
+
+1. ضع `InstaWords.xlam` في مجلد ثابت لن تحذفه (مثل `المستندات\InstaWords`)، فـ Excel يحمّلها من مكانها كل مرة.
+2. **إلغاء الحظر أولاً:** انقر الملف بزر الفأرة الأيمن ← **خصائص** ← في أسفل تبويب «عام» فعّل **«إلغاء الحظر»** (Unblock) ← **موافق**. يضع Windows على كل ملف منزَّل من الإنترنت «علامة الويب» (Mark of the Web)، ويحظر Excel الماكرو في الملفات التي تحملها، فلا تعمل الدالة دون هذه الخطوة. إن لم يظهر الخيار فالملف غير محظور.
+3. في Excel: **ملف ← خيارات ← الوظائف الإضافية** ← في «إدارة» اختر **وظائف Excel الإضافية** ← **انتقال…** ← **استعراض…** ← اختر `InstaWords.xlam` ← **موافق**، وتأكد أن «InstaWords» محدد ثم **موافق**.
+4. اكتب في أي مصنف `=TAFQIT(A1, "SAR")`.
+
+### إن ظهر تنبيه أمني: مركز التوثيق
+
+إن أظهر Excel تنبيهاً أمنياً بشأن الإضافة عند تشغيله، أو أعادت الدالة `#NAME?`، فالطريقة الأكثر أماناً أن تجعل مجلد الإضافة **موقعاً موثوقاً**:
+
+1. **ملف ← خيارات ← مركز التوثيق ← إعدادات مركز التوثيق…**
+2. **المواقع الموثوقة ← إضافة موقع جديد…** ← اختر المجلد الذي فيه `InstaWords.xlam` ← **موافق**.
+3. أغلق Excel وافتحه من جديد.
+
+لا تختر «تمكين كل وحدات الماكرو» في **إعدادات الماكرو**، فهو يسمح لأي ملف بتشغيل برامج على جهازك. الإعداد الافتراضي («تعطيل كل وحدات الماكرو مع الإعلام») مع موقع موثوق يكفي.
+
+### حالة الإضافة
+
+`InstaWords.xlam` يولّده `scripts/build-xlam.mjs` من `vba/Tafqit.bas` نفسه، بلا أي اعتماديات وبنتيجة متطابقة في كل بناء: حزمة OOXML من نوع `application/vnd.ms-excel.addin.macroEnabled.main+xml` فيها `xl/vbaProject.bin` (ملف CFB حسب [MS-CFB]، ومشروع VBA حسب [MS-OVBA] يحوي المصدر فقط دون p-code، فيترجمه Excel من المصدر عند الفتح). **بُني وفق المواصفات وتحققنا منه بقراءته من جديد** (`tests/vba/xlam.test.mjs` يفكّ كل تيار ويقارن الوحدة بـ `Tafqit.bas` بايتاً ببايت، و`olevba` من oletools يتحقق منه مستقلاً في CI)، **لكنه لم يُفتح بعد في Excel حقيقي**: يحتاج تجربة واحدة (البند 13 في [`docs/TESTING-CHECKLIST.md`](../docs/TESTING-CHECKLIST.md)). إن لم يعمل لديك فاستخدم الطريقة التالية وأخبرنا.
+
+## البديل: استيراد Tafqit.bas في مصنف
+
+لـ Excel على Mac، أو إن أردت الدالة داخل مصنف بعينه تُرسله إلى غيرك:
 
 1. افتح المصنف، ثم اضغط `Alt+F11` لفتح محرر VBA (على Mac: Tools ← Macro ← Visual Basic Editor).
 2. من القائمة **File ← Import File…** اختر الملف `vba/Tafqit.bas`. (واختيارياً `vba/TafqitTests.bas` للاختبار الذاتي.)
@@ -42,7 +67,7 @@
 
 ## الاختبار الذاتي
 
-بعد استيراد `TafqitTests.bas` شغّل الماكرو `TafqitSelfTest` (`Alt+F8`، أو `F5` في المحرر). يقارن الناتج بكل الحالات الذهبية ويعرض النتيجة في رسالة، ويكتب تفاصيل أي فشل في نافذة Immediate (`Ctrl+G`).
+في مصنف استوردت فيه `Tafqit.bas` و`TafqitTests.bas` شغّل الماكرو `TafqitSelfTest` (`Alt+F8`، أو `F5` في المحرر). يقارن الناتج بكل الحالات الذهبية ويعرض النتيجة في رسالة، ويكتب تفاصيل أي فشل في نافذة Immediate (`Ctrl+G`).
 
 ## بعد تعديل الوحدات
 
@@ -50,10 +75,11 @@
 
 ```
 npm run build:vba      # يولّد vba/Tafqit.bas و vba/TafqitTests.bas
-npm run test:vba       # يتحقق من التطابق مع المكتبة
+npm run test:vba       # يتحقق من التطابق مع المكتبة، ومن الإضافة
+npm run build:xlam     # يولّد out/InstaWords.xlam
 ```
 
-ثم احذف الوحدة القديمة من المصنف (File ← Remove) واستورد الجديدة.
+ثم احذف الوحدة القديمة من المصنف (File ← Remove) واستورد الجديدة، أو استبدل ملف الإضافة وأعد تشغيل Excel.
 
 </div>
 
@@ -63,7 +89,18 @@ npm run test:vba       # يتحقق من التطابق مع المكتبة
 
 InstaWords' `TAFQIT` spells an amount in words inside Excel, in Arabic, English or French, **fully offline**, and matches the TypeScript core and the website character for character. Works on Excel for Windows and Mac (plain arrays, no `Scripting.Dictionary`).
 
-### Install
+### Install the add-in (recommended)
+
+`InstaWords.xlam` makes `TAFQIT` available in every workbook, with nothing to import and no .xlsm needed. Download it from the [site's Excel page](https://fastkiwi.app/instawords/excel.html) or the [latest release](https://github.com/sarmadiq9090-coder/tafket/releases/latest/download/InstaWords.xlam).
+
+1. Keep the file in a folder you will not delete; Excel loads it from there.
+2. **Unblock it first:** right-click → **Properties** → tick **Unblock** → OK. Windows marks downloaded files (Mark of the Web) and Excel blocks macros in them.
+3. Excel → **File → Options → Add-ins** → Manage: **Excel Add-ins** → **Go…** → **Browse…** → pick `InstaWords.xlam` → OK, and make sure InstaWords is ticked.
+4. If Excel shows a security notice or `#NAME?`: **Trust Center → Trust Center Settings… → Trusted Locations → Add new location…** and add the add-in's folder. That is the safe option; do not choose "Enable all macros" under Macro Settings.
+
+**Status:** `scripts/build-xlam.mjs` builds the add-in from `vba/Tafqit.bas` with no dependencies and byte-for-byte reproducibly: an OOXML package (`application/vnd.ms-excel.addin.macroEnabled.main+xml`) whose `xl/vbaProject.bin` is an [MS-CFB] compound file holding a source-only [MS-OVBA] project (module streams with MS-OVBA-compressed source, `MODULEOFFSET` 0 and a 7-byte `_VBA_PROJECT` with version 0xFFFF, so Excel compiles from source). It is **built to spec and verified by round-trip parsing** (`tests/vba/xlam.test.mjs` decompresses every stream with independent readers and compares the module with `Tafqit.bas` byte for byte; CI also checks it with oletools' `olevba`), but it **still needs one real-Excel smoke test** (item 13 of [`docs/TESTING-CHECKLIST.md`](../docs/TESTING-CHECKLIST.md)). If it fails for you, use the .bas below and please report it.
+
+### Or import the module into one workbook
 
 1. Press `Alt+F11` to open the VBA editor (Mac: Tools → Macro → Visual Basic Editor).
 2. **File → Import File…** and pick `vba/Tafqit.bas` (optionally also `vba/TafqitTests.bas`).
@@ -100,7 +137,8 @@ Import `TafqitTests.bas` and run `TafqitSelfTest` (`Alt+F8`). It checks every go
 
 ```
 npm run build:vba   # writes vba/Tafqit.bas and vba/TafqitTests.bas (pure ASCII, CRLF)
-npm run test:vba    # runs both through a VBA-subset interpreter and compares with the core
+npm run test:vba    # runs both through a VBA-subset interpreter and compares with the core; checks the add-in
+npm run build:xlam  # writes out/InstaWords.xlam (also built into the site and attached to releases)
 ```
 
 The parity tests (`tests/vba/`) execute the generated VBA in Node with `tests/vba/harness/vba.mjs`, a transpiler for the small VBA subset this module uses, and compare ~62,000 inputs in the three languages with `dist/index.js`. Keep template edits within that subset.

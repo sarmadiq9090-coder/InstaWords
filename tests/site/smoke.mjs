@@ -359,6 +359,23 @@ try {
   } else {
     console.log("  skip Tafqit.bas not built");
   }
+  const xlamLinks = await page.$$eval('a[href="InstaWords.xlam"]', (as) => as.map((a) => ({ href: a.href, download: a.getAttribute("download") })));
+  check("InstaWords.xlam links are direct same-site downloads", xlamLinks.length >= 2 && xlamLinks.every((l) => l.download === "InstaWords.xlam" && l.href === `${BASE}InstaWords.xlam`), JSON.stringify(xlamLinks));
+  if (existsSync(join(root, "InstaWords.xlam"))) {
+    const xlam = await page.evaluate(async () => {
+      const r = await fetch("InstaWords.xlam");
+      const b = new Uint8Array(await r.arrayBuffer());
+      return { ok: r.ok, pk: b[0] === 0x50 && b[1] === 0x4b, size: b.length };
+    });
+    check("InstaWords.xlam downloadable (zip)", xlam.ok && xlam.pk && xlam.size > 10000, JSON.stringify(xlam));
+  } else {
+    console.log("  skip InstaWords.xlam not built");
+  }
+  check("install steps: Unblock, Add-ins dialog, Trusted Location", await page.evaluate(() => {
+    const t = document.querySelector("#install").textContent;
+    return ["إلغاء الحظر", "الوظائف الإضافية", "استعراض", "مركز التوثيق", "المواقع الموثوقة"].every((w) => t.includes(w));
+  }));
+  check("no download link sends the user to a GitHub page", await page.$$eval("a[download]", (as) => as.every((a) => !/github\.com/.test(a.href))));
   check("formula shown", (await page.textContent("#formula")).includes('=TAFQIT(A1, "ريال سعودي", "مائة", "فقط", "لا غير")'));
 
   /* ---------- offline via service worker ---------- */
