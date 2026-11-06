@@ -82,21 +82,29 @@ jobs:
 
       # Fails fast, before the build, unless ISCC.exe is exactly Inno Setup $INNO_SETUP_VERSION (a 6.x release):
       # uses the runner's copy when it is that version, otherwise installs it with Chocolatey.
-      # Exports ISCC (the compiler's path) for the installer step.
+      # The version comes from the compiler itself (its preprocessor's Ver), since ISCC.exe carries no
+      # usable file version. Exports ISCC (the compiler's path) for the installer step.
       - name: Inno Setup ${{ env.INNO_SETUP_VERSION }} (pinned)
         shell: pwsh
         run: |
           $want = $env:INNO_SETUP_VERSION
           if ($want -notmatch '^6\.\d+\.\d+$') { throw "INNO_SETUP_VERSION must be a 6.x.y release, got '$want'." }
+          $probe = Join-Path $env:RUNNER_TEMP "inno-version.iss"
+          @(
+            '#pragma message "ISCC_VERSION=" + DecodeVer(Ver, 3)'
+            '[Setup]'
+            'AppName=probe'
+            'AppVersion=1'
+            'DefaultDirName=probe'
+          ) | Set-Content -Path $probe -Encoding utf8
           function Find-Iscc {
             @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe") |
               Where-Object { Test-Path $_ } | Select-Object -First 1
           }
           function Get-IsccVersion([string]$path) {
-            $info = (Get-Item $path).VersionInfo
-            foreach ($v in @($info.ProductVersion, $info.FileVersion)) {
-              if ($v -match '^\s*(\d+\.\d+\.\d+)') { return $Matches[1] }
-            }
+            $out = & $path /O- $probe 2>&1 | Out-String
+            if ($out -match 'ISCC_VERSION=(\d+\.\d+\.\d+)') { return $Matches[1] }
+            Write-Host $out
             return "unknown"
           }
           $iscc = Find-Iscc
@@ -104,7 +112,7 @@ jobs:
           "Runner's Inno Setup: $have $iscc"
           if ($have -ne $want) {
             "Installing Inno Setup $want (Chocolatey package innosetup)"
-            choco install innosetup --version $want --allow-downgrade --no-progress -y
+            choco install innosetup --version $want --allow-downgrade --force --no-progress -y
             if ($LASTEXITCODE -ne 0) { throw "choco install innosetup --version $want failed (exit $LASTEXITCODE)." }
             $iscc = Find-Iscc
             $have = if ($iscc) { Get-IsccVersion $iscc } else { "none" }
