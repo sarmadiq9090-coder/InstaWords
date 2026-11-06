@@ -89,8 +89,8 @@ try {
   fail(err.message);
 }
 {
-  const SETUP_URL_RE = /https:\/\/github\.com\/sarmadiq9090-coder\/tafket\/releases\/download\/v[\d.]+\/InstaWords_[\d.]+_x64-setup\.exe/g;
-  const PORTABLE_URL_RE = /https:\/\/github\.com\/sarmadiq9090-coder\/tafket\/releases\/download\/v[\d.]+\/InstaWords_[\d.]+_x64-portable\.zip/g;
+  const SETUP_URL_RE = /https:\/\/github\.com\/sarmadiq9090-coder\/InstaWords\/releases\/download\/v[\d.]+\/InstaWords_[\d.]+_x64-setup\.exe/g;
+  const PORTABLE_URL_RE = /https:\/\/github\.com\/sarmadiq9090-coder\/InstaWords\/releases\/download\/v[\d.]+\/InstaWords_[\d.]+_x64-portable\.zip/g;
   const VERSION_LABEL_RE = /(<span\b[^>]*\bdata-version\b[^>]*>)v[^<]*(<\/span>)/g;
   for (const name of readdirSync(out)) {
     if (!name.endsWith(".html")) continue;

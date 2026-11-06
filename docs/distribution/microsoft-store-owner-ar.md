@@ -28,11 +28,11 @@
 
 | الملف | الرابط المباشر |
 | --- | --- |
-| **الحزمة** `store-package` (فيها `InstaWords_2.2.1.0_x64.msix`) | https://github.com/sarmadiq9090-coder/tafket/actions/runs/42218450222/artifacts/13502541588 |
-| **صور المتجر** (`InstaWords-2.2.0-screenshots`: الصور الثماني `store-*.png` مع صور الاختبارات الأخرى) | https://github.com/sarmadiq9090-coder/tafket/actions/runs/42218450222/artifacts/13501703662 |
-| تقرير WACK وصور نسخة المتجر المثبّتة (`store-package-checks`، للاطلاع فقط) | https://github.com/sarmadiq9090-coder/tafket/actions/runs/42218450222/artifacts/13502496554 |
+| **الحزمة** `store-package` (فيها `InstaWords_2.2.1.0_x64.msix`) | https://github.com/sarmadiq9090-coder/InstaWords/actions/runs/42218450222/artifacts/13502541588 |
+| **صور المتجر** (`InstaWords-2.2.0-screenshots`: الصور الثماني `store-*.png` مع صور الاختبارات الأخرى) | https://github.com/sarmadiq9090-coder/InstaWords/actions/runs/42218450222/artifacts/13501703662 |
+| تقرير WACK وصور نسخة المتجر المثبّتة (`store-package-checks`، للاطلاع فقط) | https://github.com/sarmadiq9090-coder/InstaWords/actions/runs/42218450222/artifacts/13502496554 |
 
-صفحة التشغيل نفسها: https://github.com/sarmadiq9090-coder/tafket/actions/runs/42218450222 (التشغيل رقم 42218450222، الإيداع `cf64c43`)
+صفحة التشغيل نفسها: https://github.com/sarmadiq9090-coder/InstaWords/actions/runs/42218450222 (التشغيل رقم 42218450222، الإيداع `cf64c43`)
 
 1. افتح الرابط وأنت مسجّل الدخول إلى GitHub، فيُنزَّل ملف zip.
 2. فكّ ضغط `store-package.zip`: ستجد `InstaWords_2.2.1.0_x64.msix`. **لا توقّعه**: المتجر يوقّعه بنفسه.
@@ -157,7 +157,7 @@
 
 **Copyright and trademark info:** © 2026 FastKiwi (Sarmad)
 
-**Additional license terms:** https://github.com/sarmadiq9090-coder/tafket/blob/HEAD/LICENSE
+**Additional license terms:** https://github.com/sarmadiq9090-coder/InstaWords/blob/HEAD/LICENSE
 
 <div dir="rtl">
 
@@ -211,7 +211,7 @@
 
 **حقوق النشر (Copyright and trademark info):** ‏© 2026 FastKiwi (Sarmad)
 
-**شروط الترخيص الإضافية:** https://github.com/sarmadiq9090-coder/tafket/blob/HEAD/LICENSE
+**شروط الترخيص الإضافية:** https://github.com/sarmadiq9090-coder/InstaWords/blob/HEAD/LICENSE
 
 ## 9. الصور (Screenshots)
 

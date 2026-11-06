@@ -35,7 +35,7 @@
 
 **التقديم:**
 
-1. املأ نموذج الطلب في https://signpath.org (Apply) بمعلومات المستودع `sarmadiq9090-coder/tafket`.
+1. املأ نموذج الطلب في https://signpath.org (Apply) بمعلومات المستودع `sarmadiq9090-coder/InstaWords`.
 2. بعد القبول تحصل على منظمة (organization) في https://app.signpath.io. اربط مشروعاً بالمستودع، وأضف GitHub كنظام بناء موثوق (Trusted Build System) حسب تعليماتهم، ليتحقق SignPath أن الملفات جاءت من تشغيل GitHub Actions لهذا المستودع.
 3. أنشئ في المشروع:
    - **سياسة توقيع** (signing policy)، مثلاً `release-signing`، مع موافقة يدوية.
@@ -91,7 +91,7 @@
 ### نص مقترح لسياسة التوقيع (يُضاف إلى README أو صفحة الموقع بعد القبول)
 
 > **سياسة التوقيع الرقمي:** التوقيع المجاني مقدَّم من [SignPath.io](https://about.signpath.io)، والشهادة من [SignPath Foundation](https://signpath.org).
-> المطوّرون والمراجعون: أعضاء المستودع [sarmadiq9090-coder/tafket](https://github.com/sarmadiq9090-coder/tafket). الموافقة على التوقيع: صاحب المشروع.
+> المطوّرون والمراجعون: أعضاء المستودع [sarmadiq9090-coder/InstaWords](https://github.com/sarmadiq9090-coder/InstaWords). الموافقة على التوقيع: صاحب المشروع.
 > الخصوصية: لا يتصل البرنامج بأي جهة إلا GitHub للتحقق من وجود تحديث (يمكن إيقافه من الإعدادات)، ولا يُرسل أي رقم أو بيانات. الإبلاغ عن مشكلة يفتح صفحة GitHub في متصفحك ولا يُرسل شيئاً تلقائياً.
 
 </div>
@@ -106,7 +106,7 @@
 
 **Recommended: SignPath Foundation** (free for open source). Certificates are issued to *SignPath Foundation*, which is the publisher name Windows shows. Requirements (check https://signpath.org/terms): OSI-approved licence (MIT ✔) and no proprietary components in what is signed, an existing maintained project with a released version (✔), no malware/PUA and a clear description (mention the update check to GitHub, which can be turned off, and that no data is sent), builds on a verifiable build system (GitHub Actions ✔), MFA for every team member on GitHub and SignPath, a code signing policy on the website/README (draft above, in Arabic: "Free code signing provided by SignPath.io, certificate by SignPath Foundation", roles, privacy), and a manual approval for each release signing request.
 
-How to apply: submit the application at https://signpath.org; once accepted, in https://app.signpath.io create a project linked to `sarmadiq9090-coder/tafket` with GitHub as trusted build system, a signing policy (e.g. `release-signing`, manual approval), the artifact configurations `app` and `setup` (XML above), and a CI user with submitter rights. Then in GitHub → Settings → Environments create `signing` with Deployment branches = the default branch only (Required reviewers recommended) and add the token there as an environment secret; add the variables under Settings → Secrets and variables → Actions:
+How to apply: submit the application at https://signpath.org; once accepted, in https://app.signpath.io create a project linked to `sarmadiq9090-coder/InstaWords` with GitHub as trusted build system, a signing policy (e.g. `release-signing`, manual approval), the artifact configurations `app` and `setup` (XML above), and a CI user with submitter rights. Then in GitHub → Settings → Environments create `signing` with Deployment branches = the default branch only (Required reviewers recommended) and add the token there as an environment secret; add the variables under Settings → Secrets and variables → Actions:
 
 | Kind | Name | Value |
 |---|---|---|

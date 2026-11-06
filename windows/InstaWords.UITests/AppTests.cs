@@ -249,10 +249,10 @@ namespace InstaWords.UITests
         {
             const string feed = @"{
   ""tag_name"": ""v99.0.0"", ""name"": ""InstaWords v99.0.0"", ""draft"": false, ""prerelease"": false,
-  ""html_url"": ""https://github.com/sarmadiq9090-coder/tafket/releases/tag/v99.0.0"",
+  ""html_url"": ""https://github.com/sarmadiq9090-coder/InstaWords/releases/tag/v99.0.0"",
   ""body"": ""## InstaWords 99\n\n- **تفقيط أسرع** للقوائم الطويلة\n- إصلاحات في الفرنسية\n- Faster bulk conversion"",
   ""assets"": [{ ""name"": ""InstaWords_99.0.0_x64-setup.exe"", ""size"": 1234,
-    ""browser_download_url"": ""https://github.com/sarmadiq9090-coder/tafket/releases/download/v99.0.0/InstaWords_99.0.0_x64-setup.exe"",
+    ""browser_download_url"": ""https://github.com/sarmadiq9090-coder/InstaWords/releases/download/v99.0.0/InstaWords_99.0.0_x64-setup.exe"",
     ""digest"": ""sha256:0000000000000000000000000000000000000000000000000000000000000000"" }]
 }";
             using (var s = new AppSession(updateFeedJson: feed))

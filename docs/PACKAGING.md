@@ -46,7 +46,7 @@ wingetcreate submit manifests\s\Sarmad\InstaWords\2.1.0
 أو تترك wingetcreate يحدّث آخر ملف مقبول:
 
 ```powershell
-wingetcreate update Sarmad.InstaWords --version 2.1.0 --urls https://github.com/sarmadiq9090-coder/tafket/releases/download/v2.1.0/InstaWords_2.1.0_x64-setup.exe --submit
+wingetcreate update Sarmad.InstaWords --version 2.1.0 --urls https://github.com/sarmadiq9090-coder/InstaWords/releases/download/v2.1.0/InstaWords_2.1.0_x64-setup.exe --submit
 ```
 
 **ما يفحصه winget-pkgs:** المخطط والروابط، ويتحقق من SHA-256، ويفحص الملف بعدة برامج مكافحة فيروسات، ويثبّته في جهاز نظيف. البرامج غير الموقّعة مقبولة، لكن أي إنذار من برنامج مكافحة يرفض الطلب: عندها أرسل الملف بلاغاً خاطئاً إلى https://www.microsoft.com/wdsi/filesubmission مع رابط الطلب. بعد الدمج يعمل `winget install Sarmad.InstaWords` أو `winget install instawords`.

@@ -8,7 +8,7 @@
 
 - **الأجهزة:** Windows 10 (22H2) وWindows 11 (23H2 أو أحدث). يكفي جهاز لكل نظام، وغيّر التكبير بينها.
 - **التكبير:** الإعدادات ← النظام ← الشاشة ← المقياس: 100% ثم 125% ثم 150%. أعد تشغيل البرنامج بعد كل تغيير (وسجّل الخروج إن طلب Windows).
-- **النسخ:** المثبّت والنسخة المحمولة لآخر إصدار من [صفحة الإصدارات](https://github.com/sarmadiq9090-coder/tafket/releases/latest)، ونسخة أقدم (مثل v2.0.0 من [كل الإصدارات](https://github.com/sarmadiq9090-coder/tafket/releases)) لتجربة التحديث.
+- **النسخ:** المثبّت والنسخة المحمولة لآخر إصدار من [صفحة الإصدارات](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest)، ونسخة أقدم (مثل v2.0.0 من [كل الإصدارات](https://github.com/sarmadiq9090-coder/InstaWords/releases)) لتجربة التحديث.
 - **البرامج:** Excel (Microsoft 365 أو 2016 فأحدث)، وWord، ومتصفح (Edge أو Chrome)، والمفكرة.
 - سجّل في جدول النتائج آخر الملف: النظام ورقم البناء (`winver`)، والتكبير، ورقم إصدار البرنامج (F1 ← حول البرنامج).
 
@@ -183,7 +183,7 @@
 
 1. **من داخل البرنامج:** قائمة الأيقونة بجانب الساعة ← «الإبلاغ عن مشكلة أو اقتراح» (يضيف رقم الإصدار ونسخة Windows تلقائياً).
 2. **من الموقع:** رابط «الإبلاغ عن مشكلة» أسفل أي صفحة.
-3. **مباشرة:** نموذج «الإبلاغ عن مشكلة» في https://github.com/sarmadiq9090-coder/tafket/issues/new/choose
+3. **مباشرة:** نموذج «الإبلاغ عن مشكلة» في https://github.com/sarmadiq9090-coder/InstaWords/issues/new/choose
 
 واكتب فيه: رقم البند في هذه القائمة، وWindows ورقم بنائه (`winver`)، والتكبير، ورقم إصدار البرنامج (F1)، وExcel ونسخته إن كان الخطأ فيه، وخطوات إعادة المشكلة، والنتيجة المتوقعة والفعلية، وصورة للشاشة (Win+Shift+S).
 
@@ -213,4 +213,4 @@ Manual checks of the Windows app, the Excel module and the website on real hardw
 - **13. Excel**: (a) **the `InstaWords.xlam` add-in is built to spec and verified by round-trip parsing, but has never been opened by a real Excel: this is its smoke test.** Download, Properties → Unblock, File → Options → Add-ins → Manage Excel Add-ins → Go → Browse; no "corrupt/repair" or VBA error, the add-in is listed and ticked, the formula table works in a plain .xlsx, VBE shows project InstaWords with `TafqitLib` and Debug → Compile passes, it still works after restarting Excel (note any "save InstaWords.xlam?" prompt), what happens without Unblock, and that a Trusted Location removes any prompt; Excel bitness and language. (b) The .bas: import `Tafqit.bas` (+ `TafqitTests.bas`), save as .xlsm; the `=TAFQIT` examples (including the 7th `Language` argument "en"/"fr", case-insensitive), `TAFQIT_CLEAN`, and `TafqitSelfTest` → "N of N golden cases passed".
 - **14. Website**: all download buttons are direct, the release-notes dialog (version, date, size, SHA-256, portable, notes), the releases link, offline behaviour after one visit (conversions work, dialog shows the bundled release), the support dialog, phone layout at 375 px.
 - **15. winget / Scoop** once published.
-- **Reporting**: in the app (tray → report a problem or suggestion), the site footer's report link, or the issue form at https://github.com/sarmadiq9090-coder/tafket/issues/new/choose. Include the item number, `winver`, scaling, app version (F1), Excel version, steps, expected vs actual, and a screenshot. Fill in the results table.
+- **Reporting**: in the app (tray → report a problem or suggestion), the site footer's report link, or the issue form at https://github.com/sarmadiq9090-coder/InstaWords/issues/new/choose. Include the item number, `winver`, scaling, app version (F1), Excel version, steps, expected vs actual, and a screenshot. Fill in the results table.

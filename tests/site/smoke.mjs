@@ -31,8 +31,8 @@ const STUB_LANGUAGES = [
   { id: "en", label: "English", dir: "ltr", supportsHundredsForm: false },
   { id: "fr", label: "Français", dir: "ltr", supportsHundredsForm: false },
 ];
-const REPO_URL = "https://github.com/sarmadiq9090-coder/tafket";
-const RELEASE_API = "https://api.github.com/repos/sarmadiq9090-coder/tafket/releases/latest";
+const REPO_URL = "https://github.com/sarmadiq9090-coder/InstaWords";
+const RELEASE_API = "https://api.github.com/repos/sarmadiq9090-coder/InstaWords/releases/latest";
 // Direct installer used without JavaScript / when GitHub is unreachable: site/release-fallback.json,
 // which scripts/build-site.mjs writes into the pages and into release.js FALLBACK.
 const FB = readFallback();

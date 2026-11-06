@@ -1,7 +1,7 @@
 # Changelog · سجل التغييرات
 
 Each version's section is copied into its GitHub release notes by the release workflow
-(`scripts/changelog-section.mjs`). Earlier versions: [GitHub Releases](https://github.com/sarmadiq9090-coder/tafket/releases).
+(`scripts/changelog-section.mjs`). Earlier versions: [GitHub Releases](https://github.com/sarmadiq9090-coder/InstaWords/releases).
 
 ## 2.2.0
 

@@ -20,8 +20,8 @@
 | Privacy policy | https://fastkiwi.app/privacy/ (live; it has an InstaWords section that covers the Store copy) |
 | Website | https://fastkiwi.app/instawords/ |
 | Support email | support@fastkiwi.app |
-| Package file | `InstaWords_2.2.1.0_x64.msix`, workflow artifact **`store-package`**: [run 42218450222 → store-package](https://github.com/sarmadiq9090-coder/tafket/actions/runs/42218450222/artifacts/13502541588) |
-| Store screenshots | [run 42218450222 → InstaWords-2.2.0-screenshots](https://github.com/sarmadiq9090-coder/tafket/actions/runs/42218450222/artifacts/13501703662) (the eight `store-*.png`) |
+| Package file | `InstaWords_2.2.1.0_x64.msix`, workflow artifact **`store-package`**: [run 42218450222 → store-package](https://github.com/sarmadiq9090-coder/InstaWords/actions/runs/42218450222/artifacts/13502541588) |
+| Store screenshots | [run 42218450222 → InstaWords-2.2.0-screenshots](https://github.com/sarmadiq9090-coder/InstaWords/actions/runs/42218450222/artifacts/13501703662) (the eight `store-*.png`) |
 | Owner guide (Arabic) | [`microsoft-store-owner-ar.md`](microsoft-store-owner-ar.md) |
 
 ## 1. How the package is built
@@ -88,7 +88,7 @@ The `store-package` job in `.github/workflows/windows.yml` runs on every push, b
    - Uninstalls the app.
 5. **Windows App Certification Kit**, if the runner's SDK has it. This step is informational (`continue-on-error`). Its report and the test screenshots go to the artifact `store-package-checks`.
 
-   Latest result (run [42218450222](https://github.com/sarmadiq9090-coder/tafket/actions/runs/42218450222), package 2.2.1.0): **overall PASS**. 23 tests passed. One optional test, "Blocked executables", is flagged because `InstaWords.exe` references `Process.Start`. The app uses it to open https links in the default browser, to open the data folder in Explorer, and, only outside the Store, to run the verified installer. The certification notes explain this.
+   Latest result (run [42218450222](https://github.com/sarmadiq9090-coder/InstaWords/actions/runs/42218450222), package 2.2.1.0): **overall PASS**. 23 tests passed. One optional test, "Blocked executables", is flagged because `InstaWords.exe` references `Process.Start`. The app uses it to open https links in the default browser, to open the data folder in Explorer, and, only outside the Store, to run the verified installer. The certification notes explain this.
 
 The uploaded `store-package` is never signed: the Store signs it.
 
@@ -162,7 +162,7 @@ Partner Center → InstaWords → Store listings → add **English (United State
 
 **Copyright and trademark info:** © 2026 FastKiwi (Sarmad)
 
-**Additional license terms:** https://github.com/sarmadiq9090-coder/tafket/blob/HEAD/LICENSE
+**Additional license terms:** https://github.com/sarmadiq9090-coder/InstaWords/blob/HEAD/LICENSE
 
 **Website:** https://fastkiwi.app/instawords/
 

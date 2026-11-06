@@ -20,7 +20,7 @@
 
 لا تنزّل InstaWords إلا من:
 
-1. صفحة الإصدارات على GitHub: <https://github.com/sarmadiq9090-coder/tafket/releases>، ومع كل إصدار ملف بصمات `SHA256SUMS.txt`.
+1. صفحة الإصدارات على GitHub: <https://github.com/sarmadiq9090-coder/InstaWords/releases>، ومع كل إصدار ملف بصمات `SHA256SUMS.txt`.
 2. موقع FastKiwi: <https://fastkiwi.app/instawords/> (والقائمة الكاملة لكل برامج FastKiwi: <https://fastkiwi.app/downloads/>).
 3. Microsoft Store، حين يُنشر فيه (معرّف المتجر `9P62P4WQSQNK`).
 4. winget: `winget install Sarmad.InstaWords` (بعد قبوله في مستودع winget-pkgs).
@@ -49,7 +49,7 @@ Allowed without asking: using the name to refer to the original app (articles, r
 
 Download InstaWords only from:
 
-1. GitHub Releases: <https://github.com/sarmadiq9090-coder/tafket/releases>, with a `SHA256SUMS.txt` checksum file for each release.
+1. GitHub Releases: <https://github.com/sarmadiq9090-coder/InstaWords/releases>, with a `SHA256SUMS.txt` checksum file for each release.
 2. The FastKiwi site: <https://fastkiwi.app/instawords/> (the full list for every FastKiwi app: <https://fastkiwi.app/downloads/>).
 3. Microsoft Store, once listed (Store ID `9P62P4WQSQNK`).
 4. winget: `winget install Sarmad.InstaWords` (once accepted into winget-pkgs).

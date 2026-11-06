@@ -6,12 +6,12 @@ PackageVersion: ${VERSION}
 PackageLocale: ar-SA
 Publisher: FastKiwi
 PublisherUrl: https://fastkiwi.app/ar/
-PublisherSupportUrl: https://github.com/sarmadiq9090-coder/tafket/issues
+PublisherSupportUrl: https://github.com/sarmadiq9090-coder/InstaWords/issues
 Author: Sarmad
 PackageName: "InstaWords — تفقيط"
 PackageUrl: https://fastkiwi.app/instawords/
 License: MIT
-LicenseUrl: https://github.com/sarmadiq9090-coder/tafket/blob/HEAD/LICENSE
+LicenseUrl: https://github.com/sarmadiq9090-coder/InstaWords/blob/HEAD/LICENSE
 Copyright: "© 2026 FastKiwi (Sarmad) · MIT License"
 ShortDescription: "تفقيط المبالغ بالحروف للشيكات والفواتير، بالعربية والإنجليزية والفرنسية."
 Description: |-
@@ -32,6 +32,6 @@ Tags:
 - arabic
 - cheque
 - invoice
-ReleaseNotesUrl: https://github.com/sarmadiq9090-coder/tafket/releases/tag/v${VERSION}
+ReleaseNotesUrl: https://github.com/sarmadiq9090-coder/InstaWords/releases/tag/v${VERSION}
 ManifestType: locale
 ManifestVersion: 1.12.0

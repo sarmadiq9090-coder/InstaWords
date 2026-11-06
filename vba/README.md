@@ -6,7 +6,7 @@
 
 ## التثبيت: الإضافة InstaWords.xlam (تجريبية، موصى بها)
 
-الإضافة ملف واحد تثبّته في Excel مرة واحدة، فتعمل الدالة في كل مصنف تفتحه دون استيراد أي شيء ودون حفظ المصنف بصيغة ‎.xlsm. نزّلها من [صفحة Excel في الموقع](https://fastkiwi.app/instawords/excel.html) أو من ملفات [آخر إصدار](https://github.com/sarmadiq9090-coder/tafket/releases/latest/download/InstaWords.xlam) (`InstaWords.xlam`).
+الإضافة ملف واحد تثبّته في Excel مرة واحدة، فتعمل الدالة في كل مصنف تفتحه دون استيراد أي شيء ودون حفظ المصنف بصيغة ‎.xlsm. نزّلها من [صفحة Excel في الموقع](https://fastkiwi.app/instawords/excel.html) أو من ملفات [آخر إصدار](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest/download/InstaWords.xlam) (`InstaWords.xlam`).
 
 1. ضع `InstaWords.xlam` في مجلد ثابت لن تحذفه (مثل `المستندات\InstaWords`)، فـ Excel يحمّلها من مكانها كل مرة.
 2. **إلغاء الحظر أولاً:** انقر الملف بزر الفأرة الأيمن ← **خصائص** ← في أسفل تبويب «عام» فعّل **«إلغاء الحظر»** (Unblock) ← **موافق**. يضع Windows على كل ملف منزَّل من الإنترنت «علامة الويب» (Mark of the Web)، ويحظر Excel الماكرو في الملفات التي تحملها، فلا تعمل الدالة دون هذه الخطوة. إن لم يظهر الخيار فالملف غير محظور.
@@ -91,7 +91,7 @@ InstaWords' `TAFQIT` spells an amount in words inside Excel, in Arabic, English 
 
 ### Install the add-in (recommended)
 
-`InstaWords.xlam` makes `TAFQIT` available in every workbook, with nothing to import and no .xlsm needed. Download it from the [site's Excel page](https://fastkiwi.app/instawords/excel.html) or the [latest release](https://github.com/sarmadiq9090-coder/tafket/releases/latest/download/InstaWords.xlam).
+`InstaWords.xlam` makes `TAFQIT` available in every workbook, with nothing to import and no .xlsm needed. Download it from the [site's Excel page](https://fastkiwi.app/instawords/excel.html) or the [latest release](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest/download/InstaWords.xlam).
 
 1. Keep the file in a folder you will not delete; Excel loads it from there.
 2. **Unblock it first:** right-click → **Properties** → tick **Unblock** → OK. Windows marks downloaded files (Mark of the Web) and Excel blocks macros in them.

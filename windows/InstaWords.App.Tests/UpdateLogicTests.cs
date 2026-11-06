@@ -71,7 +71,7 @@ namespace InstaWords.App.Tests
         }
 
         [Theory]
-        [InlineData("https://github.com/sarmadiq9090-coder/tafket/releases/download/v2.0.0/InstaWords_2.0.0_x64-setup.exe", true)]
+        [InlineData("https://github.com/sarmadiq9090-coder/InstaWords/releases/download/v2.0.0/InstaWords_2.0.0_x64-setup.exe", true)]
         [InlineData("https://objects.githubusercontent.com/github-production-release-asset/123?X-Amz=1", true)]
         [InlineData("https://release-assets.githubusercontent.com/github-production-release-asset/1/2?sp=r", true)]
         [InlineData("https://GITHUB.com/a", true)]
@@ -131,7 +131,7 @@ namespace InstaWords.App.Tests
         {
             const string json = @"{
               ""tag_name"": ""v2.1.0"", ""name"": ""InstaWords v2.1.0"", ""draft"": false, ""prerelease"": false,
-              ""html_url"": ""https://github.com/sarmadiq9090-coder/tafket/releases/tag/v2.1.0"",
+              ""html_url"": ""https://github.com/sarmadiq9090-coder/InstaWords/releases/tag/v2.1.0"",
               ""body"": ""## الجديد\n- **أسرع**\n- [رابط](https://x.y)"",
               ""unknown_field"": {""nested"": [1,2,3]},
               ""assets"": [{""name"": ""InstaWords_2.1.0_x64-setup.exe"", ""size"": 123,

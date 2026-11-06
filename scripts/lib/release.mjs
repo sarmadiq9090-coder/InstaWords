@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-export const REPO = "sarmadiq9090-coder/tafket";
+export const REPO = "sarmadiq9090-coder/InstaWords";
 export const REPO_URL = `https://github.com/${REPO}`;
 export const LATEST_API = `https://api.github.com/repos/${REPO}/releases/latest`;
 export const DOWNLOAD_PREFIX = `${REPO_URL}/releases/download/`;

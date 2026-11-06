@@ -28,7 +28,7 @@ namespace InstaWords.App.Tests
         public void BugUrlUsesBugFormFields()
         {
             var url = ReportBuilder.BuildIssueUrl(Bug());
-            Assert.StartsWith("https://github.com/sarmadiq9090-coder/tafket/issues/new?", url);
+            Assert.StartsWith("https://github.com/sarmadiq9090-coder/InstaWords/issues/new?", url);
             var q = Query(url);
             Assert.Equal("bug.yml", q["template"]);
             Assert.Equal("bug", q["labels"]);
