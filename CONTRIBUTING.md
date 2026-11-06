@@ -30,6 +30,7 @@
 2. عدّل المواصفة `docs/SPEC.md`.
 3. عدّل الحالات الذهبية [`tests/golden/cases.json`](tests/golden/cases.json) أو أضف إليها، فهي المرجع المشترك بين النواة وVBA.
 4. عدّل النواة `src/`، ثم قالب VBA `vba/Tafqit.template.bas`، حتى تنجح `npm run test:all`.
+5. إن تغيّرت ألفاظ `src/lexicon.ts` فارفع `DICTIONARY_VERSION` في `scripts/export-dictionary.mjs`، ثم أعد توليد القاموس الموحّد المنشور في fastkiwi.app: `npm run export:dictionary -- --out <site>/data/arabic-numbers.json`.
 
 ### 3. الموقع
 

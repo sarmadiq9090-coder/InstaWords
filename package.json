@@ -42,7 +42,8 @@
     "test:dotnet": "npm run build && node scripts/build-dotnet.mjs --check && node scripts/gen-dotnet-corpus.mjs && dotnet test windows/InstaWords.Core.Tests",
     "release:prepare": "node scripts/release-prepare.mjs",
     "release:fallback": "node scripts/update-release-fallback.mjs && node scripts/package-manifests.mjs",
-    "packaging": "node scripts/package-manifests.mjs"
+    "packaging": "node scripts/package-manifests.mjs",
+    "export:dictionary": "node scripts/export-dictionary.mjs"
   },
   "keywords": [
     "arabic",
