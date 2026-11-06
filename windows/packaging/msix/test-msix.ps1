@@ -7,6 +7,7 @@
   self-signed certificate whose subject equals the Publisher in identity.json, trusts it, installs
   the copy, and checks:
     - the package family name is the one Partner Center gave (identity.json PackageFamilyName);
+    - with -ExpectVersion x.y.z: the package version is x.y.z.0 and About shows x.y.z;
     - the app starts from the package (path under WindowsApps) and shows its window;
     - Store mode: Settings shows "Updates come from Microsoft Store" with no update check button
       and no auto-update box; "Start with Windows" reads the startup task and can switch it on and off;
@@ -17,7 +18,8 @@
 param(
   [Parameter(Mandatory = $true)][string]$Msix,
   [string]$OutDir = "out\msix-test",
-  [string]$Identity = "windows\packaging\msix\identity.json"
+  [string]$Identity = "windows\packaging\msix\identity.json",
+  [string]$ExpectVersion = ""
 )
 $ErrorActionPreference = 'Stop'
 Set-Location (Resolve-Path (Join-Path $PSScriptRoot "..\..\.."))
@@ -64,6 +66,7 @@ $pkg = Get-AppxPackage -Name $id.Name
 Check ($null -ne $pkg) "installed: $($pkg.PackageFullName)"
 if (-not $pkg) { throw "the package did not install" }
 if ($id.PackageFamilyName) { Check ($pkg.PackageFamilyName -eq $id.PackageFamilyName) "family name $($pkg.PackageFamilyName) = identity.json $($id.PackageFamilyName)" }
+if ($ExpectVersion) { Check ($pkg.Version -eq "$ExpectVersion.0") "package version $($pkg.Version) = $ExpectVersion.0" }
 
 # ---- Launch from the package, like the Start menu does ----
 Get-Process InstaWords -ErrorAction SilentlyContinue | Stop-Process -Force
@@ -182,6 +185,11 @@ if ($aboutWindow) {
   $aboutText = if ($aboutStatus) { $aboutStatus.Current.Name } else { "" }
   Check ($aboutText -eq $statusText) "About says the Store updates it: «$aboutText»"
   Check ($null -eq (Find-Id $aboutWindow "AboutCheckUpdate" 1500)) "About: no 'Check for updates' button"
+  if ($ExpectVersion) {
+    $aboutVersion = Find-Id $aboutWindow "AboutVersion"
+    $versionText = if ($aboutVersion) { $aboutVersion.Current.Name } else { "" }
+    Check ($versionText -match "(^|\D)$([regex]::Escape($ExpectVersion))(\D|$)") "About shows version ${ExpectVersion}: «$versionText»"
+  }
   Save-Shot $aboutWindow "store-about"
 }
 

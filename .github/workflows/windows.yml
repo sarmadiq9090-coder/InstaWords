@@ -275,10 +275,16 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Read version
+      # The Store version: identity.json "storeVersion" when set (a Store build ahead of package.json,
+      # e.g. 2.2.1 while GitHub is on 2.2.0), otherwise package.json's. Fails if it is lower than package.json.
+      # The app is built with it, so About in the Store copy shows the same version as the package.
+      - name: Read the Store version
         id: version
         shell: bash
-        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+        run: |
+          version=$(node scripts/msix-version.mjs)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Store build $version (package.json $(node -p "require('./package.json').version"))"
 
       - name: Build the app
         run: dotnet build windows/InstaWords.App -c Release -p:Version=${{ steps.version.outputs.version }}
@@ -299,7 +305,7 @@ jobs:
       # launches it from the package and checks Store mode through UI Automation.
       - name: Install and launch test (self-signed copy)
         shell: pwsh
-        run: windows/packaging/msix/test-msix.ps1 -Msix "${{ steps.msix.outputs.path }}" -OutDir out/msix-test
+        run: windows/packaging/msix/test-msix.ps1 -Msix "${{ steps.msix.outputs.path }}" -OutDir out/msix-test -ExpectVersion "${{ steps.version.outputs.version }}"
 
       # Informational: the same Windows App Certification Kit tests Partner Center runs (when the SDK has it).
       - name: Windows App Certification Kit

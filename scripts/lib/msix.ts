@@ -8,6 +8,13 @@ export interface MsixIdentity {
   PublisherDisplayName: string;
   PackageFamilyName?: string;
   StoreId?: string;
+  /**
+   * Optional: the version of the Store build (x.y.z), when it must run ahead of package.json.
+   * Partner Center only accepts a package whose version is higher than the one it already has, so a
+   * Store-only fix ships as e.g. 2.2.1 while package.json (GitHub releases) is still 2.2.0.
+   * Must be >= the package.json version; drop it (or set it equal) once package.json catches up.
+   */
+  storeVersion?: string;
 }
 
 /** Test values the repository may carry instead of the Partner Center identity. */
@@ -24,6 +31,31 @@ export function packageVersion(version: string): string {
   if (parts.some((n) => n > 65535)) throw new Error(`version part above 65535: ${version}`);
   if (parts[0] === 0) throw new Error(`the Store needs a major version of 1 or more: ${version}`);
   return `${parts.join(".")}.0`;
+}
+
+/** -1, 0 or 1: compares the x.y.z of two versions (a pre-release suffix is ignored, like packageVersion does). */
+export function compareVersions(a: string, b: string): number {
+  const pa = packageVersion(a).split(".").map(Number);
+  const pb = packageVersion(b).split(".").map(Number);
+  for (let i = 0; i < 3; i++) if (pa[i] !== pb[i]) return (pa[i] ?? 0) < (pb[i] ?? 0) ? -1 : 1;
+  return 0;
+}
+
+/**
+ * The version the Store build uses (the MSIX Version as x.y.z.0, and the app's -p:Version so About shows it):
+ * identity.json storeVersion when set, otherwise package.json's version. Throws when storeVersion is not a
+ * plain x.y.z or is lower than package.json's version (the Store copy must never look older than GitHub's).
+ */
+export function storeVersion(id: Pick<MsixIdentity, "storeVersion">, packageJsonVersion: string): string {
+  packageVersion(packageJsonVersion);
+  const override = id.storeVersion;
+  if (override === undefined || override === null || override === "") return packageJsonVersion;
+  if (typeof override !== "string" || !/^\d+\.\d+\.\d+$/.test(override))
+    throw new Error(`storeVersion: must be x.y.z (got ${JSON.stringify(override)})`);
+  packageVersion(override);
+  if (compareVersions(override, packageJsonVersion) < 0)
+    throw new Error(`storeVersion ${override} is lower than package.json's ${packageJsonVersion}: raise it or remove it`);
+  return override;
 }
 
 /** Problems with identity.json (empty when it can be used to build a package). */

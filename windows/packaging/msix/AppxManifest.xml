@@ -2,7 +2,8 @@
 <!--
   MSIX manifest template for InstaWords (Microsoft Store). Filled in by scripts/msix-stage.mjs:
     {{Name}} {{Publisher}} {{PublisherDisplayName}}  from windows/packaging/msix/identity.json (Partner Center)
-    {{Version}}                                       package.json version as x.y.z.0 (the Store needs .0)
+    {{Version}}                                       the Store version as x.y.z.0 (the Store needs .0): identity.json
+                                                      storeVersion when set, else package.json (scripts/msix-version.mjs)
   Built by windows/packaging/msix/build-msix.ps1 (MakePri + MakeAppx); see docs/distribution/microsoft-store.md.
   ms-resource: strings are in Strings/<language>/resources.resw; the logo files have scale-/targetsize- variants
   in Assets/ (made by make-assets.py), which resources.pri resolves.

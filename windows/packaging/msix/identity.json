@@ -7,12 +7,18 @@
     "  PublisherDisplayName  <- 'Package/Properties/PublisherDisplayName'",
     "PackageFamilyName and StoreId are for reference and checks only (CI compares the installed test copy's",
     "family name with PackageFamilyName). Set placeholder to true only for test values such as",
-    "CN=InstaWords-Test: the build then warns that the Store would reject the package."
+    "CN=InstaWords-Test: the build then warns that the Store would reject the package.",
+    "storeVersion (optional, x.y.z): the version of the Store build when it runs ahead of package.json.",
+    "The MSIX Version (storeVersion.0) and the app's -p:Version (About) both use it. It must be >= package.json's",
+    "version (scripts/msix-version.mjs and tests/msix.test.ts check it). Partner Center needs a higher package",
+    "version for every submission: raise it before each one (see docs/distribution/microsoft-store.md),",
+    "and remove it once package.json reaches or passes it."
   ],
   "placeholder": false,
   "Name": "FastKiwi.InstaWords",
   "Publisher": "CN=8EFD6949-D088-481F-886D-82300679C5E5",
   "PublisherDisplayName": "FastKiwi",
   "PackageFamilyName": "FastKiwi.InstaWords_sm1xjmj6v76yc",
-  "StoreId": "9P62P4WQSQNK"
+  "StoreId": "9P62P4WQSQNK",
+  "storeVersion": "2.2.1"
 }
