@@ -126,7 +126,7 @@ namespace InstaWords.UITests
             using (var s = new AppSession())
             {
                 Assert.Equal("تفقيط رقم", s.Get("NavSingle").Name);
-                Assert.True(IsLeftOf(s.Get("NavBulk"), s.Get("NavSingle")), "RTL: تفقيط رقم is right of دفعة");
+                Assert.True(IsLeftOf(s.Get("NavBulk"), s.Get("NavSingle")), "RTL: تفقيط رقم is right of عدة مبالغ");
 
                 s.Get("NavSettings").Click();
                 s.Get("UiLangEn").Patterns.SelectionItem.Pattern.Select();
@@ -186,6 +186,22 @@ namespace InstaWords.UITests
                 amount.Text = "";
                 amount.Enter("300");
                 AppSession.WaitUntil(() => PreviewWords(s, dialog) == Words("300"), "live preview after typing");
+                AppSession.WaitUntil(() => NameOf(s, dialog, "PreviewFigures") == "#300.00#", "whole amount with decimals, got «" + NameOf(s, dialog, "PreviewFigures") + "»");
+
+                // Money keeps its subunit decimals in the amount box: 45,750.50, not 45,750.5.
+                amount.Text = "";
+                amount.Enter("45750.5");
+                AppSession.WaitUntil(() => NameOf(s, dialog, "PreviewFigures") == "#45,750.50#", "cheque figures 45,750.50, got «" + NameOf(s, dialog, "PreviewFigures") + "»");
+                Thread.Sleep(400);
+                s.Screenshot(dialog, "16b-print-cheque-decimals");
+                Select(s, dialog, "PrintTemplateReceipt");
+                AppSession.WaitUntil(() => NameOf(s, dialog, "PreviewFigures") == "45,750.50 SAR", "voucher amount 45,750.50 SAR, got «" + NameOf(s, dialog, "PreviewFigures") + "»");
+                Thread.Sleep(400);
+                s.Screenshot(dialog, "17b-print-receipt-decimals");
+                Select(s, dialog, "PrintTemplateCheque");
+                amount.Text = "";
+                amount.Enter("300");
+                AppSession.WaitUntil(() => PreviewWords(s, dialog) == Words("300"), "back to 300");
 
                 // Calibration: the grid and an offset.
                 s.Get("PrintShowGrid", dialog).AsToggleButton().Toggle();

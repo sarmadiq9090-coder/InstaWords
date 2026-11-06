@@ -541,7 +541,8 @@ namespace InstaWords.App.Views
                 var img = new BitmapImage();
                 img.BeginInit();
                 img.CacheOption = BitmapCacheOption.OnLoad;
-                img.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+                // No BitmapCreateOptions.IgnoreImageCache: with a StreamSource (no UriSource) it throws
+                // ArgumentNullException ("key"), so every logo failed to load. A stream is never cached anyway.
                 img.StreamSource = new MemoryStream(bytes);
                 img.DecodePixelHeight = 300;
                 img.EndInit();

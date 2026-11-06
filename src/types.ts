@@ -86,6 +86,12 @@ export interface Unit {
   subunit?: SubunitForms;
   /** Forms of the unit in other languages (the subunit carries its own). */
   i18n?: UnitI18n;
+  /**
+   * Display only, never the words or the rounding: decimals an app shows for a whole amount of
+   * this money, e.g. 0 for IQD (1,750,000, not 1,750,000.000). Absent: the subunit's digits.
+   * An amount with a fraction shows every subunit digit. Needs a subunit; at most its digits.
+   */
+  displayDigits?: number;
   note?: string;
 }
 

@@ -18,6 +18,7 @@ namespace InstaWords.App.Services
     /// Checks GitHub Releases for a newer InstaWords and installs it. Fully asynchronous and silent
     /// when offline: a failed check never shows anything unless the user asked for it.
     /// Test hook: INSTAWORDS_UPDATE_FEED = path or file:// URL of a release JSON (used only when set).
+    /// The Store copy (MSIX) never checks or downloads anything: the Microsoft Store updates it.
     /// </summary>
     public sealed class UpdateService
     {
@@ -59,10 +60,14 @@ namespace InstaWords.App.Services
             ? LastCheck.Value.ToLocalTime().ToString("yyyy/MM/dd HH:mm", CultureInfo.InvariantCulture)
             : Loc.T("Update.NeverChecked");
 
+        /// <summary>False for the Store copy: no GitHub check, no download, no installer.</summary>
+        public static bool IsEnabled => StoreLogic.SelfUpdates(AppPackage.Kind);
+
         public string StatusText
         {
             get
             {
+                if (!IsEnabled) return Loc.T("Update.FromStore");
                 if (_checking) return Loc.T("Update.Checking");
                 if (Available != null) return Loc.F("Update.StatusAvailable", UpdateLogic.Display(AvailableVersion), LastCheckText);
                 if (LastError != null) return Loc.F("Update.StatusFailed", LastError);
@@ -96,6 +101,7 @@ namespace InstaWords.App.Services
         /// <summary>At startup: at most once a day, a few seconds after the window appears.</summary>
         public async void CheckOnStartup()
         {
+            if (!IsEnabled) return;
             var s = App.Current.Settings;
             var feed = Environment.GetEnvironmentVariable("INSTAWORDS_UPDATE_FEED");
             if (string.IsNullOrEmpty(feed))
@@ -111,7 +117,7 @@ namespace InstaWords.App.Services
         /// <summary>Checks now. Interactive checks report every outcome; silent ones only announce a new version.</summary>
         public async Task CheckAsync(bool interactive, Window owner)
         {
-            if (_checking) return;
+            if (_checking || !IsEnabled) return;
             _checking = true;
             try
             {
@@ -156,7 +162,7 @@ namespace InstaWords.App.Services
 
         public void ShowAvailableUpdate(Window owner)
         {
-            if (Available == null) return;
+            if (Available == null || !IsEnabled) return;
             var w = new UpdateWindow(this, Available) { Owner = owner != null && owner.IsVisible ? owner : null };
             if (w.Owner == null) w.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             w.ShowDialog();
@@ -237,6 +243,7 @@ namespace InstaWords.App.Services
         /// </summary>
         public static async Task<string> DownloadInstallerAsync(GitHubAsset asset, IProgress<double> progress, CancellationToken ct)
         {
+            if (!IsEnabled) throw new UpdateException(Loc.T("Update.FromStore"));
             if (asset == null) throw new UpdateException(Loc.T("Update.NoInstaller"));
             if (!UpdateLogic.TryParseSha256Digest(asset.Digest, out _))
                 throw new UpdateException(Loc.T("Update.NoDigest"));
@@ -306,6 +313,7 @@ namespace InstaWords.App.Services
         /// <summary>Starts the verified installer silently (it relaunches InstaWords when done) and exits.</summary>
         public static void RunInstallerAndExit(string installer)
         {
+            if (!IsEnabled) return;
             Process.Start(new ProcessStartInfo(installer, SilentInstallArgs) { UseShellExecute = true });
             App.Current.ExitApp();
         }

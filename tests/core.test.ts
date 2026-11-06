@@ -146,6 +146,14 @@ describe("API", () => {
     assert.ok(units.length > 10);
     assert.equal(units.find((u) => u.id === "none")?.forms, null);
   });
+  test("displayDigits: whole IQD/LBP/SYP/YER amounts are written without the unused subunit", () => {
+    assert.deepEqual(units.filter((u) => u.displayDigits !== undefined).map((u) => [u.id, u.displayDigits]),
+      [["IQD", 0], ["SYP", 0], ["LBP", 0], ["YER", 0]]);
+    for (const code of ["SAR", "AED", "USD", "EGP", "KWD", "BHD", "OMR", "JOD", "TND"]) assert.equal(findUnit(code)?.displayDigits, undefined, code);
+    // Display only: the words are unchanged (no subunit for a whole amount, fils for a fraction).
+    assert.equal(tafqit("1750000", { unit: "IQD" }), "مليون وسبعمائة وخمسون ألف دينار عراقي");
+    assert.equal(tafqit("1750000.5", { unit: "IQD" }), "مليون وسبعمائة وخمسون ألف دينار عراقي وخمسمائة فلس");
+  });
 });
 
 describe("custom catalogs", () => {
@@ -176,6 +184,21 @@ describe("custom catalogs", () => {
     c.units[1]!.subunit = { singular: "a", dual: "b", plural: "c", accusative: "d", gender: "m", ratio: 60 };
   }), "INVALID_CATALOG"));
   test("bad schemaVersion", () => throwsCode(bad((c) => { (c as { schemaVersion: number }).schemaVersion = 2; }), "INVALID_CATALOG"));
+  test("displayDigits: 0..subunit digits, only with a subunit; never changes the words", () => {
+    const sub = { singular: "a", dual: "b", plural: "c", accusative: "d", gender: "m" as const, ratio: 1000 };
+    for (const d of [0, 1, 2, 3]) {
+      const c = structuredClone(base);
+      c.units[1]!.subunit = { ...sub };
+      c.units[1]!.displayDigits = d;
+      const t = createTafqit(c);
+      assert.equal(t.findUnit("box")?.displayDigits, d);
+      assert.equal(t.tafqit("7", { unit: "box" }), "سبعة صناديق");
+    }
+    for (const d of [4, -1, 1.5, "0", null]) {
+      throwsCode(bad((c) => { c.units[1]!.subunit = { ...sub }; (c.units[1] as { displayDigits: unknown }).displayDigits = d; }), "INVALID_CATALOG");
+    }
+    throwsCode(bad((c) => { c.units[1]!.displayDigits = 0; }), "INVALID_CATALOG"); // no subunit
+  });
 });
 
 describe("output hygiene over a range", () => {

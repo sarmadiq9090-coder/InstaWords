@@ -64,7 +64,7 @@ namespace InstaWords.Core.Internal
     internal sealed class UnitData
     {
         internal UnitData(string id, string category, string label, string? code, string[] aliases,
-            NounForms? forms, ForeignForms? en, ForeignForms? fr, SubunitData? subunit, string[] keys)
+            NounForms? forms, ForeignForms? en, ForeignForms? fr, SubunitData? subunit, int displayDigits, string[] keys)
         {
             Id = id;
             Category = category;
@@ -75,6 +75,7 @@ namespace InstaWords.Core.Internal
             En = en;
             Fr = fr;
             Subunit = subunit;
+            DisplayDigits = displayDigits;
             Keys = keys;
         }
 
@@ -88,6 +89,11 @@ namespace InstaWords.Core.Internal
         internal ForeignForms? En;
         internal ForeignForms? Fr;
         internal SubunitData? Subunit;
+        /// <summary>
+        /// Decimals shown for a whole amount: data/units.json displayDigits, else the subunit's
+        /// digits, else 0 (resolved by the generator). Display only.
+        /// </summary>
+        internal int DisplayDigits;
         /// <summary>unitKey() of the id, label, code and aliases (id first), as src/catalog.ts indexes them.</summary>
         internal string[] Keys;
     }

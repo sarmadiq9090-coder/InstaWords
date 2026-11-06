@@ -16,7 +16,7 @@
 
   <sys:String x:Key="Nav.Name">أقسام البرنامج</sys:String>
   <sys:String x:Key="Nav.Single">تفقيط رقم</sys:String>
-  <sys:String x:Key="Nav.Bulk">دفعة</sys:String>
+  <sys:String x:Key="Nav.Bulk">عدة مبالغ</sys:String>
   <sys:String x:Key="Nav.Settings">الإعدادات</sys:String>
 
   <sys:String x:Key="Main.UpdateAvailable">تحديث متاح</sys:String>
@@ -36,26 +36,26 @@
   <sys:String x:Key="Common.OpenLinkFailed">تعذّر فتح الرابط</sys:String>
 
   <sys:String x:Key="Tray.Open">فتح InstaWords</sys:String>
-  <sys:String x:Key="Tray.Convert">تحويل الحافظة</sys:String>
+  <sys:String x:Key="Tray.Convert">تحويل ما نسخته (الحافظة)</sys:String>
   <sys:String x:Key="Tray.Exit">خروج</sys:String>
   <sys:String x:Key="Tray.StillRunningTitle">InstaWords ما زال يعمل</sys:String>
   <sys:String x:Key="Tray.StillRunningBody">تجده في شريط المهام بجانب الساعة، والاختصار {0} يعمل من أي برنامج.</sys:String>
 
-  <sys:String x:Key="Hotkey.FailedTitle">تعذّر تفعيل اختصار الحافظة</sys:String>
+  <sys:String x:Key="Hotkey.FailedTitle">تعذّر تفعيل اختصار تحويل ما نسخته</sys:String>
   <sys:String x:Key="Hotkey.Invalid">اختصار غير صالح: استعمل Ctrl أو Alt مع حرف أو رقم.</sys:String>
   <sys:String x:Key="Hotkey.Taken">الاختصار {0} يستخدمه برنامج آخر. اختر اختصاراً آخر من الإعدادات.</sys:String>
   <sys:String x:Key="Hotkey.RegisterFailed">تعذّر تسجيل الاختصار {0} ({1}).</sys:String>
 
-  <sys:String x:Key="Clip.NoAccessTitle">تعذّر الوصول إلى الحافظة</sys:String>
+  <sys:String x:Key="Clip.NoAccessTitle">تعذّر الوصول إلى ما نسخته (الحافظة)</sys:String>
   <sys:String x:Key="Clip.NoAccessBody">برنامج آخر يستخدم الحافظة الآن. حاول مرة أخرى.</sys:String>
-  <sys:String x:Key="Clip.NoNumberTitle">لا يوجد رقم في الحافظة</sys:String>
+  <sys:String x:Key="Clip.NoNumberTitle">لا يوجد رقم فيما نسخته (الحافظة)</sys:String>
   <sys:String x:Key="Clip.NoNumberBody">انسخ رقماً (مثل 1250.75) ثم اضغط {0}.</sys:String>
   <sys:String x:Key="Clip.FailedTitle">تعذّر تحويل «{0}»</sys:String>
-  <sys:String x:Key="Clip.WriteFailedTitle">تعذّرت الكتابة في الحافظة</sys:String>
+  <sys:String x:Key="Clip.WriteFailedTitle">تعذّر نسخ النتيجة لتلصقها</sys:String>
   <sys:String x:Key="Clip.TryAgain">حاول مرة أخرى.</sys:String>
   <sys:String x:Key="Clip.CopiedTitle">نُسخ المبلغ بالحروف · ‎{0}‎</sys:String>
   <sys:String x:Key="Clip.TooManyTitle">القائمة طويلة جداً</sys:String>
-  <sys:String x:Key="Clip.TooManyBody">استعمل تبويب «دفعة» لأكثر من 10,000 رقم.</sys:String>
+  <sys:String x:Key="Clip.TooManyBody">استعمل تبويب «عدة مبالغ» لأكثر من 10,000 رقم.</sys:String>
   <sys:String x:Key="Clip.LineFailedTitle">تعذّر تحويل السطر {0}: «{1}»</sys:String>
   <sys:String x:Key="Clip.CopiedManyTitle">نُسخ {0} مبلغاً بالحروف</sys:String>
 
@@ -82,7 +82,7 @@
   <sys:String x:Key="Single.Copy">نسخ</sys:String>
   <sys:String x:Key="Single.CopyTip">نسخ النص (Ctrl+Enter)</sys:String>
   <sys:String x:Key="Single.Copied">تم النسخ</sys:String>
-  <sys:String x:Key="Single.CopiedStatus">نُسخ النص إلى الحافظة.</sys:String>
+  <sys:String x:Key="Single.CopiedStatus">نُسخ النص، فالصقه حيث تشاء.</sys:String>
   <sys:String x:Key="Single.CopyFailed">تعذّر النسخ، حدّد النص وانسخه يدوياً.</sys:String>
   <sys:String x:Key="Single.Print">طباعة</sys:String>
   <sys:String x:Key="Single.PrintTip">طباعة شيك أو سند قبض أو سند صرف (Ctrl+P)</sys:String>
@@ -152,12 +152,12 @@
   <sys:String x:Key="Bulk.CopyAll">نسخ النتائج</sys:String>
   <sys:String x:Key="Bulk.CopyAllTip">سطر لكل رقم، وتبقى أسطر الأخطاء فارغة لتطابق ترتيب Excel</sys:String>
   <sys:String x:Key="Bulk.Export">تصدير CSV</sys:String>
-  <sys:String x:Key="Bulk.Paste">لصق من الحافظة</sys:String>
+  <sys:String x:Key="Bulk.Paste">لصق ما نسخته</sys:String>
   <sys:String x:Key="Bulk.Import">استيراد ملف…</sys:String>
   <sys:String x:Key="Bulk.ImportName">استيراد ملف</sys:String>
   <sys:String x:Key="Bulk.Sample">مثال</sys:String>
   <sys:String x:Key="Bulk.ClearName">مسح الجدول</sys:String>
-  <sys:String x:Key="Bulk.OptionsShared">مشتركة مع «تفقيط رقم» واختصار الحافظة</sys:String>
+  <sys:String x:Key="Bulk.OptionsShared">مشتركة مع «تفقيط رقم» واختصار تحويل ما نسخته</sys:String>
   <sys:String x:Key="Bulk.CountAll">الكل</sys:String>
   <sys:String x:Key="Bulk.CountOk">سليم</sys:String>
   <sys:String x:Key="Bulk.CountErr">أخطاء</sys:String>
@@ -169,8 +169,8 @@
   <sys:String x:Key="Bulk.EmptyTitle">الصق عموداً من Excel هنا</sys:String>
   <sys:String x:Key="Bulk.EmptyHint">اضغط Ctrl+V، أو اسحب ملف CSV أو TXT وأفلته في هذه النافذة.</sys:String>
   <sys:String x:Key="Bulk.Converting">جارٍ التحويل… {0} صفاً</sys:String>
-  <sys:String x:Key="Bulk.ClipboardEmpty">الحافظة لا تحتوي على نص. انسخ عموداً من Excel ثم اضغط Ctrl+V.</sys:String>
-  <sys:String x:Key="Bulk.Pasted">لُصق {0} رقماً من الحافظة.</sys:String>
+  <sys:String x:Key="Bulk.ClipboardEmpty">لا يوجد نص فيما نسخته (الحافظة). انسخ عموداً من Excel ثم اضغط Ctrl+V.</sys:String>
+  <sys:String x:Key="Bulk.Pasted">لُصق {0} رقماً مما نسخته.</sys:String>
   <sys:String x:Key="Bulk.Imported">استُورد {0} رقماً من الملف «{1}».</sys:String>
   <sys:String x:Key="Bulk.ImportFailed">تعذّرت قراءة الملف. تأكد أنه ملف CSV أو نصي. ({0})</sys:String>
   <sys:String x:Key="Bulk.ImportTitle">استيراد أرقام</sys:String>
@@ -194,19 +194,19 @@
   <sys:String x:Key="Settings.UiLangAuto">تلقائي</sys:String>
   <sys:String x:Key="Settings.UiLanguageHint">لغة القوائم والأزرار والرسائل، وتُطبَّق فوراً. «تلقائي» يتبع لغة عرض Windows. لغة التفقيط (نص المبلغ) خيار مستقل أدناه.</sys:String>
   <sys:String x:Key="Settings.Defaults">خيارات التحويل الافتراضية</sys:String>
-  <sys:String x:Key="Settings.DefaultsHint">تُستعمل في «تفقيط رقم» و«دفعة» واختصار الحافظة، وتُحفظ تلقائياً عند تغييرها.</sys:String>
-  <sys:String x:Key="Settings.Hotkey">اختصار الحافظة</sys:String>
+  <sys:String x:Key="Settings.DefaultsHint">تُستعمل في «تفقيط رقم» و«عدة مبالغ» واختصار تحويل ما نسخته، وتُحفظ تلقائياً عند تغييرها.</sys:String>
+  <sys:String x:Key="Settings.Hotkey">اختصار تحويل ما نسخته (الحافظة)</sys:String>
   <sys:String x:Key="Settings.HotkeyOn">مفعّل</sys:String>
-  <sys:String x:Key="Settings.HotkeyOnName">تفعيل اختصار الحافظة</sys:String>
-  <sys:String x:Key="Settings.HotkeyHint">انسخ رقماً من أي برنامج (Excel أو المتصفح أو برنامج المحاسبة)، ثم اضغط الاختصار: يصبح ما في الحافظة المبلغَ مكتوباً بالحروف، فالصقه حيث تشاء. يعمل والنافذة مغلقة ما دام InstaWords في شريط المهام.</sys:String>
+  <sys:String x:Key="Settings.HotkeyOnName">تفعيل اختصار تحويل ما نسخته</sys:String>
+  <sys:String x:Key="Settings.HotkeyHint">انسخ رقماً من أي برنامج (Excel أو المتصفح أو برنامج المحاسبة)، ثم اضغط الاختصار: يصبح ما نسخته (الحافظة) المبلغَ مكتوباً بالحروف، فالصقه حيث تشاء. يعمل والنافذة مغلقة ما دام InstaWords في شريط المهام.</sys:String>
   <sys:String x:Key="Settings.HotkeyPlaceholder">اضغط الاختصار الجديد…</sys:String>
   <sys:String x:Key="Settings.HotkeyBoxTip">انقر هنا ثم اضغط الاختصار الذي تريده، مثل Ctrl+Alt+T</sys:String>
   <sys:String x:Key="Settings.HotkeyBoxName">الاختصار</sys:String>
   <sys:String x:Key="Settings.SaveHotkey">حفظ الاختصار</sys:String>
   <sys:String x:Key="Settings.DefaultHotkey">الافتراضي (Ctrl+Alt+T)</sys:String>
   <sys:String x:Key="Settings.DefaultHotkeyName">الاختصار الافتراضي</sys:String>
-  <sys:String x:Key="Settings.TryHotkey">جرّب الآن على الحافظة</sys:String>
-  <sys:String x:Key="Settings.TryHotkeyName">تحويل الحافظة الآن</sys:String>
+  <sys:String x:Key="Settings.TryHotkey">جرّب الآن على ما نسخته</sys:String>
+  <sys:String x:Key="Settings.TryHotkeyName">تحويل ما نسخته الآن</sys:String>
   <sys:String x:Key="Settings.ShowToast">إظهار إشعار صغير بالنتيجة بعد التحويل</sys:String>
   <sys:String x:Key="Settings.HotkeyDisabled">الاختصار معطّل.</sys:String>
   <sys:String x:Key="Settings.HotkeyWorks">الاختصار {0} يعمل من أي برنامج.</sys:String>
@@ -217,6 +217,8 @@
   <sys:String x:Key="Settings.Startup">التشغيل والنافذة</sys:String>
   <sys:String x:Key="Settings.StartWithWindows">تشغيل مع Windows</sys:String>
   <sys:String x:Key="Settings.StartWithWindowsHint">يبدأ في شريط المهام دون فتح النافذة، ليعمل الاختصار من أول لحظة.</sys:String>
+  <sys:String x:Key="Settings.StartupDisabledByUser">أوقفتَ التشغيل مع Windows من «إدارة المهام» ← «تطبيقات بدء التشغيل» (أو الإعدادات ← التطبيقات ← بدء التشغيل)، فلا يمكن تشغيله من هنا. فعّله من هناك.</sys:String>
+  <sys:String x:Key="Settings.StartupByPolicy">تتحكم مؤسستك في هذا الإعداد.</sys:String>
   <sys:String x:Key="Settings.CloseToTray">زر الإغلاق يُبقي البرنامج في شريط المهام</sys:String>
   <sys:String x:Key="Settings.CloseToTrayHint">للخروج نهائياً: انقر أيقونته بجانب الساعة بالزر الأيمن ثم «خروج».</sys:String>
   <sys:String x:Key="Settings.MinimizeToTray">التصغير إلى شريط المهام بدل شريط البرامج</sys:String>
@@ -226,6 +228,7 @@
   <sys:String x:Key="Settings.PrintingHint">رأس سندات القبض والصرف: اسم الجهة وشعارها (اختياريان). مواضع الشيكات ومقاساتها تُضبط من نافذة «طباعة» (Ctrl+P).</sys:String>
   <sys:String x:Key="Settings.Data">البيانات</sys:String>
   <sys:String x:Key="Settings.DataHint">الإعدادات والسجل محفوظة على جهازك فقط، في ملفين JSON. لا يتصل البرنامج بالإنترنت إلا للتحقق من التحديثات إن سمحت بذلك.</sys:String>
+  <sys:String x:Key="Settings.DataHintStore">الإعدادات والسجل محفوظة على جهازك فقط، في ملفين JSON داخل مجلد البرنامج الخاص الذي ينشئه Windows لنسخة المتجر، وتُحذف عند إزالته. لا تتصل هذه النسخة بالإنترنت.</sys:String>
   <sys:String x:Key="Settings.OpenFolder">فتح المجلد</sys:String>
   <sys:String x:Key="Settings.OpenFolderFailed">تعذّر فتح المجلد</sys:String>
 
@@ -237,13 +240,14 @@
   <sys:String x:Key="About.License1" xml:space="preserve">مجاني ومفتوح المصدر بترخيص </sys:String>
   <sys:String x:Key="About.License2">. الخط: IBM Plex Sans Arabic بترخيص SIL OFL 1.1.</sys:String>
   <sys:String x:Key="About.UpdatePrivacy">التحقق من التحديثات يتصل بخوادم GitHub (api.github.com) ولا يرسل سوى طلب الإصدار الأحدث ورقم إصدارك. يمكنك إيقافه من الإعدادات.</sys:String>
+  <sys:String x:Key="About.StorePrivacy">هذه النسخة من Microsoft Store لا تتصل بالإنترنت؛ المتجر هو الذي يحدّثها.</sys:String>
   <sys:String x:Key="About.Shortcuts">اختصارات لوحة المفاتيح</sys:String>
-  <sys:String x:Key="About.KeyHotkey">تحويل الرقم في الحافظة من أي برنامج</sys:String>
+  <sys:String x:Key="About.KeyHotkey">تحويل الرقم الذي نسخته (الحافظة)، من أي برنامج</sys:String>
   <sys:String x:Key="About.KeyCopy">نسخ النتيجة</sys:String>
-  <sys:String x:Key="About.KeyPrint">طباعة شيك أو سند (أو صفوف «دفعة» المحددة)</sys:String>
+  <sys:String x:Key="About.KeyPrint">طباعة شيك أو سند (أو الصفوف المحددة في «عدة مبالغ»)</sys:String>
   <sys:String x:Key="About.KeyClear">مسح الرقم</sys:String>
-  <sys:String x:Key="About.KeyTabs">تفقيط رقم · دفعة · الإعدادات</sys:String>
-  <sys:String x:Key="About.KeyPaste">لصق عمود في «دفعة»</sys:String>
+  <sys:String x:Key="About.KeyTabs">تفقيط رقم · عدة مبالغ · الإعدادات</sys:String>
+  <sys:String x:Key="About.KeyPaste">لصق عمود في «عدة مبالغ»</sys:String>
   <sys:String x:Key="About.KeyAbout">هذه النافذة</sys:String>
 
   <sys:String x:Key="Report.OpenGitHub">فتح بلاغ في GitHub (يتطلب حساب GitHub)</sys:String>
@@ -273,7 +277,7 @@
   <sys:String x:Key="Report.WhyHeading">لماذا تحتاجه؟</sys:String>
   <sys:String x:Key="Report.DetailsName">تفاصيل إضافية</sys:String>
   <sys:String x:Key="Report.IncludeTech">إرفاق معلومات تقنية</sys:String>
-  <sys:String x:Key="Report.IncludeTechHint">إصدار البرنامج وWindows و.NET، ولغة الواجهة، وخيارات التحويل، وآخر رمز خطأ. لا تُرفق أي أرقام أو محتوى الحافظة أو السجل.</sys:String>
+  <sys:String x:Key="Report.IncludeTechHint">إصدار البرنامج وWindows و.NET، ولغة الواجهة، وخيارات التحويل، وآخر رمز خطأ. لا تُرفق أي أرقام ولا ما نسخته (الحافظة) ولا السجل.</sys:String>
   <sys:String x:Key="Report.Preview">معاينة ما سيُرسل</sys:String>
   <sys:String x:Key="Report.PreviewName">معاينة التقرير</sys:String>
   <sys:String x:Key="Report.TechHeading">معلومات تقنية</sys:String>
@@ -289,10 +293,11 @@
   <sys:String x:Key="Tech.Version">إصدار البرنامج</sys:String>
   <sys:String x:Key="Tech.Installed">مثبّت</sys:String>
   <sys:String x:Key="Tech.Portable">نسخة محمولة</sys:String>
+  <sys:String x:Key="Tech.Store">من متجر Microsoft</sys:String>
   <sys:String x:Key="Tech.UiLanguage">لغة الواجهة</sys:String>
   <sys:String x:Key="Tech.Scale">دقة العرض</sys:String>
   <sys:String x:Key="Tech.Options">خيارات التحويل</sys:String>
-  <sys:String x:Key="Tech.Hotkey">اختصار الحافظة</sys:String>
+  <sys:String x:Key="Tech.Hotkey">اختصار تحويل ما نسخته</sys:String>
   <sys:String x:Key="Tech.NotRegistered">غير مسجّل</sys:String>
   <sys:String x:Key="Tech.Off">معطّل</sys:String>
   <sys:String x:Key="Tech.LastError">آخر رمز خطأ</sys:String>
@@ -317,6 +322,7 @@
   <sys:String x:Key="Update.StatusFailed">تعذّر التحقق: {0}</sys:String>
   <sys:String x:Key="Update.StatusLatest">لديك أحدث إصدار. آخر تحقق: ‎{0}‎</sys:String>
   <sys:String x:Key="Update.StatusNever">لم يُتحقق من التحديثات بعد.</sys:String>
+  <sys:String x:Key="Update.FromStore">التحديثات تأتي من Microsoft Store</sys:String>
   <sys:String x:Key="Update.ToastTitle">يتوفر إصدار جديد من InstaWords: {0}</sys:String>
   <sys:String x:Key="Update.ToastBody">افتح البرنامج من شريط المهام لتحديثه.</sys:String>
   <sys:String x:Key="Update.LatestTitle">لديك أحدث إصدار</sys:String>
@@ -345,7 +351,7 @@
   <sys:String x:Key="Print.Hint.Receipt">سند قبض كامل على ورق عادي: الرأس والرقم والتاريخ والمبلغ بالأرقام والحروف والتواقيع.</sys:String>
   <sys:String x:Key="Print.Hint.Payment">سند صرف كامل على ورق عادي: الرأس والرقم والتاريخ والمبلغ بالأرقام والحروف والتواقيع.</sys:String>
   <sys:String x:Key="Print.Hint.Strip">المبلغ بالحروف وحده في إطار أعلى الورقة، مع خط متقطع يملأ ما بعده.</sys:String>
-  <sys:String x:Key="Print.BulkInfo">{0} مبلغاً من «دفعة»، كل مبلغ في صفحة</sys:String>
+  <sys:String x:Key="Print.BulkInfo">{0} مبلغاً من «عدة مبالغ»، كل مبلغ في صفحة</sys:String>
   <sys:String x:Key="Print.WordsLabel">المبلغ كتابةً (كما سيُطبع)</sys:String>
   <sys:String x:Key="Print.WordsHint">حسب خيارات التفقيط الحالية: اللغة والعملة والنص قبل المبلغ وبعده.</sys:String>
   <sys:String x:Key="Print.NoAmount">اكتب مبلغاً صحيحاً لطباعته.</sys:String>

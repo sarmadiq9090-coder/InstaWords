@@ -16,7 +16,7 @@ namespace InstaWords.App.Services
             var s = app.State;
             var list = new List<KeyValuePair<string, string>>
             {
-                Pair(Loc.T("Tech.Version"), "InstaWords " + UpdateService.CurrentVersionText + " (" + Loc.T(UpdateService.IsInstalled ? "Tech.Installed" : "Tech.Portable") + ")"),
+                Pair(Loc.T("Tech.Version"), "InstaWords " + UpdateService.CurrentVersionText + " (" + Loc.T(StoreLogic.TechKey(AppPackage.Kind)) + ")"),
                 Pair("Windows", WindowsVersion()),
                 Pair(".NET Framework", DotNetRelease()),
                 Pair(Loc.T("Tech.UiLanguage"), Loc.Language + " (" + app.Settings.UiLanguage + ") · Windows " + CultureInfo.CurrentUICulture.Name + " / " + CultureInfo.CurrentCulture.Name),
@@ -26,6 +26,7 @@ namespace InstaWords.App.Services
                     ? app.CurrentHotkeyText + (app.Hotkey?.IsRegistered == true ? "" : " (" + Loc.T("Tech.NotRegistered") + ")")
                     : Loc.T("Tech.Off")),
             };
+            if (AppPackage.IsPackaged) list.Insert(1, Pair("MSIX", AppPackage.FullName));
             if (!string.IsNullOrEmpty(app.LastErrorCode)) list.Add(Pair(Loc.T("Tech.LastError"), app.LastErrorCode));
             return list;
         }

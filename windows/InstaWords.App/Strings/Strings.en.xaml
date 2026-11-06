@@ -217,6 +217,8 @@
   <sys:String x:Key="Settings.Startup">Startup and window</sys:String>
   <sys:String x:Key="Settings.StartWithWindows">Start with Windows</sys:String>
   <sys:String x:Key="Settings.StartWithWindowsHint">Starts in the notification area without opening the window, so the shortcut works right away.</sys:String>
+  <sys:String x:Key="Settings.StartupDisabledByUser">Starting with Windows was turned off in Task Manager → Startup apps (or Settings → Apps → Startup), so it can only be turned back on there.</sys:String>
+  <sys:String x:Key="Settings.StartupByPolicy">This setting is managed by your organization.</sys:String>
   <sys:String x:Key="Settings.CloseToTray">Closing the window keeps InstaWords in the notification area</sys:String>
   <sys:String x:Key="Settings.CloseToTrayHint">To quit: right-click its icon next to the clock, then “Exit”.</sys:String>
   <sys:String x:Key="Settings.MinimizeToTray">Minimize to the notification area instead of the taskbar</sys:String>
@@ -226,6 +228,7 @@
   <sys:String x:Key="Settings.PrintingHint">The header of receipt and payment vouchers: your company name and logo (both optional). Cheque positions and sizes are set in the Print window (Ctrl+P).</sys:String>
   <sys:String x:Key="Settings.Data">Data</sys:String>
   <sys:String x:Key="Settings.DataHint">Settings and history are stored only on this computer, in two JSON files. The app goes online only to check for updates, if you allow it.</sys:String>
+  <sys:String x:Key="Settings.DataHintStore">Settings and history stay on your computer only, in two JSON files inside the private folder Windows keeps for the Store app; they are removed when you uninstall it. This copy does not connect to the internet.</sys:String>
   <sys:String x:Key="Settings.OpenFolder">Open folder</sys:String>
   <sys:String x:Key="Settings.OpenFolderFailed">Couldn't open the folder</sys:String>
 
@@ -237,6 +240,7 @@
   <sys:String x:Key="About.License1" xml:space="preserve">Free and open source under the </sys:String>
   <sys:String x:Key="About.License2" xml:space="preserve"> license. Font: IBM Plex Sans Arabic, SIL OFL 1.1.</sys:String>
   <sys:String x:Key="About.UpdatePrivacy">Update checks contact GitHub (api.github.com) and send only a request for the latest release and your version number. You can turn them off in Settings.</sys:String>
+  <sys:String x:Key="About.StorePrivacy">This Microsoft Store copy does not connect to the internet; the Store keeps it up to date.</sys:String>
   <sys:String x:Key="About.Shortcuts">Keyboard shortcuts</sys:String>
   <sys:String x:Key="About.KeyHotkey">Convert the number in the clipboard, from any program</sys:String>
   <sys:String x:Key="About.KeyCopy">Copy the result</sys:String>
@@ -289,6 +293,7 @@
   <sys:String x:Key="Tech.Version">App version</sys:String>
   <sys:String x:Key="Tech.Installed">installed</sys:String>
   <sys:String x:Key="Tech.Portable">portable</sys:String>
+  <sys:String x:Key="Tech.Store">Microsoft Store</sys:String>
   <sys:String x:Key="Tech.UiLanguage">Interface language</sys:String>
   <sys:String x:Key="Tech.Scale">Display scale</sys:String>
   <sys:String x:Key="Tech.Options">Conversion options</sys:String>
@@ -317,6 +322,7 @@
   <sys:String x:Key="Update.StatusFailed">Couldn't check: {0}</sys:String>
   <sys:String x:Key="Update.StatusLatest">You have the latest version. Last checked: {0}</sys:String>
   <sys:String x:Key="Update.StatusNever">Updates have not been checked yet.</sys:String>
+  <sys:String x:Key="Update.FromStore">Updates come from Microsoft Store</sys:String>
   <sys:String x:Key="Update.ToastTitle">A new InstaWords is available: {0}</sys:String>
   <sys:String x:Key="Update.ToastBody">Open the app from the notification area to update it.</sys:String>
   <sys:String x:Key="Update.LatestTitle">You're up to date</sys:String>
