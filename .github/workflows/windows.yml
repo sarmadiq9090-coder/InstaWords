@@ -11,6 +11,7 @@ name: Windows (native app)
 # which only those runs enter, and only the two SignPath steps receive it (never npm ci, builds or tests).
 # The release also gets SHA256SUMS.txt, winget-manifests.zip and instawords.json (docs/PACKAGING.md),
 # and the Excel add-in InstaWords.xlam (scripts/build-xlam.mjs, from vba/Tafqit.bas).
+# The store-package job builds the Microsoft Store MSIX (artifact `store-package`; docs/distribution/microsoft-store.md).
 
 on:
   push:
@@ -33,6 +34,9 @@ env:
   DOTNET_NOLOGO: "true"
   DOTNET_CLI_TELEMETRY_OPTOUT: "true"
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+  # Inno Setup is pinned to this exact 6.x release (free; preinstalled on windows-latest, otherwise
+  # installed from Chocolatey's checksummed package). Raise it on purpose, never by drift.
+  INNO_SETUP_VERSION: "6.7.1"
 
 jobs:
   build:
@@ -75,7 +79,50 @@ jobs:
 
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
+
+      # Fails fast, before the build, unless ISCC.exe is exactly Inno Setup $INNO_SETUP_VERSION (a 6.x release):
+      # uses the runner's copy when it is that version, otherwise installs it with Chocolatey.
+      # The version comes from the compiler itself (its preprocessor's Ver), since ISCC.exe carries no
+      # usable file version. Exports ISCC (the compiler's path) for the installer step.
+      - name: Inno Setup ${{ env.INNO_SETUP_VERSION }} (pinned)
+        shell: pwsh
+        run: |
+          $want = $env:INNO_SETUP_VERSION
+          if ($want -notmatch '^6\.\d+\.\d+$') { throw "INNO_SETUP_VERSION must be a 6.x.y release, got '$want'." }
+          $probe = Join-Path $env:RUNNER_TEMP "inno-version.iss"
+          @(
+            '#pragma message "ISCC_VERSION=" + DecodeVer(Ver, 3)'
+            '[Setup]'
+            'AppName=probe'
+            'AppVersion=1'
+            'DefaultDirName=probe'
+          ) | Set-Content -Path $probe -Encoding utf8
+          function Find-Iscc {
+            @("${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe", "$env:ProgramFiles\Inno Setup 6\ISCC.exe") |
+              Where-Object { Test-Path $_ } | Select-Object -First 1
+          }
+          function Get-IsccVersion([string]$path) {
+            $out = & $path /O- $probe 2>&1 | Out-String
+            if ($out -match 'ISCC_VERSION=(\d+\.\d+\.\d+)') { return $Matches[1] }
+            Write-Host $out
+            return "unknown"
+          }
+          $iscc = Find-Iscc
+          $have = if ($iscc) { Get-IsccVersion $iscc } else { "none" }
+          "Runner's Inno Setup: $have $iscc"
+          if ($have -ne $want) {
+            "Installing Inno Setup $want (Chocolatey package innosetup)"
+            choco install innosetup --version $want --allow-downgrade --force --no-progress -y
+            if ($LASTEXITCODE -ne 0) { throw "choco install innosetup --version $want failed (exit $LASTEXITCODE)." }
+            $iscc = Find-Iscc
+            $have = if ($iscc) { Get-IsccVersion $iscc } else { "none" }
+          }
+          if (-not $iscc) { throw "ISCC.exe not found after installing Inno Setup $want." }
+          if ($have -notmatch '^6\.') { throw "ISCC.exe at $iscc is Inno Setup $have; Inno Setup 6.x is required." }
+          if ($have -ne $want) { throw "ISCC.exe at $iscc is Inno Setup $have; the workflow pins $want (INNO_SETUP_VERSION)." }
+          "Using Inno Setup $have : $iscc"
+          "ISCC=$iscc" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
 
       - name: Read version
         id: version
@@ -167,15 +214,7 @@ jobs:
       - name: Installer (Inno Setup)
         shell: pwsh
         run: |
-          $iscc = @(
-            "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
-            "$env:ProgramFiles\Inno Setup 6\ISCC.exe"
-          ) | Where-Object { Test-Path $_ } | Select-Object -First 1
-          if (-not $iscc) {
-            choco install innosetup --no-progress -y
-            $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
-          }
-          & $iscc /Qp `
+          & $env:ISCC /Qp `
             "/DAppVersion=${{ steps.version.outputs.version }}" `
             "/DNumericVersion=${{ steps.version.outputs.numeric }}" `
             "/DSourceDir=$env:GITHUB_WORKSPACE\windows\InstaWords.App\bin\Release\net48" `
@@ -256,6 +295,82 @@ jobs:
             out/InstaWords_*_x64-portable.zip
             out/InstaWords.xlam
           if-no-files-found: error
+
+  # Microsoft Store package (MSIX), built beside the classic one: windows/packaging/msix/ and
+  # docs/distribution/microsoft-store.md. The `store-package` artifact is the unsigned .msix to upload
+  # to Partner Center (the Store signs it). A signed test copy is then installed and launched here.
+  store-package:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 22
+
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: 8.0.x
+
+      # The Store version: identity.json "storeVersion" when set (a Store build ahead of package.json,
+      # e.g. 2.2.1 while GitHub is on 2.2.0), otherwise package.json's. Fails if it is lower than package.json.
+      # The app is built with it, so About in the Store copy shows the same version as the package.
+      - name: Read the Store version
+        id: version
+        shell: bash
+        run: |
+          version=$(node scripts/msix-version.mjs)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Store build $version (package.json $(node -p "require('./package.json').version"))"
+
+      - name: Build the app
+        run: dotnet build windows/InstaWords.App -c Release -p:Version=${{ steps.version.outputs.version }}
+
+      # Stages the layout (scripts/msix-stage.mjs), then MakePri and MakeAppx (which validates the manifest).
+      - name: Store package (MakePri + MakeAppx)
+        id: msix
+        shell: pwsh
+        run: windows/packaging/msix/build-msix.ps1 -Version "${{ steps.version.outputs.version }}" -OutDir out/msix
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: store-package
+          path: ${{ steps.msix.outputs.path }}
+          if-no-files-found: error
+
+      # Signs a COPY with a throwaway certificate (subject = the identity's Publisher), installs it,
+      # launches it from the package and checks Store mode through UI Automation.
+      - name: Install and launch test (self-signed copy)
+        shell: pwsh
+        run: windows/packaging/msix/test-msix.ps1 -Msix "${{ steps.msix.outputs.path }}" -OutDir out/msix-test -ExpectVersion "${{ steps.version.outputs.version }}"
+
+      # Informational: the same Windows App Certification Kit tests Partner Center runs (when the SDK has it).
+      - name: Windows App Certification Kit
+        continue-on-error: true
+        timeout-minutes: 30
+        shell: pwsh
+        run: |
+          $appcert = Join-Path ${env:ProgramFiles(x86)} "Windows Kits\10\App Certification Kit\appcert.exe"
+          if (-not (Test-Path $appcert)) { "::notice::The Windows App Certification Kit is not on this runner; skipped."; exit 0 }
+          $report = Join-Path $env:GITHUB_WORKSPACE "out\msix-test\wack-report.xml"
+          & $appcert reset
+          & $appcert test -appxpackagepath (Resolve-Path out\msix-test\InstaWords-test-signed.msix).Path -reportoutputpath $report
+          if (-not (Test-Path $report)) { "::warning::WACK produced no report (exit code $LASTEXITCODE)."; exit 0 }
+          [xml]$r = Get-Content $report -Raw
+          "Overall: $($r.REPORT.OVERALL_RESULT)"
+          foreach ($t in $r.SelectNodes("//TEST")) { "{0,-6} {1}" -f $t.RESULT.'#cdata-section', $t.NAME }
+          if ($r.REPORT.OVERALL_RESULT -ne "PASS") { "::warning::WACK overall result: $($r.REPORT.OVERALL_RESULT) (see the store-package-checks artifact)." }
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: store-package-checks
+          path: |
+            out/msix-test/*.png
+            out/msix-test/*.xml
+            out/msix/stage/AppxManifest.xml
+          if-no-files-found: warn
 
   # Publishes the UI-test screenshots to the ci-screenshots branch so they can be reviewed
   # without downloading artifacts (e.g. from the cloud build environment). Never touches other branches.
@@ -373,7 +488,7 @@ jobs:
             - **`InstaWords_${{ needs.build.outputs.version }}_x64-setup.exe`**: المثبّت (موصى به). يثبّت للمستخدم الحالي دون صلاحيات المسؤول، ويحدّث نفسه من داخل البرنامج.
             - **`InstaWords_${{ needs.build.outputs.version }}_x64-portable.zip`**: نسخة محمولة: فكّ الضغط وشغّل `InstaWords.exe`.
             - **Ctrl+Alt+T** من أي برنامج: انسخ رقماً، اضغط الاختصار، فيصبح ما في الحافظة المبلغَ مكتوباً بالحروف جاهزاً للصق.
-            - تبويب «دفعة» لتحويل عمود كامل من Excel، مع تصدير CSV.
+            - تبويب «عدة مبالغ» لتحويل عمود كامل من Excel، مع تصدير CSV.
             - **`InstaWords.xlam`** (تجريبية): إضافة Excel تضيف الدالة `=TAFQIT(A1, "SAR")` إلى كل مصنف دون إنترنت. قبل تثبيتها: زر الفأرة الأيمن ← خصائص ← «إلغاء الحظر»، ثم في Excel: ملف ← خيارات ← الوظائف الإضافية ← انتقال ← استعراض. (مبنية وفق المواصفات ومختبرة آلياً، ولم تُجرَّب بعد في Excel حقيقي.) التفاصيل في `vba/README.md`.
             - ${{ needs.build.outputs.signed == 'true' && 'البرنامج والمثبّت موقّعان رقمياً.' || 'البرنامج غير موقّع رقمياً بعد، لذا قد يظهر تحذير SmartScreen: اختر «مزيد من المعلومات» ثم «تشغيل على أي حال».' }}
             - بصمات SHA-256 في `SHA256SUMS.txt`.

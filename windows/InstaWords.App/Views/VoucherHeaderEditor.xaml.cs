@@ -21,6 +21,20 @@ namespace InstaWords.App.Views
             if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this)) return;
             Loaded += (s, e) => { HeaderChanged -= OnOtherChanged; HeaderChanged += OnOtherChanged; Sync(); };
             Unloaded += (s, e) => HeaderChanged -= OnOtherChanged;
+            SizeChanged += (s, e) => ApplyLayout(e.NewSize.Width);
+        }
+
+        /// <summary>Below this width the company name would be squeezed (its label cut), so the logo goes under it.</summary>
+        public const double StackBelowWidth = 420;
+
+        private void ApplyLayout(double width)
+        {
+            var stacked = width < StackBelowWidth;
+            Grid.SetRow(LogoPanel, stacked ? 1 : 0);
+            Grid.SetColumn(LogoPanel, stacked ? 0 : 2);
+            Grid.SetColumnSpan(CompanyPanel, stacked ? 3 : 1);
+            LogoPanel.Margin = new Thickness(0, stacked ? 10 : 0, 0, 0);
+            GapColumn.Width = new GridLength(stacked ? 0 : 16);
         }
 
         private static PrintSettings Print => App.Current.Settings.Print;

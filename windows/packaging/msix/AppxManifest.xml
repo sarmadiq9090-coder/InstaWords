@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  MSIX manifest template for InstaWords (Microsoft Store). Filled in by scripts/msix-stage.mjs:
+    {{Name}} {{Publisher}} {{PublisherDisplayName}}  from windows/packaging/msix/identity.json (Partner Center)
+    {{Version}}                                       the Store version as x.y.z.0 (the Store needs .0): identity.json
+                                                      storeVersion when set, else package.json (scripts/msix-version.mjs)
+  Built by windows/packaging/msix/build-msix.ps1 (MakePri + MakeAppx); see docs/distribution/microsoft-store.md.
+  ms-resource: strings are in Strings/<language>/resources.resw; the logo files have scale-/targetsize- variants
+  in Assets/ (made by make-assets.py), which resources.pri resolves.
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap uap5 rescap">
+
+  <Identity Name="{{Name}}" Publisher="{{Publisher}}" Version="{{Version}}" ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>ms-resource:AppDisplayName</DisplayName>
+    <PublisherDisplayName>{{PublisherDisplayName}}</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+    <Description>ms-resource:AppDescription</Description>
+  </Properties>
+
+  <Dependencies>
+    <!-- Windows 10 2004 (10.0.19041) and later ship .NET Framework 4.8 in the box, so the app never needs it installed. -->
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-US" />
+    <Resource Language="ar" />
+  </Resources>
+
+  <Applications>
+    <!-- A classic WPF desktop app (full trust): no AppContainer, same behaviour as the installed copy. -->
+    <Application Id="App" Executable="InstaWords.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="ms-resource:AppDisplayName"
+        Description="ms-resource:AppDescription"
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" ShortName="InstaWords">
+          <uap:ShowNameOnTiles>
+            <uap:ShowOn Tile="square150x150Logo" />
+            <uap:ShowOn Tile="wide310x150Logo" />
+          </uap:ShowNameOnTiles>
+        </uap:DefaultTile>
+      </uap:VisualElements>
+      <Extensions>
+        <!--
+          «تشغيل مع Windows» for the Store copy (the Run key does not work from a package). Off until the user
+          ticks the box in Settings; it also appears in Task Manager → Startup apps. The TaskId is
+          StoreLogic.StartupTaskId in the app.
+        -->
+        <uap5:Extension Category="windows.startupTask" Executable="InstaWords.exe" EntryPoint="Windows.FullTrustApplication">
+          <uap5:StartupTask TaskId="InstaWordsStartup" Enabled="false" DisplayName="InstaWords" />
+        </uap5:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- Required for every desktop (Win32/WPF) app in an MSIX package. -->
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

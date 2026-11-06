@@ -2,7 +2,7 @@
 
   <!--
     InstaWords tafqit engine for .NET: a character-for-character port of the TypeScript core
-    (src/). netstandard2.0, so it loads on .NET Framework 4.8 as well as on .NET 8+.
+    (src/). netstandard2.0, so it loads on .NET Framework 4.8 as well as on modern .NET (the tests run on .NET 10).
     No NuGet runtime dependencies. Generated/*.g.cs comes from scripts/build-dotnet.mjs.
   -->
 

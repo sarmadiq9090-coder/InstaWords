@@ -345,7 +345,10 @@ namespace InstaWords.App.Services
     public sealed class PrintForm
     {
         public PrintTemplate Template { get; set; }
-        /// <summary>The cleaned amount (engine's canonical form, e.g. 1250.75).</summary>
+        /// <summary>
+        /// The amount in figures, without separators: the conversion's amount used (money with its
+        /// subunit decimals, e.g. 1250.75, 45750.50; <see cref="ConversionResult.Amount"/>).
+        /// </summary>
         public string Cleaned { get; set; } = "";
         /// <summary>The amount in words, with the user's prefix/suffix.</summary>
         public string Words { get; set; } = "";

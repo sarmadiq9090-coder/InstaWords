@@ -8,14 +8,14 @@
 
 ### المزايا
 
-- **تفقيط فوري أثناء الكتابة**: أرقام عربية (١٢٣) أو إنجليزية، بفواصل الآلاف أو بدونها، ويظهر «الرقم المعتمد» منسّقاً لتتحقق منه.
+- **تفقيط فوري أثناء الكتابة**: أرقام عربية (١٢٣) أو إنجليزية، بفواصل الآلاف أو بدونها، ويظهر «الرقم المعتمد» منسّقاً لتتحقق منه. المبالغ تظهر كما يكتبها المحاسب، وهي نفسها المكتوبة بالحروف بعد التقريب: ‎45,750.50‎ و‎45,750.00‎ ريال، و‎5.250‎ دينار كويتي (عدد الخانات من نسبة الفئة الصغرى في `data/units.json`)، أما العملة التي لا تُستعمل فئتها الصغرى في الواقع فالمبلغ الصحيح فيها بلا كسور: ‎1,750,000‎ دينار عراقي لا ‎1,750,000.000‎ (الحقل `displayDigits`: الدينار العراقي والليرة اللبنانية والسورية والريال اليمني)، وإن كان فيه كسر ظهرت خانات الفلوس كلها (‎1,750,000.500‎). ويظهر ذلك في «الرقم المعتمد» ومربع المبلغ عند الطباعة و«عدة مبالغ» والسجل. أما الأرقام بلا وحدة والوحدات الأخرى فتظهر كما هي (‎12.5‎).
 - **العملة أو الوحدة** مجمّعة حسب الفئة، مع بحث بالعربية أو الرمز (SAR) أو الاسم الإنجليزي والفرنسي: اكتب وأنت على القائمة ثم Enter.
 - **لغة التفقيط**: العربية والإنجليزية والفرنسية، والنص يُعرض بالاتجاه الصحيح لكل لغة.
 - **خيارات الصياغة**: مائة أو مئة، وتقريب الخانات الزائدة أو إظهار خطأ، ونص قبل المبلغ وبعده مع صيغ جاهزة لكل لغة: «فقط … لا غير»، و"… Only"، و«Arrêtée la présente facture à la somme de …».
 - **نسخ بنقرة** (أو Ctrl+Enter)، و**سجل** لآخر التحويلات تعيد استخدامها بنقرة.
-- **تبويب «دفعة»**: الصق عموداً من Excel أو استورد CSV/TXT (يتعرّف على سطر العناوين والقيم بين علامات التنصيص)، وانسخ النتائج سطراً لكل رقم، أو صدّرها CSV بترميز UTF-8 يفتحه Excel بالعربية. يتحمّل 10,000 صف دون تجمّد.
+- **تبويب «عدة مبالغ»**: الصق عموداً من Excel أو استورد CSV/TXT (يتعرّف على سطر العناوين والقيم بين علامات التنصيص)، وانسخ النتائج سطراً لكل رقم، أو صدّرها CSV بترميز UTF-8 يفتحه Excel بالعربية. يتحمّل 10,000 صف دون تجمّد.
 - **Ctrl+Alt+T من أي برنامج**: انسخ رقماً، اضغط الاختصار، فيصبح ما في الحافظة المبلغَ مكتوباً بالحروف مع إشعار صغير. يمكن تغيير الاختصار من الإعدادات إن كان برنامج آخر يستخدمه.
-- **شريط المهام**: يبقى البرنامج بجانب الساعة عند الإغلاق (قابل للتغيير)، وقائمته: فتح، تحويل الحافظة، الإعدادات، التحقق من وجود تحديث، الإبلاغ عن مشكلة أو اقتراح، خروج. ونسخة واحدة فقط تعمل، و«تشغيل مع Windows» اختياري.
+- **شريط المهام**: يبقى البرنامج بجانب الساعة عند الإغلاق (قابل للتغيير)، وقائمته: فتح، تحويل ما نسخته (الحافظة)، الإعدادات، التحقق من وجود تحديث، الإبلاغ عن مشكلة أو اقتراح، خروج. ونسخة واحدة فقط تعمل، و«تشغيل مع Windows» اختياري.
 - **التحديث**: يتحقق مرة يومياً على الأكثر من صفحة الإصدارات في GitHub (يمكن إيقافه)، ويُنزّل المثبّت ويتحقق من بصمته SHA-256 قبل تشغيله. لا يُرسل أي رقم أو بيانات.
 - **الإبلاغ عن مشكلة أو اقتراح**: نموذج يفتح بلاغاً معبّأً في GitHub أو ينسخ التقرير، مع معاينة كاملة لما سيُرسل. لا يُرسل شيء تلقائياً.
 - **واجهة بالعربية أو الإنجليزية**: «لغة الواجهة» في الإعدادات: العربية أو English أو «تلقائي» (حسب لغة عرض Windows)، وتُطبَّق فوراً على كل النوافذ والقوائم والإشعارات ورسائل الأخطاء، من اليمين إلى اليسار بالعربية ومن اليسار إلى اليمين بالإنجليزية. لغة التفقيط (نص المبلغ) خيار مستقل. عند أول تشغيل بعد التثبيت تبدأ الواجهة بلغة معالج التثبيت.
@@ -24,19 +24,19 @@
   - **سند قبض** و**سند صرف** على A5 أو A4: اسم الجهة وشعارها (من الإعدادات، اختياريان)، والرقم (يزيد تلقائياً بعد الطباعة)، والتاريخ، و«استلمنا من / يُصرف للسيد»، والمبلغ بالأرقام والحروف، والغرض، والتواقيع.
   - **شريط المبلغ**: المبلغ بالحروف وحده في إطار.
   - **المعايرة**: مقاسات جاهزة (شيك 175 × 80 مم وغيره) أو مقاس مخصص، وإزاحة X/Y بالمليمتر لكل حقل (ولكل الحقول معاً لهوامش الطابعة)، محفوظة في «ملفات شيكات» متعددة، و«طباعة تجريبية» لشبكة مليمترية تضعها فوق شيك حقيقي.
-  - من تبويب «دفعة»: حدّد صفوفاً ثم «طباعة»، فيُطبع سند أو شيك لكل صف في صفحة مستقلة.
+  - من تبويب «عدة مبالغ»: حدّد صفوفاً ثم «طباعة»، فيُطبع سند أو شيك لكل صف في صفحة مستقلة.
   - الطباعة عبر نافذة الطباعة في Windows، ولحفظ PDF اختر الطابعة «Microsoft Print to PDF». الكلمات تتبع خيارات التفقيط الحالية (اللغة والعملة والنص قبل المبلغ وبعده).
 
 ### الاختصارات
 
 | الاختصار | الوظيفة |
 |---|---|
-| <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd> | تحويل الرقم في الحافظة من أي برنامج |
+| <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd> | تحويل الرقم الذي نسخته (الحافظة)، من أي برنامج |
 | <kbd>Ctrl</kbd>+<kbd>Enter</kbd> | نسخ النتيجة |
-| <kbd>Ctrl</kbd>+<kbd>P</kbd> | طباعة شيك أو سند (أو صفوف «دفعة» المحددة) |
+| <kbd>Ctrl</kbd>+<kbd>P</kbd> | طباعة شيك أو سند (أو الصفوف المحددة في «عدة مبالغ») |
 | <kbd>Esc</kbd> | مسح الرقم |
-| <kbd>Ctrl</kbd>+<kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | تفقيط رقم · دفعة · الإعدادات |
-| <kbd>Ctrl</kbd>+<kbd>V</kbd> | لصق عمود في «دفعة» |
+| <kbd>Ctrl</kbd>+<kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | تفقيط رقم · عدة مبالغ · الإعدادات |
+| <kbd>Ctrl</kbd>+<kbd>V</kbd> | لصق عمود في «عدة مبالغ» |
 | <kbd>F1</kbd> | حول البرنامج |
 
 ### التثبيت
@@ -62,7 +62,7 @@
 
 ### Features
 
-- **Live conversion as you type**: Arabic-Indic (١٢٣) or Western digits, with or without thousands separators; the cleaned number («الرقم المعتمد») is shown with separators for checking.
+- **Live conversion as you type**: Arabic-Indic (١٢٣) or Western digits, with or without thousands separators; the number used («الرقم المعتمد») is shown with separators for checking. Money is shown the way it is written, and equals the amount the words state after rounding: an amount with a fraction shows every subunit digit (45,750.50 SAR, 5.250 KWD, 1,750,000.500 IQD; digits from the subunit ratio in `data/units.json`); a whole amount shows the unit's `displayDigits` when set, else every subunit digit (45,750.00 SAR, 5.000 KWD, but 1,750,000 IQD, since the fils is never written; likewise LBP, SYP and YER). This applies in «الرقم المعتمد», the printed amount box, the Bulk grid and CSV (without separators: `45750.50`, `1750000`) and the history. Plain numbers and other units are shown as cleaned (12.5).
 - **Currency/unit picker** grouped by category, searchable in Arabic, by code (SAR) or English/French name: just type on it and press Enter.
 - **Output language**: Arabic, English, French, each shown in its own text direction.
 - **Formatting options**: مائة/مئة, round or reject extra decimals, prefix/suffix with per-language presets.
@@ -99,14 +99,14 @@ From [Releases](https://github.com/sarmadiq9090-coder/tafket/releases/latest): `
 
 ### Build
 
-Requirements: .NET 8 SDK (and Node.js 22 for the engine generator). The app targets `net48` through the `Microsoft.NETFramework.ReferenceAssemblies` package, so it **compiles on Windows, Linux and macOS**; running it and the UI tests needs Windows.
+Requirements: .NET 10 SDK (and Node.js 22 for the engine generator). The app targets `net48` through the `Microsoft.NETFramework.ReferenceAssemblies` package, so it **compiles on Windows, Linux and macOS**; running it and the UI tests needs Windows.
 
 ```sh
 npm ci && npm run test:dotnet                       # engine: generate, check, parity tests
-dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports, CSV, strings, print layout
+dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports, CSV, strings, print layout, amounts
 dotnet build windows/InstaWords.App -c Release      # → windows/InstaWords.App/bin/Release/net48/InstaWords.exe
 dotnet test  windows/InstaWords.UITests -c Release  # Windows only: FlaUI end-to-end tests + screenshots
-iscc /DAppVersion=2.2.0 windows\installer\InstaWords.iss   # Inno Setup 6 → out\InstaWords_2.2.0_x64-setup.exe
+iscc /DAppVersion=2.2.0 windows\installer\InstaWords.iss   # Inno Setup 6 (CI pins 6.7.1) → out\InstaWords_2.2.0_x64-setup.exe
 ```
 
 | Path | What |
@@ -114,7 +114,7 @@ iscc /DAppVersion=2.2.0 windows\installer\InstaWords.iss   # Inno Setup 6 → ou
 | `InstaWords.Core/` | The tafqit engine (netstandard2.0), generated from `src/` and `data/units.json` |
 | `InstaWords.App/` | The WPF app: `Views/` (pages, dialogs, toast, print dialog and renderer), `Themes/` (FastKiwi styles), `Strings/` (interface strings), `Services/` (hotkey, tray, clipboard, CSV, settings, updates, reports, print layout) |
 | `InstaWords.App/Strings/` | `Strings.ar.xaml` and `Strings.en.xaml`: every interface string, same keys in both (a unit test checks the keys match, every key the app uses exists, English has no Arabic). XAML uses `{DynamicResource Key}`, code `Loc.T("Key")`; engine error codes map to `Err.CODE` in English |
-| `InstaWords.App.Tests/` | Unit tests of the app's pure logic (links source files from the app): updates, reports, CSV, interface strings, print layout (mm ↔ DIP, offsets, word wrap and filler, template fields) |
+| `InstaWords.App.Tests/` | Unit tests of the app's pure logic (links source files from the app): updates, reports, CSV, interface strings, print layout (mm ↔ DIP, offsets, word wrap and filler, template fields), the amount shown with the words (`AmountFormat`: subunit decimals, `displayDigits` for whole amounts, rounding, large amounts as strings) |
 | `InstaWords.UITests/` | UI tests (FlaUI/UIA3). `INSTAWORDS_APP_PATH` and `INSTAWORDS_ARTIFACTS` override the exe and screenshot folder |
 | `installer/InstaWords.iss` | Inno Setup script (Arabic + English) |
 
