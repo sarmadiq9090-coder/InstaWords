@@ -149,7 +149,7 @@ try {
 Show-Registry "update-locked"
 Check (Test-Path $target) "add-in still there"
 Check ((Get-FileHash -LiteralPath $target).Hash -eq $builtHash) "add-in intact"
-Check ([bool](Select-String -LiteralPath $log -Pattern 'Excel add-in: .* is in use' -Quiet)) "setup logged the file in use and went on"
+Check ([bool](Select-String -LiteralPath $log -Pattern 'Excel add-in: .* is held open' -Quiet)) "setup logged the file in use and went on"
 Check ((Get-OpenValues $opt16).Count -eq 3) "no second value for Excel 16.0"
 Check ((Get-OpenValues $opt15).Count -eq 1) "no second value for Excel 15.0"
 

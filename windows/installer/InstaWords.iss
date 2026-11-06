@@ -373,7 +373,7 @@ begin
     RegWriteStringValue(HKEY_CURRENT_USER, AppKey, XlamMarker, Target);
   end
   else
-    Log('Excel add-in: ' + Target + ' is in use (Excel is running); the existing copy is kept.');
+    Log('Excel add-in: ' + Target + ' is held open (by Excel, most likely); the existing copy is kept.');
   if not FileExists(Target) then
     Exit;
   Versions := ExcelVersions;
