@@ -250,9 +250,19 @@
   <sys:String x:Key="About.KeyPaste">لصق عمود في «عدة مبالغ»</sys:String>
   <sys:String x:Key="About.KeyAbout">هذه النافذة</sys:String>
 
-  <sys:String x:Key="Report.OpenGitHub">فتح في GitHub</sys:String>
+  <sys:String x:Key="Report.OpenGitHub">فتح بلاغ في GitHub (يتطلب حساب GitHub)</sys:String>
   <sys:String x:Key="Report.Copy">نسخ التقرير</sys:String>
-  <sys:String x:Key="Report.Hint">لا يُرسَل شيء تلقائياً: «فتح في GitHub» يفتح صفحة بلاغ جديد معبّأة في متصفحك لتراجعها وترسلها بنفسك، و«نسخ التقرير» ينسخ النص لتلصقه في بريد أو رسالة إن لم يكن لديك حساب GitHub.</sys:String>
+  <sys:String x:Key="Report.SendEmail">إرسال بالبريد الإلكتروني</sys:String>
+  <sys:String x:Key="Report.ContactPage">التواصل مع FastKiwi</sys:String>
+  <sys:String x:Key="Report.Telegram">عبر Telegram</sys:String>
+  <sys:String x:Key="Report.HintPage">لا يُرسَل شيء تلقائياً. «التواصل مع FastKiwi» ينسخ التقرير ويفتح صفحة الدعم في متصفحك، وفيها طرق التواصل معنا دون حساب GitHub؛ الصق التقرير هناك وأرسله بنفسك. وإن كان لديك حساب GitHub فيمكنك فتح بلاغ فيه بدلاً من ذلك.</sys:String>
+  <sys:String x:Key="Report.HintEmail">لا يُرسَل شيء تلقائياً. «إرسال بالبريد الإلكتروني» يفتح رسالة جديدة إلى FastKiwi في برنامج البريد لديك وفيها التقرير، لتراجعها وترسلها بنفسك. لا تحتاج إلى حساب GitHub، وإن كان لديك حساب فيمكنك فتح بلاغ فيه بدلاً من ذلك.</sys:String>
+  <sys:String x:Key="Report.MailOpened">سيُفتح برنامج البريد برسالة جاهزة. راجعها ثم أرسلها.</sys:String>
+  <sys:String x:Key="Report.MailOpenedTruncated">سيُفتح برنامج البريد برسالة جاهزة. التقرير أطول مما يتسع له رابط البريد فاختُصر، وقد نُسخ التقرير كاملاً: الصقه في الرسالة.</sys:String>
+  <sys:String x:Key="Report.MailOpenedTruncatedNoCopy">سيُفتح برنامج البريد برسالة جاهزة. اختُصر التقرير ليتسع له الرابط؛ اضغط «نسخ التقرير» والصق النص الكامل في الرسالة.</sys:String>
+  <sys:String x:Key="Report.PageOpened">نُسخ التقرير. فُتحت صفحة الدعم في متصفحك: اتبع ما فيها والصق التقرير.</sys:String>
+  <sys:String x:Key="Report.PageOpenedNoCopy">فُتحت الصفحة في متصفحك لكن تعذّر نسخ التقرير: اضغط «نسخ التقرير» ثم الصقه.</sys:String>
+  <sys:String x:Key="Report.TelegramOpened">نُسخ التقرير. سيُفتح Telegram: الصق التقرير في المحادثة وأرسله.</sys:String>
   <sys:String x:Key="Report.Type">النوع</sys:String>
   <sys:String x:Key="Report.Bug">مشكلة</sys:String>
   <sys:String x:Key="Report.Idea">اقتراح</sys:String>

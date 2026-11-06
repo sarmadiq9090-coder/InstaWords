@@ -250,9 +250,19 @@
   <sys:String x:Key="About.KeyPaste">Paste a column on the Bulk tab</sys:String>
   <sys:String x:Key="About.KeyAbout">This window</sys:String>
 
-  <sys:String x:Key="Report.OpenGitHub">Open in GitHub</sys:String>
+  <sys:String x:Key="Report.OpenGitHub">Open a GitHub issue (needs a GitHub account)</sys:String>
   <sys:String x:Key="Report.Copy">Copy the report</sys:String>
-  <sys:String x:Key="Report.Hint">Nothing is sent automatically: “Open in GitHub” opens a prefilled new issue in your browser for you to review and submit, and “Copy the report” copies the text to paste into an email or message if you have no GitHub account.</sys:String>
+  <sys:String x:Key="Report.SendEmail">Send by email</sys:String>
+  <sys:String x:Key="Report.ContactPage">Contact FastKiwi</sys:String>
+  <sys:String x:Key="Report.Telegram">Via Telegram</sys:String>
+  <sys:String x:Key="Report.HintPage">Nothing is sent automatically. “Contact FastKiwi” copies the report and opens the FastKiwi support page in your browser, which explains how to reach us without a GitHub account; paste the report there and send it yourself. If you have a GitHub account you can open an issue instead.</sys:String>
+  <sys:String x:Key="Report.HintEmail">Nothing is sent automatically. “Send by email” opens a new message to FastKiwi in your own mail app with the report filled in, for you to review and send. No GitHub account needed; if you have one you can open an issue instead.</sys:String>
+  <sys:String x:Key="Report.MailOpened">Your mail app should open with the message. Review it, then send it.</sys:String>
+  <sys:String x:Key="Report.MailOpenedTruncated">Your mail app should open with the message. The report was too long for an email link and was shortened: the full report is copied, so paste it into the message.</sys:String>
+  <sys:String x:Key="Report.MailOpenedTruncatedNoCopy">Your mail app should open with the message. The report was shortened to fit; click “Copy the report” and paste the full text into the message.</sys:String>
+  <sys:String x:Key="Report.PageOpened">Report copied. The support page is open in your browser: follow it and paste the report.</sys:String>
+  <sys:String x:Key="Report.PageOpenedNoCopy">The page is open in your browser, but the report couldn't be copied: click “Copy the report”, then paste it.</sys:String>
+  <sys:String x:Key="Report.TelegramOpened">Report copied. Telegram is opening: paste the report into the chat and send it.</sys:String>
   <sys:String x:Key="Report.Type">Type</sys:String>
   <sys:String x:Key="Report.Bug">Problem</sys:String>
   <sys:String x:Key="Report.Idea">Suggestion</sys:String>

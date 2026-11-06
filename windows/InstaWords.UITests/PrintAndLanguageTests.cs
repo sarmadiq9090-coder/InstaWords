@@ -90,6 +90,20 @@ namespace InstaWords.UITests
                 Assert.True(s.Get("UiLangEn").Patterns.SelectionItem.Pattern.IsSelected.Value, "English selected");
                 s.Screenshot(s.Window, "14-settings-en-ui");
 
+                // Report a problem or suggestion: the no-GitHub option first.
+                s.Get("ReportButton").Click();
+                var report = s.GetTopLevel("ReportWindow");
+                report.FindFirstDescendant(s.Cf.ByAutomationId("ReportDescription")).AsTextBox().Enter("I typed a number and nothing appeared.");
+                AppSession.WaitUntil(() => (report.FindFirstDescendant(s.Cf.ByAutomationId("ReportPreview")).AsTextBox().Text ?? "").Contains("nothing appeared"), "English report preview");
+                Assert.Contains(NameOf(s, report, "ReportPrimary"), new[] { "Contact FastKiwi", "Send by email" });
+                Assert.Equal("Open a GitHub issue (needs a GitHub account)", NameOf(s, report, "ReportOpenGitHub"));
+                Assert.Equal("Copy the report", NameOf(s, report, "ReportCopy"));
+                Assert.StartsWith("Nothing is sent automatically", NameOf(s, report, "ReportHint"));
+                Assert.True(IsLeftOf(report.FindFirstDescendant(s.Cf.ByAutomationId("ReportPrimary")), report.FindFirstDescendant(s.Cf.ByAutomationId("ReportCopy"))), "LTR: primary option first");
+                s.Screenshot(report, "23-report-en-ui");
+                s.Get("ReportClose", report).AsButton().Invoke();
+                AppSession.WaitUntil(() => !s.App.GetAllTopLevelWindows(s.Automation).Any(w => SafeId(w) == "ReportWindow"), "report closed");
+
                 // Print dialog (Ctrl+P from the Convert tab).
                 s.Get("NavSingle").Click();
                 Thread.Sleep(300);

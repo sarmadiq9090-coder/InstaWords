@@ -20,9 +20,9 @@ namespace InstaWords.App.Services
     }
 
     /// <summary>
-    /// Builds the report text and the prefilled GitHub issue-form URL
+    /// Builds the report text, the mailto: link to FastKiwi support and the prefilled GitHub issue-form URL
     /// (.github/ISSUE_TEMPLATE/bug.yml: description, steps, environment; feature.yml: description, use_case).
-    /// Nothing is ever sent automatically: the URL opens in the browser, where the user submits it.
+    /// Nothing is ever sent automatically: the links open in the user's mail app or browser, where they send it themselves.
     /// </summary>
     public static class ReportBuilder
     {
@@ -104,6 +104,58 @@ namespace InstaWords.App.Services
             }
             return url;
         }
+
+        /// <summary>
+        /// A mailto: link to <paramref name="email"/> with subject = the report title and body = <see cref="BuildText"/>,
+        /// at most <paramref name="maxLength"/> characters: a long body is cut with <see cref="TruncatedNote"/>
+        /// (the window then copies the full report for the user to paste). Null when the address is not usable.
+        /// </summary>
+        public static MailtoLink BuildMailto(ReportInput r, string email, int maxLength = SupportContact.MaxMailtoLength)
+        {
+            var to = SupportContact.EmailAddress(email);
+            if (to == null) return null;
+            var subject = EffectiveTitle(r);
+            var body = Normalize(BuildText(r));
+            var url = Mailto(to, subject, body);
+            if (url.Length <= maxLength) return new MailtoLink { Url = url, Truncated = false };
+
+            // Longest prefix of the body (plus the note) that fits; binary search on the number of characters kept.
+            var note = Normalize(TruncatedNote);
+            string Cut(string text, int keep) => text.Substring(0, CutLength(text, keep)).TrimEnd() + note;
+            int lo = 0, hi = body.Length;
+            while (lo < hi)
+            {
+                var mid = (lo + hi + 1) / 2;
+                if (Mailto(to, subject, Cut(body, mid)).Length <= maxLength) lo = mid; else hi = mid - 1;
+            }
+            url = Mailto(to, subject, Cut(body, lo));
+            if (url.Length > maxLength)
+            {
+                // Even the note alone does not fit: shorten the subject too (and drop the note if it is still too long).
+                var tail = note.TrimStart();
+                if (Mailto(to, "", tail).Length > maxLength) tail = "";
+                int slo = 0, shi = subject.Length;
+                while (slo < shi)
+                {
+                    var mid = (slo + shi + 1) / 2;
+                    if (Mailto(to, subject.Substring(0, CutLength(subject, mid)), tail).Length <= maxLength) slo = mid; else shi = mid - 1;
+                }
+                url = Mailto(to, subject.Substring(0, CutLength(subject, slo)), tail);
+            }
+            return new MailtoLink { Url = url, Truncated = true };
+        }
+
+        private static int CutLength(string text, int keep) =>
+            keep > 0 && keep < text.Length && char.IsHighSurrogate(text[keep - 1]) ? keep - 1 : keep;
+
+        /// <summary>RFC 6068: every character but unreserved ones percent-encoded (UTF-8), spaces as %20, line breaks as %0D%0A.</summary>
+        public static string EncodeMailtoValue(string value) =>
+            Uri.EscapeDataString((value ?? "").Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n"));
+
+        private static string Mailto(string to, string subject, string body) =>
+            "mailto:" + to + "?subject=" + EncodeMailtoValue(subject) + "&body=" + EncodeMailtoValue(body);
+
+        private static string Normalize(string text) => (text ?? "").Replace("\r\n", "\n").Replace("\r", "\n");
 
         private static string Compose(IEnumerable<KeyValuePair<string, string>> fields) =>
             NewIssueBase + "?" + string.Join("&", fields

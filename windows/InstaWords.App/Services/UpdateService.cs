@@ -357,5 +357,20 @@ namespace InstaWords.App.Services
                 ToastWindow.ShowMessage(false, Loc.T("Common.OpenLinkFailed"), ex.Message);
             }
         }
+
+        /// <summary>Opens a mailto: link in the user's mail app; false when Windows has none to open it with.</summary>
+        public static bool TryOpenMail(string url)
+        {
+            if (string.IsNullOrEmpty(url) || !url.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase)) return false;
+            try
+            {
+                Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

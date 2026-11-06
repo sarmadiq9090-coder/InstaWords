@@ -232,6 +232,13 @@ namespace InstaWords.UITests
                 var preview = report.FindFirstDescendant(s.Cf.ByAutomationId("ReportPreview")).AsTextBox().Text;
                 Assert.Contains("InstaWords", preview);   // technical info is attached by default
                 Assert.DoesNotContain("1250", preview);    // never amounts
+                // The first, primary option needs no GitHub account; GitHub is the labelled secondary one.
+                var primary = report.FindFirstDescendant(s.Cf.ByAutomationId("ReportPrimary"));
+                var github = report.FindFirstDescendant(s.Cf.ByAutomationId("ReportOpenGitHub"));
+                Assert.Contains(primary.Name, new[] { "التواصل مع FastKiwi", "إرسال بالبريد الإلكتروني" });
+                Assert.Contains("يتطلب حساب GitHub", github.Name);
+                Assert.True(primary.BoundingRectangle.Top < github.BoundingRectangle.Top, "primary option above GitHub");
+                Assert.Contains("لا يُرسَل شيء تلقائياً", report.FindFirstDescendant(s.Cf.ByAutomationId("ReportHint")).Name);
                 s.Screenshot(report, "10-report");
                 report.FindFirstDescendant(s.Cf.ByAutomationId("ReportClose")).AsButton().Invoke();
             }

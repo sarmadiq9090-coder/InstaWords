@@ -6,23 +6,33 @@
         Title="{DynamicResource Main.ReportTip}" AutomationProperties.AutomationId="ReportWindow"
         Width="760" Height="720" MinWidth="620" MinHeight="560">
   <DockPanel Margin="20">
-    <DockPanel DockPanel.Dock="Bottom" Margin="0,14,0,0" LastChildFill="False">
-      <Button DockPanel.Dock="Left" Style="{StaticResource PrimaryButton}" ui:Ui.Icon="{StaticResource IconExternal}" Content="{DynamicResource Report.OpenGitHub}"
-              Click="OnOpenGitHubClick" AutomationProperties.AutomationId="ReportOpenGitHub" />
-      <Button DockPanel.Dock="Left" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconCopy}" Content="{DynamicResource Report.Copy}" Margin="8,0,0,0"
-              Click="OnCopyClick" AutomationProperties.AutomationId="ReportCopy" />
-      <Button DockPanel.Dock="Right" Style="{StaticResource QuietButton}" Content="{DynamicResource Common.Close}" IsCancel="True" Click="OnCloseClick"
-              AutomationProperties.AutomationId="ReportClose" />
-      <TextBlock x:Name="Status" DockPanel.Dock="Left" Margin="14,0,0,0" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
-                 Foreground="{StaticResource OkBrush}" TextWrapping="Wrap" MaxWidth="300" AutomationProperties.AutomationId="ReportStatus" />
-    </DockPanel>
+    <StackPanel DockPanel.Dock="Bottom" Margin="0,14,0,0">
+      <!-- First: reach FastKiwi without a GitHub account (email when SupportContact.Email is set, otherwise the support page). -->
+      <DockPanel LastChildFill="False">
+        <Button x:Name="PrimaryAction" DockPanel.Dock="Left" Style="{StaticResource PrimaryButton}" ui:Ui.Icon="{StaticResource IconMessage}" Content="{DynamicResource Report.ContactPage}"
+                Click="OnPrimaryClick" AutomationProperties.AutomationId="ReportPrimary" />
+        <Button x:Name="TelegramButton" DockPanel.Dock="Left" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconExternal}" Content="{DynamicResource Report.Telegram}" Margin="8,0,0,0"
+                Visibility="Collapsed" Click="OnTelegramClick" AutomationProperties.AutomationId="ReportTelegram" />
+        <Button DockPanel.Dock="Left" Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconCopy}" Content="{DynamicResource Report.Copy}" Margin="8,0,0,0"
+                Click="OnCopyClick" AutomationProperties.AutomationId="ReportCopy" />
+        <Button DockPanel.Dock="Right" Style="{StaticResource QuietButton}" Content="{DynamicResource Common.Close}" IsCancel="True" Click="OnCloseClick"
+                AutomationProperties.AutomationId="ReportClose" />
+      </DockPanel>
+      <!-- Secondary: GitHub, for people who have an account. -->
+      <DockPanel Margin="0,8,0,0">
+        <Button DockPanel.Dock="Left" Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconExternal}" Content="{DynamicResource Report.OpenGitHub}" VerticalAlignment="Top"
+                Click="OnOpenGitHubClick" AutomationProperties.AutomationId="ReportOpenGitHub" />
+        <TextBlock x:Name="Status" Margin="14,0,0,0" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
+                   Foreground="{StaticResource OkBrush}" TextWrapping="Wrap" AutomationProperties.AutomationId="ReportStatus" />
+      </DockPanel>
+    </StackPanel>
 
     <ContentControl Style="{StaticResource Card}">
       <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False" Margin="0,0,-8,0" Padding="0,0,8,0">
         <StackPanel>
           <TextBlock Style="{StaticResource TitleText}" Text="{DynamicResource Main.ReportTip}" />
-          <TextBlock Style="{StaticResource HintText}" Margin="0,4,0,16" FontSize="13"
-                     Text="{DynamicResource Report.Hint}" />
+          <TextBlock x:Name="Hint" Style="{StaticResource HintText}" Margin="0,4,0,16" FontSize="13"
+                     Text="{DynamicResource Report.HintPage}" AutomationProperties.AutomationId="ReportHint" />
 
           <Grid>
             <Grid.ColumnDefinitions>

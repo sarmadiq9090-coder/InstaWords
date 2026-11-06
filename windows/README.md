@@ -17,7 +17,7 @@
 - **Ctrl+Alt+T من أي برنامج**: انسخ رقماً، اضغط الاختصار، فيصبح ما في الحافظة المبلغَ مكتوباً بالحروف مع إشعار صغير. يمكن تغيير الاختصار من الإعدادات إن كان برنامج آخر يستخدمه.
 - **شريط المهام**: يبقى البرنامج بجانب الساعة عند الإغلاق (قابل للتغيير)، وقائمته: فتح، تحويل ما نسخته (الحافظة)، الإعدادات، التحقق من وجود تحديث، الإبلاغ عن مشكلة أو اقتراح، خروج. ونسخة واحدة فقط تعمل، و«تشغيل مع Windows» اختياري.
 - **التحديث**: يتحقق مرة يومياً على الأكثر من صفحة الإصدارات في GitHub (يمكن إيقافه)، ويُنزّل المثبّت ويتحقق من بصمته SHA-256 قبل تشغيله. لا يُرسل أي رقم أو بيانات.
-- **الإبلاغ عن مشكلة أو اقتراح**: نموذج يفتح بلاغاً معبّأً في GitHub أو ينسخ التقرير، مع معاينة كاملة لما سيُرسل. لا يُرسل شيء تلقائياً.
+- **الإبلاغ عن مشكلة أو اقتراح**: الخيار الأول لا يحتاج حساباً على GitHub: «إرسال بالبريد الإلكتروني» يفتح رسالة جديدة إلى support@fastkiwi.app في برنامج البريد عندك والتقرير مكتوب فيها (وإن لم يكن في Windows برنامج بريد نُسخ التقرير وفُتحت صفحة الدعم). ويبقى «فتح بلاغ في GitHub (يتطلب حساب GitHub)» و«نسخ التقرير»، مع معاينة كاملة لما سيُرسل. لا يُرسل شيء تلقائياً.
 - **واجهة بالعربية أو الإنجليزية**: «لغة الواجهة» في الإعدادات: العربية أو English أو «تلقائي» (حسب لغة عرض Windows)، وتُطبَّق فوراً على كل النوافذ والقوائم والإشعارات ورسائل الأخطاء، من اليمين إلى اليسار بالعربية ومن اليسار إلى اليمين بالإنجليزية. لغة التفقيط (نص المبلغ) خيار مستقل. عند أول تشغيل بعد التثبيت تبدأ الواجهة بلغة معالج التثبيت.
 - **طباعة الشيكات والسندات** (زر «طباعة» بجانب «نسخ»، أو Ctrl+P): أربعة قوالب بمعاينة حيّة هي نفسها ما يُطبع:
   - **شيك**: التاريخ والمستفيد والمبلغ بالأرقام في مربعه (‎#1,250.75#‎) والمبلغ بالحروف على سطرين مع خط متقطع يملأ ما بعده كما في الشيكات الحقيقية، وخط توقيع اختياري. يطبع القيم وحدها على شيك مطبوع مسبقاً، أو مع الإطار والعناوين على ورق عادي.
@@ -71,7 +71,7 @@
 - **Ctrl+Alt+T from any program**: copy a number, press the hotkey, and the clipboard now holds the words; a small toast shows the result. If another program owns the hotkey, the app says so and you pick another one in Settings.
 - **Tray icon** (close/minimize to tray), single instance, optional start with Windows.
 - **Updates**: at most once a day (can be turned off) the app asks the GitHub Releases API for the latest version; the installer is downloaded only from GitHub hosts and its SHA-256 is verified against the API digest before it runs silently and relaunches the app. Portable copies open the release page instead. Nothing about your numbers is ever sent.
-- **Report a problem or suggestion**: builds a prefilled GitHub issue (opened in your browser for you to submit) or a report to copy, with a full preview. Nothing is sent automatically.
+- **Report a problem or suggestion**: the first option needs no GitHub account. "Send by email" opens a new message to support@fastkiwi.app in your own mail app with the report filled in (a report too long for an email link is shortened and the full text copied to paste); if Windows has no mail app, it copies the report and opens the support page instead ([fastkiwi.app/support](https://fastkiwi.app/support/), Arabic interface: [/ar/support](https://fastkiwi.app/ar/support/)). A Telegram link appears once one is set. "Open a GitHub issue (needs a GitHub account)" builds a prefilled issue, and "Copy the report" copies the text; all with a full preview. Nothing is sent automatically: you send it yourself from your mail app or browser. The contact details are the constants in `InstaWords.App/Services/SupportContact.cs` (email support@fastkiwi.app; Telegram not set yet).
 - **Arabic or English interface**: Settings → «لغة الواجهة · Interface language»: العربية, English or Automatic (the Windows display language). It applies live to every window, menu, toast and error message, right-to-left in Arabic and left-to-right in English. The tafqit output language (ar/en/fr) is a separate option. On the first run after installing, the interface starts in the language picked in the installer.
 - **Cheque and voucher printing** («طباعة» / Print next to Copy, or Ctrl+P), four templates with a live preview that is exactly what prints:
   - **Cheque**: date, payee, the amount in figures in its box (`#1,250.75#`), the amount in words over two lines with a dashed filler after it like real cheques, and an optional signature line. Values only for pre-printed cheques, or with the frame and labels for plain paper.
@@ -103,7 +103,7 @@ Requirements: .NET 10 SDK (and Node.js 22 for the engine generator). The app tar
 
 ```sh
 npm ci && npm run test:dotnet                       # engine: generate, check, parity tests
-dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports, CSV, strings, print layout, amounts
+dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports (GitHub and mailto links), CSV, strings, print layout, amounts
 dotnet build windows/InstaWords.App -c Release      # → windows/InstaWords.App/bin/Release/net48/InstaWords.exe
 dotnet test  windows/InstaWords.UITests -c Release  # Windows only: FlaUI end-to-end tests + screenshots
 iscc /DAppVersion=2.2.0 windows\installer\InstaWords.iss   # Inno Setup 6 (CI pins 6.7.1) → out\InstaWords_2.2.0_x64-setup.exe
@@ -114,7 +114,7 @@ iscc /DAppVersion=2.2.0 windows\installer\InstaWords.iss   # Inno Setup 6 (CI pi
 | `InstaWords.Core/` | The tafqit engine (netstandard2.0), generated from `src/` and `data/units.json` |
 | `InstaWords.App/` | The WPF app: `Views/` (pages, dialogs, toast, print dialog and renderer), `Themes/` (FastKiwi styles), `Strings/` (interface strings), `Services/` (hotkey, tray, clipboard, CSV, settings, updates, reports, print layout) |
 | `InstaWords.App/Strings/` | `Strings.ar.xaml` and `Strings.en.xaml`: every interface string, same keys in both (a unit test checks the keys match, every key the app uses exists, English has no Arabic). XAML uses `{DynamicResource Key}`, code `Loc.T("Key")`; engine error codes map to `Err.CODE` in English |
-| `InstaWords.App.Tests/` | Unit tests of the app's pure logic (links source files from the app): updates, reports, CSV, interface strings, print layout (mm ↔ DIP, offsets, word wrap and filler, template fields), the amount shown with the words (`AmountFormat`: subunit decimals, `displayDigits` for whole amounts, rounding, large amounts as strings) |
+| `InstaWords.App.Tests/` | Unit tests of the app's pure logic (links source files from the app): updates, reports (GitHub issue and mailto links, support contact), CSV, interface strings, print layout (mm ↔ DIP, offsets, word wrap and filler, template fields), the amount shown with the words (`AmountFormat`: subunit decimals, `displayDigits` for whole amounts, rounding, large amounts as strings) |
 | `InstaWords.UITests/` | UI tests (FlaUI/UIA3). `INSTAWORDS_APP_PATH` and `INSTAWORDS_ARTIFACTS` override the exe and screenshot folder |
 | `installer/InstaWords.iss` | Inno Setup script (Arabic + English) |
 
