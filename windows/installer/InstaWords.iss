@@ -21,6 +21,11 @@
   #define OutputDir "..\..\out"
 #endif
 
+; Inno Setup 6.x only (CI pins the exact release: INNO_SETUP_VERSION in .github/workflows/windows.yml).
+#if Ver < EncodeVer(6, 0, 0) || Ver >= EncodeVer(7, 0, 0)
+  #error Inno Setup 6.x is required to build this installer
+#endif
+
 #define AppName "InstaWords"
 #define AppExe "InstaWords.exe"
 ; Keep in sync with UpdateService.InstallerAppId (the app finds its install through this key).
