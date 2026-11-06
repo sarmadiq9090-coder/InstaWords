@@ -2,7 +2,7 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json
 
 PackageIdentifier: Sarmad.InstaWords
-PackageVersion: 2.1.0
+PackageVersion: 2.2.0
 Platform:
 - Windows.Desktop
 MinimumOSVersion: 10.0.0.0
@@ -20,14 +20,14 @@ InstallerSwitches:
 UpgradeBehavior: install
 # Inno AppId {8F3B6C2A-...} (windows/installer/InstaWords.iss) + "_is1": the Apps & features key.
 ProductCode: '{8F3B6C2A-5D4E-4A7B-9C1F-2E6D8A0B4C71}_is1'
-ReleaseDate: 2026-11-03
+ReleaseDate: 2026-11-06
 AppsAndFeaturesEntries:
 - DisplayName: InstaWords — تفقيط
   Publisher: FastKiwi
   ProductCode: '{8F3B6C2A-5D4E-4A7B-9C1F-2E6D8A0B4C71}_is1'
 Installers:
 - Architecture: x64
-  InstallerUrl: https://github.com/sarmadiq9090-coder/tafket/releases/download/v2.1.0/InstaWords_2.1.0_x64-setup.exe
-  InstallerSha256: 4A5C5F40CA880ED6F8E86D097DADB0BB1CCE986FEFBBC82D021F043EAC9F647A
+  InstallerUrl: https://github.com/sarmadiq9090-coder/tafket/releases/download/v2.2.0/InstaWords_2.2.0_x64-setup.exe
+  InstallerSha256: D3EBE2850ABE951D1E588ED5DAC7933FAE840CF4279DD8383BF9881AABF40B4B
 ManifestType: installer
 ManifestVersion: 1.12.0

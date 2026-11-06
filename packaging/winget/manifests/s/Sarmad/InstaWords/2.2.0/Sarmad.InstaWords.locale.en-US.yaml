@@ -2,7 +2,7 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.12.0.schema.json
 
 PackageIdentifier: Sarmad.InstaWords
-PackageVersion: 2.1.0
+PackageVersion: 2.2.0
 PackageLocale: en-US
 Publisher: FastKiwi
 PublisherUrl: https://fastkiwi.app/
@@ -35,7 +35,7 @@ Tags:
 - excel
 - french
 - offline
-ReleaseNotesUrl: https://github.com/sarmadiq9090-coder/tafket/releases/tag/v2.1.0
+ReleaseNotesUrl: https://github.com/sarmadiq9090-coder/tafket/releases/tag/v2.2.0
 Documentations:
 - DocumentLabel: README
   DocumentUrl: https://github.com/sarmadiq9090-coder/tafket/blob/HEAD/windows/README.md
