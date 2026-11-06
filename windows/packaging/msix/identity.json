@@ -1,0 +1,18 @@
+{
+  "_readme": [
+    "The InstaWords product identity from Partner Center (partner.microsoft.com/dashboard):",
+    "Apps and games > InstaWords > Product management > Product identity.",
+    "  Name                  <- 'Package/Identity/Name'",
+    "  Publisher             <- 'Package/Identity/Publisher'",
+    "  PublisherDisplayName  <- 'Package/Properties/PublisherDisplayName'",
+    "PackageFamilyName and StoreId are for reference and checks only (CI compares the installed test copy's",
+    "family name with PackageFamilyName). Set placeholder to true only for test values such as",
+    "CN=InstaWords-Test: the build then warns that the Store would reject the package."
+  ],
+  "placeholder": false,
+  "Name": "FastKiwi.InstaWords",
+  "Publisher": "CN=8EFD6949-D088-481F-886D-82300679C5E5",
+  "PublisherDisplayName": "FastKiwi",
+  "PackageFamilyName": "FastKiwi.InstaWords_sm1xjmj6v76yc",
+  "StoreId": "9P62P4WQSQNK"
+}

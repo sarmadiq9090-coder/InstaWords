@@ -33,8 +33,10 @@ namespace InstaWords.App.Views
         private bool _ready;
         private bool _renderQueued;
         private bool _showGrid;
-        private double? _zoom; // null: fit the width
+        private double? _zoom; // null: fit the width (one page: the whole page)
         private double _pageWidthDip = 1;
+        private double _pageHeightDip = 1;
+        private int _previewPages = 1;
         private int _validPages;
 
         public PrintWindow(IList<string> amounts)
@@ -462,6 +464,8 @@ namespace InstaWords.App.Views
 
             Pages.Children.Clear();
             _pageWidthDip = Mm.ToDip(job.WidthMm);
+            _pageHeightDip = Mm.ToDip(job.HeightMm);
+            _previewPages = Math.Min(job.Pages.Count, MaxPreviewPages);
             var scale = CurrentScale();
             foreach (var form in job.Pages.Take(MaxPreviewPages))
             {
@@ -497,7 +501,12 @@ namespace InstaWords.App.Views
         {
             var available = PreviewScroll.ActualWidth - 48 - SystemParameters.VerticalScrollBarWidth;
             if (available <= 0 || _pageWidthDip <= 0) return 1;
-            return Math.Max(0.25, Math.Min(2.5, available / _pageWidthDip));
+            var scale = available / _pageWidthDip;
+            // A single page is shown whole (a wide window would otherwise push a landscape voucher's
+            // signatures below the fold); several pages scroll, so they only fit the width.
+            var availableHeight = PreviewScroll.ActualHeight - 48 - 18 - 8;
+            if (_previewPages <= 1 && availableHeight > 0 && _pageHeightDip > 0) scale = Math.Min(scale, availableHeight / _pageHeightDip);
+            return Math.Max(0.25, Math.Min(2.5, scale));
         }
 
         private double CurrentScale() => _zoom ?? FitScale();

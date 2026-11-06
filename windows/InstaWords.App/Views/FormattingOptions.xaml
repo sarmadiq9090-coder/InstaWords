@@ -36,7 +36,19 @@
       </Border>
     </StackPanel>
 
-    <StackPanel Grid.Column="2">
+    <!-- English and French have no «مائة / مئة» choice: the decimals choice then takes the first column
+         instead of leaving it blank. -->
+    <StackPanel>
+      <StackPanel.Style>
+        <Style TargetType="StackPanel">
+          <Setter Property="Grid.Column" Value="2" />
+          <Style.Triggers>
+            <DataTrigger Binding="{Binding SupportsHundredsForm}" Value="False">
+              <Setter Property="Grid.Column" Value="0" />
+            </DataTrigger>
+          </Style.Triggers>
+        </Style>
+      </StackPanel.Style>
       <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Options.Decimals}" />
       <Border Style="{StaticResource SegmentShell}">
         <UniformGrid Rows="1">
