@@ -17,7 +17,7 @@ using Microsoft.Win32;
 namespace InstaWords.App.Views
 {
     /// <summary>
-    /// «دفعة»: a native DataGrid of numbers. Conversion runs off the UI thread and the grid is
+    /// «عدة مبالغ» (Bulk): a native DataGrid of numbers. Conversion runs off the UI thread and the grid is
     /// virtualized, so 10,000+ rows stay smooth.
     /// </summary>
     public partial class BulkPage : UserControl

@@ -4,18 +4,23 @@
              xmlns:ui="clr-namespace:InstaWords.App.Views"
              Focusable="False" IsTabStop="False">
   <!-- Voucher header: optional company name and logo (saved in the settings; shown in Settings and in the print dialog). -->
-  <Grid>
+  <!-- Company name and logo side by side; on a narrow width (ApplyLayout) the logo moves below the name. -->
+  <Grid x:Name="Root">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*" />
-      <ColumnDefinition Width="16" />
+      <ColumnDefinition x:Name="GapColumn" Width="16" />
       <ColumnDefinition Width="Auto" />
     </Grid.ColumnDefinitions>
-    <StackPanel>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <StackPanel x:Name="CompanyPanel">
       <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Print.Company}" />
       <TextBox x:Name="CompanyBox" MaxLength="120" TextChanged="OnCompanyChanged" ui:Ui.Placeholder="{DynamicResource Print.CompanyPlaceholder}"
                AutomationProperties.AutomationId="PrintCompany" AutomationProperties.Name="{DynamicResource Print.Company}" />
     </StackPanel>
-    <StackPanel Grid.Column="2">
+    <StackPanel x:Name="LogoPanel" Grid.Column="2">
       <TextBlock Style="{StaticResource LabelText}" Text="{DynamicResource Print.Logo}" />
       <StackPanel Orientation="Horizontal">
         <Border Width="40" Height="40" CornerRadius="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" Background="{StaticResource BgSofterBrush}"
