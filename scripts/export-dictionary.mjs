@@ -1,6 +1,7 @@
 // Exports the shared FastKiwi Arabic number-word dictionary («قاموس عربي موحّد») as JSON, for other
-// FastKiwi apps to copy at build time. It is published at https://fastkiwi.app/data/arabic-numbers.json
-// (site repo sarmadiq9090-coder/sarmadiq9090-coder.github.io, data/arabic-numbers.json).
+// FastKiwi apps to copy at build time. The copy in this repo is docs/arabic-numbers.json (spec and copy
+// instructions: docs/ARABIC-NUMBERS.md; tests/dictionary.test.ts fails when it is stale). The same bytes are
+// published at https://fastkiwi.app/data/arabic-numbers.json (site repo data/arabic-numbers.json).
 //
 // Nothing here is typed by hand except the labels and the owner's digit rule (DIGIT_DISPLAY):
 //   src/lexicon.ts           every Arabic word, the conjunction «و» and «فاصلة»
@@ -10,8 +11,8 @@
 // later commit gives the same bytes until the words really change.
 //
 // Usage:
-//   node scripts/export-dictionary.mjs --out <site>/data/arabic-numbers.json   write the file
-//   node scripts/export-dictionary.mjs --check <site>/data/arabic-numbers.json exit 1 if it is stale
+//   node scripts/export-dictionary.mjs --out docs/arabic-numbers.json     write the file
+//   node scripts/export-dictionary.mjs --check docs/arabic-numbers.json   exit 1 if it is stale
 //   node scripts/export-dictionary.mjs                                         print to stdout
 // Bump DICTIONARY_VERSION (semver) whenever the output changes: patch for a corrected word, minor for
 // an added field, major for a changed or removed field.

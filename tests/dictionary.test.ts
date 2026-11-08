@@ -69,3 +69,16 @@ test("dictionary: the export is reproducible and has no empty word", () => {
   assert.equal(serialize(buildDictionary({ commit: "0".repeat(40) })), text);
   assert.ok(!text.includes('""'));
 });
+
+test("dictionary: docs/arabic-numbers.json is the export and matches its schema", async () => {
+  // @ts-ignore: plain ES module, no type declarations
+  const { validate } = await import("./lib/json-schema.mjs");
+  const read = (name: string) => readFileSync(new URL(`../docs/${name}`, import.meta.url), "utf8");
+  const text = read("arabic-numbers.json");
+  const copy = JSON.parse(text);
+  // source.commit is compared by format only: a shallow CI checkout cannot see the real last commit.
+  assert.match(copy.source.commit, /^[0-9a-f]{40}$/);
+  assert.equal(text, serialize(buildDictionary({ commit: copy.source.commit })),
+    "docs/arabic-numbers.json is stale: run npm run export:dictionary -- --out docs/arabic-numbers.json");
+  assert.deepEqual(validate(JSON.parse(read("arabic-numbers.schema.json")), copy), []);
+});
