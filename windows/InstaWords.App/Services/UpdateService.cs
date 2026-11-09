@@ -340,6 +340,17 @@ namespace InstaWords.App.Services
         public static void Open(string url)
         {
             if (string.IsNullOrEmpty(url) || !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) return;
+            Launch(url);
+        }
+
+        /// <summary>Opens a "More from FastKiwi" link: only fastkiwi.app pages and Microsoft Store product pages.</summary>
+        public static void OpenListed(string url)
+        {
+            if (MoreApps.IsAllowedLink(url)) Launch(url);
+        }
+
+        private static void Launch(string url)
+        {
             try
             {
                 Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });

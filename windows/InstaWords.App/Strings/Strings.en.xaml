@@ -226,6 +226,10 @@
   <sys:String x:Key="Settings.PrintingHint">The header of receipt and payment vouchers: your company name and logo (both optional). Cheque positions and sizes are set in the Print window (Ctrl+P).</sys:String>
   <sys:String x:Key="Settings.Data">Data</sys:String>
   <sys:String x:Key="Settings.DataHint">Settings and history are stored only on this computer, in two JSON files. The app goes online only to check for updates, if you allow it.</sys:String>
+  <sys:String x:Key="More.Title">More from FastKiwi</sys:String>
+  <sys:String x:Key="More.Hint">Other FastKiwi apps. The links open their pages in your browser; this app downloads nothing.</sys:String>
+  <sys:String x:Key="More.Store">Microsoft Store</sys:String>
+  <sys:String x:Key="More.ComingSoon">Coming soon</sys:String>
   <sys:String x:Key="Settings.OpenFolder">Open folder</sys:String>
   <sys:String x:Key="Settings.OpenFolderFailed">Couldn't open the folder</sys:String>
 

@@ -226,6 +226,10 @@
   <sys:String x:Key="Settings.PrintingHint">رأس سندات القبض والصرف: اسم الجهة وشعارها (اختياريان). مواضع الشيكات ومقاساتها تُضبط من نافذة «طباعة» (Ctrl+P).</sys:String>
   <sys:String x:Key="Settings.Data">البيانات</sys:String>
   <sys:String x:Key="Settings.DataHint">الإعدادات والسجل محفوظة على جهازك فقط، في ملفين JSON. لا يتصل البرنامج بالإنترنت إلا للتحقق من التحديثات إن سمحت بذلك.</sys:String>
+  <sys:String x:Key="More.Title">المزيد من FastKiwi</sys:String>
+  <sys:String x:Key="More.Hint">برامج أخرى من FastKiwi. الروابط تفتح صفحاتها في متصفحك، ولا يُنزّل البرنامج شيئاً.</sys:String>
+  <sys:String x:Key="More.Store">متجر Microsoft</sys:String>
+  <sys:String x:Key="More.ComingSoon">قريباً</sys:String>
   <sys:String x:Key="Settings.OpenFolder">فتح المجلد</sys:String>
   <sys:String x:Key="Settings.OpenFolderFailed">تعذّر فتح المجلد</sys:String>
 

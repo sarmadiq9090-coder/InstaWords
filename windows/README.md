@@ -117,6 +117,7 @@ iscc /DAppVersion=2.2.0 windows\installer\InstaWords.iss   # Inno Setup 6 → ou
 | `InstaWords.App.Tests/` | Unit tests of the app's pure logic (links source files from the app): updates, reports, CSV, interface strings, print layout (mm ↔ DIP, offsets, word wrap and filler, template fields) |
 | `InstaWords.UITests/` | UI tests (FlaUI/UIA3). `INSTAWORDS_APP_PATH` and `INSTAWORDS_ARTIFACTS` override the exe and screenshot folder |
 | `installer/InstaWords.iss` | Inno Setup script (Arabic + English) |
+| `InstaWords.App/Assets/apps.json` | "More from FastKiwi" (Settings, last card): a copy of the site's `data/apps.json`, embedded in the exe and never fetched at run time. Source: sarmadiq9090-coder.github.io commit `2f13a0c`. Refresh: `git -C ../sarmadiq9090-coder.github.io show origin/main:data/apps.json > windows/InstaWords.App/Assets/apps.json`, then update the commit here and run the app tests |
 
 The version comes from the repo `package.json`. CI (`.github/workflows/windows.yml`) runs everything above on every push and uploads the installer, the portable zip and the screenshots; a manual run with **release** ticked publishes GitHub Release `v<version>`.
 

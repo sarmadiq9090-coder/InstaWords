@@ -60,6 +60,8 @@
   <ItemGroup>
     <Resource Include="Fonts\*.ttf" />
     <Resource Include="Assets\InstaWords.ico" />
+    <!-- «More from FastKiwi»: a copy of the site's data/apps.json (refresh: see windows/README.md). Read by Services/MoreApps.cs; never fetched at run time. -->
+    <EmbeddedResource Include="Assets\apps.json" LogicalName="InstaWords.App.apps.json" />
     <None Update="Fonts\OFL.txt" CopyToOutputDirectory="PreserveNewest" Link="Licenses\IBM-Plex-Sans-Arabic-OFL.txt" />
     <None Include="..\..\LICENSE" CopyToOutputDirectory="PreserveNewest" Link="Licenses\InstaWords-LICENSE.txt" />
   </ItemGroup>

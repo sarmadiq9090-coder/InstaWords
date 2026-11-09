@@ -151,6 +151,11 @@
           </WrapPanel>
         </StackPanel>
       </ContentControl>
+
+      <!-- More from FastKiwi -->
+      <ContentControl Style="{StaticResource Card}" Margin="0,16,0,0">
+        <ui:MoreAppsPanel />
+      </ContentControl>
     </StackPanel>
   </ScrollViewer>
 </UserControl>
