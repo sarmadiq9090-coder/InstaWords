@@ -112,47 +112,9 @@
   <Geometry x:Key="IconFit">M8,3 H5 A2,2 0 0 0 3,5 V8 M21,8 V5 A2,2 0 0 0 19,3 H16 M3,16 V19 A2,2 0 0 0 5,21 H8 M16,21 H19 A2,2 0 0 0 21,19 V16</Geometry>
   <Geometry x:Key="IconFile">M14,3 H7 A2,2 0 0 0 5,5 V19 A2,2 0 0 0 7,21 H17 A2,2 0 0 0 19,19 V8 Z M14,3 V8 H19 M9,13 H15 M9,17 H13</Geometry>
 
-  <!-- The InstaWords mark (site/icon.svg) as a vector drawing, crisp at any DPI. -->
-  <DrawingImage x:Key="LogoImage">
-    <DrawingImage.Drawing>
-      <DrawingGroup>
-        <GeometryDrawing Brush="{StaticResource BrandGradientBrush}">
-          <GeometryDrawing.Geometry>
-            <RectangleGeometry Rect="0,0,64,64" RadiusX="15" RadiusY="15" />
-          </GeometryDrawing.Geometry>
-        </GeometryDrawing>
-        <GeometryDrawing>
-          <GeometryDrawing.Pen>
-            <Pen Brush="#61FFFFFF" Thickness="1.5" DashCap="Flat">
-              <Pen.DashStyle>
-                <DashStyle Dashes="1.333,2" />
-              </Pen.DashStyle>
-            </Pen>
-          </GeometryDrawing.Pen>
-          <GeometryDrawing.Geometry>
-            <RectangleGeometry Rect="7,7,50,50" RadiusX="10" RadiusY="10" />
-          </GeometryDrawing.Geometry>
-        </GeometryDrawing>
-        <GeometryDrawing Geometry="M15,27 C15,36.5 21.6,41 32,41 C42.4,41 49,36.5 49,27">
-          <GeometryDrawing.Pen>
-            <Pen Brush="White" Thickness="5.5" StartLineCap="Round" EndLineCap="Round" />
-          </GeometryDrawing.Pen>
-        </GeometryDrawing>
-        <GeometryDrawing Brush="White">
-          <GeometryDrawing.Geometry>
-            <GeometryGroup>
-              <EllipseGeometry Center="27.5,19.5" RadiusX="3.6" RadiusY="3.6" />
-              <EllipseGeometry Center="37.5,19.5" RadiusX="3.6" RadiusY="3.6" />
-            </GeometryGroup>
-          </GeometryDrawing.Geometry>
-        </GeometryDrawing>
-        <GeometryDrawing Geometry="M17,50 L47,50">
-          <GeometryDrawing.Pen>
-            <Pen Brush="#D9F99D" Thickness="3" StartLineCap="Round" EndLineCap="Round" />
-          </GeometryDrawing.Pen>
-        </GeometryDrawing>
-      </DrawingGroup>
-    </DrawingImage.Drawing>
-  </DrawingImage>
+  <!-- The InstaWords icon (owner decision D-049: pen nib in InstaFind's style). A 256 px render of the
+       master (site/icon.svg, from the FastKiwi site's brand/icons/instawords/), the same art as
+       Assets/InstaWords.ico. A raster because WPF drawings cannot blur the glyph's soft shadow. -->
+  <BitmapImage x:Key="LogoImage" UriSource="pack://application:,,,/Assets/InstaWords-256.png" />
 
 </ResourceDictionary>

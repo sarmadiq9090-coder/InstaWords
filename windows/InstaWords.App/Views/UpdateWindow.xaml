@@ -9,7 +9,7 @@
     <ContentControl Style="{StaticResource Card}">
       <StackPanel>
         <DockPanel>
-          <Image Source="{StaticResource LogoImage}" Width="52" Height="52" FlowDirection="LeftToRight" VerticalAlignment="Top" />
+          <Image Source="{StaticResource LogoImage}" RenderOptions.BitmapScalingMode="HighQuality" Width="52" Height="52" FlowDirection="LeftToRight" VerticalAlignment="Top" />
           <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
             <TextBlock x:Name="Headline" Style="{StaticResource TitleText}" AutomationProperties.AutomationId="UpdateHeadline" />
             <TextBlock x:Name="Subline" Style="{StaticResource HintText}" FontSize="13" Margin="0,3,0,0" />
