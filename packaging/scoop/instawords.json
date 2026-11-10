@@ -2,7 +2,10 @@
     "version": "2.2.0",
     "description": "InstaWords (تفقيط): amounts in words for cheques and invoices, in Arabic, English and French.",
     "homepage": "https://fastkiwi.app/instawords/",
-    "license": "MIT",
+    "license": {
+        "identifier": "Proprietary (free)",
+        "url": "https://github.com/sarmadiq9090-coder/InstaWords/blob/HEAD/LICENSE"
+    },
     "notes": [
         "This is the portable build: InstaWords checks GitHub for new versions and opens the release page,",
         "but 'scoop update instawords' is the way to upgrade a Scoop install.",

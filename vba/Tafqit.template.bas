@@ -1,7 +1,7 @@
 Attribute VB_Name = "TafqitLib"
 '==============================================================================
 ' InstaWords (tafqit) - numbers to words in Arabic, English and French, for
-' Excel. MIT License. https://github.com/sarmadiq9090-coder/InstaWords
+' Excel. Copyright (c) 2026 Sarmad. All rights reserved. https://github.com/sarmadiq9090-coder/InstaWords
 '
 '@@HEADER@@
 '

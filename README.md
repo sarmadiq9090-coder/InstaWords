@@ -10,7 +10,7 @@
 
 ## العربية
 
-**InstaWords** أداة **مجانية ومفتوحة المصدر (MIT)** تكتب المبالغ بالحروف (التفقيط) **بالعربية والإنجليزية والفرنسية** كما تُكتب في الشيكات والفواتير والمستندات المحاسبية. تعمل في المتصفح بلا خادم وبلا إنترنت، ومعها **برنامج ويندوز** يعمل دون اتصال، ومكتبة TypeScript، ووحدة Excel.
+**InstaWords** أداة **مجانية** تكتب المبالغ بالحروف (التفقيط) **بالعربية والإنجليزية والفرنسية** كما تُكتب في الشيكات والفواتير والمستندات المحاسبية. تعمل في المتصفح بلا خادم وبلا إنترنت، ومعها **برنامج ويندوز** يعمل دون اتصال، ومكتبة TypeScript، ووحدة Excel.
 
 ```
 1250.75 ريال سعودي  ←  ألف ومائتان وخمسون ريالاً سعودياً وخمس وسبعون هللة
@@ -107,7 +107,7 @@ npm run build:site  # يبني الموقع في _site/
 
 ### الترخيص
 
-MIT. انظر [`LICENSE`](LICENSE). كُتب المشروع بأسلوب «الغرفة النظيفة»، من قواعد العربية وحدها، دون نسخ شيفرة أو نصوص من أي منتج آخر. والاسمان InstaWords™ وFastKiwi™ علامتان تجاريتان لا تشملهما الرخصة: النسخ المعدّلة تحمل اسماً وأيقونة مختلفين، انظر [`TRADEMARKS.md`](TRADEMARKS.md) ومصادر التنزيل الرسمية فيه.
+برنامج مملوك مجاني للاستخدام على أجهزتك، انظر [`LICENSE`](LICENSE). الإصدارات حتى 2.2.0 (قبل 2026-11-09) تبقى متاحة برخصة MIT التي نُشرت بها. كُتب المشروع بأسلوب «الغرفة النظيفة»، من قواعد العربية وحدها، دون نسخ شيفرة أو نصوص من أي منتج آخر. والاسمان InstaWords™ وFastKiwi™ علامتان تجاريتان لا تشملهما الرخصة، انظر [`TRADEMARKS.md`](TRADEMARKS.md) ومصادر التنزيل الرسمية فيه.
 
 </div>
 
@@ -115,7 +115,7 @@ MIT. انظر [`LICENSE`](LICENSE). كُتب المشروع بأسلوب «ال�
 
 ## English
 
-**InstaWords** is a **free, open-source (MIT)** amount-in-words tool (*tafqit*) for cheques, invoices and accounting documents, in **Arabic, English and French**. Fully client-side and offline, with an **offline Windows app**, a zero-dependency TypeScript library and an Excel VBA module.
+**InstaWords** is a **free** amount-in-words tool (*tafqit*) for cheques, invoices and accounting documents, in **Arabic, English and French**. Fully client-side and offline, with an **offline Windows app**, a zero-dependency TypeScript library and an Excel VBA module.
 
 ### Features
 
@@ -161,4 +161,4 @@ Production: **https://fastkiwi.app/instawords/**. Build with `npm run build:site
 
 Excel: install the `InstaWords.xlam` add-in (built by `scripts/build-xlam.mjs`; Unblock it, then File → Options → Add-ins → Go → Browse), or import `vba/Tafqit.bas` (module `TafqitLib`), then `=TAFQIT(A1, "ريال سعودي", "مائة", "فقط", "لا غير", "round")`. VBA output is verified against the core on ~30,000 inputs via a VBA-subset harness.
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md). License: MIT. "InstaWords" and "FastKiwi" are trademarks and not covered by the licence: forks must use a different name and icon; see [`TRADEMARKS.md`](TRADEMARKS.md), which also lists the official download sources.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). License: proprietary, free to use on your own devices, see [`LICENSE`](LICENSE); versions up to 2.2.0 (released before 2026-11-09) remain available under the MIT licence they were published with. "InstaWords" and "FastKiwi" are trademarks and not covered by the licence; see [`TRADEMARKS.md`](TRADEMARKS.md), which also lists the official download sources.
