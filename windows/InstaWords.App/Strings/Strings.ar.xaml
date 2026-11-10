@@ -255,7 +255,7 @@
   <sys:String x:Key="Rating.Title">هل يساعدك InstaWords؟</sys:String>
   <sys:String x:Key="Rating.Body">تقييمك في المتجر يساعد غيرك على إيجاده. يستغرق لحظة، ولن نسأل مرة أخرى.</sys:String>
   <sys:String x:Key="Rating.Rate">قيّم في المتجر</sys:String>
-  <sys:String x:Key="Rating.NotNow">ليس الآن</sys:String>
+  <sys:String x:Key="Rating.NotNow">لا، شكرًا</sys:String>
 
   <sys:String x:Key="Report.OpenGitHub">فتح بلاغ في GitHub (يتطلب حساب GitHub)</sys:String>
   <sys:String x:Key="Report.Copy">نسخ التقرير</sys:String>

@@ -19,7 +19,7 @@
     </ContentControl>
     <DockPanel Margin="0,16,0,0" LastChildFill="False">
       <Button DockPanel.Dock="Left" Style="{StaticResource PrimaryButton}" ui:Ui.Icon="{StaticResource IconStar}" Content="{DynamicResource Rating.Rate}"
-              IsDefault="True" Click="OnRateClick" AutomationProperties.AutomationId="RatingRate" />
+              Click="OnRateClick" AutomationProperties.AutomationId="RatingRate" />
       <Button DockPanel.Dock="Left" Style="{StaticResource GhostButton}" Content="{DynamicResource Rating.NotNow}" Margin="8,0,0,0"
               IsCancel="True" Click="OnNotNowClick" AutomationProperties.AutomationId="RatingNotNow" />
     </DockPanel>

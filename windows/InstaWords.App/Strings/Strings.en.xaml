@@ -255,7 +255,7 @@
   <sys:String x:Key="Rating.Title">Is InstaWords helping you?</sys:String>
   <sys:String x:Key="Rating.Body">A rating in the Store helps others find it. It takes a moment, and we won't ask again.</sys:String>
   <sys:String x:Key="Rating.Rate">Rate in the Store</sys:String>
-  <sys:String x:Key="Rating.NotNow">Not now</sys:String>
+  <sys:String x:Key="Rating.NotNow">No thanks</sys:String>
 
   <sys:String x:Key="Report.OpenGitHub">Open a GitHub issue (needs a GitHub account)</sys:String>
   <sys:String x:Key="Report.Copy">Copy the report</sys:String>
