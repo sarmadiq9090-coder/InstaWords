@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="f201ab7b-10b1-43ac-84d4-11951e38d465" name="runneradmin@runnervmm7ud1 2026-11-10 07:39:58" runUser="runnervmm7ud1\runneradmin" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-11-10T07:39:58.2484846+00:00" queuing="2026-11-10T07:39:58.2484848+00:00" start="2026-11-10T07:39:30.7880305+00:00" finish="2026-11-10T07:41:10.8117735+00:00" />
+  <TestSettings name="default" id="f257e1a3-759f-429a-ba16-0fd3caae9e28">
+    <Deployment runDeploymentRoot="runneradmin_runnervmm7ud1_2026-11-10_07_39_58" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="4eca8cad-6bfd-4a0f-bbbd-31a0be73cc1f" testId="9b72c98e-3ab5-f83f-1ca2-b5d4a8c48595" testName="InstaWords.UITests.PrintAndLanguageTests.PrintPreviewShowsTheWords" computerName="runnervmm7ud1" duration="00:00:13.4798791" startTime="2026-11-10T07:41:08.4298262+00:00" endTime="2026-11-10T07:41:08.4298267+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4eca8cad-6bfd-4a0f-bbbd-31a0be73cc1f" />
+    <UnitTestResult executionId="3878c524-a040-458f-a541-e6c3e98cbbfa" testId="e17d747d-0683-e6c8-3048-cf0988aad826" testName="InstaWords.UITests.PrintAndLanguageTests.EnglishInterface" computerName="runnervmm7ud1" duration="00:00:08.3134278" startTime="2026-11-10T07:40:54.9493429+00:00" endTime="2026-11-10T07:40:54.9493433+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3878c524-a040-458f-a541-e6c3e98cbbfa" />
+    <UnitTestResult executionId="dbc1aebd-74da-49ac-9277-20be0bc67255" testId="e54791e4-f912-68af-c819-975c6eab9a0a" testName="InstaWords.UITests.StoreScreenshotTests.ListingScreenshots(ui: &quot;en&quot;)" computerName="runnervmm7ud1" duration="00:00:26.7462536" startTime="2026-11-10T07:39:58.2219247+00:00" endTime="2026-11-10T07:39:58.2219607+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dbc1aebd-74da-49ac-9277-20be0bc67255" />
+    <UnitTestResult executionId="37e376af-206b-4e41-8471-2e1651b656f9" testId="92fee089-ed6a-b212-d452-afea6320f0f4" testName="InstaWords.UITests.AppTests.BulkPasteConvertsEveryRow" computerName="runnervmm7ud1" duration="00:00:03.2470697" startTime="2026-11-10T07:40:39.4337253+00:00" endTime="2026-11-10T07:40:39.4337257+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="37e376af-206b-4e41-8471-2e1651b656f9" />
+    <UnitTestResult executionId="0277f910-0635-4892-b4ca-e31b8014608c" testId="493d5c42-71c2-fd82-80dd-f3377aa7d72a" testName="InstaWords.UITests.AppTests.HotkeyConvertsTheClipboard" computerName="runnervmm7ud1" duration="00:00:01.5568660" startTime="2026-11-10T07:40:36.1864909+00:00" endTime="2026-11-10T07:40:36.1864913+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0277f910-0635-4892-b4ca-e31b8014608c" />
+    <UnitTestResult executionId="3200ec5f-1505-4298-97cf-776ac29e848c" testId="714bd158-394e-27b6-4561-eb61c00425f8" testName="InstaWords.UITests.PrintAndLanguageTests.InterfaceLanguageSwitchesLive" computerName="runnervmm7ud1" duration="00:00:02.3202560" startTime="2026-11-10T07:41:10.7502934+00:00" endTime="2026-11-10T07:41:10.7502939+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3200ec5f-1505-4298-97cf-776ac29e848c" />
+    <UnitTestResult executionId="220824dc-28fc-49b4-ac53-5110ddc4b6fb" testId="81c57768-423b-f972-85f3-4043a828d1c2" testName="InstaWords.UITests.AppTests.SettingsAboutAndReportScreens" computerName="runnervmm7ud1" duration="00:00:07.9712767" startTime="2026-11-10T07:40:34.6294648+00:00" endTime="2026-11-10T07:40:34.6294652+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="220824dc-28fc-49b4-ac53-5110ddc4b6fb" />
+    <UnitTestResult executionId="dbfd4dc3-2cb1-45d0-bb85-9462ede984cf" testId="993a375b-a188-fe99-1eee-74e7152b86d4" testName="InstaWords.UITests.AppTests.ConvertsLiveInArabicAndEnglish" computerName="runnervmm7ud1" duration="00:00:07.7449487" startTime="2026-11-10T07:40:26.6589579+00:00" endTime="2026-11-10T07:40:26.6589584+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dbfd4dc3-2cb1-45d0-bb85-9462ede984cf" />
+    <UnitTestResult executionId="d66e84e1-0522-4f3b-95df-eb299c716ed5" testId="64ed9f23-d1db-bec9-12c6-4af4a7a7802f" testName="InstaWords.UITests.StoreScreenshotTests.ListingScreenshots(ui: &quot;ar&quot;)" computerName="runnervmm7ud1" duration="00:00:20.6888107" startTime="2026-11-10T07:40:18.9097986+00:00" endTime="2026-11-10T07:40:18.9097991+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d66e84e1-0522-4f3b-95df-eb299c716ed5" />
+    <UnitTestResult executionId="cafa5780-3de6-4ec0-9837-a15ec3fb9623" testId="81ffad3b-3823-64e2-b6e1-21f9996d59b7" testName="InstaWords.UITests.AppTests.FormattingOptionsApplyPresets" computerName="runnervmm7ud1" duration="00:00:02.6390851" startTime="2026-11-10T07:40:42.0729453+00:00" endTime="2026-11-10T07:40:42.0729459+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cafa5780-3de6-4ec0-9837-a15ec3fb9623" />
+    <UnitTestResult executionId="fa65fc06-3ecc-42de-854a-37693a96dae9" testId="613867c1-fa71-3f33-8ca6-c0b7bcb03f4b" testName="InstaWords.UITests.AppTests.OffersAnUpdateFromTheFeed" computerName="runnervmm7ud1" duration="00:00:02.6825349" startTime="2026-11-10T07:40:44.7556338+00:00" endTime="2026-11-10T07:40:44.7556343+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="fa65fc06-3ecc-42de-854a-37693a96dae9" />
+    <UnitTestResult executionId="99670d26-f6a7-445a-bc6a-41a676395feb" testId="d115b36c-eb66-1375-f7a5-a7823adc09cc" testName="InstaWords.UITests.AppTests.BulkHandlesTenThousandRows" computerName="runnervmm7ud1" duration="00:00:01.8799245" startTime="2026-11-10T07:40:46.6356789+00:00" endTime="2026-11-10T07:40:46.6356795+00:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="99670d26-f6a7-445a-bc6a-41a676395feb" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="InstaWords.UITests.AppTests.FormattingOptionsApplyPresets" storage="d:\a\instawords\instawords\windows\instawords.uitests\bin\release\net10.0-windows\instawords.uitests.dll" id="81ffad3b-3823-64e2-b6e1-21f9996d59b7">
+      <Execution id="cafa5780-3de6-4ec0-9837-a15ec3fb9623" />
+      <TestMethod codeBase="D:\a\InstaWords\InstaWords\windows\InstaWords.UITests\bin\Release\net10.0-windows\InstaWords.UITests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="InstaWords.UITests.AppTests" name="FormattingOptionsApplyPresets" />
+    </UnitTest>
+    <UnitTest name="InstaWords.UITests.AppTests.BulkPasteConvertsEveryRow" storage="d:\a\instawords\instawords\windows\instawords.uitests\bin\release\net10.0-windows\instawords.uitests.dll" id="92fee089-ed6a-b212-d452-afea6320f0f4">
+      <Execution id="37e376af-206b-4e41-8471-2e1651b656f9" />
+      <TestMethod codeBase="D:\a\InstaWords\InstaWords\windows\InstaWords.UITests\bin\Release\net10.0-windows\InstaWords.UITests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="InstaWords.UITests.AppTests" name="BulkPasteConvertsEveryRow" />
+    </UnitTest>
+    <UnitTest name="InstaWords.UITests.AppTests.OffersAnUpdateFromTheFeed" storage="d:\a\instawords\instawords\windows\instawords.uitests\bin\release\net10.0-windows\instawords.uitests.dll" id="613867c1-fa71-3f33-8ca6-c0b7bcb03f4b">
+      <Execution id="fa65fc06-3ecc-42de-854a-37693a96dae9" />
+      <TestMethod codeBase="D:\a\InstaWords\InstaWords\windows\InstaWords.UITests\bin\Release\net10.0-windows\InstaWords.UITests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="InstaWords.UITests.AppTests" name="OffersAnUpdateFromTheFeed" />
+    </UnitTest>
+    <UnitTest name="InstaWords.UITests.PrintAndLanguageTests.PrintPreviewShowsTheWords" storage="d:\a\instawords\instawords\windows\instawords.uitests\bin\release\net10.0-windows\instawords.uitests.dll" id="9b72c98e-3ab5-f83f-1ca2-b5d4a8c48595">
+      <Execution id="4eca8cad-6bfd-4a0f-bbbd-31a0be73cc1f" />
+      <TestMethod codeBase="D:\a\InstaWords\InstaWords\windows\InstaWords.UITests\bin\Release\net10.0-windows\InstaWords.UITests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="InstaWords.UITests.PrintAndLanguageTests" name="PrintPreviewShowsTheWords" />
+    </UnitTest>
+    <UnitTest name="InstaWords.UITests.StoreScreenshotTests.ListingScreenshots(ui: &quot;en&quot;)" storage="d:\a\instawords\instawords\windows\instawords.uitests\bin\release\net10.0-windows\instawords.uitests.dll" id="e54791e4-f912-68af-c819-975c6eab9a0a">
+      <Execution id="dbc1aebd-74da-49ac-9277-20be0bc67255" />
+      <TestMethod codeBase="D:\a\InstaWords\InstaWords\windows\InstaWords.UITests\bin\Release\net10.0-windows\InstaWords.UITests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="InstaWords.UITests.StoreScreenshotTests" name="ListingScreenshots" />
+    </UnitTest>
+    <UnitTest name="InstaWords.UITests.PrintAndLanguageTests.EnglishInterface" storage="d:\a\instawords\instawords\windows\instawords.uitests\bin\release\net10.0-windows\instawords.uitests.dll" id="e17d747d-0683-e6c8-3048-cf0988aad826">
+      <Execution id="3878c524-a040-458f-a541-e6c3e98cbbfa" />
+      <TestMethod codeBase="D:\a\InstaWords\InstaWords\windows\InstaWords.UITests\bin\Release\net10.0-windows\InstaWords.UITests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="InstaWords.UITests.PrintAndLanguageTests" name="EnglishInterface" />
+    </UnitTest>
+    <UnitTest name="InstaWords.UITests.StoreScreenshotTests.ListingScreenshots(ui: &quot;ar&quot;)" storage="d:\a\instawords\instawords\windows\instawords.uitests\bin\release\net10.0-windows\instawords.uitests.dll" id="64ed9f23-d1db-bec9-12c6-4af4a7a7802f">
+      <Execution id="d66e84e1-0522-4f3b-95df-eb299c716ed5" />
+      <TestMethod codeBase="D:\a\InstaWords\InstaWords\windows\InstaWords.UITests\bin\Release\net10.0-windows\InstaWords.UITests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="InstaWords.UITests.StoreScreenshotTests" name="ListingScreenshots" />
+    </UnitTest>
+    <UnitTest name="InstaWords.UITests.AppTests.ConvertsLiveInArabicAndEnglish" storage="d:\a\instawords\instawords\windows\instawords.uitests\bin\release\net10.0-windows\instawords.uitests.dll" id="993a375b-a188-fe99-1eee-74e7152b86d4">
+      <Execution id="dbfd4dc3-2cb1-45d0-bb85-9462ede984cf" />
+      <TestMethod codeBase="D:\a\InstaWords\InstaWords\windows\InstaWords.UITests\bin\Release\net10.0-windows\InstaWords.UITests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="InstaWords.UITests.AppTests" name="ConvertsLiveInArabicAndEnglish" />
+    </UnitTest>
+    <UnitTest name="InstaWords.UITests.AppTests.HotkeyConvertsTheClipboard" storage="d:\a\instawords\instawords\windows\instawords.uitests\bin\release\net10.0-windows\instawords.uitests.dll" id="493d5c42-71c2-fd82-80dd-f3377aa7d72a">
+      <Execution id="0277f910-0635-4892-b4ca-e31b8014608c" />
+      <TestMethod codeBase="D:\a\InstaWords\InstaWords\windows\InstaWords.UITests\bin\Release\net10.0-windows\InstaWords.UITests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="InstaWords.UITests.AppTests" name="HotkeyConvertsTheClipboard" />
+    </UnitTest>
+    <UnitTest name="InstaWords.UITests.AppTests.BulkHandlesTenThousandRows" storage="d:\a\instawords\instawords\windows\instawords.uitests\bin\release\net10.0-windows\instawords.uitests.dll" id="d115b36c-eb66-1375-f7a5-a7823adc09cc">
+      <Execution id="99670d26-f6a7-445a-bc6a-41a676395feb" />
+      <TestMethod codeBase="D:\a\InstaWords\InstaWords\windows\InstaWords.UITests\bin\Release\net10.0-windows\InstaWords.UITests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="InstaWords.UITests.AppTests" name="BulkHandlesTenThousandRows" />
+    </UnitTest>
+    <UnitTest name="InstaWords.UITests.AppTests.SettingsAboutAndReportScreens" storage="d:\a\instawords\instawords\windows\instawords.uitests\bin\release\net10.0-windows\instawords.uitests.dll" id="81c57768-423b-f972-85f3-4043a828d1c2">
+      <Execution id="220824dc-28fc-49b4-ac53-5110ddc4b6fb" />
+      <TestMethod codeBase="D:\a\InstaWords\InstaWords\windows\InstaWords.UITests\bin\Release\net10.0-windows\InstaWords.UITests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="InstaWords.UITests.AppTests" name="SettingsAboutAndReportScreens" />
+    </UnitTest>
+    <UnitTest name="InstaWords.UITests.PrintAndLanguageTests.InterfaceLanguageSwitchesLive" storage="d:\a\instawords\instawords\windows\instawords.uitests\bin\release\net10.0-windows\instawords.uitests.dll" id="714bd158-394e-27b6-4561-eb61c00425f8">
+      <Execution id="3200ec5f-1505-4298-97cf-776ac29e848c" />
+      <TestMethod codeBase="D:\a\InstaWords\InstaWords\windows\InstaWords.UITests\bin\Release\net10.0-windows\InstaWords.UITests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="InstaWords.UITests.PrintAndLanguageTests" name="InterfaceLanguageSwitchesLive" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="9b72c98e-3ab5-f83f-1ca2-b5d4a8c48595" executionId="4eca8cad-6bfd-4a0f-bbbd-31a0be73cc1f" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e17d747d-0683-e6c8-3048-cf0988aad826" executionId="3878c524-a040-458f-a541-e6c3e98cbbfa" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="e54791e4-f912-68af-c819-975c6eab9a0a" executionId="dbc1aebd-74da-49ac-9277-20be0bc67255" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="92fee089-ed6a-b212-d452-afea6320f0f4" executionId="37e376af-206b-4e41-8471-2e1651b656f9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="493d5c42-71c2-fd82-80dd-f3377aa7d72a" executionId="0277f910-0635-4892-b4ca-e31b8014608c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="714bd158-394e-27b6-4561-eb61c00425f8" executionId="3200ec5f-1505-4298-97cf-776ac29e848c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="81c57768-423b-f972-85f3-4043a828d1c2" executionId="220824dc-28fc-49b4-ac53-5110ddc4b6fb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="993a375b-a188-fe99-1eee-74e7152b86d4" executionId="dbfd4dc3-2cb1-45d0-bb85-9462ede984cf" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="64ed9f23-d1db-bec9-12c6-4af4a7a7802f" executionId="d66e84e1-0522-4f3b-95df-eb299c716ed5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="81ffad3b-3823-64e2-b6e1-21f9996d59b7" executionId="cafa5780-3de6-4ec0-9837-a15ec3fb9623" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="613867c1-fa71-3f33-8ca6-c0b7bcb03f4b" executionId="fa65fc06-3ecc-42de-854a-37693a96dae9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="d115b36c-eb66-1375-f7a5-a7823adc09cc" executionId="99670d26-f6a7-445a-bc6a-41a676395feb" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="12" executed="12" passed="12" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.8.2+699d445a1a (64-bit .NET 10.0.14)&#xD;
+[xUnit.net 00:00:00.08]   Discovering: InstaWords.UITests&#xD;
+[xUnit.net 00:00:00.13]   Discovered:  InstaWords.UITests&#xD;
+[xUnit.net 00:00:00.14]   Starting:    InstaWords.UITests&#xD;
+Logo C:\Users\runneradmin\AppData\Local\Temp\InstaWords-uitest-c1933933\logo.png: 2283 bytes&#xD;
+Store screenshot store-en-1-convert: 1920x1032&#xD;
+Store screenshot store-en-2-print: 1920x1032&#xD;
+Store screenshot store-en-3-excel: 1920x1032&#xD;
+Store screenshot store-en-4-settings: 1920x1032&#xD;
+Logo C:\Users\runneradmin\AppData\Local\Temp\InstaWords-uitest-250c939e\logo.png: 2283 bytes&#xD;
+Store screenshot store-ar-1-convert: 1920x1032&#xD;
+Store screenshot store-ar-2-print: 1920x1032&#xD;
+Store screenshot store-ar-3-excel: 1920x1032&#xD;
+Store screenshot store-ar-4-settings: 1920x1032&#xD;
+Application failed to exit&#xD;
+[xUnit.net 00:01:39.46]   Finished:    InstaWords.UITests&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>
