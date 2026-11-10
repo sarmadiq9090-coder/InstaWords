@@ -162,6 +162,7 @@ namespace InstaWords.App
                 }
                 History.Add(values[0], r.Cleaned, options.Unit, options.Language, r.Text);
                 Notify(true, Loc.F("Clip.CopiedTitle", Conversion.Grouped(r.Amount)), r.Text, Catalog.FlowFor(options.Language));
+                NoteCopied(inWindow: false);
                 return;
             }
 
@@ -184,6 +185,32 @@ namespace InstaWords.App
                 return;
             }
             Notify(true, Loc.F("Clip.CopiedManyTitle", Conversion.FormatCount(results.Count)), results[0].Text + "\n…", Catalog.FlowFor(options.Language));
+            NoteCopied(inWindow: false);
+        }
+
+        /// <summary>
+        /// An amount in words was copied: «نسخ» / Ctrl+Enter / «نسخ الكل» in the window, or the hotkey.
+        /// Store copy only: counts it, and once enough copies were made asks ONCE for a rating
+        /// (StoreLogic.RatingDue), never over another program. Marked as asked before the dialog shows,
+        /// so either answer, or closing it, means it never asks again.
+        /// </summary>
+        public void NoteCopied(bool inWindow)
+        {
+            var kind = AppPackage.Kind;
+            if (!StoreLogic.CanRate(kind)) return;
+            var count = StoreLogic.CountCopy(kind, Settings.RatingAsked, Settings.CopyCount);
+            if (count != Settings.CopyCount)
+            {
+                Settings.CopyCount = count;
+                SaveSettingsSoon();
+            }
+            var w = AppWindow;
+            var active = inWindow && w != null && w.IsVisible && w.IsActive;
+            if (!StoreLogic.RatingDue(kind, Settings.RatingAsked, Settings.CopyCount, active)) return;
+            Settings.RatingAsked = true;
+            SaveSettings();
+            // After the «تم النسخ» feedback has drawn.
+            Dispatcher.BeginInvoke(new Action(() => w.ShowRatingRequest()), DispatcherPriority.ApplicationIdle);
         }
 
         public string CurrentHotkeyText => (HotkeyGesture.Parse(Settings.Hotkey) ?? HotkeyGesture.Default).ToString();

@@ -249,6 +249,13 @@
   <sys:String x:Key="About.KeyTabs">Convert · Bulk · Settings</sys:String>
   <sys:String x:Key="About.KeyPaste">Paste a column on the Bulk tab</sys:String>
   <sys:String x:Key="About.KeyAbout">This window</sys:String>
+  <sys:String x:Key="About.Rate">Rate InstaWords in the Store</sys:String>
+
+  <!-- The one-time rating request (Store copy only). No reward for a rating (Store policy). -->
+  <sys:String x:Key="Rating.Title">Is InstaWords helping you?</sys:String>
+  <sys:String x:Key="Rating.Body">A rating in the Store helps others find it. It takes a moment, and we won't ask again.</sys:String>
+  <sys:String x:Key="Rating.Rate">Rate in the Store</sys:String>
+  <sys:String x:Key="Rating.NotNow">Not now</sys:String>
 
   <sys:String x:Key="Report.OpenGitHub">Open a GitHub issue (needs a GitHub account)</sys:String>
   <sys:String x:Key="Report.Copy">Copy the report</sys:String>

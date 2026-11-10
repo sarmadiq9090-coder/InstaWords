@@ -249,6 +249,13 @@
   <sys:String x:Key="About.KeyTabs">تفقيط رقم · عدة مبالغ · الإعدادات</sys:String>
   <sys:String x:Key="About.KeyPaste">لصق عمود في «عدة مبالغ»</sys:String>
   <sys:String x:Key="About.KeyAbout">هذه النافذة</sys:String>
+  <sys:String x:Key="About.Rate">قيّم InstaWords في المتجر</sys:String>
+
+  <!-- The one-time rating request (Store copy only). No reward for a rating (Store policy). -->
+  <sys:String x:Key="Rating.Title">هل يساعدك InstaWords؟</sys:String>
+  <sys:String x:Key="Rating.Body">تقييمك في المتجر يساعد غيرك على إيجاده. يستغرق لحظة، ولن نسأل مرة أخرى.</sys:String>
+  <sys:String x:Key="Rating.Rate">قيّم في المتجر</sys:String>
+  <sys:String x:Key="Rating.NotNow">ليس الآن</sys:String>
 
   <sys:String x:Key="Report.OpenGitHub">فتح بلاغ في GitHub (يتطلب حساب GitHub)</sys:String>
   <sys:String x:Key="Report.Copy">نسخ التقرير</sys:String>

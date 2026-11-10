@@ -92,6 +92,15 @@ namespace InstaWords.App
             report.ShowDialog();
         }
 
+        /// <summary>The one-time «هل يساعدك InstaWords؟» (Store copy, App.NoteCopied); «قيّم في المتجر» opens the Store's dialog.</summary>
+        public void ShowRatingRequest()
+        {
+            if (!IsVisible) return;
+            var ask = new RatingWindow { Owner = this };
+            ask.ShowDialog();
+            if (ask.WantsToRate) _ = StoreRating.RequestAsync(this);
+        }
+
         private void OnAboutClick(object sender, RoutedEventArgs e) => ShowAbout();
         private void OnReportClick(object sender, RoutedEventArgs e) => ShowReport();
         private void OnUpdateBadgeClick(object sender, RoutedEventArgs e) => App.Current.Updates.ShowAvailableUpdate(this);

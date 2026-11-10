@@ -4,7 +4,7 @@
     Unit tests for the WPF app's pure logic (no UI, runs on any OS): update checks (version compare,
     asset selection, download URL allow-list, SHA-256 digest), problem-report links (GitHub issue, mailto:), CSV import/export,
     interface strings (Strings.ar.xaml / Strings.en.xaml: same keys, every key the app uses), Store mode
-    (package detection, install kind, MSIX data folder, startup task states), the crash log (format, size cap),
+    (package detection, install kind, MSIX data folder, startup task states, when to ask for a rating), the crash log (format, size cap),
     the print layout math (mm/DIP, cheque calibration offsets, word wrap and filler, template fields), and
     the amount shown with the words (money with its subunit decimals, rounded like the words).
     The source files are linked from InstaWords.App, which itself targets net48.
