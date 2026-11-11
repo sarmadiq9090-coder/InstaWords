@@ -1,7 +1,8 @@
 using System;
 
 // Pure logic (no WPF, no Windows API): compiled into the app and linked into InstaWords.App.Tests.
-// The Windows side is AppPackage.cs (package detection) and StartupService.cs (the startup task).
+// The Windows side is AppPackage.cs (package detection), StartupService.cs (the startup task) and
+// StoreRating.cs (the Store's rating dialog).
 namespace InstaWords.App.Services
 {
     /// <summary>How this copy of InstaWords was installed (problem reports, updater, start with Windows).</summary>
@@ -23,6 +24,15 @@ namespace InstaWords.App.Services
         Enabled = 2,
         DisabledByPolicy = 3,
         EnabledByPolicy = 4,
+    }
+
+    /// <summary>StoreRateAndReviewStatus (Windows.Services.Store), as numbers so this file needs no WinRT.</summary>
+    public enum RateReviewStatus
+    {
+        Succeeded = 0,
+        CanceledByUser = 1,
+        NetworkError = 2,
+        Error = 3,
     }
 
     /// <summary>What the «تشغيل مع Windows» check box shows.</summary>
@@ -87,6 +97,44 @@ namespace InstaWords.App.Services
             if (rest.Length > 0 && rest[0] != '\\' && rest[0] != '/') return null; // "...\RoamingX" is not under "...\Roaming"
             return localAppData.TrimEnd('\\', '/') + @"\Packages\" + packageFamilyName + @"\LocalCache\Roaming" + rest.Replace('/', '\\');
         }
+
+        // ---------- «قيّم InstaWords»: the one-time rating request (Store copy only) ----------
+
+        /// <summary>The Store's product ID: must match "StoreId" in windows/packaging/msix/identity.json.</summary>
+        public const string StoreProductId = "9P62P4WQSQNK";
+
+        /// <summary>The app's «Ratings and reviews» page in the Microsoft Store app (the fallback).</summary>
+        public const string ReviewUri = "ms-windows-store://review/?ProductId=" + StoreProductId;
+
+        /// <summary>The request comes after this many successful copies of an amount in words.</summary>
+        public const int RatingAfterCopies = 5;
+
+        /// <summary>Only a Store copy can be rated in the Store: never the installer or portable builds.</summary>
+        public static bool CanRate(InstallKind kind) => kind == InstallKind.Store;
+
+        /// <summary>
+        /// The copy counter after one more successful copy («نسخ», Ctrl+Enter, «نسخ الكل», the hotkey).
+        /// It only counts in a Store copy that has not been asked yet, and stops at
+        /// <see cref="RatingAfterCopies"/>: a local number in settings.json, never sent anywhere.
+        /// </summary>
+        public static int CountCopy(InstallKind kind, bool ratingAsked, int copies)
+        {
+            if (copies < 0) copies = 0;
+            if (!CanRate(kind) || ratingAsked) return copies;
+            return copies >= RatingAfterCopies ? RatingAfterCopies : copies + 1;
+        }
+
+        /// <summary>
+        /// Whether to ask now: a Store copy, never asked before (either answer, or closing the dialog, counts),
+        /// enough copies, and the copy was made in the app's own active window (the hotkey works over other
+        /// programs, so it never opens a dialog there; the next copy in the window asks instead).
+        /// </summary>
+        public static bool RatingDue(InstallKind kind, bool ratingAsked, int copies, bool inActiveWindow) =>
+            CanRate(kind) && !ratingAsked && inActiveWindow && copies >= RatingAfterCopies;
+
+        /// <summary>The Store's own dialog could not open (an older Windows, no Store, offline): open the review page instead.</summary>
+        public static bool OpenReviewPageInstead(RateReviewStatus status) =>
+            status == RateReviewStatus.NetworkError || status == RateReviewStatus.Error;
 
         /// <summary>The check box for a startup task state.</summary>
         public static StartupView DescribeStartupTask(StartupTaskStatus state)

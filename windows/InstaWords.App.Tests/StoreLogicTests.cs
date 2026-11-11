@@ -5,7 +5,7 @@ using Xunit;
 
 namespace InstaWords.App.Tests
 {
-    /// <summary>Store mode (MSIX): package detection, install kind, data folder, start with Windows.</summary>
+    /// <summary>Store mode (MSIX): package detection, install kind, data folder, start with Windows, the rating request.</summary>
     public class StoreLogicTests
     {
         [Theory]
@@ -99,6 +99,85 @@ namespace InstaWords.App.Tests
             Assert.Equal(StoreLogic.StartupTaskId, m.Groups[1].Value);
             Assert.Contains("Executable=\"InstaWords.exe\"", manifest);
             Assert.Contains("EntryPoint=\"Windows.FullTrustApplication\"", manifest);
+        }
+
+        // ---------- «قيّم InstaWords»: the one-time rating request ----------
+
+        [Fact]
+        public void OnlyTheStoreCopyAsksForARating()
+        {
+            Assert.True(StoreLogic.CanRate(InstallKind.Store));
+            Assert.False(StoreLogic.CanRate(InstallKind.Installed));
+            Assert.False(StoreLogic.CanRate(InstallKind.Portable));
+            foreach (var kind in new[] { InstallKind.Installed, InstallKind.Portable })
+            {
+                Assert.False(StoreLogic.RatingDue(kind, false, 100, true));
+                Assert.Equal(0, StoreLogic.CountCopy(kind, false, 0)); // nothing counted outside the Store copy
+            }
+        }
+
+        [Fact]
+        public void AsksOnceAfterTheFifthCopy()
+        {
+            Assert.Equal(5, StoreLogic.RatingAfterCopies);
+            var copies = 0;
+            for (var i = 1; i < StoreLogic.RatingAfterCopies; i++)
+            {
+                copies = StoreLogic.CountCopy(InstallKind.Store, false, copies);
+                Assert.Equal(i, copies);
+                Assert.False(StoreLogic.RatingDue(InstallKind.Store, false, copies, true), "copy " + i);
+            }
+            copies = StoreLogic.CountCopy(InstallKind.Store, false, copies);
+            Assert.True(StoreLogic.RatingDue(InstallKind.Store, false, copies, true));
+            // Asked (either answer, or the dialog closed): never again, and the counter stops.
+            Assert.False(StoreLogic.RatingDue(InstallKind.Store, true, copies, true));
+            Assert.Equal(copies, StoreLogic.CountCopy(InstallKind.Store, true, copies));
+        }
+
+        [Fact]
+        public void NeverAsksOverAnotherProgram()
+        {
+            // Five hotkey copies from other programs: not now, but the next copy in the window asks.
+            Assert.False(StoreLogic.RatingDue(InstallKind.Store, false, 5, inActiveWindow: false));
+            var copies = StoreLogic.CountCopy(InstallKind.Store, false, 5);
+            Assert.True(StoreLogic.RatingDue(InstallKind.Store, false, copies, inActiveWindow: true));
+        }
+
+        [Theory]
+        [InlineData(5, 5)] // stops at the threshold: settings.json holds a tiny number, not a usage history
+        [InlineData(1000, 5)]
+        [InlineData(-3, 1)] // a hand-edited settings.json
+        public void TheCounterStaysSmall(int before, int after) =>
+            Assert.Equal(after, StoreLogic.CountCopy(InstallKind.Store, false, before));
+
+        /// <summary>The numbers mirror Windows.Services.Store.StoreRateAndReviewStatus (cast directly in StoreRating).</summary>
+        [Fact]
+        public void RatingStatesMatchWindows()
+        {
+            Assert.Equal(0, (int)RateReviewStatus.Succeeded);
+            Assert.Equal(1, (int)RateReviewStatus.CanceledByUser);
+            Assert.Equal(2, (int)RateReviewStatus.NetworkError);
+            Assert.Equal(3, (int)RateReviewStatus.Error);
+        }
+
+        [Fact]
+        public void OpensTheReviewPageOnlyWhenTheStoreDialogCannot()
+        {
+            Assert.False(StoreLogic.OpenReviewPageInstead(RateReviewStatus.Succeeded));
+            Assert.False(StoreLogic.OpenReviewPageInstead(RateReviewStatus.CanceledByUser)); // the user said no: respect it
+            Assert.True(StoreLogic.OpenReviewPageInstead(RateReviewStatus.NetworkError));
+            Assert.True(StoreLogic.OpenReviewPageInstead(RateReviewStatus.Error));
+        }
+
+        /// <summary>The review page is this app's: the Store ID from Partner Center (identity.json).</summary>
+        [Fact]
+        public void ReviewPageUsesTheStoreId()
+        {
+            var identity = File.ReadAllText(Path.Combine(TestStrings.WindowsDir, "packaging", "msix", "identity.json"));
+            var m = Regex.Match(identity, "\"StoreId\"\\s*:\\s*\"([^\"]+)\"");
+            Assert.True(m.Success, "StoreId in identity.json");
+            Assert.Equal(StoreLogic.StoreProductId, m.Groups[1].Value);
+            Assert.Equal(StoreLogic.ReviewUri, "ms-windows-store://review/?ProductId=" + m.Groups[1].Value);
         }
     }
 }

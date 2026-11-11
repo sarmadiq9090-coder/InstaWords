@@ -3,6 +3,16 @@
 Each version's section is copied into its GitHub release notes by the release workflow
 (`scripts/changelog-section.mjs`). Earlier versions: [GitHub Releases](https://github.com/sarmadiq9090-coder/InstaWords/releases).
 
+## Unreleased
+
+<div dir="rtl">
+
+- **نسخة Microsoft Store**: بعد خامس مرة تنسخ فيها مبلغاً بالحروف يسألك البرنامج مرة واحدة فقط «هل يساعدك InstaWords؟» ويفتح نافذة التقييم الخاصة بالمتجر إن اخترت «قيّم في المتجر»، ولا يسأل بعدها أبداً أيّاً كان جوابك. وفي «حول» رابط دائم «قيّم InstaWords في المتجر». لا يظهر في المثبّت ولا في النسخة المحمولة، ولا يُرسل شيئاً.
+
+</div>
+
+- **Microsoft Store copy**: after the fifth amount in words you copy, the app asks once, "Is InstaWords helping you?", and "Rate in the Store" opens the Store's own rating dialog; whatever you answer, it never asks again. About also has a permanent "Rate InstaWords in the Store" link. Not in the installer or portable builds; nothing is sent.
+
 ## 2.2.0
 
 <div dir="rtl">

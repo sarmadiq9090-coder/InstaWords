@@ -257,6 +257,7 @@ namespace InstaWords.App.Views
             {
                 if (errs > 0) SetStatus("Bulk.CopiedWithErrors", true, lines, Conversion.FormatCount(errs));
                 else SetStatus("Bulk.Copied", true, lines);
+                if (_rows.Count > errs) App.Current.NoteCopied(inWindow: true);
             }
             else SetStatus("Bulk.CopyFailed", ok: false);
         }

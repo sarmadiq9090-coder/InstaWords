@@ -130,6 +130,7 @@ namespace InstaWords.App.Views
                 CopyStatus.Text = Loc.T("Single.CopiedStatus");
                 _copiedTimer.Stop();
                 _copiedTimer.Start();
+                App.Current.NoteCopied(inWindow: true);
             }
             else
             {

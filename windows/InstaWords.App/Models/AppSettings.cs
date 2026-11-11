@@ -39,6 +39,8 @@ namespace InstaWords.App.Models
             WindowTop = null;
             UiLanguage = null;
             Print = new PrintSettings();
+            CopyCount = 0;
+            RatingAsked = false;
         }
 
         [DataMember(Name = "schema", Order = 0)] public int Schema { get; set; }
@@ -78,6 +80,11 @@ namespace InstaWords.App.Models
 
         /// <summary>«طباعة»: last template, cheque profiles (paper and calibration), voucher header.</summary>
         [DataMember(Name = "print", Order = 31)] public PrintSettings Print { get; set; }
+
+        /// <summary>Store copy only: successful copies so far, up to StoreLogic.RatingAfterCopies (never sent anywhere).</summary>
+        [DataMember(Name = "copyCount", Order = 32)] public int CopyCount { get; set; }
+        /// <summary>Store copy only: the one-time «هل يساعدك InstaWords؟» request was shown (or the user rated from «حول»): never again.</summary>
+        [DataMember(Name = "ratingAsked", Order = 33)] public bool RatingAsked { get; set; }
     }
 
     /// <summary>One remembered conversion (history.json).</summary>
