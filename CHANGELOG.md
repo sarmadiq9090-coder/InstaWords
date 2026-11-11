@@ -3,6 +3,16 @@
 Each version's section is copied into its GitHub release notes by the release workflow
 (`scripts/changelog-section.mjs`). Earlier versions: [GitHub Releases](https://github.com/sarmadiq9090-coder/InstaWords/releases).
 
+## Unreleased
+
+<div dir="rtl">
+
+- **الرخصة**: InstaWords أصبح برنامجاً مملوكاً (مجانياً)؛ إشعارات الأطراف الثالثة دون تغيير.
+
+</div>
+
+- **Licence**: InstaWords is now proprietary (free); third-party notices unchanged.
+
 ## 2.2.0
 
 <div dir="rtl">

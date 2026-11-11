@@ -237,7 +237,7 @@
   <sys:String x:Key="About.Description">كتابة المبالغ بالحروف للشيكات والفواتير والسندات، بالعربية والإنجليزية والفرنسية، بأكثر من 100 عملة ووحدة. برنامج Windows أصلي يعمل كله دون إنترنت، ولا يغادر أي رقم جهازك.</sys:String>
   <sys:String x:Key="About.ByFastKiwi" xml:space="preserve"> · من برامج FastKiwi</sys:String>
   <sys:String x:Key="About.Source">الشيفرة المصدرية على GitHub</sys:String>
-  <sys:String x:Key="About.License1" xml:space="preserve">مجاني ومفتوح المصدر بترخيص </sys:String>
+  <sys:String x:Key="About.License1" xml:space="preserve">مجاني للاستخدام. انظر ملف </sys:String>
   <sys:String x:Key="About.License2">. الخط: IBM Plex Sans Arabic بترخيص SIL OFL 1.1.</sys:String>
   <sys:String x:Key="About.UpdatePrivacy">التحقق من التحديثات يتصل بخوادم GitHub (api.github.com) ولا يرسل سوى طلب الإصدار الأحدث ورقم إصدارك. يمكنك إيقافه من الإعدادات.</sys:String>
   <sys:String x:Key="About.StorePrivacy">هذه النسخة من Microsoft Store لا تتصل بالإنترنت؛ المتجر هو الذي يحدّثها.</sys:String>
