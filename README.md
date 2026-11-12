@@ -71,7 +71,7 @@ const t = createTafqit(myUnitsJson);
 | `prefix` / `suffix` | `""` | نص حر قبل النتيجة وبعدها |
 | `decimals` | `"round"` | الخانات الزائدة عن دقة العملة: تقريب نصفي للأعلى، أو `"error"` |
 
-**Excel:** ثبّت الإضافة `InstaWords.xlam` (من [صفحة Excel](https://fastkiwi.app/instawords/excel.html): خصائص الملف ← «إلغاء الحظر»، ثم ملف ← خيارات ← الوظائف الإضافية ← انتقال ← استعراض) فتعمل الدالة في كل مصنف؛ أو استورد `vba/Tafqit.bas` (من Alt+F11 ثم File ثم Import File؛ اسم الوحدة داخله `TafqitLib`) واحفظ المصنف بصيغة `.xlsm`، ثم اكتب `=TAFQIT(A1; "ريال سعودي"; "مائة"; "فقط"; "لا غير")`. المعامل السادس الاختياري `"round"` أو `"error"`، و`=TAFQIT_CLEAN(A1)` يعيد الرقم بعد التنقية. مخرجات VBA مختبرة آلياً لتطابق النواة على قرابة 30 ألف حالة. التفاصيل في [`vba/README.md`](vba/README.md).
+**Excel:** ثبّت الإضافة `InstaWords.xlam` (أسهل طريقة: اختر «تثبيت إضافة Excel» أثناء تثبيت برنامج ويندوز؛ أو يدوياً من [صفحة Excel](https://fastkiwi.app/instawords/excel.html): خصائص الملف ← «إلغاء الحظر»، ثم ملف ← خيارات ← الوظائف الإضافية ← انتقال ← استعراض) فتعمل الدالة في كل مصنف؛ أو استورد `vba/Tafqit.bas` (من Alt+F11 ثم File ثم Import File؛ اسم الوحدة داخله `TafqitLib`) واحفظ المصنف بصيغة `.xlsm`، ثم اكتب `=TAFQIT(A1; "ريال سعودي"; "مائة"; "فقط"; "لا غير")`. المعامل السادس الاختياري `"round"` أو `"error"`، و`=TAFQIT_CLEAN(A1)` يعيد الرقم بعد التنقية. مخرجات VBA مختبرة آلياً لتطابق النواة على قرابة 30 ألف حالة. التفاصيل في [`vba/README.md`](vba/README.md).
 
 ### إضافة وحدة
 
@@ -159,6 +159,6 @@ npm run build:site # deployable static site in _site/
 
 Production: **https://fastkiwi.app/instawords/**. Build with `npm run build:site` and copy `_site/` into the `instawords/` folder of the FastKiwi site repository. `_site/` uses relative paths, so it works on any static host, at the root or a sub-path.
 
-Excel: install the `InstaWords.xlam` add-in (built by `scripts/build-xlam.mjs`; Unblock it, then File → Options → Add-ins → Go → Browse), or import `vba/Tafqit.bas` (module `TafqitLib`), then `=TAFQIT(A1, "ريال سعودي", "مائة", "فقط", "لا غير", "round")`. VBA output is verified against the core on ~30,000 inputs via a VBA-subset harness.
+Excel: install the `InstaWords.xlam` add-in (built by `scripts/build-xlam.mjs`; easiest: tick "Install the Excel add-in" in the Windows installer; or by hand: Unblock it, then File → Options → Add-ins → Go → Browse), or import `vba/Tafqit.bas` (module `TafqitLib`), then `=TAFQIT(A1, "ريال سعودي", "مائة", "فقط", "لا غير", "round")`. VBA output is verified against the core on ~30,000 inputs via a VBA-subset harness.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md). License: MIT. "InstaWords" and "FastKiwi" are trademarks and not covered by the licence: forks must use a different name and icon; see [`TRADEMARKS.md`](TRADEMARKS.md), which also lists the official download sources.

@@ -25,7 +25,7 @@
 - [ ] **البصمة (اختياري):** في PowerShell: `Get-FileHash .\InstaWords_<الإصدار>_x64-setup.exe`. ← تطابق SHA-256 المكتوبة في نافذة «ملاحظات الإصدار» بالموقع وفي `SHA256SUMS.txt`.
 - [ ] **SmartScreen:** شغّل المثبّت. ← إن لم يكن موقّعاً: تظهر «حمى Windows جهاز الكمبيوتر»، و«مزيد من المعلومات» ← «تشغيل على أي حال» يكمل. إن كان موقّعاً: يظهر اسم الناشر في نافذة التحذير أو لا تظهر. اكتب ما ظهر بالضبط (صورة).
 - [ ] **لا صلاحيات مسؤول:** ← لا تظهر نافذة UAC، والمثبّت بالعربية (أو الإنجليزية حسب لغة Windows).
-- [ ] **الخيارات:** فعّل «إنشاء اختصار على سطح المكتب» واترك «التشغيل مع Windows» غير مفعّل. ← يثبّت في `%LOCALAPPDATA%\Programs\InstaWords`، ويظهر في قائمة ابدأ، وعلى سطح المكتب.
+- [ ] **الخيارات:** فعّل «إنشاء اختصار على سطح المكتب» واترك «التشغيل مع Windows» و«تثبيت إضافة Excel» غير مفعّلين (الثلاثة غير محددة افتراضياً؛ خيار Excel يُختبر في البند 13 ج). ← يثبّت في `%LOCALAPPDATA%\Programs\InstaWords`، ويظهر في قائمة ابدأ، وعلى سطح المكتب.
 - [ ] **التطبيقات المثبّتة:** الإعدادات ← التطبيقات. ← «InstaWords — تفقيط»، الناشر FastKiwi، والإصدار الصحيح.
 
 ## 2. التشغيل الأول
@@ -105,6 +105,7 @@
 - [ ] دون إنترنت: «التحقق من وجود تحديث» يعطي رسالة واضحة، دون تجمّد.
 - [ ] النسخة المحمولة: التحقق من التحديث يفتح صفحة الإصدار بدل التثبيت.
 - [ ] (بديل) تثبيت المثبّت الجديد يدوياً فوق القديم. ← يحدّث دون سؤال عن مجلد، والبرنامج يعمل.
+- [ ] من نسخة فيها إضافة Excel مثبّتة بالمثبّت (البند 13 ج)، و**Excel مفتوح**: «تحديث الآن». ← يكتمل التحديث بصمت دون أي رسالة ولا يُغلق Excel، ويعود البرنامج للعمل. بعد إعادة تشغيل Excel الدالة تعمل.
 
 ## 10. الإبلاغ عن مشكلة من داخل البرنامج
 
@@ -160,6 +161,21 @@
 - [ ] **الاختبار الذاتي:** Alt+F8 ← `TafqitSelfTest` ← تشغيل. ← رسالة «InstaWords self-test: N of N golden cases passed.». إن ظهر عدد فاشل: Ctrl+G في المحرر وانسخ ما في نافذة Immediate إلى البلاغ.
 - [ ] نسخة Excel ولغتها (عربية/إنجليزية) مكتوبة في جدول النتائج.
 
+**ج. الإضافة من المثبّت (خيار «تثبيت إضافة Excel»، أسهل طريقة).** يختبرها CI دون Excel (`windows/installer/test-xlam-task.ps1`: الملف، وقيم `OPEN` في سجل Excel مُحاكى، والتحديث والإزالة)، لكن Excel نفسه لم يقرأها بعد. قبلها أزل نسخة «أ» اليدوية: ألغِ تحديدها في قائمة الوظائف الإضافية، وأغلق Excel، واحذف الملف. صوّر محرر السجل (regedit) قبل وبعد.
+
+- [ ] شغّل Excel مرة على هذا الحساب ثم أغلقه. في regedit افتح `HKEY_CURRENT_USER\Software\Microsoft\Office\16.0\Excel\Options` ودوّن قيم `OPEN` و`OPEN1`… الموجودة (إضافات أخرى، إن وُجدت).
+- [ ] شغّل المثبّت المنزَّل من الموقع، وفي «حدد المهام الإضافية» فعّل «تثبيت إضافة Excel (InstaWords.xlam)». ← الخيار غير محدد افتراضياً، والتثبيت يكتمل دون رسائل ودون UAC.
+- [ ] `%APPDATA%\Microsoft\AddIns\InstaWords.xlam` موجود، وفي خصائصه **لا** يظهر خيار «إلغاء الحظر».
+- [ ] في regedit قيمة جديدة واحدة بأول رقم غير مستخدم (`OPEN` إن لم توجد إضافات، وإلا `OPEN1` أو `OPEN2`…) نصها `"C:\Users\<اسمك>\AppData\Roaming\Microsoft\AddIns\InstaWords.xlam"` بين علامتي تنصيص، والقيم الأخرى كما هي.
+- [ ] افتح Excel ومصنفاً جديداً (‎.xlsx). ← لا رسالة «تالف» أو «إصلاح» ولا خطأ VBA، و`=TAFQIT(A1, "SAR")` تعمل فوراً دون فتح أي نافذة، وفي ملف ← خيارات ← الوظائف الإضافية ← انتقال… «InstaWords» محدد. **اكتب إن ظهر أي تنبيه أمني** (يُتوقع ألا يظهر إن كان مجلد AddIns «موقعاً موثوقاً» افتراضياً في هذا Office: انظر مركز التوثيق ← المواقع الموثوقة).
+- [ ] أغلق Excel وافتحه. ← الدالة ما زالت تعمل، والقيمة ما زالت في regedit (Excel يعيد كتابة القائمة عند الإغلاق، فاكتب رقمها إن تغيّر)، ولا يسأل عن حفظ `InstaWords.xlam`.
+- [ ] **Excel مفتوح أثناء التثبيت:** شغّل المثبّت مرة أخرى مع الخيار نفسه وExcel مفتوح. ← قبل التثبيت تظهر «Excel مفتوح الآن» بخيارين. أغلق Excel واختر «أغلقت Excel، تحقّق مرة أخرى». ← يتابع. كرر مع «المتابعة دون إغلاق Excel». ← تظهر رسالة «تعذّر تحديث InstaWords.xlam لأن Excel يستخدمه» بخياري «إعادة المحاولة» و«تخطي الإضافة»: اكتب ما ظهر بالضبط، وأن «تخطي الإضافة» يكمل التثبيت والدالة تعمل بعد إعادة تشغيل Excel.
+- [ ] **Excel لم يُشغَّل قط** (حساب Windows جديد): ثبّت مع الخيار ثم افتح Excel لأول مرة. ← اكتب هل تعمل الدالة مباشرة، أم يجب تحديد «InstaWords» مرة واحدة في قائمة الوظائف الإضافية (المتوقع: تظهر في القائمة غير محددة).
+- [ ] **نسخة يدوية مفعّلة من مجلد آخر** (طريقة «أ» من `المستندات\InstaWords`) ثم ثبّت مع الخيار. ← لا تُضاف قيمة `OPEN` ثانية، وExcel يفتح دون رسالة «يوجد مصنف مفتوح بالاسم نفسه». اكتب أي نسخة حُمِّلت (Alt+F11 ← مسار المشروع).
+- [ ] **إلغاء التثبيت** (البند 12) وExcel مغلق. ← يُحذف `InstaWords.xlam` من مجلد AddIns وتُحذف قيمته فقط، والإضافات الأخرى تبقى وتعمل (إن كانت بعدها قيمة مثل `OPEN3` تنتقل إلى الرقم الذي حُذف)، وفتح Excel بعدها لا يعطي رسالة «تعذّر العثور على InstaWords.xlam».
+- [ ] **إلغاء التثبيت وExcel مفتوح** (وفيه الإضافة). ← رسالة «تعذّر حذف InstaWords.xlam لأن Excel يستخدمه» بخياري «إعادة المحاولة» و«اتركها». أغلق Excel ثم «إعادة المحاولة». ← يُحذف الملف.
+- [ ] نسخة Excel (32 أو 64 بت) والإصدار (16.0 أو غيره) في جدول النتائج.
+
 ## 14. الموقع
 
 على Edge أو Chrome في Windows، وعلى هاتف (Android أو iPhone):
@@ -210,7 +226,7 @@ Manual checks of the Windows app, the Excel module and the website on real hardw
 - **6. Tray**, **7. Start with Windows** (on and off, after a reboot), **8. UI language / cheque printing** if the build has them.
 - **9. Update** from an older version: check for update, update now, silent install and relaunch, settings and history kept; offline message; portable opens the release page.
 - **10. In-app report** shows a full preview and sends nothing automatically. **11. Portable zip** from USB and paths with Arabic/spaces. **12. Uninstall** removes shortcuts and the Run value.
-- **13. Excel**: (a) **the `InstaWords.xlam` add-in is built to spec and verified by round-trip parsing, but has never been opened by a real Excel: this is its smoke test.** Download, Properties → Unblock, File → Options → Add-ins → Manage Excel Add-ins → Go → Browse; no "corrupt/repair" or VBA error, the add-in is listed and ticked, the formula table works in a plain .xlsx, VBE shows project InstaWords with `TafqitLib` and Debug → Compile passes, it still works after restarting Excel (note any "save InstaWords.xlam?" prompt), what happens without Unblock, and that a Trusted Location removes any prompt; Excel bitness and language. (b) The .bas: import `Tafqit.bas` (+ `TafqitTests.bas`), save as .xlsm; the `=TAFQIT` examples (including the 7th `Language` argument "en"/"fr", case-insensitive), `TAFQIT_CLEAN`, and `TafqitSelfTest` → "N of N golden cases passed".
+- **13. Excel**: (a) **the `InstaWords.xlam` add-in is built to spec and verified by round-trip parsing, but has never been opened by a real Excel: this is its smoke test.** Download, Properties → Unblock, File → Options → Add-ins → Manage Excel Add-ins → Go → Browse; no "corrupt/repair" or VBA error, the add-in is listed and ticked, the formula table works in a plain .xlsx, VBE shows project InstaWords with `TafqitLib` and Debug → Compile passes, it still works after restarting Excel (note any "save InstaWords.xlam?" prompt), what happens without Unblock, and that a Trusted Location removes any prompt; Excel bitness and language. (b) The .bas: import `Tafqit.bas` (+ `TafqitTests.bas`), save as .xlsm; the `=TAFQIT` examples (including the 7th `Language` argument "en"/"fr", case-insensitive), `TAFQIT_CLEAN`, and `TafqitSelfTest` → "N of N golden cases passed". (c) **The installer's "Install the Excel add-in" task** (CI tests it without Excel: `windows/installer/test-xlam-task.ps1`): after removing the manual copy from (a), install with the task (unchecked by default); `%APPDATA%\Microsoft\AddIns\InstaWords.xlam` has no Unblock box; regedit `HKCU\Software\Microsoft\Office\16.0\Excel\Options` gains one value at the first free `OPEN`/`OPEN1`/… holding the quoted path, other values unchanged; Excel loads it with no dialog (note any security notice: is AddIns a default Trusted Location?), still after a restart (note if Excel renumbers the value); Excel open during setup (the "Excel is open" prompt, "check again", "continue" → "in use" → "skip"), during an in-app update (silent, Excel not closed), a never-run Excel (ticked once in the Add-ins list?), a manual copy already enabled elsewhere (no second value, no "same name already open" error); uninstall with Excel closed (file and only our value removed, later values move down, no "cannot find" message) and open (retry prompt).
 - **14. Website**: all download buttons are direct, the release-notes dialog (version, date, size, SHA-256, portable, notes), the releases link, offline behaviour after one visit (conversions work, dialog shows the bundled release), the support dialog, phone layout at 375 px.
 - **15. winget / Scoop** once published.
 - **Reporting**: in the app (tray → report a problem or suggestion), the site footer's report link, or the issue form at https://github.com/sarmadiq9090-coder/InstaWords/issues/new/choose. Include the item number, `winver`, scaling, app version (F1), Excel version, steps, expected vs actual, and a screenshot. Fill in the results table.

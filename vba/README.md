@@ -6,7 +6,11 @@
 
 ## التثبيت: الإضافة InstaWords.xlam (تجريبية، موصى بها)
 
-الإضافة ملف واحد تثبّته في Excel مرة واحدة، فتعمل الدالة في كل مصنف تفتحه دون استيراد أي شيء ودون حفظ المصنف بصيغة ‎.xlsm. نزّلها من [صفحة Excel في الموقع](https://fastkiwi.app/instawords/excel.html) أو من ملفات [آخر إصدار](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest/download/InstaWords.xlam) (`InstaWords.xlam`).
+الإضافة ملف واحد تثبّته في Excel مرة واحدة، فتعمل الدالة في كل مصنف تفتحه دون استيراد أي شيء ودون حفظ المصنف بصيغة ‎.xlsm.
+
+**أسهل طريقة: اختر «تثبيت إضافة Excel» أثناء تثبيت برنامج InstaWords** (`InstaWords_<الإصدار>_x64-setup.exe`، صفحة «حدد المهام الإضافية»؛ الخيار غير محدد افتراضياً). ينسخ المثبّت `InstaWords.xlam` إلى `%APPDATA%\Microsoft\AddIns` (مجلد إضافات Excel)، والملف الذي يكتبه المثبّت لا يحمل «علامة الويب» فلا حاجة إلى «إلغاء الحظر»، ثم يفعّلها بقيمة `OPEN` أو `OPEN1` أو `OPEN2`… (أول رقم غير مستخدم) في `HKCU\Software\Microsoft\Office\<الإصدار>\Excel\Options` لكل إصدار Excel سبق تشغيله على هذا الحساب، دون تغيير الإضافات الأخرى. لا يحتاج Excel ولا يشغّله، لكن أغلق Excel قبل التثبيت. إن لم يكن Excel قد شُغّل من قبل، أو لم تعمل الدالة بعد فتحه، فحدّد «InstaWords» مرة واحدة في ملف ← خيارات ← الوظائف الإضافية ← انتقال… (تظهر في القائمة لأنها في مجلد الإضافات). ويحدّثها المثبّت مع كل تحديث للبرنامج، وإلغاء التثبيت يحذف الملف وقيمة `OPEN` الخاصة بها فقط. يختبر CI ذلك كله دون Excel (`windows/installer/test-xlam-task.ps1`)، أما التجربة مع Excel حقيقي فهي البند 13 (ج) في [`docs/TESTING-CHECKLIST.md`](../docs/TESTING-CHECKLIST.md): لم تُجرَّب بعد.
+
+**أو يدوياً:** نزّلها من [صفحة Excel في الموقع](https://fastkiwi.app/instawords/excel.html) أو من ملفات [آخر إصدار](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest/download/InstaWords.xlam) (`InstaWords.xlam`).
 
 1. ضع `InstaWords.xlam` في مجلد ثابت لن تحذفه (مثل `المستندات\InstaWords`)، فـ Excel يحمّلها من مكانها كل مرة.
 2. **إلغاء الحظر أولاً:** انقر الملف بزر الفأرة الأيمن ← **خصائص** ← في أسفل تبويب «عام» فعّل **«إلغاء الحظر»** (Unblock) ← **موافق**. يضع Windows على كل ملف منزَّل من الإنترنت «علامة الويب» (Mark of the Web)، ويحظر Excel الماكرو في الملفات التي تحملها، فلا تعمل الدالة دون هذه الخطوة. إن لم يظهر الخيار فالملف غير محظور.
@@ -91,7 +95,11 @@ InstaWords' `TAFQIT` spells an amount in words inside Excel, in Arabic, English 
 
 ### Install the add-in (recommended)
 
-`InstaWords.xlam` makes `TAFQIT` available in every workbook, with nothing to import and no .xlsm needed. Download it from the [site's Excel page](https://fastkiwi.app/instawords/excel.html) or the [latest release](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest/download/InstaWords.xlam).
+`InstaWords.xlam` makes `TAFQIT` available in every workbook, with nothing to import and no .xlsm needed.
+
+**Easiest: tick "Install the Excel add-in" while installing the Windows app** (`InstaWords_<version>_x64-setup.exe`, page "Select Additional Tasks"; unchecked by default). Setup copies `InstaWords.xlam` to `%APPDATA%\Microsoft\AddIns` (Excel's add-ins folder); a file written by setup carries no Mark of the Web, so there is no Unblock step. It then enables it with the first free `OPEN`, `OPEN1`, `OPEN2`… value under `HKCU\Software\Microsoft\Office\<version>\Excel\Options` for each Excel version that has run for the user, leaving other add-ins alone. Excel is neither needed nor started, but close it before installing. If Excel has never run, or `TAFQIT` does not work when Excel opens, tick InstaWords once under File → Options → Add-ins → Go… (it is listed because it is in the add-ins folder). App updates refresh it; uninstall removes the file and only its own `OPEN` value (later values move down one, so the list has no gap). CI tests all of this without Excel (`windows/installer/test-xlam-task.ps1`); the real-Excel check is item 13 (c) of [`docs/TESTING-CHECKLIST.md`](../docs/TESTING-CHECKLIST.md), not done yet.
+
+**Or by hand:** download it from the [site's Excel page](https://fastkiwi.app/instawords/excel.html) or the [latest release](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest/download/InstaWords.xlam).
 
 1. Keep the file in a folder you will not delete; Excel loads it from there.
 2. **Unblock it first:** right-click → **Properties** → tick **Unblock** → OK. Windows marks downloaded files (Mark of the Web) and Excel blocks macros in them.

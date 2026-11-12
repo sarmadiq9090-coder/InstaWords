@@ -375,6 +375,12 @@ try {
     const t = document.querySelector("#install").textContent;
     return ["إلغاء الحظر", "الوظائف الإضافية", "استعراض", "مركز التوثيق", "المواقع الموثوقة"].every((w) => t.includes(w));
   }));
+  check("easiest way first: the installer's «تثبيت إضافة Excel» option, with a link to the installer", await page.evaluate(() => {
+    const easy = document.querySelector("#install-easy");
+    const steps = document.querySelector("#install ol.steps");
+    return !!easy && !!steps && easy.textContent.includes("تثبيت إضافة Excel") && !!easy.querySelector("a[data-windows-download]") &&
+      (easy.compareDocumentPosition(steps) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
+  }));
   check("no download link sends the user to a GitHub page", await page.$$eval("a[download]", (as) => as.every((a) => !/github\.com/.test(a.href))));
   check("formula shown", (await page.textContent("#formula")).includes('=TAFQIT(A1, "ريال سعودي", "مائة", "فقط", "لا غير")'));
 
