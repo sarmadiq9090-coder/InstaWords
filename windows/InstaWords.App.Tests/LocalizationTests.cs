@@ -129,6 +129,8 @@ namespace InstaWords.App.Tests
             // Keys built at run time.
             foreach (var code in typeof(TafqitErrorCodes).GetFields(BindingFlags.Public | BindingFlags.Static).Select(fi => (string)fi.GetValue(null)))
                 used.Add("Err." + code);
+            foreach (var code in typeof(TafqitWarningCodes).GetFields(BindingFlags.Public | BindingFlags.Static).Select(fi => (string)fi.GetValue(null)))
+                used.Add("Warn." + code);
             foreach (var cat in Tafqit.CategoryLabels.Keys) used.Add("Cat." + cat);
             foreach (var t in PrintTemplates.All)
             {
@@ -162,6 +164,7 @@ namespace InstaWords.App.Tests
         [InlineData("1.125", "SAR", "ar", "error")]
         [InlineData("5", "no-such-unit", "ar", "round")]
         [InlineData("5", "SAR", "de", "round")]
+        [InlineData("12,50", "EUR", "ar", "round")]
         public void ArabicErrorsAreTheEngineMessages(string input, string unit, string language, string decimals)
         {
             var r = Tafqit.TryConvert(input, new TafqitOptions { Unit = unit, Language = language, Decimals = decimals });
@@ -174,6 +177,40 @@ namespace InstaWords.App.Tests
                 Assert.Equal(En["Err." + r.ErrorCode], en);
                 Assert.False(ArabicLetter.IsMatch(en), en);
             });
+        }
+
+        /// <summary>AMBIGUOUS_SEPARATOR shows both readings in the interface language, then the advice.</summary>
+        [Fact]
+        public void AmbiguousSeparatorAsksWhichReadingWasMeant()
+        {
+            var r = Conversion.Run("12,50", new TafqitOptions { Unit = "EUR", Language = "ar" });
+            Assert.False(r.Ok);
+            Assert.Equal(TafqitErrorCodes.AmbiguousSeparator, r.ErrorCode);
+            Assert.Equal("هل تقصد 12.50 أم 1250؟ " + Ar["Err.AMBIGUOUS_SEPARATOR"], r.ErrorMessage);
+            TestStrings.With("en", () =>
+            {
+                var en = Conversion.Run("1.250,75", new TafqitOptions { Unit = "SAR", Language = "en" });
+                Assert.Equal("Did you mean 1250.75 or 1.25075? " + En["Err.AMBIGUOUS_SEPARATOR"], en.ErrorMessage);
+                Assert.Equal("Did you mean 123? " + En["Err.AMBIGUOUS_SEPARATOR"], Conversion.Run("1,2,3", new TafqitOptions()).ErrorMessage);
+            });
+            // French reads the comma as the decimal point: no error, no warning.
+            var fr = Conversion.Run("12,50", new TafqitOptions { Unit = "EUR", Language = "fr" });
+            Assert.True(fr.Ok);
+            Assert.Equal("douze euros et cinquante centimes", fr.Text);
+            Assert.Null(fr.Warning);
+        }
+
+        /// <summary>ROUNDED_TO_ZERO: the words are written, with a warning in the interface language.</summary>
+        [Fact]
+        public void RoundingToZeroIsAWarning()
+        {
+            var r = Conversion.Run("0.004", new TafqitOptions { Unit = "SAR" });
+            Assert.True(r.Ok);
+            Assert.Equal("صفر ريال سعودي", r.Text);
+            Assert.Equal(Ar["Warn.ROUNDED_TO_ZERO"], r.Warning);
+            Assert.Equal(TafqitResult.WarningMessage(TafqitWarningCodes.RoundedToZero), r.Warning);
+            TestStrings.With("en", () => Assert.Equal(En["Warn.ROUNDED_TO_ZERO"], Conversion.Run("0.004", new TafqitOptions { Unit = "SAR" }).Warning));
+            Assert.Null(Conversion.Run("0.01", new TafqitOptions { Unit = "SAR" }).Warning);
         }
 
         [Fact]

@@ -17,7 +17,7 @@ import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { Catalog, unitKey } from "../src/catalog.ts";
-import { ERROR_MESSAGES } from "../src/errors.ts";
+import { AMBIGUITY_QUESTION, ERROR_MESSAGES } from "../src/errors.ts";
 import * as LX from "../src/lexicon.ts";
 import { LANGUAGE_MODULES } from "../src/lang/index.ts";
 import { EN_WORDS } from "../src/lang/en.ts";
@@ -148,6 +148,7 @@ function lexiconProc() {
     L.push(...assign(`mScale(${k}, SC_PLURAL)`, s.plural), ...assign(`mScale(${k}, SC_ACCUSATIVE)`, s.accusative));
   }
   for (const code of ERROR_CODES) L.push(...assign(`mErrMsg(E_${code})`, ERROR_MESSAGES[code]));
+  L.push(...assign("mAskStart", AMBIGUITY_QUESTION.start), ...assign("mAskOr", AMBIGUITY_QUESTION.or), ...assign("mAskEnd", AMBIGUITY_QUESTION.end));
   LANGS.forEach((id, i) => L.push(...assign(`mLangId(${i})`, id)));
   L.push(...assign("mJoiner(LANG_AR)", LX.WAW), ...assign("mJoiner(LANG_EN)", EN_WORDS.SUBUNIT_JOINER));
   L.push(...assign("mJoiner(LANG_FR)", FR_WORDS.SUBUNIT_JOINER));
@@ -294,7 +295,8 @@ function fill(tpl, values) {
 
 function testsModule(golden) {
   const d = golden.defaults ?? {};
-  const cases = golden.cases.map((c) => ({ ...d, ...c.options, id: c.id, input: c.input, unit: c.unit, expected: c.expected, cleaned: c.cleaned }));
+  // An error case has no cleaned number: TAFQIT_CLEAN returns the same error text as TAFQIT.
+  const cases = golden.cases.map((c) => ({ ...d, ...c.options, id: c.id, input: c.input, unit: c.unit, expected: c.expected, cleaned: c.cleaned ?? c.expected }));
   const procs = [];
   for (let p = 0; p * CASES_PER_PROC < cases.length; p++) {
     const L = [`Private Sub LoadCases${p + 1}()`];
@@ -349,7 +351,7 @@ Public Function TafqitGoldenFailures() As Long
     failed = 0
     For i = 1 To mCount
         got = TAFQIT(mCaseIn(i), mCaseUnit(i), mCaseHf(i), mCasePre(i), mCaseSuf(i), mCaseDec(i), mCaseLang(i))
-        cleaned = TAFQIT_CLEAN(mCaseIn(i))
+        cleaned = TAFQIT_CLEAN(mCaseIn(i), mCaseLang(i))
         If Not SameText(got, mCaseExp(i)) Then
             failed = failed + 1
             Debug.Print "FAIL " & mCaseId(i) & " TAFQIT"
@@ -459,7 +461,7 @@ export function buildVba(unitsData, golden) {
 
   const sourceHash = createHash("sha256")
     .update(template.replace(/\r\n/g, "\n")).update(JSON.stringify(LX)).update(JSON.stringify(EN_WORDS)).update(JSON.stringify(FR_WORDS))
-    .update(String(FR_WORDS.ELIDES)).update(JSON.stringify(ERROR_MESSAGES)).update(JSON.stringify(unitsData))
+    .update(String(FR_WORDS.ELIDES)).update(JSON.stringify(ERROR_MESSAGES)).update(JSON.stringify(AMBIGUITY_QUESTION)).update(JSON.stringify(unitsData))
     .digest("hex").slice(0, 12);
 
   const catalog = catalogProcs(units, keys);

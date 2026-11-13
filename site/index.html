@@ -94,7 +94,7 @@
                      placeholder="0.00" spellcheck="false" aria-describedby="number-hint" data-shortcut-focus>
               <button type="button" class="clear-btn" id="clear-number" aria-label="مسح الرقم" title="مسح" hidden><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
             </div>
-            <p class="hint" id="number-hint">أرقام عربية (١٢٣) أو إنجليزية (123)، مع فواصل الآلاف أو بدونها، والفاصلة العشرية «.» أو «٫».</p>
+            <p class="hint" id="number-hint">أرقام عربية (١٢٣) أو إنجليزية (123). الكسر بعد «.» أو «٫» (وبعد «,» في التفقيط بالفرنسية)، والآلاف بلا فواصل أو بفاصلة كل ثلاث خانات (<bdi>1,250</bdi>). وإن احتملت الفواصل قراءتين سُئلت بدل أن يُخمَّن الرقم.</p>
           </div>
           <div class="field span-all" data-option>
             <label for="unit">العملة أو الوحدة</label>
@@ -112,6 +112,7 @@
         </div>
         <div class="cheque-body">
           <p id="result" class="result-text is-empty" aria-live="polite" aria-atomic="true">جارٍ تحميل الوحدات…</p>
+          <p id="result-warning" class="result-warning" role="status" hidden></p>
           <div class="samples" id="result-empty">
             <span class="hint">جرّب:</span>
             <button type="button" class="btn btn-chip" data-sample="1250.75"><bdi>1250.75</bdi></button>

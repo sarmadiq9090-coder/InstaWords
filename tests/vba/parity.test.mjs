@@ -24,23 +24,36 @@ function lenient(v, allowed) {
   return t === "" ? undefined : allowed.includes(t) ? t : v;
 }
 
-/** The same request through the core; errors become ERROR_MESSAGES[code] (no detail). */
+/**
+ * The VBA text of an error: ERROR_MESSAGES[code] without detail, except AMBIGUOUS_SEPARATOR,
+ * whose detail is the question with the readings (the core's full message).
+ */
+const errorText = (code, message) => (code === "AMBIGUOUS_SEPARATOR" ? message : ERROR_MESSAGES[code]);
+
+/** The same request through the core; errors become their VBA text. */
 const core = (c) => coreWith(tryTafqit, c);
 function coreWith(tryTafqit, c) {
   const hundredsForm = c.hf === "1" ? HF[0] : c.hf === "2" ? HF[1] : c.hf === "" || c.hf === undefined ? undefined : c.hf;
   const decimals = lenient(c.decimals, ["round", "error"]);
   const language = lenient(c.lang, LANGS);
   const r = tryTafqit(c.input, { unit: c.unit, hundredsForm, prefix: c.prefix, suffix: c.suffix, decimals, language });
-  return r.ok ? r.result : ERROR_MESSAGES[r.error.code];
+  return r.ok ? r.result : errorText(r.error.code, r.error.message);
 }
 
-function coreClean(input) {
+function coreClean(input, lang) {
   try {
-    return normalizeNumber(input).cleaned;
+    return normalizeNumber(input, lang).cleaned;
   } catch (e) {
-    return ERROR_MESSAGES[e.code];
+    return errorText(e.code, e.message);
   }
 }
+
+/** The error code of a VBA text, or undefined for words. */
+const AMBIGUOUS_PREFIX = ERROR_MESSAGES.AMBIGUOUS_SEPARATOR;
+const codeOf = (text) => {
+  for (const [code, msg] of Object.entries(ERROR_MESSAGES)) if (text === msg) return code;
+  return text.startsWith(AMBIGUOUS_PREFIX) ? "AMBIGUOUS_SEPARATOR" : undefined;
+};
 
 // ------------------------------------------------------------------ corpus
 
@@ -159,6 +172,22 @@ function buildCorpus() {
     "999999999999999", "1000000000000000", "1000000000000000.5", "0000000000000000001", "١٢٣٤٥٦٧٨٩٠١٢٣٤٥٦",
     "١۲", "\ud83d\ude00", "۱۲۳٬۴۵۶٫۷۸", "12,34.5", "12.3,4", "\uff11\uff12", "½", "0.0000000000000001", "0." + "1".repeat(16), "0.000"];
   for (const s of bad) for (const unit of ["none", "SAR", "piece", "KWD", "nope"]) add({ input: s, unit, lang: pick(LANGS) });
+  // separators (SPEC 1.1): every shape in every language
+  const sepInputs = ["12,50", "0,5", "1,250", "1.250", "1250,75", "1.250,75", "1,250.75", "1 250,75", "1 250.75", "1,250,000",
+    "1.250.000", "1,2,3", "1,00,000", "0,250", "0.250", ",5", "5,", "1, 250", "1 ,250", "١٢٬٥٠", "١٬٢٥٠٫٧٥", "1٬250,000",
+    "1,250 000", "1.5 000", "1,250.000,5", "12 50", "1234 567", "001,234", "1,,2", "1.,2", "1٫2,5", "1.2٫5", "1٫2٫3",
+    "+ 12,50", "- 1,5", "12,50a", "1\u00a0250,75", "1\u202f250\u202f000", "1,000,000,000,000,000", "999,999,999,999,999.995",
+    "0,004", "0.004", "0,0004", "١٢٫٥٠", "١٢,٥٠", "۱٬۲۵۰", "1.25.000", "12 50,5", "1.250 000", "1,2500", "1.2500"];
+  for (const s of sepInputs) for (const lang of ["", ...LANGS]) for (const unit of ["SAR", "KWD", "none"]) add({ input: s, unit, lang });
+  // random grouped numbers with "," "." "٬" spaces as either separator
+  for (let i = 0; i < 4000; i++) {
+    const ip = digits(1 + int(10));
+    const t = pick([",", ".", " ", "٬", "\u00a0", ""]);
+    let s = t ? group(ip, t) : ip;
+    if (rand() < 0.15) s = s.replace(/(\d)(?=\d)/, (d) => d + pick([",", ".", " "])); // irregular
+    if (rand() < 0.6) s += pick([".", ",", "٫"]) + digits(1 + int(4), false);
+    add({ input: s, unit: pick(["SAR", "KWD", "EUR", "none", "TND"]), lang: pick(["", ...LANGS]) });
+  }
   for (const unit of ["", " ", "XYZ", "ريالات", "sar ", " Sar", "S A R", "KM/H", "\u212ag", "\u212aG", "\uff33\uff21\uff32", "riyal\u200b", "none", "None", "بدون"]) {
     for (const n of ["0", "1", "2", "12", "3.5"]) add({ input: n, unit, lang: pick(LANGS) });
   }
@@ -175,7 +204,7 @@ test("golden cases: VBA output equals expected", () => {
     const o = { ...d, ...c.options };
     const got = vba({ input: c.input, unit: c.unit, hf: o.hundredsForm, prefix: o.prefix, suffix: o.suffix, decimals: o.decimals, lang: o.language });
     assert.equal(got, c.expected, `${c.id}: ${c.input} [${c.unit}]`);
-    assert.equal(vm.call("TAFQIT_CLEAN", c.input), c.cleaned, `${c.id} cleaned`);
+    assert.equal(vm.call("TAFQIT_CLEAN", c.input, o.language ?? ""), c.cleaned ?? c.expected, `${c.id} cleaned`);
   }
 });
 
@@ -195,7 +224,8 @@ test(`parity corpus: ${corpus.length} cases, VBA TAFQIT == core`, () => {
   const seen = new Map();
   for (const c of corpus) {
     const want = core(c);
-    seen.set(want, (seen.get(want) ?? 0) + 1);
+    const key = codeOf(want) ?? "ok";
+    seen.set(key, (seen.get(key) ?? 0) + 1);
     let got;
     try {
       got = vba(c);
@@ -206,22 +236,26 @@ test(`parity corpus: ${corpus.length} cases, VBA TAFQIT == core`, () => {
   }
   assert.deepEqual(failures.slice(0, 10), [], `${failures.length} mismatches`);
   // The corpus must exercise successes and every error the VBA can return.
-  for (const [code, msg] of Object.entries(ERROR_MESSAGES)) {
-    if (code !== "INVALID_CATALOG" && code !== "NO_LANGUAGE_FORMS") assert.ok((seen.get(msg) ?? 0) >= 5, `corpus has too few ${code} cases`);
+  for (const code of Object.keys(ERROR_MESSAGES)) {
+    if (code !== "INVALID_CATALOG" && code !== "NO_LANGUAGE_FORMS") assert.ok((seen.get(code) ?? 0) >= 5, `corpus has too few ${code} cases`);
   }
-  const errors = new Set(Object.values(ERROR_MESSAGES));
-  const okCount = [...seen].filter(([t]) => !errors.has(t)).reduce((n, [, k]) => n + k, 0);
+  assert.ok((seen.get("AMBIGUOUS_SEPARATOR") ?? 0) >= 500, `only ${seen.get("AMBIGUOUS_SEPARATOR")} AMBIGUOUS_SEPARATOR cases`);
+  const okCount = seen.get("ok") ?? 0;
   assert.ok(okCount > 40000, `only ${okCount} successful cases`);
   for (const lang of LANGS) assert.ok(corpus.filter((c) => (c.lang ?? "ar") === lang).length > 10000, `few ${lang} cases`);
 });
 
-test("parity corpus: VBA TAFQIT_CLEAN == normalizeNumber().cleaned", () => {
+test("parity corpus: VBA TAFQIT_CLEAN == normalizeNumber().cleaned, in every language", () => {
   const failures = [];
   for (const input of new Set(corpus.map((c) => c.input))) {
-    const want = coreClean(input);
-    const got = vm.call("TAFQIT_CLEAN", input);
-    if (got !== want) failures.push({ input, want, got });
+    for (const lang of ["", ...LANGS]) {
+      const want = coreClean(input, lang || undefined);
+      const got = lang ? vm.call("TAFQIT_CLEAN", input, lang) : vm.call("TAFQIT_CLEAN", input);
+      if (got !== want) failures.push({ input, lang, want, got });
+    }
   }
+  assert.equal(vm.call("TAFQIT_CLEAN", "12,50", " FR "), "12.5");
+  assert.equal(vm.call("TAFQIT_CLEAN", "12,50", "de"), ERROR_MESSAGES.INVALID_OPTION);
   assert.deepEqual(failures.slice(0, 10), [], `${failures.length} mismatches`);
 });
 
@@ -281,6 +315,16 @@ test("numeric and cell arguments", () => {
   same(new FakeRange(15), "15");
   same(new FakeRange("١٢٣٫٤٥"), "123.45");
   same(-5, "-5");
+  // A numeric cell is never ambiguous, even with French output (Str always writes ".").
+  const sameFr = (arg, text, unit = "KWD") =>
+    assert.equal(vm.call("TAFQIT", arg, unit, "", "", "", "", "fr"), core({ input: text, unit, lang: "fr" }), `${String(arg)} fr`);
+  sameFr(1.125, "1,125");
+  sameFr(1250.75, "1250,75", "SAR");
+  sameFr(new FakeRange(1.25), "1,25");
+  sameFr(new FakeRange("1,250"), "1,250");
+  assert.equal(vm.call("TAFQIT", new FakeRange("12,50"), "EUR"), core({ input: "12,50", unit: "EUR" }));
+  assert.ok(vm.call("TAFQIT", "12,50", "EUR").startsWith(ERROR_MESSAGES.AMBIGUOUS_SEPARATOR));
+  assert.equal(vm.call("TAFQIT_CLEAN", 1.125, "fr"), "1.125");
   same(1e20, "100000000000000000000");
   same(1e300, "100000000000000000000");
   same(EMPTY, "");

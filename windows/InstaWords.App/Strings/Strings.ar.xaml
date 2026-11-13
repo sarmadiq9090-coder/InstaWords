@@ -54,6 +54,8 @@
   <sys:String x:Key="Clip.WriteFailedTitle">تعذّر نسخ النتيجة لتلصقها</sys:String>
   <sys:String x:Key="Clip.TryAgain">حاول مرة أخرى.</sys:String>
   <sys:String x:Key="Clip.CopiedTitle">نُسخ المبلغ بالحروف · ‎{0}‎</sys:String>
+  <sys:String x:Key="Clip.CopiedManyWarnTitle">نُسخ {0} سطراً، فراجع السطر {1}</sys:String>
+  <sys:String x:Key="Clip.CopiedWarnTitle">نُسخ المبلغ بالحروف، فراجعه · ‎{0}‎</sys:String>
   <sys:String x:Key="Clip.TooManyTitle">القائمة طويلة جداً</sys:String>
   <sys:String x:Key="Clip.TooManyBody">استعمل تبويب «عدة مبالغ» لأكثر من 10,000 رقم.</sys:String>
   <sys:String x:Key="Clip.LineFailedTitle">تعذّر تحويل السطر {0}: «{1}»</sys:String>
@@ -72,7 +74,7 @@
   <sys:String x:Key="Single.KbdClear">للمسح</sys:String>
   <sys:String x:Key="Single.NumberLabel">المبلغ أو الرقم</sys:String>
   <sys:String x:Key="Single.NumberHelp">أرقام عربية أو إنجليزية، مع فواصل الآلاف أو بدونها</sys:String>
-  <sys:String x:Key="Single.NumberHint">أرقام عربية (١٢٣) أو إنجليزية (123)، مع فواصل الآلاف أو بدونها، والفاصلة العشرية «.» أو «٫».</sys:String>
+  <sys:String x:Key="Single.NumberHint">أرقام عربية (١٢٣) أو إنجليزية (123). الكسر بعد «.» أو «٫» (وبعد «,» في التفقيط بالفرنسية)، والآلاف بلا فواصل أو بفاصلة كل ثلاث خانات (‎1,250‎).</sys:String>
   <sys:String x:Key="Single.ClearTip">مسح (Esc)</sys:String>
   <sys:String x:Key="Single.ClearName">مسح الرقم</sys:String>
   <sys:String x:Key="Single.Cleaned">الرقم المعتمد</sys:String>
@@ -140,6 +142,10 @@
   <sys:String x:Key="Err.INVALID_OPTION">خيار غير صالح.</sys:String>
   <sys:String x:Key="Err.INVALID_CATALOG">ملف الوحدات غير صالح.</sys:String>
   <sys:String x:Key="Err.NO_LANGUAGE_FORMS">لا تتوفر صيغة لهذه الوحدة باللغة المختارة.</sys:String>
+  <sys:String x:Key="Err.AMBIGUOUS_SEPARATOR">الفواصل في الرقم تحتمل أكثر من قراءة. اكتبه بلا فواصل للآلاف، وضع قبل الكسر نقطة (أو فاصلة في الفرنسية)، مثل 1250.75.</sys:String>
+  <sys:String x:Key="Err.Ambiguous.One">هل تقصد {0}؟</sys:String>
+  <sys:String x:Key="Err.Ambiguous.Two">هل تقصد {0} أم {1}؟</sys:String>
+  <sys:String x:Key="Warn.ROUNDED_TO_ZERO">المبلغ أصغر من أصغر جزء في الوحدة، فقُرِّب إلى صفر.</sys:String>
   <sys:String x:Key="Err.Generic">تعذّر التحويل.</sys:String>
   <sys:String x:Key="Err.Internal">خطأ غير متوقع: {0}</sys:String>
 
