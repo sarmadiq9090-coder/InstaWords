@@ -1,5 +1,5 @@
 ﻿; InstaWords for Windows: per-user installer (Inno Setup 6). No admin rights, nothing else to install:
-; the app runs on .NET Framework 4.8, which is part of Windows 10 and 11.
+; the app runs on .NET Framework 4.8, which is part of Windows 10 version 1903 and newer, and Windows 11.
 ;
 ; Build (CI passes the version from package.json):
 ;   iscc /DAppVersion=2.2.0 /DSourceDir=..\InstaWords.App\bin\Release\net48 /DOutputDir=..\..\out windows\installer\InstaWords.iss
@@ -40,7 +40,7 @@ AppPublisher=FastKiwi
 AppPublisherURL=https://fastkiwi.app/instawords/
 AppSupportURL=https://github.com/sarmadiq9090-coder/InstaWords/issues
 AppUpdatesURL=https://github.com/sarmadiq9090-coder/InstaWords/releases
-AppCopyright=© 2026 FastKiwi (Sarmad) · MIT License
+AppCopyright=© 2026 FastKiwi (Sarmad) · All rights reserved
 VersionInfoVersion={#NumericVersion}
 VersionInfoProductName={#AppName}
 VersionInfoDescription={#AppName} Setup
@@ -51,7 +51,8 @@ DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
 DisableDirPage=auto
 UsePreviousAppDir=yes
-MinVersion=10.0
+; .NET Framework 4.8 is built into Windows 10 only from version 1903 (build 18362): refuse older builds.
+MinVersion=10.0.18362
 OutputDir={#OutputDir}
 OutputBaseFilename=InstaWords_{#AppVersion}_x64-setup
 SetupIconFile=..\InstaWords.App\Assets\InstaWords.ico

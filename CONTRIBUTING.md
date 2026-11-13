@@ -41,7 +41,7 @@
 - الأرقام تُعالج نصوصاً، ولا يُستعمل `float` في المبالغ.
 - مخرجات VBA تطابق النواة حرفاً بحرف، ويتحقق من ذلك `npm run test:vba`.
 - ملفات `.bas` بترميز ASCII فقط، ونهايات أسطرها CRLF، ويولّدها السكربت.
-- الإصدارات: [`RELEASING.md`](RELEASING.md)، والنشر في winget وScoop: [`docs/PACKAGING.md`](docs/PACKAGING.md)، والتوقيع الرقمي: [`docs/CODE-SIGNING.md`](docs/CODE-SIGNING.md)، وقائمة الفحص على أجهزة حقيقية: [`docs/TESTING-CHECKLIST.md`](docs/TESTING-CHECKLIST.md).
+- الإصدارات: [`RELEASING.md`](RELEASING.md)، والنشر في winget وScoop: [`docs/PACKAGING.md`](docs/PACKAGING.md)، والتوقيع الرقمي (غير موقّع، والمتجر يوقّع نسخته): [`docs/CODE-SIGNING.md`](docs/CODE-SIGNING.md)، وقائمة الفحص على أجهزة حقيقية: [`docs/TESTING-CHECKLIST.md`](docs/TESTING-CHECKLIST.md).
 
 </div>
 
@@ -52,4 +52,4 @@
 - **`displayDigits`** (optional, an integer from 0 to the subunit's digits, only with a `subunit`): the decimals an app shows for a whole amount. Set it to `0` only where the subunit is unused in everyday writing (IQD: "1,750,000", not "1,750,000.000") and say why in `note`. Absent, a whole amount shows every subunit digit ("45,750.00" SAR, "5.000" KWD). An amount with a fraction always shows every subunit digit ("1,750,000.500"); the words and the rounding never depend on it.
 - **Change a rule:** issue → `docs/SPEC.md` → `tests/golden/cases.json` → `src/` → `vba/Tafqit.template.bas`, then `npm run test:all` must pass.
 - **Site:** no external resources (offline-first); `npm run test:site`.
-- **Releases:** [`RELEASING.md`](RELEASING.md) (`npm run release:prepare -- <version>`); winget/Scoop: [`docs/PACKAGING.md`](docs/PACKAGING.md); signing: [`docs/CODE-SIGNING.md`](docs/CODE-SIGNING.md); manual checks: [`docs/TESTING-CHECKLIST.md`](docs/TESTING-CHECKLIST.md).
+- **Releases:** [`RELEASING.md`](RELEASING.md) (`npm run release:prepare -- <version>`); winget/Scoop: [`docs/PACKAGING.md`](docs/PACKAGING.md); signing (unsigned; the Store signs its copy): [`docs/CODE-SIGNING.md`](docs/CODE-SIGNING.md); manual checks: [`docs/TESTING-CHECKLIST.md`](docs/TESTING-CHECKLIST.md).

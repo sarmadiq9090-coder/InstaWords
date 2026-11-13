@@ -237,8 +237,8 @@
   <sys:String x:Key="About.Description">Writes amounts in words for cheques, invoices and vouchers, in Arabic, English and French, with 100+ currencies and units. A native Windows app that works fully offline; no number ever leaves your computer.</sys:String>
   <sys:String x:Key="About.ByFastKiwi" xml:space="preserve"> · a FastKiwi app</sys:String>
   <sys:String x:Key="About.Source">Source code on GitHub</sys:String>
-  <sys:String x:Key="About.License1" xml:space="preserve">Free and open source under the </sys:String>
-  <sys:String x:Key="About.License2" xml:space="preserve"> license. Font: IBM Plex Sans Arabic, SIL OFL 1.1.</sys:String>
+  <sys:String x:Key="About.License1" xml:space="preserve">Free to use. See the </sys:String>
+  <sys:String x:Key="About.License2" xml:space="preserve"> file. Font: IBM Plex Sans Arabic, SIL OFL 1.1.</sys:String>
   <sys:String x:Key="About.UpdatePrivacy">Update checks contact GitHub (api.github.com) and send only a request for the latest release and your version number. You can turn them off in Settings.</sys:String>
   <sys:String x:Key="About.StorePrivacy">This Microsoft Store copy does not connect to the internet; the Store keeps it up to date.</sys:String>
   <sys:String x:Key="About.Shortcuts">Keyboard shortcuts</sys:String>

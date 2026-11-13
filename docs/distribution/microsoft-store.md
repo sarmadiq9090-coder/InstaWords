@@ -150,7 +150,7 @@ Partner Center → InstaWords → Store listings → add **English (United State
 14. History of recent conversions
 15. Lives in the notification area; optional start with Windows
 16. Works fully offline: no account, no ads, nothing sent anywhere
-17. Free and open source (MIT)
+17. Free (proprietary licence, see LICENSE)
 
 **Search terms** (up to 7)
 
@@ -210,7 +210,7 @@ Partner Center → InstaWords → Store listings → add **English (United State
 14. سجل لآخر التحويلات
 15. يبقى بجانب الساعة في شريط المهام، مع تشغيل اختياري مع Windows
 16. يعمل دون إنترنت: لا حساب ولا إعلانات ولا يُرسل شيئاً
-17. مجاني ومفتوح المصدر (MIT)
+17. مجاني (رخصة مملوكة، انظر LICENSE)
 
 **كلمات البحث**
 
