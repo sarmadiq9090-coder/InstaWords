@@ -33,7 +33,7 @@ through Claude sessions, with no fixed computer.
 - **Honesty.** Windows 10/11 is "not yet tested on a real device" until the owner tests
   (`docs/TESTING-CHECKLIST.md`). If the program is not sure what the user meant, it says so.
 - **Mirror.** `.github/workflows/mirror.yml` pushes main, tags and claude/* daily (04:17 UTC) to GitLab
-  (`fastkiwi1/instawords`), no force, no prune; it skips until the owner adds `GITLAB_DEPLOY_KEY`.
+  (`fastkiwi1/instawords`), no force, no prune; the `GITLAB_DEPLOY_KEY` secret is set, so it runs daily.
 - Things only the owner can do: repo settings, deleting branches or repos, money decisions, secrets,
   merging, Partner Center. Ask, and give exact click-by-click steps in Arabic.
 - Don't enable features that write to third-party systems, or anything security-sensitive, without
