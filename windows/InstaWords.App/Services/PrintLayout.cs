@@ -183,6 +183,7 @@ namespace InstaWords.App.Services
             ShowSignature = true;
             PrintFrame = false;
             Offsets = new List<FieldOffset>();
+            ThirdWordsLine = false;
         }
 
         [DataMember(Name = "id", Order = 0)] public string Id { get; set; }
@@ -194,6 +195,8 @@ namespace InstaWords.App.Services
         /// <summary>Also print the cheque frame and field labels (for plain paper).</summary>
         [DataMember(Name = "printFrame", Order = 6)] public bool PrintFrame { get; set; }
         [DataMember(Name = "offsets", Order = 7)] public List<FieldOffset> Offsets { get; set; }
+        /// <summary>A third line for the amount in words, under the second (long amounts; off by default).</summary>
+        [DataMember(Name = "thirdWordsLine", Order = 8)] public bool ThirdWordsLine { get; set; }
 
         public static string Key(PrintField f) => f.ToString().ToLowerInvariant();
 
@@ -221,6 +224,7 @@ namespace InstaWords.App.Services
             FontSizePt = FontSizePt,
             ShowSignature = ShowSignature,
             PrintFrame = PrintFrame,
+            ThirdWordsLine = ThirdWordsLine,
             Offsets = (Offsets ?? new List<FieldOffset>()).Where(o => o != null).Select(o => new FieldOffset { Field = o.Field, X = o.X, Y = o.Y }).ToList(),
         };
 
@@ -360,6 +364,61 @@ namespace InstaWords.App.Services
         public string Number { get; set; } = "";
         public string Company { get; set; } = "";
         public bool ShowSignature { get; set; } = true;
+        /// <summary>
+        /// The words say «صفر» for an amount that is not zero (0.004 SAR, ROUNDED_TO_ZERO;
+        /// <see cref="ConversionResult.RoundedToZero"/>): the print dialog does not print it (<see cref="PrintZero"/>).
+        /// </summary>
+        public bool RoundedToZero { get; set; }
+    }
+
+    /// <summary>
+    /// Amounts rounded to zero (ROUNDED_TO_ZERO: 0.004 SAR is written «صفر ريال سعودي») are never printed
+    /// silently on a cheque or voucher: like words that would be cut off, the print dialog shows a red
+    /// notice above the preview (with the page numbers in a bulk job) and keeps Print disabled.
+    /// </summary>
+    public static class PrintZero
+    {
+        /// <summary>At most this many page numbers are listed in the notice; the rest is counted.</summary>
+        public const int MaxListed = 10;
+
+        /// <summary>
+        /// 1-based numbers, among the pages that print (those with an amount, as <c>FitReport</c> counts
+        /// them), of the pages whose amount was rounded to zero; empty when there is none.
+        /// </summary>
+        public static IReadOnlyList<int> Pages(IEnumerable<PrintForm> pages)
+        {
+            var list = new List<int>();
+            var n = 0;
+            foreach (var form in pages ?? Enumerable.Empty<PrintForm>())
+            {
+                if (form == null || string.IsNullOrEmpty(form.Cleaned)) continue;
+                n++;
+                if (form.RoundedToZero) list.Add(n);
+            }
+            return list;
+        }
+
+        /// <summary>"3, 7, 12" («3، 7، 12» in Arabic; at most <see cref="MaxListed"/> numbers, then "…").</summary>
+        public static string PageList(IReadOnlyList<int> pages)
+        {
+            if (pages == null || pages.Count == 0) return "";
+            var shown = pages.Take(MaxListed).Select(p => p.ToString("N0", CultureInfo.InvariantCulture));
+            return string.Join(Loc.IsEnglish ? ", " : "، ", shown) + (pages.Count > MaxListed ? "…" : "");
+        }
+
+        /// <summary>
+        /// The notice: the engine's warning (Warn.ROUNDED_TO_ZERO) and that it will not print; for a job of
+        /// several pages, how many and which. Null when no page is affected.
+        /// </summary>
+        public static string Notice(IReadOnlyList<int> pages, int printedPages)
+        {
+            if (pages == null || pages.Count == 0) return null;
+            var text = Loc.T("Warn.ROUNDED_TO_ZERO") + " " + Loc.T("Print.Zero.Notice");
+            if (printedPages > 1)
+                text += " " + Loc.F("Print.Zero.Pages", pages.Count.ToString("N0", CultureInfo.InvariantCulture),
+                    printedPages.ToString("N0", CultureInfo.InvariantCulture), PageList(pages));
+            return text;
+        }
     }
 
     /// <summary>Which fields each template has and how the dialog's fields map onto them.</summary>
@@ -489,9 +548,12 @@ namespace InstaWords.App.Services
             }
         }
 
-        /// <summary>The two lines of the amount in words (the second one stops before the figures box).</summary>
+        /// <summary>The lines of the amount in words (the second one stops before the figures box).</summary>
         // Line 1 leaves room at its start for a pre-printed «the sum of»; line 2 runs from the edge.
-        private static RectMm[] ReferenceWords() => new[] { new RectMm(30, 32, 136, 7), new RectMm(10, 41, 114, 7) };
+        // The optional third line sits under the figures box and above the signature.
+        private static RectMm[] ReferenceWords(bool thirdLine) => thirdLine
+            ? new[] { new RectMm(30, 32, 136, 7), new RectMm(10, 41, 114, 7), new RectMm(10, 50, 156, 7) }
+            : new[] { new RectMm(30, 32, 136, 7), new RectMm(10, 41, 114, 7) };
 
         private static RectMm Scale(RectMm r, double w, double h) =>
             new RectMm(r.X * w / RefWidth, r.Y * h / RefHeight, r.Width * w / RefWidth, r.Height * h / RefHeight);
@@ -503,8 +565,8 @@ namespace InstaWords.App.Services
             return rightToLeft ? r.MirrorX(paperWidth) : r;
         }
 
-        public static RectMm[] DefaultWordLines(double paperWidth, double paperHeight, bool rightToLeft) =>
-            ReferenceWords().Select(r => Scale(r, paperWidth, paperHeight)).Select(r => rightToLeft ? r.MirrorX(paperWidth) : r).ToArray();
+        public static RectMm[] DefaultWordLines(double paperWidth, double paperHeight, bool rightToLeft, bool thirdLine = false) =>
+            ReferenceWords(thirdLine).Select(r => Scale(r, paperWidth, paperHeight)).Select(r => rightToLeft ? r.MirrorX(paperWidth) : r).ToArray();
 
         /// <summary>A field's box on the paper: default + «All» offset + its own offset.</summary>
         public static RectMm Box(ChequeProfile p, PrintField f, bool rightToLeft)
@@ -516,7 +578,7 @@ namespace InstaWords.App.Services
         public static RectMm[] WordLines(ChequeProfile p, bool rightToLeft)
         {
             Offsets(p, PrintField.Words, out var dx, out var dy);
-            return DefaultWordLines(p.PaperWidthMm, p.PaperHeightMm, rightToLeft).Select(r => r.Offset(dx, dy)).ToArray();
+            return DefaultWordLines(p.PaperWidthMm, p.PaperHeightMm, rightToLeft, p.ThirdWordsLine).Select(r => r.Offset(dx, dy)).ToArray();
         }
 
         private static void Offsets(ChequeProfile p, PrintField f, out double dx, out double dy)
@@ -626,6 +688,110 @@ namespace InstaWords.App.Services
             var width = lineWidth - used;
             if (width < minWidth || width <= 0) return null;
             return rightToLeft ? new Filler(lineStart, width) : new Filler(lineStart + used, width);
+        }
+    }
+
+    /// <summary>
+    /// The «amount in words» strip: a frame at the top of the sheet with two lines of words (three
+    /// when two are not enough), the figures box at the end of the last line.
+    /// </summary>
+    public static class StripLayout
+    {
+        public const double Margin = 15;
+        public const double LineHeight = 9;
+        public const double FiguresWidth = 42;
+        public const double FontPt = 13;
+        public const double FiguresFontPt = 12;
+        public const int MinLines = 2;
+        public const int MaxLines = 3;
+
+        private static double Inner(double paperWidth) => paperWidth - 2 * Margin;
+
+        public static RectMm Frame(double paperWidth, int lines) =>
+            new RectMm(Margin, Margin, Inner(paperWidth), LineHeight * lines + 8);
+
+        public static RectMm[] WordLines(double paperWidth, int lines, bool rightToLeft)
+        {
+            var width = Inner(paperWidth);
+            var result = new RectMm[lines];
+            for (var i = 0; i < lines; i++)
+            {
+                var last = i == lines - 1;
+                var r = new RectMm(Margin + 4, Margin + 3 + LineHeight * i, last ? width - 8 - FiguresWidth - 3 : width - 8, LineHeight);
+                result[i] = rightToLeft ? r.MirrorX(paperWidth) : r;
+            }
+            return result;
+        }
+
+        public static RectMm Figures(double paperWidth, int lines, bool rightToLeft)
+        {
+            var r = new RectMm(Margin + Inner(paperWidth) - 4 - FiguresWidth, Margin + 3 + LineHeight * (lines - 1) + 1, FiguresWidth, LineHeight - 2);
+            return rightToLeft ? r.MirrorX(paperWidth) : r;
+        }
+    }
+
+    /// <summary>
+    /// Does the amount in words fit its printed lines? The words shrink from the chosen size down to
+    /// 60 % of it (never below <see cref="ChequeProfile.MinFontPt"/>); when even that is not enough,
+    /// <see cref="WrappedWords.Fits"/> is false: the end would be cut off on paper, so the print dialog
+    /// shows a red notice and does not print. <c>measure(text, size)</c> is the text's width in DIPs.
+    /// </summary>
+    public static class PrintFit
+    {
+        public const double ShrinkFactor = 0.6;
+        public const double Step = 0.5;
+
+        /// <summary>The smallest size (DIPs) the words may shrink to from <paramref name="sizeDip"/>.</summary>
+        public static double MinSize(double sizeDip) => Math.Max(Mm.PtToDip(ChequeProfile.MinFontPt), sizeDip * ShrinkFactor);
+
+        public static WrappedWords Words(string words, IEnumerable<RectMm> lines, double sizeDip, Func<string, double, double> measure) =>
+            WordWrap.Fit(words, lines.Select(l => Mm.ToDip(l.Width)).ToList(), measure, sizeDip, MinSize(sizeDip), Step);
+
+        /// <summary>The cheque's word lines (two, or three with <see cref="ChequeProfile.ThirdWordsLine"/>).</summary>
+        public static WrappedWords Cheque(ChequeProfile p, bool rightToLeft, string words, Func<string, double, double> measure) =>
+            Words(words, ChequeLayout.WordLines(p, rightToLeft), Mm.PtToDip(p.FontSizePt), measure);
+
+        /// <summary>The strip: two lines, or three when two are not enough. <paramref name="lineCount"/> is the number used.</summary>
+        public static WrappedWords Strip(double paperWidth, bool rightToLeft, string words, Func<string, double, double> measure, out int lineCount)
+        {
+            WrappedWords fit = null;
+            for (lineCount = StripLayout.MinLines; lineCount <= StripLayout.MaxLines; lineCount++)
+            {
+                fit = Words(words, StripLayout.WordLines(paperWidth, lineCount, rightToLeft), Mm.PtToDip(StripLayout.FontPt), measure);
+                if (fit.Fits) return fit;
+            }
+            lineCount = StripLayout.MaxLines;
+            return fit;
+        }
+
+        /// <summary>
+        /// What the user can change when the words do not fit, as Strings keys (most useful first).
+        /// <paramref name="paper"/> is the strip's or voucher's paper (cheques use their profile).
+        /// </summary>
+        public static IReadOnlyList<string> Suggestions(PrintTemplate t, ChequeProfile p, PaperPreset paper, bool hasPrefixOrSuffix)
+        {
+            var keys = new List<string>();
+            switch (t)
+            {
+                case PrintTemplate.Cheque:
+                    if (p != null && !p.ThirdWordsLine) keys.Add("Print.Fix.ThirdLine");
+                    // A smaller size helps only while 60 % of it is clearly above the 7 pt floor (not at the default 12 pt).
+                    if (p != null && MinSize(Mm.PtToDip(p.FontSizePt)) > Mm.PtToDip(ChequeProfile.MinFontPt) * 1.1) keys.Add("Print.Fix.Font");
+                    if (hasPrefixOrSuffix) keys.Add("Print.Fix.Affixes");
+                    keys.Add("Print.Fix.ChequePaper");
+                    break;
+                case PrintTemplate.Strip:
+                    if (hasPrefixOrSuffix) keys.Add("Print.Fix.Affixes");
+                    if (paper != null && paper.WidthMm < Papers.A4.WidthMm - 0.05) keys.Add("Print.Fix.WiderPaper");
+                    keys.Add("Print.Fix.UseVoucher");
+                    break;
+                default:
+                    keys.Add("Print.Fix.ShorterText");
+                    if (hasPrefixOrSuffix) keys.Add("Print.Fix.Affixes");
+                    if (paper == null || paper.Id != Papers.A4.Id) keys.Add("Print.Fix.BiggerPaper");
+                    break;
+            }
+            return keys;
         }
     }
 }

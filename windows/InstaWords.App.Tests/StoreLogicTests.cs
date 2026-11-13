@@ -45,6 +45,17 @@ namespace InstaWords.App.Tests
             Assert.Equal("التحديثات تأتي من Microsoft Store", Loc.T("Update.FromStore"));
         }
 
+        /// <summary>«التحقق من وجود تحديث» in the Store copy opens this product's Store page.</summary>
+        [Fact]
+        public void StorePageIsThisProduct()
+        {
+            var identity = File.ReadAllText(Path.Combine(TestStrings.WindowsDir, "packaging", "msix", "identity.json"));
+            var storeId = Regex.Match(identity, "\"StoreId\"\\s*:\\s*\"([A-Z0-9]+)\"").Groups[1].Value;
+            Assert.Equal(StoreLogic.StoreProductId, storeId);
+            Assert.Equal(StoreLogic.StorePageUri, "ms-windows-store://pdp/?ProductId=" + storeId);
+            Assert.Equal(StoreLogic.StoreWebPage, "https://apps.microsoft.com/detail/" + storeId);
+        }
+
         [Theory]
         [InlineData(@"C:\Users\amal\AppData\Roaming\FastKiwi\InstaWords", @"C:\Users\amal\AppData\Roaming", @"C:\Users\amal\AppData\Local",
                     @"C:\Users\amal\AppData\Local\Packages\12345FastKiwi.InstaWords_8wekyb3d8bbwe\LocalCache\Roaming\FastKiwi\InstaWords")]

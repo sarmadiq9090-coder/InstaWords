@@ -58,7 +58,7 @@ pwsh windows/packaging/msix/build-msix.ps1 -Version $v   # → out\msix\InstaWor
 
 Partner Center accepts a package only if its version is **higher** than every package it already has for InstaWords, and the fourth number must stay 0. The Store version is:
 
-- `storeVersion` in `windows/packaging/msix/identity.json`, when it is set (now **2.2.1**: the first Store submission, a Store build on top of the 2.2.0 code with the Store fixes, while `package.json` and the GitHub release stay 2.2.0);
+- `storeVersion` in `windows/packaging/msix/identity.json`, when it is set (it was **2.2.1**, the first Store build, on top of the 2.2.0 code; it was removed in the 3.0.0 release commit, so the Store build is now **3.0.0**, package **3.0.0.0**, `InstaWords_3.0.0.0_x64.msix`);
 - otherwise the `package.json` version.
 
 `scripts/msix-version.mjs` prints it, and the `store-package` job uses it twice: `dotnet build -p:Version=<it>` (so About in the Store copy shows 2.2.1) and the MSIX `Version` `<it>.0`. It refuses a `storeVersion` that is not plain `x.y.z` or is **lower** than `package.json` (`npm test` fails too, in `tests/msix.test.ts`), so the Store copy can never look older than the GitHub one.
@@ -150,7 +150,7 @@ Partner Center → InstaWords → Store listings → add **English (United State
 14. History of recent conversions
 15. Lives in the notification area; optional start with Windows
 16. Works fully offline: no account, no ads, nothing sent anywhere
-17. Free and open source (MIT)
+17. Free (proprietary licence, see LICENSE)
 
 **Search terms** (up to 7)
 
@@ -210,7 +210,7 @@ Partner Center → InstaWords → Store listings → add **English (United State
 14. سجل لآخر التحويلات
 15. يبقى بجانب الساعة في شريط المهام، مع تشغيل اختياري مع Windows
 16. يعمل دون إنترنت: لا حساب ولا إعلانات ولا يُرسل شيئاً
-17. مجاني ومفتوح المصدر (MIT)
+17. مجاني (رخصة مملوكة، انظر LICENSE)
 
 **كلمات البحث**
 

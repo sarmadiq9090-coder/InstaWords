@@ -18,13 +18,22 @@ namespace InstaWords.App.Services
     /// Checks GitHub Releases for a newer InstaWords and installs it. Fully asynchronous and silent
     /// when offline: a failed check never shows anything unless the user asked for it.
     /// Test hook: INSTAWORDS_UPDATE_FEED = path or file:// URL of a release JSON (used only when set).
-    /// The Store copy (MSIX) never checks or downloads anything: the Microsoft Store updates it.
+    /// The Store copy (MSIX) never checks or downloads anything: the Microsoft Store updates it, and
+    /// «التحقق من وجود تحديث» opens its Store page instead.
+    /// Hand-over (windows/installer/InstaWords.iss): the app starts the verified setup with /UPDATE and exits.
+    /// Setup waits for it to close, installs, then starts the new version with --updated. If the install does
+    /// not finish (an error, a file in use, a full disk), Setup rolls the files back and starts the copy the
+    /// user had again with --update-failed, so InstaWords is never left closed; the app then says so.
     /// </summary>
     public sealed class UpdateService
     {
         /// <summary>The installer's AppId (windows/installer/InstaWords.iss).</summary>
         public const string InstallerAppId = "{8F3B6C2A-5D4E-4A7B-9C1F-2E6D8A0B4C71}";
         public const string SilentInstallArgs = "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS /UPDATE";
+        /// <summary>Passed by the installer's [Run] entry after a silent update: the app says it was updated.</summary>
+        public const string UpdatedArgument = "--updated";
+        /// <summary>Passed by the installer (DeinitializeSetup) when a silent update did not finish.</summary>
+        public const string UpdateFailedArgument = "--update-failed";
         private static readonly TimeSpan CheckInterval = TimeSpan.FromHours(24);
         private bool _checking;
 
@@ -117,7 +126,13 @@ namespace InstaWords.App.Services
         /// <summary>Checks now. Interactive checks report every outcome; silent ones only announce a new version.</summary>
         public async Task CheckAsync(bool interactive, Window owner)
         {
-            if (_checking || !IsEnabled) return;
+            if (!IsEnabled)
+            {
+                // The Store copy: the Store updates it; a check the user asked for opens its Store page.
+                if (interactive) OpenStorePage();
+                return;
+            }
+            if (_checking) return;
             _checking = true;
             try
             {
@@ -175,6 +190,20 @@ namespace InstaWords.App.Services
             App.Current.SaveSettingsSoon();
         }
 
+        /// <summary>InstaWords in Microsoft Store (the Store app; its web page if the Store app cannot open).</summary>
+        public static void OpenStorePage()
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo(StoreLogic.StorePageUri) { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                Log.Warn("Store page: " + ex.Message);
+                Links.Open(StoreLogic.StoreWebPage);
+            }
+        }
+
         public static void OpenReleasePage(GitHubRelease release)
         {
             var url = release?.HtmlUrl;
@@ -229,7 +258,7 @@ namespace InstaWords.App.Services
                             continue;
                         }
                         if (response.StatusCode == HttpStatusCode.NotFound) return null; // no release yet
-                        response.EnsureSuccessStatusCode();
+                        EnsureSuccess(response);
                         using (var s = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
                             return UpdateLogic.ParseRelease(s);
                     }
@@ -274,7 +303,7 @@ namespace InstaWords.App.Services
                             url = next;
                             continue;
                         }
-                        response.EnsureSuccessStatusCode();
+                        EnsureSuccess(response);
                         break;
                     }
 
@@ -310,7 +339,26 @@ namespace InstaWords.App.Services
             return target;
         }
 
-        /// <summary>Starts the verified installer silently (it relaunches InstaWords when done) and exits.</summary>
+        /// <summary>
+        /// A failed answer from GitHub as a message the user can act on: GitHub's rate limit (403 with no
+        /// requests left, or 429) is not "offline", it means "try again in an hour".
+        /// </summary>
+        private static void EnsureSuccess(HttpResponseMessage response)
+        {
+            if (response.IsSuccessStatusCode) return;
+            var code = (int)response.StatusCode;
+            string remaining = null;
+            if (response.Headers.TryGetValues("X-RateLimit-Remaining", out var values))
+                foreach (var v in values) { remaining = v; break; }
+            if (UpdateLogic.IsRateLimited(code, remaining, response.Headers.RetryAfter != null))
+                throw new UpdateException(Loc.T("Update.RateLimited"));
+            throw new UpdateException(Loc.F("Update.HttpError", code.ToString(CultureInfo.InvariantCulture)));
+        }
+
+        /// <summary>
+        /// Starts the verified installer silently and exits. The installer waits for this copy to close, then
+        /// starts the new version, or this one again if the install did not finish (see the class summary).
+        /// </summary>
         public static void RunInstallerAndExit(string installer)
         {
             if (!IsEnabled) return;

@@ -152,5 +152,30 @@ namespace InstaWords.App.Tests
             Assert.Equal("Title\n\nBold and italic and code\n\nquote", UpdateLogic.PlainNotes(md));
             Assert.Equal("", UpdateLogic.PlainNotes(null));
         }
+
+        /// <summary>A rate limit is "GitHub is busy, try again in an hour", never "offline".</summary>
+        [Theory]
+        [InlineData(429, null, false, true)]
+        [InlineData(403, "0", false, true)]      // primary rate limit: no requests left
+        [InlineData(403, " 0 ", false, true)]
+        [InlineData(403, null, true, true)]      // secondary rate limit: Retry-After
+        [InlineData(403, "42", false, false)]    // forbidden for another reason (a proxy, a block)
+        [InlineData(403, null, false, false)]
+        [InlineData(500, "0", false, false)]
+        [InlineData(404, null, false, false)]
+        public void RecognisesGitHubRateLimits(int status, string remaining, bool retryAfter, bool limited) =>
+            Assert.Equal(limited, UpdateLogic.IsRateLimited(status, remaining, retryAfter));
+
+        [Fact]
+        public void RateLimitAndHttpErrorsHaveTheirOwnMessages()
+        {
+            Assert.Equal("خدمة GitHub مشغولة الآن فتعذّر التحقق، حاول بعد ساعة.", Loc.T("Update.RateLimited"));
+            TestStrings.With("en", () =>
+            {
+                Assert.Equal("GitHub is busy, try again in an hour.", Loc.T("Update.RateLimited"));
+                Assert.NotEqual(Loc.T("Update.Offline"), Loc.T("Update.RateLimited"));
+                Assert.Contains("403", Loc.F("Update.HttpError", "403"));
+            });
+        }
     }
 }

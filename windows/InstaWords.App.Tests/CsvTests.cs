@@ -77,6 +77,64 @@ namespace InstaWords.App.Tests
             }
         }
 
+        [Theory]
+        [InlineData("book.xlsx")]
+        [InlineData("BOOK.XLS")]
+        [InlineData("sheet.ods")]
+        [InlineData("macro.xlsm")]
+        public void WorkbooksAreRefusedWithAdvice(string name) =>
+            Assert.Equal(Csv.ImportProblem.Spreadsheet, Csv.Inspect(name, 10_000, new byte[] { 0x50, 0x4B, 3, 4 }));
+
+        [Fact]
+        public void LargeFilesAreRefusedBeforeReading()
+        {
+            Assert.Equal(Csv.ImportProblem.None, Csv.Inspect("a.csv", Csv.MaxImportBytes, Encoding.UTF8.GetBytes("1\n2")));
+            Assert.Equal(Csv.ImportProblem.TooLarge, Csv.Inspect("a.csv", Csv.MaxImportBytes + 1, Encoding.UTF8.GetBytes("1\n2")));
+            Assert.Equal(Csv.ImportProblem.Spreadsheet, Csv.Inspect("a.xlsx", Csv.MaxImportBytes * 5, null));
+            Assert.Equal("20", Csv.Megabytes(Csv.MaxImportBytes));
+            Assert.Equal("35.5", Csv.Megabytes(35 * 1048576L + 524288));
+            Assert.Equal(100000, Csv.MaxImportRows);
+        }
+
+        [Fact]
+        public void BinaryFilesAreNotReadAsText()
+        {
+            Assert.Equal(Csv.ImportProblem.NotText, Csv.Inspect("renamed.csv", 100, new byte[] { 0x50, 0x4B, 3, 4, 20, 0 }));        // zip (xlsx)
+            Assert.Equal(Csv.ImportProblem.NotText, Csv.Inspect("old.csv", 100, new byte[] { 0xD0, 0xCF, 0x11, 0xE0, 0xA1 }));        // OLE (xls)
+            Assert.Equal(Csv.ImportProblem.NotText, Csv.Inspect("a.txt", 100, Encoding.ASCII.GetBytes("%PDF-1.7\n")));
+            Assert.Equal(Csv.ImportProblem.NotText, Csv.Inspect("a.txt", 100, new byte[] { 0x31, 0x00, 0x32 }));
+            Assert.Equal(Csv.ImportProblem.None, Csv.Inspect("a.txt", 100, Encoding.Unicode.GetPreamble().Concat(Encoding.Unicode.GetBytes("12")).ToArray()));
+            Assert.Equal(Csv.ImportProblem.None, Csv.Inspect("a.csv", 100, Encoding.UTF8.GetBytes("المبلغ\r\n١٢٣")));
+            Assert.Equal(Csv.ImportProblem.None, Csv.Inspect("empty.csv", 0, new byte[0]));
+        }
+
+        [Fact]
+        public void ReadsTheHeadOfAFile()
+        {
+            var path = Path.GetTempFileName();
+            try
+            {
+                File.WriteAllBytes(path, Enumerable.Range(0, 10).Select(i => (byte)('0' + i)).ToArray());
+                Assert.Equal(Encoding.ASCII.GetBytes("0123"), Csv.ReadHead(path, 4));
+                Assert.Equal(10, Csv.ReadHead(path, Csv.HeadBytes).Length);
+            }
+            finally
+            {
+                File.Delete(path);
+            }
+        }
+
+        [Fact]
+        public void RefusalMessagesExistInBothLanguages()
+        {
+            foreach (var lang in new[] { "ar", "en" })
+                foreach (var key in new[] { "Bulk.SpreadsheetFile", "Bulk.FileTooLarge", "Bulk.NotTextFile", "Bulk.TooManyRows", "Bulk.NotLoadedTitle" })
+                    Assert.True(TestStrings.Table(lang).ContainsKey(key), lang + " " + key);
+            TestStrings.With("en", () =>
+                Assert.Equal("“book.xlsx” is too large (35.5 MB); the limit is 20 MB. Split it into smaller files.",
+                    Loc.F("Bulk.FileTooLarge", "book.xlsx", "35.5", "20")));
+        }
+
         [Fact]
         public void RoundTripsThroughParse()
         {

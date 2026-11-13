@@ -2,6 +2,7 @@ import { test, describe } from "node:test";
 import assert from "node:assert/strict";
 import {
   tafqit, tryTafqit, convert, createTafqit, normalizeNumber, findUnit, units, TafqitError, ERROR_MESSAGES, LANGUAGES,
+  WARNING_MESSAGES,
 } from "../src/index.ts";
 import type { Language, TafqitErrorCode, UnitCatalog } from "../src/index.ts";
 import { parseCsv, toCsv, csvColumnValues } from "../src/csv.ts";
@@ -111,11 +112,173 @@ describe("normalization", () => {
     assert.equal(normalizeNumber(123456789012345n).cleaned, "123456789012345");
   });
   const errors: [string, TafqitErrorCode][] = [
-    ["", "EMPTY"], ["   ", "EMPTY"], ["abc", "INVALID_FORMAT"], ["1.2.3", "INVALID_FORMAT"], [".", "INVALID_FORMAT"],
+    ["", "EMPTY"], ["   ", "EMPTY"], ["abc", "INVALID_FORMAT"], ["1.2.3", "AMBIGUOUS_SEPARATOR"], [".", "INVALID_FORMAT"],
     ["1e5", "INVALID_FORMAT"], ["-5", "NEGATIVE"], ["−5", "NEGATIVE"], ["1000000000000000", "TOO_LARGE"],
   ];
   for (const [n, code] of errors) test(`error ${JSON.stringify(n)}`, () => throwsCode(() => normalizeNumber(n), code));
   test("leading zeros do not count toward the limit", () => assert.equal(normalizeNumber("0000999999999999999").integer.length, 15));
+});
+
+describe("separators (SPEC §1.1): never guess silently", () => {
+  const clean = (n: string, language?: Language) => normalizeNumber(n, language).cleaned;
+  const ambiguous = (n: string, language: Language | undefined, readings: string[]) => {
+    assert.throws(() => normalizeNumber(n, language), (e: unknown) => {
+      assert.ok(e instanceof TafqitError, String(e));
+      assert.equal(e.code, "AMBIGUOUS_SEPARATOR", `${n} (${language})`);
+      assert.deepEqual(e.readings, readings, `${n} (${language})`);
+      const q = readings.length ? ` (هل تقصد ${readings.join(" أم ")}؟)` : "";
+      assert.equal(e.message, ERROR_MESSAGES.AMBIGUOUS_SEPARATOR + q);
+      return true;
+    });
+  };
+
+  describe("unambiguous input works in every language", () => {
+    const ok: [string, string][] = [
+      ["1250.75", "1250.75"], ["1,250.75", "1250.75"], ["1,250,000", "1250000"], ["1,250,000.5", "1250000.5"],
+      ["١٢٥٠٫٧٥", "1250.75"], ["١٬٢٥٠٫٧٥", "1250.75"], ["١٬٢٥٠٬٠٠٠", "1250000"], ["۱٬۲۵۰٫۷۵", "1250.75"],
+      ["1 250 000", "1250000"], ["1\u00a0250\u00a0000.5", "1250000.5"], ["1\u202f250.75", "1250.75"], ["1\u2009250", "1250"],
+      ["12345", "12345"], ["0.5", "0.5"], [".5", "0.5"], ["5.", "5"], ["0.004", "0.004"], ["999,999,999,999,999", "999999999999999"],
+      ["1 ,250.5", "1250.5"], ["+ 1 500", "1500"], ["12,500.5", "12500.5"], ["\t1,234.50\n", "1234.5"],
+    ];
+    for (const lang of [undefined, "ar", "en", "fr"] as const) {
+      for (const [input, want] of ok) {
+        test(`${JSON.stringify(input)} (${lang ?? "default"}) = ${want}`, () => assert.equal(clean(input, lang), want));
+      }
+    }
+  });
+
+  describe("Arabic and English: «,» is a thousands separator in groups of three, «.» the decimal point", () => {
+    for (const lang of [undefined, "ar", "en"] as const) {
+      test(`B1/B2 examples (${lang ?? "default"})`, () => {
+        ambiguous("12,50", lang, ["12.50", "1250"]);
+        ambiguous("0,5", lang, ["0.5", "5"]);
+        ambiguous("1250,75", lang, ["1250.75", "125075"]);
+        ambiguous("1.250,75", lang, ["1250.75", "1.25075"]);
+        ambiguous("1 250,75", lang, ["1250.75", "125075"]);
+        ambiguous("1,2,3", lang, ["123"]);
+        ambiguous("1,00,000", lang, ["100000"]);
+        ambiguous("1.250.000", lang, ["1250000"]);
+        ambiguous("0,250", lang, ["0.250", "250"]);
+        ambiguous("1,2500", lang, ["1.2500", "12500"]);
+      });
+    }
+    test("mixed or irregular grouping", () => {
+      ambiguous("1,250 000", "ar", ["1250000", "1.250000"]);
+      ambiguous("1 250,000", "en", ["1250.000", "1250000"]);
+      ambiguous("١٢٬٥٠", "ar", ["1250"]);
+      ambiguous("1٬250,000", "ar", ["1250.000", "1250000"]);
+      ambiguous("12 50", "ar", ["1250"]);
+      ambiguous("1 2", "ar", ["12"]);
+      ambiguous("1234 567", "ar", ["1234567"]);
+      ambiguous("5,", "ar", ["5"]);
+      ambiguous(",5", "ar", ["0.5", "5"]);
+      ambiguous("1.5 000", "ar", ["1.5000", "15000"]);
+      ambiguous("1.250,", "en", ["1250", "1.250"]);
+    });
+    test("still fine: one comma before exactly three digits is thousands", () => {
+      assert.equal(clean("1,250"), "1250");
+      assert.equal(clean("1, 250", "ar"), "1250");
+      assert.equal(clean("001,234", "en"), "1234");
+      assert.equal(clean("15,000", "en"), "15000");
+      assert.equal(clean("1.250", "ar"), "1.25");
+    });
+  });
+
+  describe("French: «,» is the decimal point (the French convention)", () => {
+    const fr: [string, string][] = [
+      ["12,50", "12.5"], ["0,5", "0.5"], ["1250,75", "1250.75"], ["1 250,75", "1250.75"], ["1.250,75", "1250.75"],
+      ["1\u00a0250\u00a0000,50", "1250000.5"], ["1\u202f250,75", "1250.75"], ["1.250.000", "1250000"], ["1,250,000", "1250000"],
+      ["1,250.75", "1250.75"], ["1,250", "1.25"], ["1.250", "1.25"], ["1,125", "1.125"], ["0,250", "0.25"], [",5", "0.5"],
+      ["5,", "5"], ["١٢٫٥", "12.5"], ["١٬٢٥٠٫٧٥", "1250.75"], ["1 250", "1250"], ["2 500", "2500"], ["12,345678", "12.345678"],
+      ["1.250.000,5", "1250000.5"], ["1,250,000.5", "1250000.5"],
+    ];
+    for (const [input, want] of fr) {
+      test(`${JSON.stringify(input)} = ${want}`, () => assert.equal(clean(input, "fr"), want));
+    }
+    test("ambiguous in French too", () => {
+      ambiguous("1,250.000,5", "fr", ["1250.0005"]);
+      ambiguous("1,2,3", "fr", ["123"]);
+      ambiguous("1.25.000", "fr", ["125000"]);
+      ambiguous("12 50,5", "fr", ["1250.5", "12505"]);
+      ambiguous("1,5 000", "fr", ["15000", "1.5000"]);
+      ambiguous("1.250 000", "fr", ["1.250000", "1250000"]);
+    });
+  });
+
+  test("the words follow the convention of the output language", () => {
+    assert.equal(tafqit("12,50", { unit: "EUR", language: "fr" }), "douze euros et cinquante centimes");
+    assert.equal(tafqit("0,5", { unit: "TND", language: "fr" }), "cinq cents millimes");
+    assert.equal(tafqit("1.250,75", { unit: "SAR", language: "fr" }), "mille deux cent cinquante riyals saoudiens et soixante-quinze halalas");
+    throwsCode(() => tafqit("12,50", { unit: "EUR" }), "AMBIGUOUS_SEPARATOR");
+    throwsCode(() => tafqit("0,5", { unit: "TND", language: "ar" }), "AMBIGUOUS_SEPARATOR");
+    throwsCode(() => tafqit("1.250,75", { unit: "SAR", language: "en" }), "AMBIGUOUS_SEPARATOR");
+  });
+
+  test("numbers and bigints are never ambiguous", () => {
+    assert.equal(normalizeNumber(1.25, "fr").cleaned, "1.25");
+    assert.equal(normalizeNumber(1.125, "fr").cleaned, "1.125");
+    assert.equal(normalizeNumber(1250, "fr").cleaned, "1250");
+    assert.equal(normalizeNumber(1250n, "fr").cleaned, "1250");
+    assert.equal(tafqit(1.125, { unit: "KWD", language: "fr" }), "un dinar koweïtien et cent vingt-cinq fils");
+  });
+
+  test("order of errors: EMPTY, NEGATIVE and INVALID_FORMAT come first, TOO_LARGE after", () => {
+    throwsCode(() => normalizeNumber("  "), "EMPTY");
+    throwsCode(() => normalizeNumber("-12,50"), "NEGATIVE");
+    throwsCode(() => normalizeNumber("12,50a"), "INVALID_FORMAT");
+    throwsCode(() => normalizeNumber("1,,250"), "INVALID_FORMAT");
+    throwsCode(() => normalizeNumber("1.,250"), "INVALID_FORMAT");
+    throwsCode(() => normalizeNumber("1٫250٫5"), "INVALID_FORMAT");
+    throwsCode(() => normalizeNumber("1.250٫5"), "INVALID_FORMAT");
+    throwsCode(() => normalizeNumber("1٫2,5", "fr"), "INVALID_FORMAT");
+    throwsCode(() => normalizeNumber(","), "INVALID_FORMAT");
+    throwsCode(() => normalizeNumber(", ."), "INVALID_FORMAT");
+    throwsCode(() => normalizeNumber("1,000,000,000,000,000"), "TOO_LARGE");
+    throwsCode(() => normalizeNumber("1 000 000 000 000 000,5", "fr"), "TOO_LARGE");
+    throwsCode(() => normalizeNumber("1,000,000,000,000,00"), "AMBIGUOUS_SEPARATOR");
+    throwsCode(() => normalizeNumber("5", "de" as Language), "INVALID_OPTION");
+    assert.equal(normalizeNumber("5", "" as Language).cleaned, "5");
+  });
+
+  test("tryTafqit returns the readings; the message asks which one was meant", () => {
+    const x = tryTafqit("12,50", { unit: "EUR" });
+    assert.deepEqual(x, {
+      ok: false,
+      error: { code: "AMBIGUOUS_SEPARATOR", message: `${ERROR_MESSAGES.AMBIGUOUS_SEPARATOR} (هل تقصد 12.50 أم 1250؟)`, readings: ["12.50", "1250"] },
+    });
+    // Other errors carry no readings.
+    const y = tryTafqit("abc");
+    assert.ok(!y.ok && !("readings" in y.error));
+    // cleaned follows the output language; with an invalid language, Arabic's convention.
+    const z = tryTafqit("12,50", { unit: "EUR", language: "de" as Language });
+    assert.ok(!z.ok && z.error.code === "INVALID_OPTION" && z.cleaned === undefined);
+    const w = tryTafqit("12,50", { unit: "nope", language: "fr" });
+    assert.ok(!w.ok && w.error.code === "UNKNOWN_UNIT" && w.cleaned === "12.5");
+  });
+});
+
+describe("rounding to zero (B9): a warning, never a silent «صفر»", () => {
+  const warn = { code: "ROUNDED_TO_ZERO", message: WARNING_MESSAGES.ROUNDED_TO_ZERO };
+  test("0.004 SAR", () => {
+    assert.deepEqual(tryTafqit("0.004", { unit: "SAR" }), { ok: true, result: "صفر ريال سعودي", cleaned: "0.004", warnings: [warn] });
+  });
+  test("every language, every subunit size", () => {
+    for (const [n, unit] of [["0.004", "SAR"], ["0.0004", "KWD"], ["0.000000004", "BTC"], ["0.0049", "SAR"], ["0.00049", "OMR"]]) {
+      for (const language of ["ar", "en", "fr"] as const) {
+        const x = tryTafqit(language === "fr" ? n!.replace(".", ",") : n!, { unit, language });
+        assert.ok(x.ok, `${n} ${unit} ${language}`);
+        if (x.ok) assert.deepEqual(x.warnings, [warn], `${n} ${unit} ${language}`);
+      }
+    }
+  });
+  test("no warning when the amount is really zero or rounds to a subunit", () => {
+    for (const [n, unit] of [["0", "SAR"], ["0.00", "SAR"], ["0.005", "SAR"], ["0.01", "SAR"], ["1.004", "SAR"], ["0.0005", "KWD"],
+      ["0.004", "none"], ["0", "piece"], ["0.999", "SAR"]]) {
+      const x = tryTafqit(n!, { unit });
+      assert.ok(x.ok && !("warnings" in x), `${n} ${unit}`);
+    }
+  });
+  test("decimals: error still rejects the extra digits", () => throwsCode(() => tafqit("0.004", { unit: "SAR", decimals: "error" }), "TOO_MANY_DECIMALS"));
 });
 
 describe("API", () => {

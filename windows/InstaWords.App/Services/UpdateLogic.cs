@@ -99,6 +99,13 @@ namespace InstaWords.App.Services
             return Normalize(v).CompareTo(Normalize(current ?? new Version(0, 0, 0))) > 0;
         }
 
+        /// <summary>
+        /// GitHub's rate limit: 429, or 403 with no requests left (X-RateLimit-Remaining: 0) or a Retry-After.
+        /// Any other 403 (a proxy, a blocked network) is a different problem and keeps its own message.
+        /// </summary>
+        public static bool IsRateLimited(int statusCode, string rateLimitRemaining, bool hasRetryAfter) =>
+            statusCode == 429 || (statusCode == 403 && (hasRetryAfter || (rateLimitRemaining ?? "").Trim() == "0"));
+
         public static string Display(Version v) => v == null ? "" : Normalize(v).ToString(3);
 
         /// <summary>A release InstaWords may offer: published, not a pre-release, tag is a stable version.</summary>

@@ -22,8 +22,8 @@
         <StackPanel Margin="0,16,0,0">
           <TextBlock Margin="0,0,0,6"><Hyperlink NavigateUri="https://fastkiwi.app/instawords/" RequestNavigate="OnLink">fastkiwi.app/instawords</Hyperlink>
             <Run Text="{DynamicResource About.ByFastKiwi}" Foreground="{StaticResource MutedBrush}" /></TextBlock>
-          <TextBlock Margin="0,0,0,6"><Hyperlink NavigateUri="https://github.com/sarmadiq9090-coder/InstaWords" RequestNavigate="OnLink"><Run Text="{DynamicResource About.Source}" /></Hyperlink></TextBlock>
-          <TextBlock Margin="0,0,0,6"><Run Text="{DynamicResource About.License1}" /><Hyperlink NavigateUri="https://github.com/sarmadiq9090-coder/InstaWords/blob/HEAD/LICENSE" RequestNavigate="OnLink">MIT</Hyperlink><Run Text="{DynamicResource About.License2}" /></TextBlock>
+          <TextBlock Margin="0,0,0,6"><Hyperlink NavigateUri="https://github.com/sarmadiq9090-coder/InstaWords/releases" RequestNavigate="OnLink"><Run Text="{DynamicResource About.Source}" /></Hyperlink></TextBlock>
+          <TextBlock Margin="0,0,0,6"><Run Text="{DynamicResource About.License1}" /><Hyperlink NavigateUri="https://github.com/sarmadiq9090-coder/InstaWords/blob/HEAD/LICENSE" RequestNavigate="OnLink">LICENSE</Hyperlink><Run Text="{DynamicResource About.License2}" /></TextBlock>
         </StackPanel>
 
         <Border Style="{StaticResource Rule}" Margin="0,14" />

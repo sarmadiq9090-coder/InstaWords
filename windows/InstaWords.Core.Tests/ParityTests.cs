@@ -42,8 +42,8 @@ namespace InstaWords.Core.Tests
                     continue;
                 }
                 var fields = line.Split('\t').Select(Decode).ToArray();
-                if (fields[0] == "T" && fields.Length == 13) corpus.Conversions.Add(fields);
-                else if (fields[0] == "C" && fields.Length == 4) corpus.Cleans.Add(fields);
+                if (fields[0] == "T" && fields.Length == 15) corpus.Conversions.Add(fields);
+                else if (fields[0] == "C" && fields.Length == 5) corpus.Cleans.Add(fields);
                 else throw new InvalidDataException("bad corpus line: " + line);
             }
             return corpus;
@@ -109,6 +109,9 @@ namespace InstaWords.Core.Tests
                 Assert.True(c.Count(f => f[9] == "0" && f[10] == code) >= 5, $"corpus has too few {code} cases");
             }
             Assert.True(c.Count(f => f[1] == "1") > 500, "too few custom-catalog cases");
+            Assert.True(c.Count(f => f[10] == TafqitErrorCodes.AmbiguousSeparator) > 1000, "too few AMBIGUOUS_SEPARATOR cases");
+            Assert.True(c.Count(f => f[9] == "1" && (f[8] ?? "") == "fr" && f[2]!.Contains(",")) > 300, "too few French decimal-comma cases");
+            Assert.True(c.Count(f => f[13] == TafqitWarningCodes.RoundedToZero) >= 20, "too few ROUNDED_TO_ZERO cases");
             Assert.True(Data.Value.Cleans.Count > 20000, "too few Clean cases");
         }
 
@@ -127,8 +130,10 @@ namespace InstaWords.Core.Tests
                 string want = f[10]!;
                 string? wantMessage = f[11];
                 string? wantCleaned = f[12];
+                string wantWarnings = f[13] ?? "";
+                string wantReadings = f[14] ?? "";
 
-                string problem = Check(engine, input!, options, ok, want, wantMessage, wantCleaned);
+                string problem = Check(engine, input!, options, ok, want, wantMessage, wantCleaned, wantWarnings, wantReadings);
                 if (problem.Length > 0 && failures.Count < 20)
                 {
                     failures.Add($"#{n} input=[{Repo.CodePoints(input)}] unit={f[3] ?? "~"} hf={f[4] ?? "~"} pre={f[5] ?? "~"} suf={f[6] ?? "~"} " +
@@ -139,10 +144,13 @@ namespace InstaWords.Core.Tests
             Assert.True(failures.Count == 0, $"{failures.Count} of {n} conversions differ from the core:\n" + string.Join("\n", failures.Where(s => s.Length > 0)));
         }
 
-        private static string Check(Engine engine, string input, TafqitOptions options, bool ok, string want, string? wantMessage, string? wantCleaned)
+        private static string Check(Engine engine, string input, TafqitOptions options, bool ok, string want, string? wantMessage, string? wantCleaned,
+            string wantWarnings, string wantReadings)
         {
             var r = engine.TryConvert(input, options);
             if (r.Cleaned != wantCleaned) return $"cleaned [{r.Cleaned}] != [{wantCleaned}]";
+            if (string.Join(",", r.Warnings) != wantWarnings) return $"warnings [{string.Join(",", r.Warnings)}] != [{wantWarnings}]";
+            if (string.Join("|", r.ErrorReadings) != wantReadings) return $"readings [{string.Join("|", r.ErrorReadings)}] != [{wantReadings}]";
             if (ok)
             {
                 if (!r.Ok) return $"error {r.ErrorCode}, expected [{want}]";
@@ -168,6 +176,7 @@ namespace InstaWords.Core.Tests
             {
                 string full = e.Detail == null ? e.Message : e.Message + " (" + e.Detail + ")";
                 if (e.Code != want) return $"Convert threw {e.Code}";
+                if (string.Join("|", e.Readings) != wantReadings) return "exception Readings != TryConvert ErrorReadings";
                 if (e.Message != r.ErrorMessage) return "exception Message != TryConvert ErrorMessage";
                 if (full != wantMessage) return $"message with detail [{full}] != core [{wantMessage}]";
                 return "";
@@ -181,17 +190,18 @@ namespace InstaWords.Core.Tests
             foreach (var f in Data.Value.Cleans)
             {
                 string input = f[1]!;
+                string? lang = f[2];
                 string got;
                 try
                 {
-                    got = "1:" + Tafqit.Clean(input);
+                    got = "1:" + (lang == null ? Tafqit.Clean(input) : Tafqit.Clean(input, lang));
                 }
                 catch (TafqitException e)
                 {
                     got = "0:" + e.Code;
                 }
-                string want = f[2] + ":" + f[3];
-                if (got != want && failures.Count < 20) failures.Add($"[{Repo.CodePoints(input)}]: {got} != {want}");
+                string want = f[3] + ":" + f[4];
+                if (got != want && failures.Count < 20) failures.Add($"[{Repo.CodePoints(input)}] lang={lang ?? "~"}: {got} != {want}");
                 else if (got != want) failures.Add("");
             }
             Assert.True(failures.Count == 0, $"{failures.Count} Clean results differ:\n" + string.Join("\n", failures.Where(s => s.Length > 0)));

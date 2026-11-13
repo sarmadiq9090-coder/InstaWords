@@ -88,6 +88,7 @@ namespace InstaWords.App.Views
             {
                 ResultText.Text = r.Text;
                 CleanedText.Text = Conversion.Grouped(r.Amount);
+                WarningText.Text = r.Warning ?? "";
                 ShowState(empty: false, ok: true);
                 _historyTimer.Start();
             }
@@ -105,6 +106,7 @@ namespace InstaWords.App.Views
             ResultText.Visibility = !empty && ok ? Visibility.Visible : Visibility.Collapsed;
             ErrorBox.Visibility = !empty && !ok ? Visibility.Visible : Visibility.Collapsed;
             CleanedPill.Visibility = !empty && ok && !string.IsNullOrEmpty(CleanedText.Text) ? Visibility.Visible : Visibility.Collapsed;
+            WarningBox.Visibility = !empty && ok && !string.IsNullOrEmpty(WarningText.Text) ? Visibility.Visible : Visibility.Collapsed;
             CopyButton.IsEnabled = !empty && ok;
             Ui.SetHasError(NumberBox, !empty && !ok);
             if (empty) ResultText.Text = "";

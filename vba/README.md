@@ -48,11 +48,12 @@
 =TAFQIT(A1, "SAR", "", "", "Only", "", "en")   → One Thousand Two Hundred Fifty Saudi Riyals ...
 =TAFQIT(A1, "MAD", , , , , "fr")               → mille deux cent cinquante dirhams marocains ...
 =TAFQIT_CLEAN(A1)                              → الرقم بعد التنقية: "١٢٣٫٤٥" ← 123.45
+=TAFQIT_CLEAN(A1, "fr")                        → بعرف الفرنسية: "12,50" ← 12.5
 ```
 
 | المعامل | الوصف |
 |---|---|
-| `Number` | خلية أو نص أو رقم. يقبل الأرقام الهندية والفارسية، و`,` و`٬` فاصلاً للآلاف، و`٫` فاصلة عشرية. |
+| `Number` | خلية أو نص أو رقم. يقبل الأرقام الهندية والفارسية، و`٬` والمسافة فاصلاً للآلاف، و`٫` فاصلة عشرية. وفي **النص**: `.` كسر و`,` فاصل آلاف بمجموعات من ثلاث خانات، إلا مع `"fr"` فالفاصلة `,` كسر (`12,50` = 12.50). وما يحتمل قراءتين (`12,50` بالعربية، `1.250,75`، `1,2,3`) تُرجع الدالة له رسالة خطأ تسأل: «هل تقصد 12.50 أم 1250؟» بدل التخمين (المواصفة 1.1). الخلية الرقمية لا لبس فيها. |
 | `Unit` | معرّف الوحدة أو رمزها أو اسمها أو أي اسم بديل من `data/units.json` (مثل `SAR` أو `ريال سعودي`). الافتراضي بدون وحدة. |
 | `HundredsForm` | `"مائة"` (الافتراضي) أو `"مئة"`، ويقبل أيضاً `1` و`2`. |
 | `Prefix` / `Suffix` | نص قبل التفقيط وبعده، مثل «فقط» و«لا غير». |
@@ -117,13 +118,16 @@ Import the file; do not copy-paste its text. The module is called `TafqitLib` be
 =TAFQIT(A1, "SAR", "", "", "Only", "", "en")
 =TAFQIT(A1, "EUR", , , , , "fr")
 =TAFQIT_CLEAN(A1)            ' cleaned number, e.g. "١٢٣٫٤٥" -> 123.45
+=TAFQIT_CLEAN(A1, "fr")      ' with the French separators: "12,50" -> 12.5
 ```
 
 - `Unit`: id, code, label or alias from `data/units.json`; matching trims, collapses spaces and lower-cases Latin letters (same as `unitKey` in `src/catalog.ts`). Default: no unit.
 - `HundredsForm`: `"مائة"` (default) or `"مئة"`; `1`/`2` and empty also work.
 - `Decimals`: `"round"` (default, half-up to the subunit) or `"error"`.
 - `Language`: `"ar"` (default), `"en"` or `"fr"`, any case; empty means Arabic. It is the last argument, so existing formulas keep working. `HundredsForm` has no effect outside Arabic.
-- Errors return the Arabic message from `ERROR_MESSAGES` in `src/errors.ts` in every language (including `NO_LANGUAGE_FORMS` when the catalog has no forms for the unit in that language), without the core's `(detail)` suffix. Cell errors such as `#N/A` are passed through.
+- Separators in a **text** cell (docs/SPEC.md §1.1): `.` is the decimal point and `,` separates thousands in groups of three, except with `Language` `"fr"`, where `,` is the decimal point (`12,50` = 12.50, `1.250,75` = 1250.75). A number that reads two ways (`12,50` with Arabic or English output, `1.250,75`, `1,2,3`) returns the `AMBIGUOUS_SEPARATOR` message with the readings, «… (هل تقصد 12.50 أم 1250؟)», never a guess. Numeric cells are never ambiguous.
+- Errors return the Arabic message from `ERROR_MESSAGES` in `src/errors.ts` in every language (including `NO_LANGUAGE_FORMS` when the catalog has no forms for the unit in that language), without the core's `(detail)` suffix, except `AMBIGUOUS_SEPARATOR`, which keeps the question with the readings. Cell errors such as `#N/A` are passed through.
+- Rounding to zero (`0.004` SAR → «صفر ريال سعودي») has no warning in Excel (a cell holds one value): compare with `TAFQIT_CLEAN`, or use `"error"` for `Decimals`.
 
 **Numeric cells:** Excel stores numbers as doubles (15 significant digits). A numeric cell is converted with `CDec` (15 significant digits, what Excel displays) and `Str` (locale-independent), then processed as text; no floating-point arithmetic is done on amounts. For amounts with more than 15 significant digits, enter the number as text.
 

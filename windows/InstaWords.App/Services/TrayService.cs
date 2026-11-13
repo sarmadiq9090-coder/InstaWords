@@ -61,9 +61,9 @@ namespace InstaWords.App.Services
             _openItem.Text = Loc.T("Tray.Open");
             _convertItem.Text = Loc.T("Tray.Convert");
             _settingsItem.Text = Loc.T("Nav.Settings");
-            // The Store copy is updated by the Microsoft Store: say so instead of offering a check.
-            _updateItem.Text = UpdateService.IsEnabled ? Loc.T("Common.CheckUpdate") : Loc.T("Update.FromStore");
-            _updateItem.Enabled = UpdateService.IsEnabled;
+            // The Store copy is updated by Microsoft Store: there the same item opens its Store page.
+            _updateItem.Text = Loc.T("Common.CheckUpdate");
+            _updateItem.ToolTipText = UpdateService.IsEnabled ? "" : Loc.T("Update.StoreTip");
             _reportItem.Text = Loc.T("Main.ReportTip");
             _exitItem.Text = Loc.T("Tray.Exit");
             var tip = Loc.T("App.Title");

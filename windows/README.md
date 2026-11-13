@@ -4,7 +4,7 @@
 
 ## بالعربية
 
-**InstaWords** برنامج Windows **أصلي** يكتب المبالغ بالحروف للشيكات والفواتير والسندات، بالعربية والإنجليزية والفرنسية، بأكثر من 100 عملة ووحدة. مبني بـ WPF على ‎.NET Framework 4.8 المدمج في Windows 10 و11، فلا يحتاج تثبيت أي شيء إضافي، ولا يحتوي أي متصفح أو WebView، ويعمل كله دون إنترنت. نتائجه مطابقة حرفاً بحرف للموقع ولدالة Excel لأن محرّكه (`InstaWords.Core`) مولَّد من النواة نفسها.
+**InstaWords** برنامج Windows **أصلي** يكتب المبالغ بالحروف للشيكات والفواتير والسندات، بالعربية والإنجليزية والفرنسية، بأكثر من 100 عملة ووحدة. مبني بـ WPF على ‎.NET Framework 4.8 المدمج في Windows 10 (الإصدار 1903 أو أحدث) وWindows 11، فلا يحتاج تثبيت أي شيء إضافي، ولا يحتوي أي متصفح أو WebView، ويعمل كله دون إنترنت. نتائجه مطابقة حرفاً بحرف للموقع ولدالة Excel لأن محرّكه (`InstaWords.Core`) مولَّد من النواة نفسها. **لم يُجرَّب بعد على جهاز Windows حقيقي**: يُختبر آلياً على Windows Server في GitHub Actions فقط.
 
 ### المزايا
 
@@ -37,7 +37,7 @@
 | <kbd>Esc</kbd> | مسح الرقم |
 | <kbd>Ctrl</kbd>+<kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | تفقيط رقم · عدة مبالغ · الإعدادات |
 | <kbd>Ctrl</kbd>+<kbd>V</kbd> | لصق عمود في «عدة مبالغ» |
-| <kbd>F1</kbd> | حول البرنامج |
+| <kbd>F1</kbd> | كيف أستخدمه؟ (شرح سريع) |
 
 ### التثبيت
 
@@ -58,7 +58,7 @@
 
 ## English
 
-**InstaWords** is a **native** Windows app that writes amounts in words for cheques, invoices and receipts, in Arabic, English and French, with 100+ currencies and units. It is WPF on .NET Framework 4.8, which ships with Windows 10 and 11, so there is nothing else to install, no browser or WebView inside, and it works fully offline. Output is character-for-character identical to the website and the Excel function: the engine (`InstaWords.Core`) is generated from the same core.
+**InstaWords** is a **native** Windows app that writes amounts in words for cheques, invoices and receipts, in Arabic, English and French, with 100+ currencies and units. It is WPF on .NET Framework 4.8, which ships with Windows 10 (version 1903 or newer) and Windows 11, so there is nothing else to install, no browser or WebView inside, and it works fully offline. Output is character-for-character identical to the website and the Excel function: the engine (`InstaWords.Core`) is generated from the same core. **Not yet tested on a real Windows device**: it is tested automatically on Windows Server in GitHub Actions only.
 
 ### Features
 
@@ -91,7 +91,7 @@
 | <kbd>Esc</kbd> | Clear the number |
 | <kbd>Ctrl</kbd>+<kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | Single · Bulk · Settings |
 | <kbd>Ctrl</kbd>+<kbd>V</kbd> | Paste a column on the Bulk tab |
-| <kbd>F1</kbd> | About |
+| <kbd>F1</kbd> | How to use (quick guide) |
 
 ### Install
 
@@ -106,7 +106,7 @@ npm ci && npm run test:dotnet                       # engine: generate, check, p
 dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports (GitHub and mailto links), CSV, strings, print layout, amounts
 dotnet build windows/InstaWords.App -c Release      # → windows/InstaWords.App/bin/Release/net48/InstaWords.exe
 dotnet test  windows/InstaWords.UITests -c Release  # Windows only: FlaUI end-to-end tests + screenshots
-iscc /DAppVersion=2.2.0 windows\installer\InstaWords.iss   # Inno Setup 6 (CI pins 6.7.1) → out\InstaWords_2.2.0_x64-setup.exe
+iscc /DAppVersion=3.0.0 windows\installer\InstaWords.iss   # Inno Setup 6 (CI pins 6.7.1) → out\InstaWords_3.0.0_x64-setup.exe
 ```
 
 | Path | What |

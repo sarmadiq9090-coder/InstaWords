@@ -21,9 +21,10 @@ namespace InstaWords.App.Views
             DataPath.Text = AppPackage.DataDirOnDisk;
             if (!UpdateService.IsEnabled)
             {
-                // Store copy: the Store updates it, and MSIX keeps its files in the package's own folder.
+                // Store copy: the Store updates it (the check button opens its Store page), and MSIX keeps
+                // its files in the package's own folder.
                 AutoUpdate.Visibility = Visibility.Collapsed;
-                CheckUpdateButton.Visibility = Visibility.Collapsed;
+                CheckUpdateButton.SetResourceReference(ToolTipProperty, "Update.StoreTip");
                 DataHint.SetResourceReference(TextBlock.TextProperty, "Settings.DataHintStore");
             }
             Refresh();

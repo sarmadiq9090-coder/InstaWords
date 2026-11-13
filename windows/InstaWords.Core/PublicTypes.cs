@@ -12,7 +12,10 @@ namespace InstaWords.Core
         /// <summary>Unit id, ISO code, label or alias. Null or "" = "none" (no unit).</summary>
         public string? Unit { get; set; } = "none";
 
-        /// <summary>Output language: "ar", "en" or "fr" (exact, lower case). Null or "" = "ar".</summary>
+        /// <summary>
+        /// Output language: "ar", "en" or "fr" (exact, lower case). Null or "" = "ar". It also picks the
+        /// separator convention of the input (docs/SPEC.md §1.1): "," is the decimal point for "fr".
+        /// </summary>
         public string Language { get; set; } = "ar";
 
         /// <summary>Arabic hundreds spelling: «مائة» or «مئة». Null or "" = «مائة». Validated for every language, used by Arabic only.</summary>
@@ -34,13 +37,18 @@ namespace InstaWords.Core
     /// <summary>Outcome of <see cref="Tafqit.TryConvert"/> (src/types.ts TafqitResult).</summary>
     public sealed class TafqitResult
     {
-        internal TafqitResult(bool ok, string text, string? cleaned, string? errorCode, string? errorMessage)
+        private static readonly string[] None = Array.Empty<string>();
+
+        internal TafqitResult(bool ok, string text, string? cleaned, string? errorCode, string? errorMessage,
+            IReadOnlyList<string>? warnings = null, IReadOnlyList<string>? errorReadings = null)
         {
             Ok = ok;
             Text = text;
             Cleaned = cleaned;
             ErrorCode = errorCode;
             ErrorMessage = errorMessage;
+            Warnings = warnings ?? None;
+            ErrorReadings = errorReadings ?? None;
         }
 
         /// <summary>True when <see cref="Text"/> holds the words.</summary>
@@ -60,16 +68,32 @@ namespace InstaWords.Core
 
         /// <summary>Arabic message of <see cref="ErrorCode"/> (ERROR_MESSAGES[code], without detail); null when <see cref="Ok"/>.</summary>
         public string? ErrorMessage { get; }
+
+        /// <summary>
+        /// <see cref="TafqitWarningCodes"/> of a successful conversion (e.g. ROUNDED_TO_ZERO: 0.004 SAR was
+        /// written «صفر ريال سعودي»); empty when there is none, and always empty on error.
+        /// </summary>
+        public IReadOnlyList<string> Warnings { get; }
+
+        /// <summary>
+        /// AMBIGUOUS_SEPARATOR only: what the input could mean, e.g. ["12.50", "1250"] for "12,50" with Arabic
+        /// output (src/types.ts error.readings). Empty otherwise.
+        /// </summary>
+        public IReadOnlyList<string> ErrorReadings { get; }
+
+        /// <summary>Arabic message of a warning code (WARNING_MESSAGES[code]).</summary>
+        public static string WarningMessage(string code) => Internal.ErrorMessages.GetWarning(code);
     }
 
-    /// <summary>Error raised by <see cref="Tafqit.Convert"/> and <see cref="Tafqit.Clean"/> (src/errors.ts TafqitError).</summary>
+    /// <summary>Error raised by <see cref="Tafqit.Convert"/> and <see cref="Tafqit.Clean(string)"/> (src/errors.ts TafqitError).</summary>
     public sealed class TafqitException : Exception
     {
-        internal TafqitException(string code, string? detail = null)
+        internal TafqitException(string code, string? detail = null, string[]? readings = null)
             : base(Internal.ErrorMessages.Get(code))
         {
             Code = code;
             Detail = string.IsNullOrEmpty(detail) ? null : detail;
+            Readings = Array.AsReadOnly(readings ?? Array.Empty<string>());
         }
 
         /// <summary>One of <see cref="TafqitErrorCodes"/>.</summary>
@@ -80,6 +104,9 @@ namespace InstaWords.Core
         /// Arabic message without it; the core's message is <c>Message + " (" + Detail + ")"</c> when Detail is set.
         /// </summary>
         public string? Detail { get; }
+
+        /// <summary>AMBIGUOUS_SEPARATOR only: the possible readings of the input, e.g. ["12.50", "1250"]; empty otherwise.</summary>
+        public IReadOnlyList<string> Readings { get; }
     }
 
     /// <summary>A unit of the catalog (data/units.json).</summary>
