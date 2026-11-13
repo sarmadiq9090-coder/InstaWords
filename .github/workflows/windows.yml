@@ -10,6 +10,8 @@ name: Windows (native app)
 # The release also gets SHA256SUMS.txt, winget-manifests.zip and instawords.json (docs/PACKAGING.md),
 # and the Excel add-in InstaWords.xlam (scripts/build-xlam.mjs, from vba/Tafqit.bas).
 # The store-package job builds the Microsoft Store MSIX (artifact `store-package`; docs/distribution/microsoft-store.md).
+# The upgrade-test job installs the last release, upgrades it to this build, and checks the data, the
+# single-instance hand-over, a failed update and uninstall (windows/installer/test-upgrade.ps1).
 
 on:
   push:
@@ -284,6 +286,65 @@ jobs:
             out/msix-test/*.png
             out/msix-test/*.xml
             out/msix/stage/AppxManifest.xml
+          if-no-files-found: warn
+
+  # The classic installer on a clean runner (windows/installer/test-upgrade.ps1 lists every check):
+  # installs the last published release (FROM_VERSION, downloaded from this repo's releases and checked
+  # against GitHub's SHA-256), seeds settings and history, then upgrades to this build with the in-app
+  # update's arguments while the old copy runs in the tray; checks the data survived, the single-instance
+  # hand-over (old copy → newer copy, with and without the hand-over protocol), that a failed silent update
+  # starts the installed copy again, and that uninstall closes only the installed copy and keeps user data.
+  # The hand-over needs a copy newer than this build: the app is built once more as 99.0.0 (test only).
+  upgrade-test:
+    needs: build
+    runs-on: windows-latest
+    timeout-minutes: 40
+    env:
+      FROM_VERSION: "2.2.0"
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6.1.0
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: InstaWords-${{ needs.build.outputs.version }}-windows
+          path: out
+
+      - name: Released setup v${{ env.FROM_VERSION }} (checked against GitHub's SHA-256)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          f="InstaWords_${FROM_VERSION}_x64-setup.exe"
+          gh release download "v${FROM_VERSION}" --repo "${GITHUB_REPOSITORY}" --pattern "$f" --dir out/old
+          digest=$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/v${FROM_VERSION}" --jq ".assets[] | select(.name == \"$f\") | .digest")
+          got="sha256:$(sha256sum "out/old/$f" | cut -d' ' -f1)"
+          echo "$f  github=${digest:-none}  downloaded=$got"
+          if [ -z "$digest" ] || [ "$digest" != "$got" ]; then echo "::error::$f does not match GitHub's SHA-256"; exit 1; fi
+
+      - name: A newer copy of this build (99.0.0, for the hand-over checks only)
+        run: dotnet build windows/InstaWords.App -c Release -p:Version=99.0.0 -o out/newer
+
+      - name: Upgrade, hand-over, failed update and uninstall
+        shell: pwsh
+        run: |
+          windows/installer/test-upgrade.ps1 `
+            -OldSetup "out/old/InstaWords_${env:FROM_VERSION}_x64-setup.exe" `
+            -NewSetup "out/InstaWords_${env:VERSION}_x64-setup.exe" `
+            -Portable "out/InstaWords_${env:VERSION}_x64-portable.zip" `
+            -NewerExe "out/newer/InstaWords.exe" `
+            -OutDir out/upgrade-test
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: upgrade-test-logs
+          path: out/upgrade-test/*.log
           if-no-files-found: warn
 
   # Publishes the UI-test screenshots to the ci-screenshots branch so they can be reviewed

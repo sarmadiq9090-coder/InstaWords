@@ -14,8 +14,9 @@ namespace InstaWords.App.Views
             UpdateStatus.Text = App.Current.Updates.StatusText;
             if (!UpdateService.IsEnabled)
             {
-                // Store copy: «التحديثات تأتي من Microsoft Store», and no GitHub check to explain.
-                CheckButton.Visibility = Visibility.Collapsed;
+                // Store copy: «التحديثات تأتي من Microsoft Store»; the check button opens its Store page,
+                // and there is no GitHub check to explain.
+                CheckButton.SetResourceReference(ToolTipProperty, "Update.StoreTip");
                 UpdatePrivacy.SetResourceReference(TextBlock.TextProperty, "About.StorePrivacy");
             }
             AddShortcut(App.Current.CurrentHotkeyText, Loc.T("About.KeyHotkey"));

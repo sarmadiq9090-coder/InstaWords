@@ -48,6 +48,13 @@ namespace InstaWords.App.Services
         public const int ErrorInsufficientBuffer = 122;
         public const int ErrorSuccess = 0;
 
+        /// <summary>InstaWords' Store ID (Partner Center; windows/packaging/msix/identity.json "StoreId").</summary>
+        public const string StoreProductId = "9P62P4WQSQNK";
+        /// <summary>Opens InstaWords in the Microsoft Store app («التحقق من وجود تحديث» in the Store copy).</summary>
+        public const string StorePageUri = "ms-windows-store://pdp/?ProductId=" + StoreProductId;
+        /// <summary>The same page on the web, when the Store app cannot be opened.</summary>
+        public const string StoreWebPage = "https://apps.microsoft.com/detail/" + StoreProductId;
+
         /// <summary>The startup task's TaskId: must match uap5:StartupTask in windows/packaging/msix/AppxManifest.xml.</summary>
         public const string StartupTaskId = "InstaWordsStartup";
 

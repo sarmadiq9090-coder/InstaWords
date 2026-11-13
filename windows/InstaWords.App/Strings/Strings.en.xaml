@@ -175,6 +175,11 @@
   <sys:String x:Key="Bulk.Pasted">Pasted {0} numbers from the clipboard.</sys:String>
   <sys:String x:Key="Bulk.Imported">Imported {0} numbers from “{1}”.</sys:String>
   <sys:String x:Key="Bulk.ImportFailed">Couldn't read the file. Make sure it is a CSV or text file. ({0})</sys:String>
+  <sys:String x:Key="Bulk.NotLoadedTitle">Nothing was loaded</sys:String>
+  <sys:String x:Key="Bulk.SpreadsheetFile">“{0}” is an Excel file, which InstaWords can't read directly. Open it in Excel and save it as CSV, or copy the column and paste it here with Ctrl+V.</sys:String>
+  <sys:String x:Key="Bulk.FileTooLarge">“{0}” is too large ({1} MB); the limit is {2} MB. Split it into smaller files.</sys:String>
+  <sys:String x:Key="Bulk.NotTextFile">“{0}” is not a CSV or text file, so it was not read.</sys:String>
+  <sys:String x:Key="Bulk.TooManyRows">That is {0} numbers; the limit is {1} at a time. Split them into smaller parts (none of them were loaded).</sys:String>
   <sys:String x:Key="Bulk.ImportTitle">Import numbers</sys:String>
   <sys:String x:Key="Bulk.ImportFilter">CSV or text files</sys:String>
   <sys:String x:Key="Bulk.AllFiles">All files</sys:String>
@@ -365,6 +370,13 @@
   <sys:String x:Key="Update.DigestMismatch">The downloaded file's SHA-256 does not match the published one, so it won't run. Try again or download it by hand.</sys:String>
   <sys:String x:Key="Update.Timeout">The connection timed out.</sys:String>
   <sys:String x:Key="Update.Offline">No internet connection, or GitHub could not be reached.</sys:String>
+  <sys:String x:Key="Update.RateLimited">GitHub is busy, try again in an hour.</sys:String>
+  <sys:String x:Key="Update.HttpError">GitHub answered with an error (code {0}). Try again later.</sys:String>
+  <sys:String x:Key="Update.StoreTip">Opens InstaWords in Microsoft Store, which brings its updates.</sys:String>
+  <sys:String x:Key="Update.FailedTitle">The update was not installed</sys:String>
+  <sys:String x:Key="Update.FailedBody">InstaWords {0} is still installed and your data is unchanged. Try the update again later, or download the installer from the release page.</sys:String>
+  <sys:String x:Key="Update.DoneTitle">Updated to version {0}</sys:String>
+  <sys:String x:Key="Update.DoneBody">InstaWords is now running the new version.</sys:String>
 
   <sys:String x:Key="Print.WindowTitle">Print a cheque or voucher</sys:String>
   <sys:String x:Key="Print.WhatToPrint">What to print</sys:String>

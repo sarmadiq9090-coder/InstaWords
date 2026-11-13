@@ -175,6 +175,11 @@
   <sys:String x:Key="Bulk.Pasted">لُصق {0} رقماً مما نسخته.</sys:String>
   <sys:String x:Key="Bulk.Imported">استُورد {0} رقماً من الملف «{1}».</sys:String>
   <sys:String x:Key="Bulk.ImportFailed">تعذّرت قراءة الملف. تأكد أنه ملف CSV أو نصي. ({0})</sys:String>
+  <sys:String x:Key="Bulk.NotLoadedTitle">لم يُحمَّل شيء</sys:String>
+  <sys:String x:Key="Bulk.SpreadsheetFile">«{0}» ملف Excel، ولا يقرؤه البرنامج مباشرة. افتحه في Excel واحفظه بصيغة CSV، أو انسخ العمود والصقه هنا بـ Ctrl+V.</sys:String>
+  <sys:String x:Key="Bulk.FileTooLarge">الملف «{0}» كبير جداً ({1} ميغابايت)، والحد {2} ميغابايت. قسّمه إلى ملفات أصغر.</sys:String>
+  <sys:String x:Key="Bulk.NotTextFile">«{0}» ليس ملف CSV أو ملفاً نصياً، فلم يُقرأ.</sys:String>
+  <sys:String x:Key="Bulk.TooManyRows">عدد الأرقام {0}، والحد {1} في المرة الواحدة. قسّمها إلى أجزاء أصغر؛ لم يُحمَّل منها شيء.</sys:String>
   <sys:String x:Key="Bulk.ImportTitle">استيراد أرقام</sys:String>
   <sys:String x:Key="Bulk.ImportFilter">ملفات CSV أو نصية</sys:String>
   <sys:String x:Key="Bulk.AllFiles">كل الملفات</sys:String>
@@ -365,6 +370,13 @@
   <sys:String x:Key="Update.DigestMismatch">بصمة الملف المنزّل (SHA-256) لا تطابق البصمة المنشورة، فلن يُشغَّل. حاول مرة أخرى أو نزّله يدوياً.</sys:String>
   <sys:String x:Key="Update.Timeout">انتهت مهلة الاتصال.</sys:String>
   <sys:String x:Key="Update.Offline">لا يوجد اتصال بالإنترنت، أو تعذّر الوصول إلى GitHub.</sys:String>
+  <sys:String x:Key="Update.RateLimited">خدمة GitHub مشغولة الآن فتعذّر التحقق، حاول بعد ساعة.</sys:String>
+  <sys:String x:Key="Update.HttpError">ردّ GitHub برسالة خطأ (الرمز {0}). حاول لاحقاً.</sys:String>
+  <sys:String x:Key="Update.StoreTip">يفتح صفحة InstaWords في Microsoft Store، ومنه تأتي التحديثات.</sys:String>
+  <sys:String x:Key="Update.FailedTitle">لم يكتمل التحديث</sys:String>
+  <sys:String x:Key="Update.FailedBody">ما زال الإصدار {0} مثبّتاً وبياناتك كما هي. حاول التحديث لاحقاً، أو نزّل المثبّت من صفحة الإصدار.</sys:String>
+  <sys:String x:Key="Update.DoneTitle">تم التحديث إلى الإصدار {0}</sys:String>
+  <sys:String x:Key="Update.DoneBody">يعمل InstaWords الآن بالإصدار الجديد.</sys:String>
 
   <sys:String x:Key="Print.WindowTitle">طباعة شيك أو سند</sys:String>
   <sys:String x:Key="Print.WhatToPrint">ماذا تطبع؟</sys:String>

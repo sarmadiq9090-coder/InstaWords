@@ -4,7 +4,8 @@
     Unit tests for the WPF app's pure logic (no UI, runs on any OS): update checks (version compare,
     asset selection, download URL allow-list, SHA-256 digest), problem-report links (GitHub issue, mailto:), CSV import/export,
     interface strings (Strings.ar.xaml / Strings.en.xaml: same keys, every key the app uses), Store mode
-    (package detection, install kind, MSIX data folder, startup task states), the crash log (format, size cap),
+    (package detection, install kind, MSIX data folder, startup task states, Store page), the
+    single-instance hand-over (version info, who makes way), the crash log (format, size cap),
     the print layout math (mm/DIP, cheque calibration offsets, word wrap and filler, template fields), and
     the amount shown with the words (money with its subunit decimals, rounded like the words).
     The source files are linked from InstaWords.App, which itself targets net48.
@@ -36,6 +37,7 @@
     <Compile Include="..\InstaWords.App\Services\PrintLayout.cs" Link="Linked\PrintLayout.cs" />
     <Compile Include="..\InstaWords.App\Services\CrashLog.cs" Link="Linked\CrashLog.cs" />
     <Compile Include="..\InstaWords.App\Services\StoreLogic.cs" Link="Linked\StoreLogic.cs" />
+    <Compile Include="..\InstaWords.App\Services\InstanceLogic.cs" Link="Linked\InstanceLogic.cs" />
     <Compile Include="..\InstaWords.App\Services\AmountFormat.cs" Link="Linked\AmountFormat.cs" />
     <Compile Include="..\InstaWords.App\Services\Conversion.cs" Link="Linked\Conversion.cs" />
     <Compile Include="..\InstaWords.App\Services\SupportContact.cs" Link="Linked\SupportContact.cs" />
