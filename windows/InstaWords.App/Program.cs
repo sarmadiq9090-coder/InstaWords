@@ -12,14 +12,23 @@ namespace InstaWords.App
             InstallCrashHandlers();
             using (var instance = SingleInstance.Acquire())
             {
-                if (!instance.IsFirst)
+                // Already running (maybe hidden in the tray): an older version makes way for this one;
+                // the same or a newer version is brought up instead.
+                if (!instance.IsFirst && !instance.TryTakeOver(UpdateService.CurrentVersion))
                 {
-                    // Already running (maybe hidden in the tray): bring that window up instead.
                     instance.SignalFirst();
                     return 0;
                 }
-                var app = new App { StartHidden = StartupService.IsStartupLaunch(args) };
+                instance.Publish(UpdateService.CurrentVersion);
+                var app = new App
+                {
+                    StartHidden = StartupService.IsStartupLaunch(args),
+                    AfterUpdate = HasArgument(args, UpdateService.UpdatedArgument),
+                    AfterFailedUpdate = HasArgument(args, UpdateService.UpdateFailedArgument),
+                };
                 instance.Listen(() => app.Dispatcher.BeginInvoke(new Action(() => app.ShowMainWindow())));
+                // Only once the app has started (its settings are loaded), so it saves them on the way out.
+                app.Startup += (s, e) => instance.ListenForExit(() => app.Dispatcher.BeginInvoke(new Action(() => app.ExitApp())));
                 app.InitializeComponent();
                 return app.Run();
             }
@@ -46,6 +55,9 @@ namespace InstaWords.App
                 e.SetObserved();
             };
         }
+
+        private static bool HasArgument(string[] args, string name) =>
+            args != null && Array.Exists(args, a => string.Equals(a, name, StringComparison.OrdinalIgnoreCase));
 
         internal static string VersionText()
         {

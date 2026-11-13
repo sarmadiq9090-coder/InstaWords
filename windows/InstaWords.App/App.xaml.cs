@@ -19,6 +19,12 @@ namespace InstaWords.App
         /// <summary>Started with --tray (Windows startup): stay in the notification area.</summary>
         public bool StartHidden { get; set; }
 
+        /// <summary>Started by the installer after a silent in-app update (--updated).</summary>
+        public bool AfterUpdate { get; set; }
+
+        /// <summary>Started again by the installer because a silent update did not finish (--update-failed).</summary>
+        public bool AfterFailedUpdate { get; set; }
+
         public AppSettings Settings { get; private set; }
         public ConversionState State { get; } = new ConversionState();
         public HistoryStore History { get; } = new HistoryStore();
@@ -58,6 +64,12 @@ namespace InstaWords.App
             _tray.ExitRequested += (s, a) => ExitApp();
             _tray.UpdateRequested += async (s, a) =>
             {
+                // The Store copy: «التحقق من وجود تحديث» opens its page in Microsoft Store.
+                if (!UpdateService.IsEnabled)
+                {
+                    UpdateService.OpenStorePage();
+                    return;
+                }
                 ShowMainWindow();
                 await Updates.CheckAsync(interactive: true, owner: AppWindow);
             };
@@ -75,6 +87,17 @@ namespace InstaWords.App
             MainWindow = window;
             if (!StartHidden) window.Show();
             Updates.CheckOnStartup();
+
+            if (AfterUpdate || AfterFailedUpdate)
+            {
+                // The installer started this copy: say whether the update went through.
+                var failed = AfterFailedUpdate;
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (failed) ToastWindow.ShowMessage(false, Loc.T("Update.FailedTitle"), Loc.F("Update.FailedBody", UpdateService.CurrentVersionText));
+                    else ToastWindow.ShowMessage(true, Loc.F("Update.DoneTitle", UpdateService.CurrentVersionText), Loc.T("Update.DoneBody"));
+                }), DispatcherPriority.ApplicationIdle);
+            }
 
             if (!hotkeyOk && Settings.HotkeyEnabled)
             {
@@ -217,8 +240,12 @@ namespace InstaWords.App
             _exiting = true;
             try
             {
-                SaveSettings();
-                History.Save();
+                // Settings is null only if asked to exit before startup finished: nothing to save then.
+                if (Settings != null)
+                {
+                    SaveSettings();
+                    History.Save();
+                }
             }
             finally
             {

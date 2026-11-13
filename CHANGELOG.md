@@ -3,6 +3,26 @@
 Each version's section is copied into its GitHub release notes by the release workflow
 (`scripts/changelog-section.mjs`). Earlier versions: [GitHub Releases](https://github.com/sarmadiq9090-coder/InstaWords/releases).
 
+## Unreleased
+
+<div dir="rtl">
+
+- **تحديث لا يترك البرنامج مغلقاً**: إذا لم يكتمل التحديث الصامت (ملف مستعمل، قرص ممتلئ، خطأ)، يُعيد المثبّت ملفات البرنامج كما كانت ويشغّل نسختك السابقة، ويخبرك البرنامج بأن التحديث لم يكتمل. وبعد تحديث ناجح يخبرك بالإصدار الجديد.
+- **إزالة التثبيت لا تُغلق النسخة المحمولة**: لا يُغلَق إلا البرنامج الذي يعمل من مجلد التثبيت، وتبقى بياناتك في `%APPDATA%\FastKiwi\InstaWords`.
+- **النسخة الأحدث تحلّ محلّ الأقدم**: إذا شغّلت إصداراً أحدث بينما يعمل إصدار أقدم في شريط المهام، تُغلَق القديمة (بعد حفظ إعداداتها) وتعمل الجديدة. الإصدار نفسه يُظهر النافذة المفتوحة كما كان.
+- **نسخة المتجر**: «التحقق من وجود تحديث» يفتح صفحة InstaWords في Microsoft Store بدلاً من بند معطّل.
+- **رسالة واضحة حين يكون GitHub مشغولاً**: «خدمة GitHub مشغولة الآن فتعذّر التحقق، حاول بعد ساعة» بدلاً من «لا يوجد اتصال».
+- **حدود الاستيراد في «عدة مبالغ»**: ملف حتى 20 ميغابايت و100,000 رقم في المرة الواحدة، مع رسالة واضحة إن زاد (ولا يُحمَّل جزء منه بصمت)؛ وملف Excel ‏(.xlsx) أو ملف غير نصي يُرفض مع إرشاد إلى حفظه بصيغة CSV. ويُقرأ ملف CSV حتى وهو مفتوح في Excel.
+
+</div>
+
+- **An update never leaves the app closed**: if a silent update does not finish (a file in use, a full disk, an error), the installer puts the program files back and starts your previous copy, which says the update did not go through. After a successful update the app names the new version.
+- **Uninstall no longer closes portable copies**: only the copy running from the install folder is closed; your data in `%APPDATA%\FastKiwi\InstaWords` is kept.
+- **A newer copy replaces an older one**: starting a newer version while an older one runs in the tray closes the old one (after it saves its settings) and runs the new one. The same version still just shows the open window.
+- **Store copy**: "Check for updates" opens InstaWords' page in Microsoft Store instead of a disabled item.
+- **A clear message when GitHub is busy**: "GitHub is busy, try again in an hour" instead of "offline".
+- **Bulk import limits**: files up to 20 MB and 100,000 numbers at a time, with a clear message beyond that (nothing is silently cut); an Excel (.xlsx) or non-text file is refused with advice to save it as CSV. A CSV file can now be read while it is open in Excel.
+
 ## 2.2.0
 
 <div dir="rtl">

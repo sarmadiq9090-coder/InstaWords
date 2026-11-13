@@ -194,6 +194,7 @@ namespace InstaWords.App.Views
             var values = Csv.PastedValues(text);
             // A pasted header ("المبلغ") is skipped like in CSV files.
             if (values.Count > 1 && !values[0].Any(Csv.IsDigit)) values.RemoveAt(0);
+            if (RefuseTooMany(values.Count)) return;
             LoadValues(values, "Bulk.Pasted", Conversion.FormatCount(values.Count));
         }
 
@@ -201,13 +202,44 @@ namespace InstaWords.App.Views
         {
             try
             {
+                // Checked before reading: a workbook or a binary file would be read as garbage, a huge one would fill the memory.
+                var name = Path.GetFileName(path);
+                var size = new FileInfo(path).Length;
+                switch (Csv.Inspect(path, size, Csv.ReadHead(path, Csv.HeadBytes)))
+                {
+                    case Csv.ImportProblem.Spreadsheet:
+                        Refuse("Bulk.SpreadsheetFile", name);
+                        return;
+                    case Csv.ImportProblem.TooLarge:
+                        Refuse("Bulk.FileTooLarge", name, Csv.Megabytes(size), Csv.Megabytes(Csv.MaxImportBytes));
+                        return;
+                    case Csv.ImportProblem.NotText:
+                        Refuse("Bulk.NotTextFile", name);
+                        return;
+                }
                 var values = Csv.ColumnValues(Csv.ReadText(path));
-                LoadValues(values, "Bulk.Imported", Conversion.FormatCount(values.Count), Path.GetFileName(path));
+                if (RefuseTooMany(values.Count)) return;
+                LoadValues(values, "Bulk.Imported", Conversion.FormatCount(values.Count), name);
             }
             catch (Exception ex)
             {
                 SetStatus("Bulk.ImportFailed", false, ex.Message);
             }
+        }
+
+        /// <summary>More than <see cref="Csv.MaxImportRows"/> numbers: nothing is loaded (never a silent cut), and the user is told.</summary>
+        private bool RefuseTooMany(int count)
+        {
+            if (count <= Csv.MaxImportRows) return false;
+            Refuse("Bulk.TooManyRows", Conversion.FormatCount(count), Conversion.FormatCount(Csv.MaxImportRows));
+            return true;
+        }
+
+        /// <summary>A file or list that was not loaded: the reason on the status line, and in full in a notice.</summary>
+        private void Refuse(string key, params object[] args)
+        {
+            SetStatus(key, false, args);
+            ToastWindow.ShowMessage(false, Loc.T("Bulk.NotLoadedTitle"), Loc.F(key, args));
         }
 
         private void OnPasteClick(object sender, RoutedEventArgs e) => PasteFromClipboard();
@@ -234,7 +266,10 @@ namespace InstaWords.App.Views
         {
             if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0) ImportFile(files[0]);
             else if (e.Data.GetData(DataFormats.UnicodeText) is string text)
-                LoadValues(Csv.PastedValues(text), "Bulk.Dropped");
+            {
+                var values = Csv.PastedValues(text);
+                if (!RefuseTooMany(values.Count)) LoadValues(values, "Bulk.Dropped");
+            }
         }
 
         private void OnSampleClick(object sender, RoutedEventArgs e) => LoadValues(Sample, "Bulk.SampleLoaded");
