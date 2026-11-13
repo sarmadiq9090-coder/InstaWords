@@ -9,7 +9,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 
 - **الرخصة**: InstaWords أصبح برنامجاً مملوكاً (مجانياً)؛ إشعارات الأطراف الثالثة دون تغيير.
 - **متطلبات ويندوز**: المثبّت يرفض الآن إصدارات Windows 10 الأقدم من 1903، لأن ‎.NET Framework 4.8 غير مدمج فيها. والبرنامج لم يُجرَّب بعد على جهاز Windows حقيقي، وهذا مكتوب في README وملاحظات الإصدار.
-- **حدود مكتوبة بوضوح** في README: صيغة الرقم (الفاصلة للآلاف والنقطة للكسر، والرقم الملتبس يُرفض)، والإنجليزية على طريقة الشيكات الأمريكية (One Hundred One)، والخصوصية (آخر 100 مبلغ في `history.json` على جهازك فقط، ويُمسح بزر «مسح السجل»).
+- **حدود مكتوبة بوضوح** في README: صيغة الرقم (في العربية والإنجليزية الفاصلة للآلاف والنقطة للكسر، وفي الفرنسية آخر فاصل وحيد من نوعه هو الكسر، والرقم الملتبس يُرفض مع سؤال)، والإنجليزية على طريقة الشيكات الأمريكية (One Hundred One)، والخصوصية (آخر 100 مبلغ في `history.json` على جهازك فقط، ويُمسح بزر «مسح السجل»).
 - **لا طباعة لكلمات مقصوصة**: إن لم يتّسع المبلغ كتابةً في أسطر الشيك أو شريط المبلغ حتى بأصغر خط مسموح، أو لم تتّسع نصوص السند في مساحته، يظهر تنبيه أحمر فوق المعاينة مع ما يمكن تغييره، ويتعطّل زر «طباعة» حتى يتّسع (كان آخر المبلغ يُقصّ على الورق دون تنبيه).
 - **سطر ثالث للمبلغ كتابةً في الشيك** (اختياري، لكل ملف شيكات) للمبالغ الطويلة، ويزيد شريط المبلغ سطراً ثالثاً وحده عند الحاجة.
 - **بطاقة «كيف أستخدمه؟»** (F1 أو زر ؟ أعلى النافذة): كتابة الأرقام وقاعدة الفاصلة، واختصار تحويل ما نسخته، و«عدة مبالغ»، ومعايرة طباعة الشيكات، وإضافة Excel. «حول» صار من زره فقط.
@@ -28,7 +28,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 
 - **Licence**: InstaWords is now proprietary (free); third-party notices unchanged.
 - **Windows requirement**: the installer now refuses Windows 10 builds older than 1903, which lack the built-in .NET Framework 4.8. The app is not yet tested on a real Windows device; README and the release notes now say so.
-- **Limits stated plainly** in README: the number format (comma for thousands, dot for decimals, ambiguous input is refused), US cheque-style English (One Hundred One), and privacy (the last 100 amounts stay in `history.json` on your PC only; «Clear the history» removes them).
+- **Limits stated plainly** in README: the number format (for Arabic and English, comma for thousands and dot for decimals; for French, a last separator that is the only one of its kind is the decimal point; ambiguous input is refused with a question), US cheque-style English (One Hundred One), and privacy (the last 100 amounts stay in `history.json` on your PC only; «Clear the history» removes them).
 - **No more cut-off words on paper**: when the amount in words does not fit the cheque's or strip's lines even at the smallest allowed size, or a voucher's text does not fit its space, a red notice above the preview says what to change and Print stays disabled until it fits (the end of the amount used to be clipped on paper silently).
 - **Optional third cheque line** for the amount in words (per cheque profile), and the words strip grows a third line by itself when needed.
 - **"How to use" card** (F1 or the ? button in the header): typing numbers and the comma rule, the clipboard shortcut, Bulk, cheque calibration and the Excel add-in. About now opens from its button only.

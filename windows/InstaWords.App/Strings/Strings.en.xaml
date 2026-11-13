@@ -267,12 +267,12 @@
   <sys:String x:Key="Help.Title">How to use it</sys:String>
   <sys:String x:Key="Help.Intro">Type a number on the Convert tab and it appears in words at once; then copy it (Ctrl+Enter) or print it (Ctrl+P). The currency, the output language and the text before and after the amount are chosen on the same page.</sys:String>
   <sys:String x:Key="Help.Numbers.Title">Typing numbers</sys:String>
-  <sys:String x:Key="Help.Numbers.Body">For Arabic or English output: the dot is the decimal point, and the comma is for thousands only, valid only before exactly three digits. Otherwise the app does not guess what you meant: it asks you to correct the number instead of writing an amount that may be wrong. Always check “Number used” under the result.</sys:String>
+  <sys:String x:Key="Help.Numbers.Body">For Arabic or English output the dot is the decimal point, and the comma is for thousands only: a first group of 1 to 3 digits, then groups of exactly 3 (1,250,000). The app never guesses: a number that can be read two ways is not converted; it shows the possible readings and asks which one you meant. That covers 12,50 · 1250,75 · 0,250 · 1,00,000, two kinds of thousands separator (1 250,75), a dot before another separator (1.250,75) and more than one dot (1.250.000). Always check “Number used” under the result.</sys:String>
   <sys:String x:Key="Help.Numbers.Ok1">OK: comma for thousands, dot for decimals.</sys:String>
   <sys:String x:Key="Help.Numbers.Ok2">Also OK, without a thousands separator.</sys:String>
   <sys:String x:Key="Help.Numbers.Ok3">OK: Arabic-Indic digits, with “٫” as the decimal point.</sys:String>
-  <sys:String x:Key="Help.Numbers.Rejected">Not valid: two digits, not three, after the comma. Type 12.50</sys:String>
-  <sys:String x:Key="Help.Numbers.French">For French output the comma is the decimal mark, as in French (that is, 1250.75), so do not use it for thousands.</sys:String>
+  <sys:String x:Key="Help.Numbers.Rejected">Refused with a question: “Did you mean 12.50 or 1250?” Type 12.50</sys:String>
+  <sys:String x:Key="Help.Numbers.French">For French output the last “,” or “.” is the decimal point when it is the only one of its kind: 1250,75, 1.250,75 and 1,250.75 all mean 1250.75, and 1,250 means 1.25. A repeated separator is for thousands (1.250.000); spaces and “٬” are always thousands. Irregular groups are refused.</sys:String>
   <sys:String x:Key="Help.Hotkey.Title">Convert what you copied, from any program</sys:String>
   <sys:String x:Key="Help.Hotkey.Body">Copy a number (Ctrl+C) in Excel, a browser or your accounting program, then press {0}: what you copied becomes the amount in words, ready to paste (Ctrl+V) anywhere. It works with the window closed while InstaWords is in the notification area; change the shortcut in Settings. If what you copied is not a clear number, a notice appears and the clipboard is left as it was.</sys:String>
   <sys:String x:Key="Help.Bulk.Title">Many amounts at once</sys:String>
