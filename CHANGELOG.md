@@ -8,10 +8,14 @@ Each version's section is copied into its GitHub release notes by the release wo
 <div dir="rtl">
 
 - **الرخصة**: InstaWords أصبح برنامجاً مملوكاً (مجانياً)؛ إشعارات الأطراف الثالثة دون تغيير.
+- **متطلبات ويندوز**: المثبّت يرفض الآن إصدارات Windows 10 الأقدم من 1903، لأن ‎.NET Framework 4.8 غير مدمج فيها. والبرنامج لم يُجرَّب بعد على جهاز Windows حقيقي، وهذا مكتوب في README وملاحظات الإصدار.
+- **حدود مكتوبة بوضوح** في README: صيغة الرقم (الفاصلة للآلاف والنقطة للكسر، والرقم الملتبس يُرفض)، والإنجليزية على طريقة الشيكات الأمريكية (One Hundred One)، والخصوصية (آخر 100 مبلغ في `history.json` على جهازك فقط، ويُمسح بزر «مسح السجل»).
 
 </div>
 
 - **Licence**: InstaWords is now proprietary (free); third-party notices unchanged.
+- **Windows requirement**: the installer now refuses Windows 10 builds older than 1903, which lack the built-in .NET Framework 4.8. The app is not yet tested on a real Windows device; README and the release notes now say so.
+- **Limits stated plainly** in README: the number format (comma for thousands, dot for decimals, ambiguous input is refused), US cheque-style English (One Hundred One), and privacy (the last 100 amounts stay in `history.json` on your PC only; «Clear the history» removes them).
 
 ## 2.2.0
 

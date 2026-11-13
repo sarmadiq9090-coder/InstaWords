@@ -5,10 +5,8 @@ name: Windows (native app)
 # the Inno Setup installer and a portable zip, uploaded as workflow artifacts.
 # A manual run with "release" ticked also publishes GitHub Release v<package.json version>.
 # The asset names below are what the app's updater looks for: keep them.
-# Code signing (optional, docs/CODE-SIGNING.md): release runs from the default branch sign InstaWords.exe,
-# InstaWords.Core.dll and the setup through SignPath when the SIGNPATH_ORGANIZATION_ID variable is set;
-# otherwise they skip cleanly. The SIGNPATH_API_TOKEN secret lives in the protected `signing` environment,
-# which only those runs enter, and only the two SignPath steps receive it (never npm ci, builds or tests).
+# No code signing here (D-052: free tools only): the setup and the portable zip are unsigned, and the
+# release notes say so (SmartScreen). The Microsoft Store build is the signed path: the Store signs it.
 # The release also gets SHA256SUMS.txt, winget-manifests.zip and instawords.json (docs/PACKAGING.md),
 # and the Excel add-in InstaWords.xlam (scripts/build-xlam.mjs, from vba/Tafqit.bas).
 # The store-package job builds the Microsoft Store MSIX (artifact `store-package`; docs/distribution/microsoft-store.md).
@@ -42,18 +40,8 @@ jobs:
   build:
     runs-on: windows-latest
     timeout-minutes: 90
-    # Release runs from the default branch enter the `signing` environment (its deployment-branch rule
-    # and optional reviewers guard SIGNPATH_API_TOKEN); every other run uses no environment at all.
-    environment: ${{ (github.event_name == 'workflow_dispatch' && inputs.release && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && vars.SIGNPATH_ORGANIZATION_ID != '') && 'signing' || '' }}
     outputs:
       version: ${{ steps.version.outputs.version }}
-      signed: ${{ steps.signed.outputs.signed }}
-    env:
-      # The switch is the (non-secret) SIGNPATH_ORGANIZATION_ID variable: unset → every signing step is skipped.
-      # The token itself is NOT in the job env; only the SignPath steps get it through `with: api-token`.
-      SIGNING_CONFIGURED: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
-      # Only release runs from the default branch are signed (each SignPath request may need a manual approval).
-      SIGN_THIS_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.release && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
     steps:
       # A release may only be published from the default branch (main). Fails the run early otherwise,
       # so a release can never be cut from a claude/* or other branch.
@@ -182,35 +170,6 @@ jobs:
             out/test-results/*.trx
           if-no-files-found: warn
 
-      # ---- Code signing, part 1: the app (SignPath; skipped unless SIGNPATH_ORGANIZATION_ID is set) ----
-      - name: Upload the unsigned app for signing
-        id: unsigned-app
-        if: env.SIGNING_CONFIGURED == 'true' && env.SIGN_THIS_RUN == 'true'
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: InstaWords-${{ steps.version.outputs.version }}-unsigned-app
-          path: |
-            windows/InstaWords.App/bin/Release/net48/InstaWords.exe
-            windows/InstaWords.App/bin/Release/net48/InstaWords.Core.dll
-          if-no-files-found: error
-          retention-days: 1
-
-      # Replaces InstaWords.exe and InstaWords.Core.dll in bin/ with the signed files, so the
-      # installer and the portable zip below are built from them.
-      - name: Sign the app (SignPath)
-        if: env.SIGNING_CONFIGURED == 'true' && env.SIGN_THIS_RUN == 'true'
-        uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092 # v3.0
-        with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'tafket' }}
-          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
-          artifact-configuration-slug: ${{ vars.SIGNPATH_APP_ARTIFACT_CONFIGURATION_SLUG || 'app' }}
-          github-artifact-id: ${{ steps.unsigned-app.outputs.artifact-id }}
-          wait-for-completion: true
-          wait-for-completion-timeout-in-seconds: 3600
-          output-artifact-directory: windows/InstaWords.App/bin/Release/net48
-
       - name: Installer (Inno Setup)
         shell: pwsh
         run: |
@@ -221,51 +180,6 @@ jobs:
             "/DOutputDir=$env:GITHUB_WORKSPACE\out" `
             windows\installer\InstaWords.iss
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-      # ---- Code signing, part 2: the installer ----
-      - name: Upload the unsigned installer for signing
-        id: unsigned-setup
-        if: env.SIGNING_CONFIGURED == 'true' && env.SIGN_THIS_RUN == 'true'
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: InstaWords-${{ steps.version.outputs.version }}-unsigned-setup
-          path: out/InstaWords_${{ steps.version.outputs.version }}_x64-setup.exe
-          if-no-files-found: error
-          retention-days: 1
-
-      - name: Sign the installer (SignPath)
-        if: env.SIGNING_CONFIGURED == 'true' && env.SIGN_THIS_RUN == 'true'
-        uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092 # v3.0
-        with:
-          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
-          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
-          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'tafket' }}
-          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG || 'release-signing' }}
-          artifact-configuration-slug: ${{ vars.SIGNPATH_SETUP_ARTIFACT_CONFIGURATION_SLUG || 'setup' }}
-          github-artifact-id: ${{ steps.unsigned-setup.outputs.artifact-id }}
-          wait-for-completion: true
-          wait-for-completion-timeout-in-seconds: 3600
-          output-artifact-directory: out
-
-      - name: Verify signatures
-        id: signed
-        shell: pwsh
-        run: |
-          $files = @(
-            "windows\InstaWords.App\bin\Release\net48\InstaWords.exe",
-            "windows\InstaWords.App\bin\Release\net48\InstaWords.Core.dll",
-            "out\InstaWords_${{ steps.version.outputs.version }}_x64-setup.exe"
-          )
-          $expectSigned = ($env:SIGNING_CONFIGURED -eq 'true') -and ($env:SIGN_THIS_RUN -eq 'true')
-          $valid = 0
-          foreach ($f in $files) {
-            $sig = Get-AuthenticodeSignature $f
-            "{0}: {1} {2}" -f $f, $sig.Status, $sig.SignerCertificate.Subject
-            if ($sig.Status -eq 'Valid') { $valid++ }
-          }
-          if ($expectSigned -and $valid -ne $files.Count) { throw "Signing was requested but not every file has a valid signature." }
-          if (-not $expectSigned) { "Not signed: SIGNPATH_ORGANIZATION_ID not set, or not a release run from the default branch (docs/CODE-SIGNING.md)." }
-          "signed=$($expectSigned.ToString().ToLower())" >> $env:GITHUB_OUTPUT
 
       - name: Portable zip
         shell: pwsh
@@ -483,28 +397,32 @@ jobs:
 
             **العربية**
 
-            برنامج Windows **أصلي** لكتابة المبالغ بالحروف للشيكات والفواتير، بالعربية والإنجليزية والفرنسية، بأكثر من 100 عملة ووحدة. ليس موقعاً داخل نافذة: واجهة Windows حقيقية، سريعة وخفيفة، تعمل كلها **دون إنترنت**، ولا تحتاج تثبيت أي شيء إضافي على Windows 10 و11.
+            برنامج Windows **أصلي** لكتابة المبالغ بالحروف للشيكات والفواتير، بالعربية والإنجليزية والفرنسية، بأكثر من 100 عملة ووحدة. ليس موقعاً داخل نافذة: واجهة Windows حقيقية، سريعة وخفيفة، تعمل كلها **دون إنترنت**، ولا تحتاج تثبيت أي شيء إضافي على Windows 10 (الإصدار 1903 أو أحدث) وWindows 11.
+
+            > **لم يُجرَّب بعد على جهاز Windows حقيقي**: يُختبر آلياً في GitHub Actions على Windows Server فقط.
 
             - **`InstaWords_${{ needs.build.outputs.version }}_x64-setup.exe`**: المثبّت (موصى به). يثبّت للمستخدم الحالي دون صلاحيات المسؤول، ويحدّث نفسه من داخل البرنامج.
             - **`InstaWords_${{ needs.build.outputs.version }}_x64-portable.zip`**: نسخة محمولة: فكّ الضغط وشغّل `InstaWords.exe`.
             - **Ctrl+Alt+T** من أي برنامج: انسخ رقماً، اضغط الاختصار، فيصبح ما في الحافظة المبلغَ مكتوباً بالحروف جاهزاً للصق.
             - تبويب «عدة مبالغ» لتحويل عمود كامل من Excel، مع تصدير CSV.
             - **`InstaWords.xlam`** (تجريبية): إضافة Excel تضيف الدالة `=TAFQIT(A1, "SAR")` إلى كل مصنف دون إنترنت. قبل تثبيتها: زر الفأرة الأيمن ← خصائص ← «إلغاء الحظر»، ثم في Excel: ملف ← خيارات ← الوظائف الإضافية ← انتقال ← استعراض. (مبنية وفق المواصفات ومختبرة آلياً، ولم تُجرَّب بعد في Excel حقيقي.) التفاصيل في `vba/README.md`.
-            - ${{ needs.build.outputs.signed == 'true' && 'البرنامج والمثبّت موقّعان رقمياً.' || 'البرنامج غير موقّع رقمياً بعد، لذا قد يظهر تحذير SmartScreen: اختر «مزيد من المعلومات» ثم «تشغيل على أي حال».' }}
+            - البرنامج غير موقّع رقمياً، لذا قد يظهر تحذير SmartScreen: اختر «مزيد من المعلومات» ثم «تشغيل على أي حال». (نسخة متجر Microsoft يوقّعها المتجر.)
             - بصمات SHA-256 في `SHA256SUMS.txt`.
 
             </div>
 
             **English**
 
-            A **native** Windows app that writes amounts in words for cheques and invoices, in Arabic, English and French, with 100+ currencies and units. Not a website in a window: a real Windows UI, fast and light, that works fully **offline** and needs nothing extra on Windows 10 and 11.
+            A **native** Windows app that writes amounts in words for cheques and invoices, in Arabic, English and French, with 100+ currencies and units. Not a website in a window: a real Windows UI, fast and light, that works fully **offline** and needs nothing extra on Windows 10 (version 1903 or newer) and Windows 11.
+
+            > **Not yet tested on a real Windows device**: it is tested automatically on Windows Server in GitHub Actions only.
 
             - **`InstaWords_${{ needs.build.outputs.version }}_x64-setup.exe`**: installer (recommended). Per-user, no admin rights; updates itself from inside the app.
             - **`InstaWords_${{ needs.build.outputs.version }}_x64-portable.zip`**: portable: unzip and run `InstaWords.exe`.
             - **Ctrl+Alt+T** from any program: copy a number, press the shortcut, and the clipboard now holds the amount in words, ready to paste.
             - Bulk tab to convert a whole Excel column, with CSV export.
             - **`InstaWords.xlam`** (experimental): Excel add-in adding `=TAFQIT(A1, "SAR")` to every workbook, offline. Before installing: right-click → Properties → Unblock; then Excel → File → Options → Add-ins → Go → Browse. (Built to spec and verified by parsing; not yet smoke-tested in a real Excel.) See `vba/README.md`.
-            - ${{ needs.build.outputs.signed == 'true' && 'The app and the installer are code-signed.' || 'The app is not code-signed yet, so SmartScreen may warn: click "More info" → "Run anyway".' }}
+            - The app is not code-signed, so SmartScreen may warn: click "More info" → "Run anyway". (The Microsoft Store copy is signed by the Store.)
             - SHA-256 checksums: `SHA256SUMS.txt`. winget and Scoop manifests for this version: `winget-manifests.zip`, `instawords.json` (docs/PACKAGING.md).
 
       # winget + Scoop manifests filled with this release's real SHA-256, attached to the release.
