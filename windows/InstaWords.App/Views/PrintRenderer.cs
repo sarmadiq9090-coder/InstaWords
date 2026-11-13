@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -35,6 +36,17 @@ namespace InstaWords.App.Views
         public double HeightMm => Template == PrintTemplate.Cheque ? Profile.PaperHeightMm : Paper.HeightMm;
     }
 
+    /// <summary>Which pages of a job would be cut off on paper (the words, or a voucher's text, do not fit).</summary>
+    public sealed class FitReport
+    {
+        /// <summary>Pages with an amount (the ones that print).</summary>
+        public int Pages { get; internal set; }
+        public int Overflowing { get; internal set; }
+        /// <summary>1-based number, among <see cref="Pages"/>, of the first page that does not fit; 0 when all fit.</summary>
+        public int FirstOverflow { get; internal set; }
+        public bool AllFit => Overflowing == 0;
+    }
+
     /// <summary>
     /// Draws print pages as plain WPF visuals: the same element tree is shown in the preview and
     /// put on a FixedPage for the printer, so what you see is what prints. Coordinates are physical
@@ -51,6 +63,8 @@ namespace InstaWords.App.Views
         private static readonly Brush GridMinor = Frozen(Color.FromRgb(0xE4, 0xEA, 0xF0));
         private static readonly Brush GridMid = Frozen(Color.FromRgb(0xBF, 0xCB, 0xD6));
         private static readonly Brush GridMajor = Frozen(Color.FromRgb(0x6F, 0x82, 0x95));
+        /// <summary>Preview only: marks text that would be cut off on paper.</summary>
+        private static readonly Brush Danger = Frozen(Color.FromRgb(0xB4, 0x23, 0x18));
 
         private static Brush Frozen(Color c)
         {
@@ -72,8 +86,25 @@ namespace InstaWords.App.Views
             switch (job.Template)
             {
                 case PrintTemplate.Cheque: page = Cheque(job, form, preview); break;
-                case PrintTemplate.Strip: page = Strip(job, form); break;
-                default: page = Voucher(job, form); break;
+                case PrintTemplate.Strip: page = Strip(job, form, preview); break;
+                default:
+                {
+                    var root = BuildVoucher(job, form, out var frame, out var stack);
+                    page = root;
+                    if (preview && !VoucherFits(root, frame, stack))
+                    {
+                        // A red frame round the page: some text would be cut off (the dialog says what to change).
+                        var marked = new Grid { Width = root.Width, Height = root.Height };
+                        marked.Children.Add(root);
+                        marked.Children.Add(new Rectangle
+                        {
+                            Margin = new Thickness(D(3)), Stroke = Danger, StrokeThickness = D(0.8), StrokeDashArray = new DoubleCollection { 4, 2 },
+                            RadiusX = D(2), RadiusY = D(2), IsHitTestVisible = false, Tag = "overflow",
+                        });
+                        page = marked;
+                    }
+                    break;
+                }
             }
             if (!job.ShowGrid) return page;
             var host = new Grid { Width = page.Width, Height = page.Height };
@@ -153,8 +184,11 @@ namespace InstaWords.App.Views
                     {
                         var lines = ChequeLayout.WordLines(p, rtl);
                         if (guides) Caption(c, lines[0], Loc.T(item.LabelKey), guideBrush, labelFlow, lineBrush);
-                        if (guides) Underline(c, lines[1], lineBrush);
-                        WordsLines(c, lines, item.Value, size, rtl, job.WordsLanguage);
+                        if (guides)
+                            for (var i = 1; i < lines.Length; i++) Underline(c, lines[i], lineBrush);
+                        var fit = PrintFit.Cheque(p, rtl, item.Value, Measurer(rtl, job.WordsLanguage));
+                        WordsLines(c, lines, fit, rtl, job.WordsLanguage);
+                        if (preview && !fit.Fits) OverflowMark(c, lines);
                         break;
                     }
                     case PrintField.Figures:
@@ -206,14 +240,27 @@ namespace InstaWords.App.Views
                 Stroke = brush, StrokeThickness = D(0.2), StrokeDashArray = new DoubleCollection { 1, 2 },
             });
 
-        /// <summary>The amount in words over its lines: largest size that fits, then the dashed filler.</summary>
-        private static void WordsLines(Canvas c, RectMm[] lines, string words, double size, bool rtl, string language)
+        private static Typeface WordsTypeface() => new Typeface(Font, FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
+
+        /// <summary>measure(text, size): the words' width in DIPs, as <see cref="WordsLines"/> draws them.</summary>
+        private static Func<string, double, double> Measurer(bool rtl, string language)
         {
             var flow = rtl ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
-            var tf = new Typeface(Font, FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
+            var tf = WordsTypeface();
             var culture = CultureFor(language);
-            var widths = lines.Select(l => D(l.Width)).ToList();
-            var fit = WordWrap.Fit(words, widths, (t, s) => Measure(t, s, flow, tf, culture), size, Math.Max(Mm.PtToDip(7), size * 0.6), 0.5);
+            return (t, s) => Measure(t, s, flow, tf, culture);
+        }
+
+        /// <summary>
+        /// The amount in words over its lines, at the size <see cref="PrintFit"/> found, then the dashed filler.
+        /// When it does not fit, the last line is longer than its box and would be cut: the print dialog
+        /// refuses to print (<see cref="CheckFit"/>), and the preview marks it (<see cref="OverflowMark"/>).
+        /// </summary>
+        private static void WordsLines(Canvas c, RectMm[] lines, WrappedWords fit, bool rtl, string language)
+        {
+            var flow = rtl ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
+            var tf = WordsTypeface();
+            var culture = CultureFor(language);
             for (var i = 0; i < lines.Length; i++)
             {
                 var text = i < fit.Lines.Count ? fit.Lines[i] : "";
@@ -232,44 +279,52 @@ namespace InstaWords.App.Views
             }
         }
 
+        /// <summary>Preview only: a red dashed box round word lines that would be cut off on paper.</summary>
+        private static void OverflowMark(Canvas c, RectMm[] lines)
+        {
+            if (lines.Length == 0) return;
+            var x = lines.Min(l => l.X) - 1;
+            var y = lines.Min(l => l.Y) - 1;
+            var right = lines.Max(l => l.Right) + 1;
+            var bottom = lines.Max(l => l.Bottom) + 1;
+            Place(c, new Rectangle
+            {
+                Width = D(right - x), Height = D(bottom - y), RadiusX = D(1), RadiusY = D(1),
+                Stroke = Danger, StrokeThickness = D(0.5), StrokeDashArray = new DoubleCollection { 4, 2 },
+                IsHitTestVisible = false, Tag = "overflow",
+            }, D(x), D(y));
+        }
+
         // ---------- Strip ----------
 
-        private static FrameworkElement Strip(PrintJob job, PrintForm form)
+        private static FrameworkElement Strip(PrintJob job, PrintForm form, bool preview)
         {
             var c = NewCanvas(job);
             var rtl = job.WordsRightToLeft;
-            const double margin = 15;
-            var width = job.WidthMm - 2 * margin;
-            const double lineH = 9;
-            const double figW = 42;
-            var box = new RectMm(margin, margin, width, lineH * 2 + 8);
+            // Two lines of words (three when two are not enough); the figures sit at the end of the last line.
+            var fit = PrintFit.Strip(job.WidthMm, rtl, form.Words, Measurer(rtl, job.WordsLanguage), out var count);
+            var box = StripLayout.Frame(job.WidthMm, count);
             var frame = new Rectangle
             {
                 Width = D(box.Width), Height = D(box.Height), RadiusX = D(2), RadiusY = D(2),
                 Stroke = Muted, StrokeThickness = D(0.3),
             };
             Place(c, frame, D(box.X), D(box.Y));
-            // Two lines of words; the figures sit at the end of the second line.
-            var l1 = new RectMm(margin + 4, margin + 3, width - 8, lineH);
-            var l2 = new RectMm(margin + 4, margin + 3 + lineH, width - 8 - figW - 3, lineH);
-            var fig = new RectMm(margin + width - 4 - figW, margin + 3 + lineH + 1, figW, lineH - 2);
-            if (rtl)
-            {
-                l1 = l1.MirrorX(job.WidthMm);
-                l2 = l2.MirrorX(job.WidthMm);
-                fig = fig.MirrorX(job.WidthMm);
-            }
-            WordsLines(c, new[] { l1, l2 }, form.Words, Mm.PtToDip(13), rtl, job.WordsLanguage);
+            var lines = StripLayout.WordLines(job.WidthMm, count, rtl);
+            var fig = StripLayout.Figures(job.WidthMm, count, rtl);
+            WordsLines(c, lines, fit, rtl, job.WordsLanguage);
+            if (preview && !fit.Fits) OverflowMark(c, lines);
             var r = new Rectangle { Width = D(fig.Width), Height = D(fig.Height), RadiusX = D(1.2), RadiusY = D(1.2), Stroke = Muted, StrokeThickness = D(0.3) };
             Place(c, r, D(fig.X), D(fig.Y));
-            Text(c, fig, PrintTemplates.Figures(form.Cleaned), Mm.PtToDip(12), FontWeights.Bold, FlowDirection.LeftToRight, TextAlignment.Center, center: true,
+            Text(c, fig, PrintTemplates.Figures(form.Cleaned), Mm.PtToDip(StripLayout.FiguresFontPt), FontWeights.Bold, FlowDirection.LeftToRight, TextAlignment.Center, center: true,
                 automationId: "PreviewFigures");
             return c;
         }
 
         // ---------- Receipt / payment voucher ----------
 
-        private static FrameworkElement Voucher(PrintJob job, PrintForm form)
+        /// <summary>A voucher page; <paramref name="frame"/> and <paramref name="stack"/> are its frame and content (for <see cref="VoucherFits"/>).</summary>
+        private static Border BuildVoucher(PrintJob job, PrintForm form, out Border frame, out DockPanel stack)
         {
             var w = D(job.WidthMm);
             var h = D(job.HeightMm);
@@ -283,7 +338,7 @@ namespace InstaWords.App.Views
                 FlowDirection = UiLanguage.Flow,
             };
             TextOptions.SetTextFormattingMode(root, TextFormattingMode.Ideal);
-            var frame = new Border
+            frame = new Border
             {
                 BorderBrush = Muted,
                 BorderThickness = new Thickness(D(0.35)),
@@ -298,7 +353,7 @@ namespace InstaWords.App.Views
                 frame.VerticalAlignment = VerticalAlignment.Top;
                 frame.Height = D(Math.Min(job.HeightMm - 2 * pad, job.WidthMm * 0.72));
             }
-            var stack = new DockPanel { LastChildFill = true };
+            stack = new DockPanel { LastChildFill = true };
             frame.Child = stack;
             var items = PrintTemplates.Map(form);
             string V(PrintField f) => items.FirstOrDefault(i => i.Field == f)?.Value ?? "";
@@ -382,6 +437,97 @@ namespace InstaWords.App.Views
             lines.Children.Add(Line(Loc.T(K(PrintField.Purpose)), V(PrintField.Purpose), body, TextFlow(V(PrintField.Purpose), Loc.IsRightToLeft), null));
             stack.Children.Add(lines);
             return root;
+        }
+
+        /// <summary>
+        /// Whether a voucher's content fits its frame: measured with unlimited height, the header, the
+        /// lines (which wrap) and the signatures must not be taller than the frame's inside, or the
+        /// end would be cut off on paper.
+        /// </summary>
+        private static bool VoucherFits(Border root, Border frame, DockPanel stack)
+        {
+            var width = root.Width - root.Padding.Left - root.Padding.Right
+                        - frame.BorderThickness.Left - frame.BorderThickness.Right - frame.Padding.Left - frame.Padding.Right;
+            var frameHeight = double.IsNaN(frame.Height) ? root.Height - root.Padding.Top - root.Padding.Bottom : frame.Height;
+            var height = frameHeight - frame.BorderThickness.Top - frame.BorderThickness.Bottom - frame.Padding.Top - frame.Padding.Bottom;
+            stack.Measure(new Size(Math.Max(0, width), double.PositiveInfinity));
+            return stack.DesiredSize.Height <= height + 0.5;
+        }
+
+        // ---------- Fit check ----------
+
+        /// <summary>Results by page content (the bulk tab can send 500 pages; the dialog re-checks on every change).</summary>
+        private static readonly Dictionary<string, bool> FitCache = new Dictionary<string, bool>(StringComparer.Ordinal);
+
+        /// <summary>Which pages would be cut off on paper. Printing is refused unless every page fits.</summary>
+        public static FitReport CheckFit(PrintJob job)
+        {
+            var report = new FitReport();
+            var measure = Measurer(job.WordsRightToLeft, job.WordsLanguage);
+            var jobKey = JobKey(job);
+            foreach (var form in job.Pages)
+            {
+                if (string.IsNullOrEmpty(form.Cleaned)) continue;
+                report.Pages++;
+                if (Fits(job, form, measure, jobKey)) continue;
+                report.Overflowing++;
+                if (report.FirstOverflow == 0) report.FirstOverflow = report.Pages;
+            }
+            return report;
+        }
+
+        private static bool Fits(PrintJob job, PrintForm form, Func<string, double, double> measure, string jobKey)
+        {
+            var key = PageKey(job, form, jobKey);
+            if (FitCache.TryGetValue(key, out var cached)) return cached;
+            bool fits;
+            switch (job.Template)
+            {
+                case PrintTemplate.Cheque:
+                    fits = PrintFit.Cheque(job.Profile, job.WordsRightToLeft, form.Words, measure).Fits;
+                    break;
+                case PrintTemplate.Strip:
+                    fits = PrintFit.Strip(job.WidthMm, job.WordsRightToLeft, form.Words, measure, out _).Fits;
+                    break;
+                default:
+                    var root = BuildVoucher(job, form, out var frame, out var stack);
+                    fits = VoucherFits(root, frame, stack);
+                    break;
+            }
+            if (FitCache.Count > 2000) FitCache.Clear();
+            FitCache[key] = fits;
+            return fits;
+        }
+
+        /// <summary>What every page of the job shares that changes the fit.</summary>
+        private static string JobKey(PrintJob job)
+        {
+            var inv = CultureInfo.InvariantCulture;
+            var b = new StringBuilder();
+            b.Append(job.Template).Append('|').Append(job.WordsLanguage).Append('|').Append(job.WordsRightToLeft).Append('|')
+                .Append(job.WidthMm.ToString("R", inv)).Append('x').Append(job.HeightMm.ToString("R", inv)).Append('|');
+            if (job.Template == PrintTemplate.Cheque)
+                b.Append(job.Profile.FontSizePt.ToString("R", inv)).Append('|').Append(job.Profile.ThirdWordsLine).Append('|');
+            else if (PrintTemplates.IsVoucher(job.Template))
+            {
+                // Labels follow the interface language; the logo's height counts in the header.
+                b.Append(Loc.Language).Append('|').Append(job.LogoPath).Append('|');
+                try
+                {
+                    if (!string.IsNullOrEmpty(job.LogoPath) && File.Exists(job.LogoPath))
+                        b.Append(File.GetLastWriteTimeUtc(job.LogoPath).Ticks.ToString(inv));
+                }
+                catch (Exception) { /* unreadable: LoadLogo treats it as no logo */ }
+                b.Append('|');
+            }
+            return b.ToString();
+        }
+
+        private static string PageKey(PrintJob job, PrintForm form, string jobKey)
+        {
+            if (!PrintTemplates.IsVoucher(job.Template)) return jobKey + form.Words;
+            // The number and the date sit on one line that does not wrap: they never change the height.
+            return string.Join("\u0001", jobKey, form.Words, form.Company, form.Party, form.Purpose, form.UnitText, form.Cleaned);
         }
 
         private static IList<string> SignatureKeysFor(IEnumerable<PrintItem> items) =>
@@ -531,10 +677,35 @@ namespace InstaWords.App.Views
             return fallbackRtl ? FlowDirection.RightToLeft : FlowDirection.LeftToRight;
         }
 
-        /// <summary>The voucher logo (decoded once, file not kept open); null when missing or unreadable.</summary>
+        private static string _logoKey;
+        private static BitmapSource _logo;
+
+        /// <summary>
+        /// The voucher logo (decoded once, file not kept open; the last one is kept while the file is
+        /// unchanged, so 500 bulk vouchers do not decode it 500 times); null when missing or unreadable.
+        /// </summary>
         public static BitmapSource LoadLogo(string path)
         {
             if (string.IsNullOrEmpty(path) || !File.Exists(path)) return null;
+            string key = null;
+            try
+            {
+                var info = new FileInfo(path);
+                key = path + "|" + info.LastWriteTimeUtc.Ticks.ToString(CultureInfo.InvariantCulture) + "|" + info.Length.ToString(CultureInfo.InvariantCulture);
+            }
+            catch (Exception) { /* no key: decode without caching */ }
+            if (key != null && key == _logoKey) return _logo;
+            var logo = DecodeLogo(path);
+            if (key != null)
+            {
+                _logoKey = key;
+                _logo = logo;
+            }
+            return logo;
+        }
+
+        private static BitmapSource DecodeLogo(string path)
+        {
             try
             {
                 var bytes = File.ReadAllBytes(path);

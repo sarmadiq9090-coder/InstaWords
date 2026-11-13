@@ -202,6 +202,31 @@ namespace InstaWords.UITests
                 amount.Text = "";
                 amount.Enter("300");
                 AppSession.WaitUntil(() => PreviewWords(s, dialog) == Words("300"), "back to 300");
+                Assert.Null(dialog.FindFirstDescendant(s.Cf.ByAutomationId("PrintOverflow")));
+                Assert.True(s.Get("PrintNow", dialog).IsEnabled);
+
+                // Words that cannot fit even at the smallest size are never printed cut off (B3): at 24 pt the
+                // words may only shrink to 14.4 pt, too big for the largest amount. A red notice, Print disabled.
+                amount.Text = "";
+                amount.Enter("999999999999999.99");
+                var font = s.Get("PrintFontSize", dialog).AsTextBox();
+                font.Text = "";
+                font.Enter("24");
+                Keyboard.Press(VirtualKeyShort.ENTER);
+                AppSession.WaitUntil(() => dialog.FindFirstDescendant(s.Cf.ByAutomationId("PrintOverflow")) != null, "overflow notice");
+                Assert.Contains("سيُقصّ", NameOf(s, dialog, "PrintOverflow"));
+                Assert.Contains("حجم خط أصغر", NameOf(s, dialog, "PrintOverflowFixes"));
+                Assert.False(s.Get("PrintNow", dialog).IsEnabled);
+                Thread.Sleep(400);
+                s.Screenshot(dialog, "16c-print-overflow");
+                font.Text = "";
+                font.Enter("12");
+                Keyboard.Press(VirtualKeyShort.ENTER);
+                AppSession.WaitUntil(() => dialog.FindFirstDescendant(s.Cf.ByAutomationId("PrintOverflow")) == null, "notice gone at 12 pt");
+                Assert.True(s.Get("PrintNow", dialog).IsEnabled);
+                amount.Text = "";
+                amount.Enter("300");
+                AppSession.WaitUntil(() => PreviewWords(s, dialog) == Words("300"), "back to 300 again");
 
                 // Calibration: the grid and an offset.
                 s.Get("PrintShowGrid", dialog).AsToggleButton().Toggle();

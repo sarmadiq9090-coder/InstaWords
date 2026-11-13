@@ -3,6 +3,22 @@
 Each version's section is copied into its GitHub release notes by the release workflow
 (`scripts/changelog-section.mjs`). Earlier versions: [GitHub Releases](https://github.com/sarmadiq9090-coder/InstaWords/releases).
 
+## Unreleased
+
+<div dir="rtl">
+
+- **لا طباعة لكلمات مقصوصة**: إن لم يتّسع المبلغ كتابةً في أسطر الشيك أو شريط المبلغ حتى بأصغر خط مسموح، أو لم تتّسع نصوص السند في مساحته، يظهر تنبيه أحمر فوق المعاينة مع ما يمكن تغييره، ويتعطّل زر «طباعة» حتى يتّسع (كان آخر المبلغ يُقصّ على الورق دون تنبيه).
+- **سطر ثالث للمبلغ كتابةً في الشيك** (اختياري، لكل ملف شيكات) للمبالغ الطويلة، ويزيد شريط المبلغ سطراً ثالثاً وحده عند الحاجة.
+- **بطاقة «كيف أستخدمه؟»** (F1 أو زر ؟ أعلى النافذة): كتابة الأرقام وقاعدة الفاصلة، واختصار تحويل ما نسخته، و«عدة مبالغ»، ومعايرة طباعة الشيكات، وإضافة Excel. «حول» صار من زره فقط.
+- إصلاح اتجاه «‎.NET» في تلميح نافذة الإبلاغ.
+
+</div>
+
+- **No more cut-off words on paper**: when the amount in words does not fit the cheque's or strip's lines even at the smallest allowed size, or a voucher's text does not fit its space, a red notice above the preview says what to change and Print stays disabled until it fits (the end of the amount used to be clipped on paper silently).
+- **Optional third cheque line** for the amount in words (per cheque profile), and the words strip grows a third line by itself when needed.
+- **"How to use" card** (F1 or the ? button in the header): typing numbers and the comma rule, the clipboard shortcut, Bulk, cheque calibration and the Excel add-in. About now opens from its button only.
+- Fixed the direction of ".NET" in the Arabic report-window hint.
+
 ## 2.2.0
 
 <div dir="rtl">

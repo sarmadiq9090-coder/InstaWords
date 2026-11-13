@@ -37,7 +37,7 @@
 | <kbd>Esc</kbd> | مسح الرقم |
 | <kbd>Ctrl</kbd>+<kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | تفقيط رقم · عدة مبالغ · الإعدادات |
 | <kbd>Ctrl</kbd>+<kbd>V</kbd> | لصق عمود في «عدة مبالغ» |
-| <kbd>F1</kbd> | حول البرنامج |
+| <kbd>F1</kbd> | كيف أستخدمه؟ (شرح سريع) |
 
 ### التثبيت
 
@@ -91,7 +91,7 @@
 | <kbd>Esc</kbd> | Clear the number |
 | <kbd>Ctrl</kbd>+<kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd> | Single · Bulk · Settings |
 | <kbd>Ctrl</kbd>+<kbd>V</kbd> | Paste a column on the Bulk tab |
-| <kbd>F1</kbd> | About |
+| <kbd>F1</kbd> | How to use (quick guide) |
 
 ### Install
 
