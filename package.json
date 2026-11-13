@@ -1,6 +1,6 @@
 {
   "name": "instawords",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "description": "InstaWords — free amount-in-words (tafqit) for cheques and invoices: Arabic, English and French. Zero-dependency TS library, offline website, native Windows app (WPF) and Excel VBA module.",
   "type": "module",
   "license": "UNLICENSED",

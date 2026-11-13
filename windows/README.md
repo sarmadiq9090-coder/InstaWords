@@ -106,7 +106,7 @@ npm ci && npm run test:dotnet                       # engine: generate, check, p
 dotnet test  windows/InstaWords.App.Tests           # app logic: updater, reports (GitHub and mailto links), CSV, strings, print layout, amounts
 dotnet build windows/InstaWords.App -c Release      # → windows/InstaWords.App/bin/Release/net48/InstaWords.exe
 dotnet test  windows/InstaWords.UITests -c Release  # Windows only: FlaUI end-to-end tests + screenshots
-iscc /DAppVersion=2.2.0 windows\installer\InstaWords.iss   # Inno Setup 6 (CI pins 6.7.1) → out\InstaWords_2.2.0_x64-setup.exe
+iscc /DAppVersion=3.0.0 windows\installer\InstaWords.iss   # Inno Setup 6 (CI pins 6.7.1) → out\InstaWords_3.0.0_x64-setup.exe
 ```
 
 | Path | What |

@@ -5,8 +5,11 @@ Each version's section is copied into its GitHub release notes by the release wo
 
 ## Unreleased
 
+## 3.0.0
+
 <div dir="rtl">
 
+- **تغيير غير متوافق مع 2.x، لذلك الرقم 3.0.0**: بعض الأرقام المكتوبة نصاً كانت تُحوَّل وصارت تُرفض أو تُقرأ قراءة أخرى (انظر «لا تخمين في الفواصل» أدناه): ‎`12,50`‎ في العربية والإنجليزية يعطي الآن الخطأ الجديد `AMBIGUOUS_SEPARATOR` بدل 1250، و‎`1,250`‎ في الفرنسية صار 1.25 بدل 1250. يشمل ذلك مكتبة JavaScript والدالة `TAFQIT` في Excel لخلية فيها نص؛ الخلايا الرقمية في Excel لا تتأثر.
 - **الرخصة**: InstaWords أصبح برنامجاً مملوكاً (مجانياً)؛ إشعارات الأطراف الثالثة دون تغيير.
 - **متطلبات ويندوز**: المثبّت يرفض الآن إصدارات Windows 10 الأقدم من 1903، لأن ‎.NET Framework 4.8 غير مدمج فيها. والبرنامج لم يُجرَّب بعد على جهاز Windows حقيقي، وهذا مكتوب في README وملاحظات الإصدار.
 - **حدود مكتوبة بوضوح** في README: صيغة الرقم (في العربية والإنجليزية الفاصلة للآلاف والنقطة للكسر، وفي الفرنسية آخر فاصل وحيد من نوعه هو الكسر، والرقم الملتبس يُرفض مع سؤال)، والإنجليزية على طريقة الشيكات الأمريكية (One Hundred One)، والخصوصية (آخر 100 مبلغ في `history.json` على جهازك فقط، ويُمسح بزر «مسح السجل»).
@@ -27,6 +30,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 
 </div>
 
+- **Breaking change from 2.x, hence 3.0.0**: some numbers typed as text that used to convert are now refused or read differently (see "No guessing on separators" below): `12,50` with Arabic or English output now gives the new error `AMBIGUOUS_SEPARATOR` instead of 1,250, and `1,250` with French output now means 1.25, not 1250. This applies to the JavaScript library and to Excel's `TAFQIT` on a text cell; numeric Excel cells are unaffected. Code that handles every error code should add `AMBIGUOUS_SEPARATOR`; a successful `tryTafqit` result may now carry `warnings` (`ROUNDED_TO_ZERO`).
 - **Licence**: InstaWords is now proprietary (free); third-party notices unchanged.
 - **Windows requirement**: the installer now refuses Windows 10 builds older than 1903, which lack the built-in .NET Framework 4.8. The app is not yet tested on a real Windows device; README and the release notes now say so.
 - **Limits stated plainly** in README: the number format (for Arabic and English, comma for thousands and dot for decimals; for French, a last separator that is the only one of its kind is the decimal point; ambiguous input is refused with a question), US cheque-style English (One Hundred One), and privacy (the last 100 amounts stay in `history.json` on your PC only; «Clear the history» removes them).

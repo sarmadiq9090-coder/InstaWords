@@ -158,7 +158,7 @@ convert({ the_number: "2", unit: "SAR" }); // { result: "ريالان سعودي
 ```
 
 Options: `unit` (id, code, label or alias; default `"none"`), `language` (`"ar"` | `"en"` | `"fr"`), `hundredsForm` (Arabic only: `"مائة"` | `"مئة"`), `prefix`, `suffix`, `decimals` (`"round"` half-up to the subunit — default — or `"error"`).
-Error codes: `EMPTY`, `INVALID_FORMAT`, `NEGATIVE`, `TOO_LARGE`, `TOO_MANY_DECIMALS`, `FRACTION_NOT_SUPPORTED`, `UNKNOWN_UNIT`, `INVALID_OPTION`, `INVALID_CATALOG`.
+Error codes: `EMPTY`, `INVALID_FORMAT`, `NEGATIVE`, `TOO_LARGE`, `TOO_MANY_DECIMALS`, `FRACTION_NOT_SUPPORTED`, `UNKNOWN_UNIT`, `INVALID_OPTION`, `INVALID_CATALOG`, `NO_LANGUAGE_FORMS`, `AMBIGUOUS_SEPARATOR` (since 3.0.0; `error.readings` lists the possible readings, e.g. `["12.50", "1250"]`). Warning (on a successful `tryTafqit`, since 3.0.0): `ROUNDED_TO_ZERO`.
 
 The full linguistic specification is in [`docs/SPEC.md`](docs/SPEC.md). §16 lists the cases awaiting linguistic review. Excel instructions are in [`vba/README.md`](vba/README.md).
 

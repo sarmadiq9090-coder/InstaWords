@@ -43,16 +43,18 @@ describe("MSIX package (Microsoft Store)", () => {
     for (const bad of ["2.2", "2.2.1.0", "v2.2.1", "2.2.1-beta", "0.1.0"]) assert.throws(() => storeVersion({ storeVersion: bad }, "1.0.0"), bad);
   });
 
-  test("identity.json storeVersion is 2.2.1 (package 2.2.1.0) and not behind package.json", () => {
-    // Raise storeVersion for every Store submission (Partner Center needs a higher package version each
-    // time) and update this test with it; see docs/distribution/microsoft-store.md, "Version of each submission".
-    assert.equal(identity.storeVersion, "2.2.1");
+  test("identity.json has no storeVersion: the Store build follows package.json (3.0.0, package 3.0.0.0)", () => {
+    // storeVersion was 2.2.1 (the first Store submission, package 2.2.1.0) and was removed when package.json
+    // passed it (3.0.0). Set it again only for a Store-only fix, and update this test with it; see
+    // docs/distribution/microsoft-store.md, "Version of each submission".
+    assert.equal(identity.storeVersion, undefined);
     const v = storeVersion(identity, pkgVersion);
-    assert.equal(v, "2.2.1");
-    assert.ok(compareVersions(v, pkgVersion) >= 0);
-    assert.equal(packageVersion(v), "2.2.1.0");
-    assert.equal(packageFileName(v), "InstaWords_2.2.1.0_x64.msix");
-    assert.match(renderManifest(template, identity, v), /<Identity Name="FastKiwi\.InstaWords" [^>]*Version="2\.2\.1\.0"/);
+    assert.equal(v, pkgVersion);
+    assert.equal(v, "3.0.0");
+    assert.ok(compareVersions(v, "2.2.1") > 0, "every Store submission needs a higher package version than 2.2.1.0");
+    assert.equal(packageVersion(v), "3.0.0.0");
+    assert.equal(packageFileName(v), "InstaWords_3.0.0.0_x64.msix");
+    assert.match(renderManifest(template, identity, v), /<Identity Name="FastKiwi\.InstaWords" [^>]*Version="3\.0\.0\.0"/);
   });
 
   test("identity.json is usable", () => {
