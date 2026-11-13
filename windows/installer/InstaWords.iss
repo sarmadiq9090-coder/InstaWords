@@ -316,7 +316,9 @@ begin
       Item := Found.ItemIndex(I);
       if not VarIsNull(Item.ExecutablePath) then
       begin
-        ExePath := Lowercase(Item.ExecutablePath);
+        // Pascal Script does not pass a Variant to a String parameter: assign it first.
+        ExePath := Item.ExecutablePath;
+        ExePath := Lowercase(ExePath);
         if Pos(Prefix, ExePath) = 1 then
         begin
           Log('Closing the running copy: ' + ExePath);
