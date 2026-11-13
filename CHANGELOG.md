@@ -23,6 +23,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **لا تخمين في الفواصل**: كانت الفاصلة تُعدّ فاصل آلاف دائماً، فتصير ‎`12,50`‎ يورو 1250، و‎`0,5`‎ دينار 5، و‎`1.250,75`‎ ريال 1.25 بصمت. الآن تُقبل الفاصلة كسراً في التفقيط بالفرنسية (‎`12,50`‎ = 12.50، و‎`1 250,75`‎ و‎`1.250,75`‎ = 1250.75)، وفي العربية والإنجليزية تبقى للآلاف بمجموعات من ثلاث خانات، وكل رقم يحتمل قراءتين يظهر له خطأ جديد يسأل «هل تقصد 12.50 أم 1250؟» بدل التخمين، في التطبيق والموقع وExcel.
 - **تنبيه التقريب إلى صفر**: مبلغ أصغر من أصغر جزء في الوحدة (‎`0.004`‎ ريال) ما زال يُكتب «صفر ريال سعودي»، لكن مع تنبيه في الصفحة الواحدة والتفقيط المتعدد واختصار الحافظة والموقع. ونافذة الطباعة لا تطبع «صفر» لمبلغ ليس صفراً: تنبيه أحمر فوق المعاينة (مع أرقام الصفحات في الطباعة المتعددة) وزر «طباعة» معطّل حتى يُصحَّح المبلغ.
 - **‎`TAFQIT_CLEAN`‎ في Excel** تقبل معامل اللغة: ‎`=TAFQIT_CLEAN(A1, "fr")`‎.
+- **أيقونة على سطح المكتب**: المثبّت يضع أيقونة InstaWords على سطح المكتب افتراضياً، ويمكنك إلغاء الخيار أثناء التثبيت.
 
 </div>
 
@@ -42,6 +43,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **No guessing on separators**: a comma was always a thousands separator, so `12,50` EUR silently became 1,250 euros, `0,5` TND 5 dinars and `1.250,75` SAR 1.25 riyals. French output now reads the comma as the decimal point (`12,50` = 12.50; `1 250,75` and `1.250,75` = 1250.75); Arabic and English keep it for thousands in groups of three, and any number that reads two ways gets the new error `AMBIGUOUS_SEPARATOR`, which asks “Did you mean 12.50 or 1250?” instead of guessing — in the app, the website and Excel.
 - **Rounded-to-zero warning**: an amount below the unit's smallest part (`0.004` SAR) is still written “zero”, but now with a warning on the single page, the bulk tab, the clipboard shortcut and the website. The print dialog never prints “zero” for an amount that is not zero: a red notice above the preview (with the page numbers in a bulk job) and Print stays disabled until the amount is corrected.
 - **Excel `TAFQIT_CLEAN`** takes the output language: `=TAFQIT_CLEAN(A1, "fr")`.
+- **Desktop shortcut**: the installer now ticks "Create a desktop shortcut" by default; untick it during setup if you prefer.
 
 ## 2.2.0
 

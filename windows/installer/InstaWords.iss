@@ -89,7 +89,7 @@ arabic.BackupFailed=تعذّر حفظ نسخة احتياطية من البرن�
 english.BackupFailed=Could not keep a backup of the installed program before updating it (is the disk full?), so nothing was changed.
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 Name: "startup"; Description: "{cm:StartupTask}"; GroupDescription: "{cm:StartupGroup}"; Flags: unchecked
 
 [Files]
