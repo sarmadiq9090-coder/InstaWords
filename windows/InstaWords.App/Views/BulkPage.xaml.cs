@@ -111,7 +111,7 @@ namespace InstaWords.App.Views
             for (var i = 0; i < rows.Length; i++)
             {
                 var r = results[i];
-                rows[i].SetResult(r.Ok, r.Amount ?? "", r.Ok ? r.Text : "", r.Ok ? "" : r.ErrorMessage, flow);
+                rows[i].SetResult(r.Ok, r.Amount ?? "", r.Ok ? r.Text : "", r.Ok ? r.Warning ?? "" : r.ErrorMessage, flow);
             }
             UpdateCounts();
         }
@@ -120,7 +120,7 @@ namespace InstaWords.App.Views
         {
             var options = App.Current.State.ToOptions();
             var r = Conversion.Run(row.Input, options);
-            row.SetResult(r.Ok, r.Amount ?? "", r.Ok ? r.Text : "", r.Ok ? "" : r.ErrorMessage, Catalog.FlowFor(options.Language));
+            row.SetResult(r.Ok, r.Amount ?? "", r.Ok ? r.Text : "", r.Ok ? r.Warning ?? "" : r.ErrorMessage, Catalog.FlowFor(options.Language));
             UpdateCounts();
         }
 
@@ -324,7 +324,7 @@ namespace InstaWords.App.Views
             var rows = new List<IEnumerable<string>> { new[] { Loc.T("Bulk.CsvNumber"), Loc.T("Bulk.CsvCleaned"), Loc.T("Bulk.CsvWords"), Loc.T("Bulk.CsvError") } };
             rows.AddRange(_rows.Select(r => (IEnumerable<string>)new[]
             {
-                Csv.SafeCell(r.Input), Csv.SafeCell(r.Cleaned ?? ""), Csv.SafeCell(r.Ok ? r.Text : ""), Csv.SafeCell(r.Ok ? "" : r.Error ?? ""),
+                Csv.SafeCell(r.Input), Csv.SafeCell(r.Cleaned ?? ""), Csv.SafeCell(r.Ok ? r.Text : ""), Csv.SafeCell(r.Error ?? ""), // a warning on an ok row, the error otherwise
             }));
             Csv.Save(path, rows);
         }

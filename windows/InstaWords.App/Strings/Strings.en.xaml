@@ -56,6 +56,8 @@
   <sys:String x:Key="Clip.WriteFailedTitle">Couldn't write to the clipboard</sys:String>
   <sys:String x:Key="Clip.TryAgain">Try again.</sys:String>
   <sys:String x:Key="Clip.CopiedTitle">Amount in words copied · {0}</sys:String>
+  <sys:String x:Key="Clip.CopiedManyWarnTitle">Copied {0} lines; please check line {1}</sys:String>
+  <sys:String x:Key="Clip.CopiedWarnTitle">Amount in words copied; please check it · {0}</sys:String>
   <sys:String x:Key="Clip.TooManyTitle">The list is too long</sys:String>
   <sys:String x:Key="Clip.TooManyBody">Use the Bulk tab for more than 10,000 numbers.</sys:String>
   <sys:String x:Key="Clip.LineFailedTitle">Couldn't convert line {0}: “{1}”</sys:String>
@@ -74,7 +76,7 @@
   <sys:String x:Key="Single.KbdClear">to clear</sys:String>
   <sys:String x:Key="Single.NumberLabel">Amount or number</sys:String>
   <sys:String x:Key="Single.NumberHelp">Arabic or Western digits, with or without thousands separators</sys:String>
-  <sys:String x:Key="Single.NumberHint">Arabic-Indic (١٢٣) or Western (123) digits, with or without thousands separators; the decimal point is “.” or “٫”.</sys:String>
+  <sys:String x:Key="Single.NumberHint">Arabic-Indic (١٢٣) or Western (123) digits. Decimals after “.” or “٫” (or “,” for French output); thousands without separators or with a comma every three digits (1,250).</sys:String>
   <sys:String x:Key="Single.ClearTip">Clear (Esc)</sys:String>
   <sys:String x:Key="Single.ClearName">Clear the number</sys:String>
   <sys:String x:Key="Single.Cleaned">Number used</sys:String>
@@ -142,6 +144,10 @@
   <sys:String x:Key="Err.INVALID_OPTION">Invalid option.</sys:String>
   <sys:String x:Key="Err.INVALID_CATALOG">The units file is not valid.</sys:String>
   <sys:String x:Key="Err.NO_LANGUAGE_FORMS">This unit has no wording in the chosen language.</sys:String>
+  <sys:String x:Key="Err.AMBIGUOUS_SEPARATOR">The separators in this number can be read more than one way. Write it without thousands separators, with a dot before the decimals (or a comma for French output), e.g. 1250.75.</sys:String>
+  <sys:String x:Key="Err.Ambiguous.One">Did you mean {0}?</sys:String>
+  <sys:String x:Key="Err.Ambiguous.Two">Did you mean {0} or {1}?</sys:String>
+  <sys:String x:Key="Warn.ROUNDED_TO_ZERO">The amount is smaller than the smallest part of this unit, so it was rounded to zero.</sys:String>
   <sys:String x:Key="Err.Generic">Couldn't convert.</sys:String>
   <sys:String x:Key="Err.Internal">Unexpected error: {0}</sys:String>
 

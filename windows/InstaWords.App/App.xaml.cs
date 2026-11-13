@@ -184,7 +184,9 @@ namespace InstaWords.App
                     return;
                 }
                 History.Add(values[0], r.Cleaned, options.Unit, options.Language, r.Text);
-                Notify(true, Loc.F("Clip.CopiedTitle", Conversion.Grouped(r.Amount)), r.Text, Catalog.FlowFor(options.Language));
+                // A warning (0.004 → «صفر») is always shown, even with toasts turned off.
+                if (r.Warning != null) Notify(false, Loc.F("Clip.CopiedWarnTitle", Conversion.Grouped(r.Amount)), r.Warning);
+                else Notify(true, Loc.F("Clip.CopiedTitle", Conversion.Grouped(r.Amount)), r.Text, Catalog.FlowFor(options.Language));
                 return;
             }
 
@@ -204,6 +206,12 @@ namespace InstaWords.App
             if (!ClipboardService.TrySetText(string.Join("\r\n", results.Select(r => r.Text))))
             {
                 Notify(false, Loc.T("Clip.WriteFailedTitle"), Loc.T("Clip.TryAgain"));
+                return;
+            }
+            var firstWarning = results.FindIndex(r => r.Warning != null);
+            if (firstWarning >= 0)
+            {
+                Notify(false, Loc.F("Clip.CopiedManyWarnTitle", Conversion.FormatCount(results.Count), firstWarning + 1), results[firstWarning].Warning);
                 return;
             }
             Notify(true, Loc.F("Clip.CopiedManyTitle", Conversion.FormatCount(results.Count)), results[0].Text + "\n…", Catalog.FlowFor(options.Language));

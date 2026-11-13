@@ -228,6 +228,19 @@ try {
   check("decimals=error shows error", (await page.getAttribute("#result", "class")).includes("is-error"), await page.textContent("#result"));
   await page.check('input[name="decimals"][value="round"]');
 
+  // Separators (SPEC §1.1): a comma that reads two ways asks instead of guessing; 0.004 warns.
+  await page.fill("#number", "12,50");
+  await waitText(page, "#result", tryMessage("12,50", { unit: "SAR" }), "12,50 → AMBIGUOUS_SEPARATOR with both readings");
+  check("ambiguous comma shows both readings", (await page.textContent("#result")).includes("هل تقصد 12.50 أم 1250؟"));
+  check("no cleaned number for an ambiguous input", !(await page.isVisible("#cleaned-box")));
+  await page.fill("#number", "0.004");
+  await waitText(page, "#result", "صفر ريال سعودي", "0.004 SAR is written as zero");
+  check("rounding to zero shows a warning", await page.isVisible("#result-warning")
+    && (await page.textContent("#result-warning")).includes("قُرِّب إلى صفر"), await page.textContent("#result-warning"));
+  await page.fill("#number", "0.01");
+  await waitText(page, "#result", "هللة واحدة", "0.01 SAR");
+  check("warning hidden again", !(await page.isVisible("#result-warning")));
+
   await page.fill("#number", "abc");
   await page.waitForTimeout(50);
   const errText = await page.textContent("#result");

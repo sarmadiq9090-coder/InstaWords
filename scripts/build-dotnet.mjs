@@ -17,7 +17,7 @@ import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { Catalog, unitKey } from "../src/catalog.ts";
-import { ERROR_MESSAGES } from "../src/errors.ts";
+import { AMBIGUITY_QUESTION, ERROR_MESSAGES, WARNING_MESSAGES } from "../src/errors.ts";
 import * as LX from "../src/lexicon.ts";
 import { LANGUAGES, LANGUAGE_MODULES } from "../src/lang/index.ts";
 import { EN_WORDS } from "../src/lang/en.ts";
@@ -60,6 +60,8 @@ expectLen("FR_WORDS.TENS", FR_WORDS.TENS, 7);
 expectLen("FR_WORDS.SCALE_NOUNS", FR_WORDS.SCALE_NOUNS, 5);
 
 const ERROR_CODES = Object.keys(ERROR_MESSAGES);
+const WARNING_CODES = Object.keys(WARNING_MESSAGES);
+sameKeys("AMBIGUITY_QUESTION", AMBIGUITY_QUESTION, ["start", "or", "end"]);
 
 // ---------------------------------------------------------------- C# text
 
@@ -146,13 +148,19 @@ function charClasses(keys) {
   const digitCount = ranges((c) => digitOf(c) >= 0).reduce((n, [a, b]) => n + b - a + 1, 0);
   if (digitCount !== digits.length * 10) fail("a digit is outside the 0..9 blocks");
   const isDigit = (c) => digits.some((z) => c >= z && c <= z + 9);
-  const thousands = (c) => !inputSpace(c) && !isDigit(c) && probe("1" + CODE_UNITS[c] + "2").cleaned === "12";
+  // "1,234" (three digits after it: a lone separator before two digits is AMBIGUOUS_SEPARATOR).
+  const thousands = (c) => !inputSpace(c) && !isDigit(c) && probe("1" + CODE_UNITS[c] + "234").cleaned === "1234";
   const decimal = (c) => probe("1" + CODE_UNITS[c] + "2").cleaned === "1.2";
   const minus = (c) => probe(CODE_UNITS[c] + "1").code === "NEGATIVE";
   const plus = (c) => !inputSpace(c) && !isDigit(c) && !thousands(c) && probe(CODE_UNITS[c] + "1").cleaned === "1"
     && probe(CODE_UNITS[c] + CODE_UNITS[c] + "1").code === "INVALID_FORMAT";
   if (!ranges(decimal).some(([a, b]) => a <= 0x2e && 0x2e <= b)) fail("'.' is not a decimal point any more");
   if (ranges(plus).flat().join() !== "43,43") fail("the plus sign set changed");
+  // Internal/Normalizer.cs tells the four separators apart by value (SPEC §1.1).
+  if (ranges(thousands).flat().join() !== "44,44,1644,1644") fail("the thousands separators changed (expected , and U+066C)");
+  if (ranges(decimal).flat().join() !== "46,46,1643,1643") fail("the decimal points changed (expected . and U+066B)");
+  // French reads "12,50" as 12.5 and Arabic rejects it; Normalizer.cs implements exactly this.
+  if (normalizeNumber("12,50", "fr").cleaned !== "12.5" || probe("12,50").code !== "AMBIGUOUS_SEPARATOR") fail("separator rules changed");
 
   // unitKey's toLowerCase(), restricted to the characters that can produce text found in a key.
   const keyChars = new Set(keys.join(""));
@@ -328,6 +336,24 @@ function errors() {
         /// <summary>Codes in src/errors.ts order.</summary>
         internal static readonly string[] Codes = ${csArray(ERROR_CODES)};
 
+        /// <summary>AMBIGUOUS_SEPARATOR detail: Start + readings joined by Or + End (AMBIGUITY_QUESTION).</summary>
+        internal const string AskStart = ${cs(AMBIGUITY_QUESTION.start)};
+        internal const string AskOr = ${cs(AMBIGUITY_QUESTION.or)};
+        internal const string AskEnd = ${cs(AMBIGUITY_QUESTION.end)};
+
+        /// <summary>Warning codes in src/errors.ts order.</summary>
+        internal static readonly string[] WarningCodes = ${csArray(WARNING_CODES)};
+
+        /// <summary>WARNING_MESSAGES[code].</summary>
+        internal static string GetWarning(string code)
+        {
+            switch (code)
+            {
+${WARNING_CODES.map((c) => `                case ${cs(c)}: return ${cs(WARNING_MESSAGES[c])};`).join("\n")}
+                default: throw new System.ArgumentOutOfRangeException(nameof(code), code, "unknown warning code");
+            }
+        }
+
         /// <summary>ERROR_MESSAGES[code], without detail.</summary>
         internal static string Get(string code)
         {
@@ -355,6 +381,12 @@ namespace InstaWords.Core
     public static class TafqitErrorCodes
     {
 ${ERROR_CODES.map((c) => `        /// <summary>${ERROR_MESSAGES[c]}</summary>\n        public const string ${pascal(c)} = ${cs(c)};`).join("\n")}
+    }
+
+    /// <summary>Values of <see cref="TafqitResult.Warnings"/>: the words were written, but the user should look at them.</summary>
+    public static class TafqitWarningCodes
+    {
+${WARNING_CODES.map((c) => `        /// <summary>${WARNING_MESSAGES[c]}</summary>\n        public const string ${pascal(c)} = ${cs(c)};`).join("\n")}
     }
 }
 `;
@@ -421,7 +453,8 @@ export function buildDotnet(unitsData) {
   const sourceHash = createHash("sha256")
     .update(readFileSync(fileURLToPath(import.meta.url), "utf8").replace(/\r\n/g, "\n"))
     .update(JSON.stringify(LX)).update(JSON.stringify(EN_WORDS)).update(JSON.stringify(FR_WORDS)).update(String(FR_WORDS.ELIDES))
-    .update(JSON.stringify(LANGUAGES)).update(JSON.stringify(ERROR_MESSAGES)).update(readFileSync(root + "src/normalize.ts", "utf8").replace(/\r\n/g, "\n"))
+    .update(JSON.stringify(LANGUAGES)).update(JSON.stringify(ERROR_MESSAGES)).update(JSON.stringify(WARNING_MESSAGES))
+    .update(JSON.stringify(AMBIGUITY_QUESTION)).update(readFileSync(root + "src/normalize.ts", "utf8").replace(/\r\n/g, "\n"))
     .update(JSON.stringify(unitsData))
     .digest("hex").slice(0, 16);
 

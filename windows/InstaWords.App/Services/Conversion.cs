@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using InstaWords.Core;
 
 namespace InstaWords.App.Services
@@ -19,6 +20,11 @@ namespace InstaWords.App.Services
         public string Amount { get; set; }
         public string ErrorCode { get; set; }
         public string ErrorMessage { get; set; }
+        /// <summary>
+        /// A warning in the interface language when the words were written but need a look (0.004 SAR → «صفر»,
+        /// ROUNDED_TO_ZERO); null when there is none.
+        /// </summary>
+        public string Warning { get; set; }
     }
 
     /// <summary>Thin wrapper over the engine that never throws into the UI.</summary>
@@ -35,7 +41,12 @@ namespace InstaWords.App.Services
                 return new ConversionResult
                 {
                     Ok = r.Ok, Text = r.Text ?? "", Cleaned = r.Cleaned, Amount = amount, ErrorCode = r.ErrorCode,
-                    ErrorMessage = r.Ok ? null : Loc.Error(r.ErrorCode, r.ErrorMessage),
+                    ErrorMessage = r.Ok ? null
+                        : r.ErrorCode == TafqitErrorCodes.AmbiguousSeparator ? Loc.Ambiguous(r.ErrorCode, r.ErrorMessage, r.ErrorReadings)
+                        : Loc.Error(r.ErrorCode, r.ErrorMessage),
+                    Warning = r.Ok && r.Warnings.Count > 0
+                        ? string.Join(" ", r.Warnings.Select(w => Loc.Warning(w, TafqitResult.WarningMessage(w))))
+                        : null,
                 };
             }
             catch (Exception ex)
