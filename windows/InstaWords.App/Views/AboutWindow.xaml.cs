@@ -24,7 +24,7 @@ namespace InstaWords.App.Views
             AddShortcut("Esc", Loc.T("About.KeyClear"));
             AddShortcut("Ctrl+1 / 2 / 3", Loc.T("About.KeyTabs"));
             AddShortcut("Ctrl+V", Loc.T("About.KeyPaste"));
-            AddShortcut("F1", Loc.T("About.KeyAbout"));
+            AddShortcut("F1", Loc.T("About.KeyHelp"));
         }
 
         private void AddShortcut(string keys, string what)

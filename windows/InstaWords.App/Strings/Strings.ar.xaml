@@ -24,8 +24,10 @@
   <sys:String x:Key="Main.Report">إبلاغ</sys:String>
   <sys:String x:Key="Main.ReportTip">الإبلاغ عن مشكلة أو اقتراح</sys:String>
   <sys:String x:Key="Main.About">حول</sys:String>
-  <sys:String x:Key="Main.AboutTip">حول InstaWords (F1)</sys:String>
+  <sys:String x:Key="Main.AboutTip">حول InstaWords</sys:String>
   <sys:String x:Key="Main.AboutName">حول InstaWords</sys:String>
+  <sys:String x:Key="Main.Help">كيف أستخدمه؟ (F1)</sys:String>
+  <sys:String x:Key="Main.HelpName">كيف أستخدمه؟</sys:String>
 
   <sys:String x:Key="Common.Unit">العملة أو الوحدة</sys:String>
   <sys:String x:Key="Common.OutputLanguage">لغة التفقيط</sys:String>
@@ -248,7 +250,30 @@
   <sys:String x:Key="About.KeyClear">مسح الرقم</sys:String>
   <sys:String x:Key="About.KeyTabs">تفقيط رقم · عدة مبالغ · الإعدادات</sys:String>
   <sys:String x:Key="About.KeyPaste">لصق عمود في «عدة مبالغ»</sys:String>
-  <sys:String x:Key="About.KeyAbout">هذه النافذة</sys:String>
+  <sys:String x:Key="About.KeyHelp">كيف أستخدمه؟ (شرح سريع)</sys:String>
+
+  <sys:String x:Key="Help.WindowTitle">كيف أستخدم InstaWords؟</sys:String>
+  <sys:String x:Key="Help.Title">كيف أستخدمه؟</sys:String>
+  <sys:String x:Key="Help.Intro">اكتب رقماً في «تفقيط رقم» فيظهر مكتوباً بالحروف فوراً، ثم انسخه (Ctrl+Enter) أو اطبعه (Ctrl+P). العملة ولغة التفقيط والنص قبل المبلغ وبعده تختارها في الصفحة نفسها.</sys:String>
+  <sys:String x:Key="Help.Numbers.Title">كتابة الأرقام</sys:String>
+  <sys:String x:Key="Help.Numbers.Body">في التفقيط بالعربية أو الإنجليزية: النقطة فاصلة عشرية، والفاصلة للآلاف فقط، ولا تصح إلا قبل ثلاثة أرقام بالضبط. وإلا فلن يخمّن البرنامج ما قصدته: يطلب منك تصحيح الرقم بدل أن يكتب مبلغاً قد يكون خاطئاً. راجع دائماً «الرقم المعتمد» تحت النتيجة.</sys:String>
+  <sys:String x:Key="Help.Numbers.Ok1">صحيح: الفاصلة للآلاف والنقطة عشرية.</sys:String>
+  <sys:String x:Key="Help.Numbers.Ok2">صحيح أيضاً، دون فاصل للآلاف.</sys:String>
+  <sys:String x:Key="Help.Numbers.Ok3">صحيح: أرقام عربية هندية، و«٫» فاصلة عشرية.</sys:String>
+  <sys:String x:Key="Help.Numbers.Rejected">لا يصح: بعد الفاصلة رقمان لا ثلاثة. اكتب 12.50</sys:String>
+  <sys:String x:Key="Help.Numbers.French">في التفقيط بالفرنسية الفاصلة عشرية كما في الفرنسية (أي 1250.75)، فلا تستعملها للآلاف.</sys:String>
+  <sys:String x:Key="Help.Hotkey.Title">تحويل ما نسخته، من أي برنامج</sys:String>
+  <sys:String x:Key="Help.Hotkey.Body">انسخ رقماً (Ctrl+C) من Excel أو المتصفح أو برنامج المحاسبة، ثم اضغط {0}: يصبح ما نسخته المبلغَ مكتوباً بالحروف، فالصقه (Ctrl+V) حيث تشاء. يعمل والنافذة مغلقة ما دام InstaWords في شريط المهام، وتغيّر الاختصار من «الإعدادات». إن لم يكن ما نسخته رقماً واضحاً يظهر تنبيه ويبقى ما نسخته كما هو.</sys:String>
+  <sys:String x:Key="Help.Bulk.Title">عدة مبالغ دفعة واحدة</sys:String>
+  <sys:String x:Key="Help.Bulk.Body">في «عدة مبالغ» (Ctrl+2) الصق عموداً من Excel (Ctrl+V)، أو استورد ملف CSV أو ملفاً نصياً فيه عمود واحد. يُفقَّط كل سطر وحده، ويمكنك تعديل أي رقم في الجدول. «نسخ النتائج» يعطي سطراً لكل رقم، وتبقى أسطر الأخطاء فارغة لتطابق ترتيب صفوف Excel. حدّد صفوفاً واضغط Ctrl+P لطباعة شيك أو سند لكل صف.</sys:String>
+  <sys:String x:Key="Help.Print.Title">طباعة الشيكات ومعايرتها</sys:String>
+  <sys:String x:Key="Help.Print.Body">اضغط Ctrl+P واختر «شيك». في المرة الأولى اضغط «طباعة تجريبية» واطبعها على ورقة عادية، ثم ضعها فوق شيك حقيقي أمام الضوء، وقِس بالمليمتر كم يبعد كل حقل عن مكانه، واكتبه في «إزاحة الحقول (مم)»: X الموجب يزيح لليمين وY الموجب للأسفل، و«كل الحقول» لهوامش الطابعة. أعد الطباعة التجريبية حتى تنطبق الحقول. تُحفظ المعايرة في «ملف الشيكات»، فاجعل ملفاً لكل دفتر شيكات أو طابعة.</sys:String>
+  <sys:String x:Key="Help.Print.Overflow">إن ظهر تنبيه أحمر فوق المعاينة فالمبلغ كتابةً لا يتّسع في مكانه وسيُقصّ: لا يطبع البرنامج حتى تصلحه بأحد الحلول المقترحة في التنبيه. ولحفظ ملف PDF اختر الطابعة «Microsoft Print to PDF».</sys:String>
+  <sys:String x:Key="Help.Excel.Title">في Excel</sys:String>
+  <sys:String x:Key="Help.Excel.Body">الإضافة InstaWords.xlam تضيف الدالة TAFQIT إلى كل مصنف، دون إنترنت. نزّلها من صفحة Excel في الموقع، ثم: خصائص الملف ← «إلغاء الحظر»، ثم في Excel: ملف ← خيارات ← الوظائف الإضافية ← انتقال… ← استعراض… واختر الملف. ثم اكتب في أي خلية:</sys:String>
+  <sys:String x:Key="Help.Excel.Separator">إن كانت إعدادات Windows لديك تستعمل الفاصلة المنقوطة فاكتبها (;) بدل الفاصلة (,).</sys:String>
+  <sys:String x:Key="Help.Excel.Experimental">الإضافة تجريبية: لم تُجرَّب بعد في Excel حقيقي. إن لم تعمل لديك فانسخ الخلايا واضغط {0}، أو الصقها في «عدة مبالغ»، وأخبرنا من «إبلاغ».</sys:String>
+  <sys:String x:Key="Help.Excel.Open">فتح صفحة Excel في الموقع</sys:String>
 
   <sys:String x:Key="Report.OpenGitHub">فتح بلاغ في GitHub (يتطلب حساب GitHub)</sys:String>
   <sys:String x:Key="Report.Copy">نسخ التقرير</sys:String>
@@ -277,7 +302,7 @@
   <sys:String x:Key="Report.WhyHeading">لماذا تحتاجه؟</sys:String>
   <sys:String x:Key="Report.DetailsName">تفاصيل إضافية</sys:String>
   <sys:String x:Key="Report.IncludeTech">إرفاق معلومات تقنية</sys:String>
-  <sys:String x:Key="Report.IncludeTechHint">إصدار البرنامج وWindows و.NET، ولغة الواجهة، وخيارات التحويل، وآخر رمز خطأ. لا تُرفق أي أرقام ولا ما نسخته (الحافظة) ولا السجل.</sys:String>
+  <sys:String x:Key="Report.IncludeTechHint">إصدار البرنامج وWindows و‎.NET، ولغة الواجهة، وخيارات التحويل، وآخر رمز خطأ. لا تُرفق أي أرقام ولا ما نسخته (الحافظة) ولا السجل.</sys:String>
   <sys:String x:Key="Report.Preview">معاينة ما سيُرسل</sys:String>
   <sys:String x:Key="Report.PreviewName">معاينة التقرير</sys:String>
   <sys:String x:Key="Report.TechHeading">معلومات تقنية</sys:String>
@@ -398,6 +423,8 @@
   <sys:String x:Key="Print.PrintFrameHint">للطباعة على ورق عادي. أوقفه عند الطباعة على شيك مطبوع.</sys:String>
   <sys:String x:Key="Print.ShowGrid">إظهار شبكة المعايرة في المعاينة</sys:String>
   <sys:String x:Key="Print.ShowGridHint">مربع صغير لكل مليمتر، والأرقام بالسنتيمتر من الزاوية العليا اليسرى.</sys:String>
+  <sys:String x:Key="Print.ThirdLine">سطر ثالث للمبلغ كتابةً</sys:String>
+  <sys:String x:Key="Print.ThirdLineHint">للمبالغ الطويلة: يُطبع تحت السطر الثاني. تأكّد بالطباعة التجريبية أن في شيكك مكاناً له.</sys:String>
   <sys:String x:Key="Print.Offsets">إزاحة الحقول (مم)</sys:String>
   <sys:String x:Key="Print.OffsetsHint">X موجب يزيح لليمين، وY موجب يزيح للأسفل. «كل الحقول» لهوامش الطابعة.</sys:String>
   <sys:String x:Key="Print.OffsetsReset">إعادة الإزاحات إلى الصفر</sys:String>
@@ -434,5 +461,18 @@
   <sys:String x:Key="Print.SentMany">أُرسلت {0} صفحة إلى الطابعة.</sys:String>
   <sys:String x:Key="Print.Failed">تعذّرت الطباعة: {0}</sys:String>
   <sys:String x:Key="Print.TestSent">أُرسلت الطباعة التجريبية. ضعها فوق شيك حقيقي وعدّل الإزاحات.</sys:String>
+  <sys:String x:Key="Print.Overflow.Words">المبلغ كتابةً أطول من أسطره حتى بأصغر خط مسموح، فسيُقصّ آخره على الورق. لن يُطبع حتى يتّسع.</sys:String>
+  <sys:String x:Key="Print.Overflow.Voucher">نصوص السند أطول من مساحته، فسيُقصّ بعضها على الورق. لن يُطبع حتى تتّسع.</sys:String>
+  <sys:String x:Key="Print.Overflow.Pages">لا تتّسع {0} من {1} صفحة، أولها الصفحة {2}.</sys:String>
+  <sys:String x:Key="Print.Overflow.Blocked">لم يُطبع شيء: بعض النص لا يتّسع في مكانه وسيُقصّ. انظر التنبيه الأحمر فوق المعاينة.</sys:String>
+  <sys:String x:Key="Print.Fix.Try">جرّب واحداً مما يلي:</sys:String>
+  <sys:String x:Key="Print.Fix.ThirdLine">فعّل «سطر ثالث للمبلغ كتابةً» في «الورق والمعايرة»، إن كان في شيكك مكان تحت السطر الثاني.</sys:String>
+  <sys:String x:Key="Print.Fix.Font">حجم خط أصغر في «الورق والمعايرة» (الآن {0} نقطة).</sys:String>
+  <sys:String x:Key="Print.Fix.Affixes">نص أقصر قبل المبلغ وبعده (مثل «فقط» و«لا غير») في خيارات التفقيط.</sys:String>
+  <sys:String x:Key="Print.Fix.ChequePaper">مقاس شيك أعرض، أو «مقاس مخصص» بعرض شيكك الحقيقي.</sys:String>
+  <sys:String x:Key="Print.Fix.WiderPaper">ورق أعرض (A4).</sys:String>
+  <sys:String x:Key="Print.Fix.UseVoucher">«سند قبض» أو «سند صرف»: سطور المبلغ كتابةً فيهما تمتد على قدر الحاجة.</sys:String>
+  <sys:String x:Key="Print.Fix.ShorterText">نصوص أقصر في الحقول: الاسم والبيان واسم الجهة.</sys:String>
+  <sys:String x:Key="Print.Fix.BiggerPaper">ورق أكبر (A4).</sys:String>
 
 </ResourceDictionary>

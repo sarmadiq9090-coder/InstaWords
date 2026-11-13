@@ -1,0 +1,122 @@
+<Window x:Class="InstaWords.App.Views.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:InstaWords.App.Views"
+        Style="{StaticResource DialogWindow}" WindowStartupLocation="CenterOwner"
+        Title="{DynamicResource Help.WindowTitle}" AutomationProperties.AutomationId="HelpWindow"
+        Width="700" Height="760" MinWidth="520" MinHeight="420" ResizeMode="CanResizeWithGrip">
+  <!-- «كيف أستخدمه؟» (F1, or the ? button): the main features in one card. Examples of what to type
+       and Excel formulas are code, so they stay left-to-right whatever the interface language. -->
+  <Window.Resources>
+    <Style x:Key="HelpHeading" TargetType="TextBlock" BasedOn="{StaticResource H2Text}">
+      <Setter Property="Margin" Value="0,22,0,6" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style x:Key="HelpText" TargetType="TextBlock">
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="LineHeight" Value="23" />
+      <Setter Property="FontSize" Value="14" />
+    </Style>
+    <Style x:Key="HelpNote" TargetType="TextBlock" BasedOn="{StaticResource HintText}">
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="LineHeight" Value="21" />
+      <Setter Property="Margin" Value="0,6,0,0" />
+    </Style>
+    <Style x:Key="HelpCode" TargetType="TextBlock">
+      <Setter Property="FontFamily" Value="{StaticResource MonoFont}" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FlowDirection" Value="LeftToRight" />
+    </Style>
+    <Style x:Key="HelpExample" TargetType="Border" BasedOn="{StaticResource KbdText}">
+      <Setter Property="Margin" Value="0,3,12,3" />
+      <Setter Property="Padding" Value="8,1,8,2" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="HelpExampleText" TargetType="TextBlock">
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="FontSize" Value="13.5" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+  </Window.Resources>
+
+  <DockPanel Margin="20">
+    <DockPanel DockPanel.Dock="Bottom" Margin="0,16,0,0" LastChildFill="False">
+      <Button DockPanel.Dock="Left" Style="{StaticResource PrimaryButton}" Content="{DynamicResource Common.Close}" IsDefault="True" IsCancel="True" Click="OnCloseClick" MinWidth="110"
+              AutomationProperties.AutomationId="HelpClose" />
+    </DockPanel>
+
+    <ContentControl Style="{StaticResource Card}" Padding="0">
+      <ScrollViewer x:Name="Scroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" Padding="26,22"
+                    AutomationProperties.AutomationId="HelpScroll">
+        <StackPanel>
+          <StackPanel Orientation="Horizontal">
+            <ui:Icon Data="{StaticResource IconHelp}" Width="26" Height="26" Foreground="{StaticResource AccentTextBrush}" Margin="0,0,10,0" VerticalAlignment="Center" />
+            <TextBlock Style="{StaticResource TitleText}" Text="{DynamicResource Help.Title}" VerticalAlignment="Center" AutomationProperties.AutomationId="HelpTitle" />
+          </StackPanel>
+          <TextBlock Style="{StaticResource HelpText}" Margin="0,12,0,0" Text="{DynamicResource Help.Intro}" />
+
+          <!-- Typing numbers: the comma rule -->
+          <TextBlock Style="{StaticResource HelpHeading}" Text="{DynamicResource Help.Numbers.Title}" />
+          <TextBlock Style="{StaticResource HelpText}" Text="{DynamicResource Help.Numbers.Body}" AutomationProperties.AutomationId="HelpNumbers" />
+          <Grid Margin="0,8,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" MinWidth="118" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Border Grid.Row="0" Style="{StaticResource HelpExample}"><TextBlock Style="{StaticResource HelpCode}" Text="1,250.75" /></Border>
+            <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource HelpExampleText}" Text="{DynamicResource Help.Numbers.Ok1}" />
+            <Border Grid.Row="1" Style="{StaticResource HelpExample}"><TextBlock Style="{StaticResource HelpCode}" Text="1250.75" /></Border>
+            <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource HelpExampleText}" Text="{DynamicResource Help.Numbers.Ok2}" />
+            <Border Grid.Row="2" Style="{StaticResource HelpExample}"><TextBlock Style="{StaticResource HelpCode}" FontFamily="{StaticResource AppFont}" Text="١٢٥٠٫٧٥" /></Border>
+            <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource HelpExampleText}" Text="{DynamicResource Help.Numbers.Ok3}" />
+            <Border Grid.Row="3" Style="{StaticResource HelpExample}" BorderBrush="{StaticResource DangerBorderBrush}" Background="{StaticResource DangerSoftBrush}">
+              <TextBlock Style="{StaticResource HelpCode}" Foreground="{StaticResource DangerBrush}" Text="12,50" />
+            </Border>
+            <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource HelpExampleText}" Foreground="{StaticResource DangerBrush}" FontWeight="SemiBold"
+                       Text="{DynamicResource Help.Numbers.Rejected}" />
+            <Border Grid.Row="4" Style="{StaticResource HelpExample}"><TextBlock Style="{StaticResource HelpCode}" Text="1250,75" /></Border>
+            <TextBlock Grid.Row="4" Grid.Column="1" Style="{StaticResource HelpExampleText}" Text="{DynamicResource Help.Numbers.French}" />
+          </Grid>
+
+          <!-- The clipboard shortcut -->
+          <TextBlock Style="{StaticResource HelpHeading}" Text="{DynamicResource Help.Hotkey.Title}" />
+          <TextBlock x:Name="HotkeyText" Style="{StaticResource HelpText}" AutomationProperties.AutomationId="HelpHotkey" />
+
+          <!-- Bulk -->
+          <TextBlock Style="{StaticResource HelpHeading}" Text="{DynamicResource Help.Bulk.Title}" />
+          <TextBlock Style="{StaticResource HelpText}" Text="{DynamicResource Help.Bulk.Body}" />
+
+          <!-- Printing and calibration -->
+          <TextBlock Style="{StaticResource HelpHeading}" Text="{DynamicResource Help.Print.Title}" />
+          <TextBlock Style="{StaticResource HelpText}" Text="{DynamicResource Help.Print.Body}" />
+          <TextBlock Style="{StaticResource HelpNote}" Text="{DynamicResource Help.Print.Overflow}" />
+
+          <!-- Excel -->
+          <TextBlock Style="{StaticResource HelpHeading}" Text="{DynamicResource Help.Excel.Title}" />
+          <TextBlock Style="{StaticResource HelpText}" Text="{DynamicResource Help.Excel.Body}" />
+          <Border Margin="0,8,0,0" Padding="12,8" CornerRadius="10" Background="{StaticResource BgSofterBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                  FlowDirection="LeftToRight">
+            <StackPanel>
+              <TextBox Style="{StaticResource SelectableText}" FontFamily="{StaticResource MonoFont}" FontSize="13" FlowDirection="LeftToRight" Text="=TAFQIT(A1, &quot;SAR&quot;)"
+                       AutomationProperties.AutomationId="HelpFormula1" />
+              <TextBox Style="{StaticResource SelectableText}" FontFamily="{StaticResource MonoFont}" FontSize="13" FlowDirection="LeftToRight" Margin="0,4,0,0"
+                       Text="=TAFQIT(A1, &quot;SAR&quot;, &quot;&quot;, &quot;&quot;, &quot;Only&quot;, &quot;&quot;, &quot;en&quot;)" AutomationProperties.AutomationId="HelpFormula2" />
+            </StackPanel>
+          </Border>
+          <TextBlock Style="{StaticResource HelpNote}" Text="{DynamicResource Help.Excel.Separator}" />
+          <TextBlock x:Name="ExcelExperimental" Style="{StaticResource HelpNote}" />
+          <Button Style="{StaticResource GhostButton}" ui:Ui.Icon="{StaticResource IconExternal}" Content="{DynamicResource Help.Excel.Open}"
+                  HorizontalAlignment="Left" Margin="0,12,0,0" Click="OnExcelPageClick" AutomationProperties.AutomationId="HelpExcelPage" />
+        </StackPanel>
+      </ScrollViewer>
+    </ContentControl>
+  </DockPanel>
+</Window>

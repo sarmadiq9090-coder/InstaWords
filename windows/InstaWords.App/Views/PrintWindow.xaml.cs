@@ -67,6 +67,7 @@ namespace InstaWords.App.Views
                 App.Current.SaveSettingsSoon();
             };
             InputBindings.Add(new KeyBinding(new RelayCommand(Print_), Key.P, ModifierKeys.Control));
+            InputBindings.Add(new KeyBinding(new RelayCommand(() => HelpWindow.ShowFor(this)), Key.F1, ModifierKeys.None));
 
             _ready = true;
             SelectTemplate(print.Template);
@@ -221,6 +222,7 @@ namespace InstaWords.App.Views
             DeleteProfileButton.IsEnabled = Print.Profiles.Count > 1;
             SignatureBox.IsChecked = Profile.ShowSignature;
             FrameBox.IsChecked = Profile.PrintFrame;
+            ThirdLineBox.IsChecked = Profile.ThirdWordsLine;
             GridBox.IsChecked = _showGrid;
             FillPapers();
             ShowOffsets();
@@ -279,6 +281,7 @@ namespace InstaWords.App.Views
         {
             Profile.ShowSignature = SignatureBox.IsChecked == true;
             Profile.PrintFrame = FrameBox.IsChecked == true;
+            Profile.ThirdWordsLine = ThirdLineBox.IsChecked == true;
             App.Current.SaveSettingsSoon();
             Render();
         }
@@ -457,7 +460,10 @@ namespace InstaWords.App.Views
             WordsError.Foreground = (Brush)FindResource(error != null ? "DangerBrush" : "MutedBrush");
             WordsError.Visibility = message == null ? Visibility.Collapsed : Visibility.Visible;
             Ui.SetHasError(AmountBox, error != null && !_bulk);
-            PrintNow.IsEnabled = _validPages > 0;
+            // Words that would be cut off on paper are never printed silently (B3): a red notice, no Print.
+            var fit = PrintRenderer.CheckFit(job);
+            ShowOverflow(job, fit);
+            PrintNow.IsEnabled = _validPages > 0 && fit.AllFit;
 
             // A page with empty values still shows the layout while nothing valid is typed.
             if (job.Pages.Count == 0) job.Pages.Add(new PrintForm { Template = _template, Date = DateBox.Text, Party = PartyBox.Text, Company = Print.CompanyName, ShowSignature = Profile.ShowSignature });
@@ -493,6 +499,32 @@ namespace InstaWords.App.Views
             var count = _validPages;
             PageInfo.Text = count == 1 ? Loc.T("Print.PageOne") : Loc.F("Print.PageMany", Conversion.FormatCount(count));
             ZoomText.Text = Math.Round(scale * 100).ToString(CultureInfo.InvariantCulture) + "%";
+        }
+
+        /// <summary>The red notice above the preview: what would be cut off, and what to change.</summary>
+        private void ShowOverflow(PrintJob job, FitReport fit)
+        {
+            if (fit.AllFit)
+            {
+                OverflowNotice.Visibility = Visibility.Collapsed;
+                if (Status.Text == Loc.T("Print.Overflow.Blocked")) Status.Text = "";
+                return;
+            }
+            OverflowText.Text = OverflowMessage(fit);
+            var state = App.Current.State;
+            var affixes = (state.Prefix ?? "").Trim().Length > 0 || (state.Suffix ?? "").Trim().Length > 0;
+            var fixes = PrintFit.Suggestions(_template, Profile, job.Paper, affixes)
+                .Select(k => "• " + (k == "Print.Fix.Font" ? Loc.F(k, Mm.Format(Profile.FontSizePt)) : Loc.T(k)));
+            OverflowFixes.Text = Loc.T("Print.Fix.Try") + "\n" + string.Join("\n", fixes);
+            OverflowNotice.Visibility = Visibility.Visible;
+        }
+
+        private string OverflowMessage(FitReport fit)
+        {
+            var text = Loc.T(PrintTemplates.IsVoucher(_template) ? "Print.Overflow.Voucher" : "Print.Overflow.Words");
+            if (fit.Pages > 1)
+                text += " " + Loc.F("Print.Overflow.Pages", Conversion.FormatCount(fit.Overflowing), Conversion.FormatCount(fit.Pages), Conversion.FormatCount(fit.FirstOverflow));
+            return text;
         }
 
         // ---------- Zoom ----------
@@ -541,6 +573,14 @@ namespace InstaWords.App.Views
             if (forms.Count == 0)
             {
                 SetStatus(Loc.T("Print.NoAmount"), ok: false);
+                return;
+            }
+            // Ctrl+P works while the button is disabled: check again, never print cut-off words.
+            var fit = PrintRenderer.CheckFit(job);
+            if (!fit.AllFit)
+            {
+                ShowOverflow(job, fit);
+                SetStatus(Loc.T("Print.Overflow.Blocked"), ok: false);
                 return;
             }
             var title = "InstaWords · " + Loc.T(PrintTemplates.NameKey(_template));

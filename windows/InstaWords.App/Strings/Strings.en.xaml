@@ -24,8 +24,10 @@
   <sys:String x:Key="Main.Report">Feedback</sys:String>
   <sys:String x:Key="Main.ReportTip">Report a problem or suggestion</sys:String>
   <sys:String x:Key="Main.About">About</sys:String>
-  <sys:String x:Key="Main.AboutTip">About InstaWords (F1)</sys:String>
+  <sys:String x:Key="Main.AboutTip">About InstaWords</sys:String>
   <sys:String x:Key="Main.AboutName">About InstaWords</sys:String>
+  <sys:String x:Key="Main.Help">How to use (F1)</sys:String>
+  <sys:String x:Key="Main.HelpName">How to use</sys:String>
 
   <sys:String x:Key="Common.Unit">Currency or unit</sys:String>
   <sys:String x:Key="Common.OutputLanguage">Output language</sys:String>
@@ -248,7 +250,30 @@
   <sys:String x:Key="About.KeyClear">Clear the number</sys:String>
   <sys:String x:Key="About.KeyTabs">Convert · Bulk · Settings</sys:String>
   <sys:String x:Key="About.KeyPaste">Paste a column on the Bulk tab</sys:String>
-  <sys:String x:Key="About.KeyAbout">This window</sys:String>
+  <sys:String x:Key="About.KeyHelp">How to use (quick guide)</sys:String>
+
+  <sys:String x:Key="Help.WindowTitle">How to use InstaWords</sys:String>
+  <sys:String x:Key="Help.Title">How to use it</sys:String>
+  <sys:String x:Key="Help.Intro">Type a number on the Convert tab and it appears in words at once; then copy it (Ctrl+Enter) or print it (Ctrl+P). The currency, the output language and the text before and after the amount are chosen on the same page.</sys:String>
+  <sys:String x:Key="Help.Numbers.Title">Typing numbers</sys:String>
+  <sys:String x:Key="Help.Numbers.Body">For Arabic or English output: the dot is the decimal point, and the comma is for thousands only, valid only before exactly three digits. Otherwise the app does not guess what you meant: it asks you to correct the number instead of writing an amount that may be wrong. Always check “Number used” under the result.</sys:String>
+  <sys:String x:Key="Help.Numbers.Ok1">OK: comma for thousands, dot for decimals.</sys:String>
+  <sys:String x:Key="Help.Numbers.Ok2">Also OK, without a thousands separator.</sys:String>
+  <sys:String x:Key="Help.Numbers.Ok3">OK: Arabic-Indic digits, with “٫” as the decimal point.</sys:String>
+  <sys:String x:Key="Help.Numbers.Rejected">Not valid: two digits, not three, after the comma. Type 12.50</sys:String>
+  <sys:String x:Key="Help.Numbers.French">For French output the comma is the decimal mark, as in French (that is, 1250.75), so do not use it for thousands.</sys:String>
+  <sys:String x:Key="Help.Hotkey.Title">Convert what you copied, from any program</sys:String>
+  <sys:String x:Key="Help.Hotkey.Body">Copy a number (Ctrl+C) in Excel, a browser or your accounting program, then press {0}: what you copied becomes the amount in words, ready to paste (Ctrl+V) anywhere. It works with the window closed while InstaWords is in the notification area; change the shortcut in Settings. If what you copied is not a clear number, a notice appears and the clipboard is left as it was.</sys:String>
+  <sys:String x:Key="Help.Bulk.Title">Many amounts at once</sys:String>
+  <sys:String x:Key="Help.Bulk.Body">On the Bulk tab (Ctrl+2), paste a column from Excel (Ctrl+V), or import a CSV or text file with one column. Each line is converted on its own, and you can edit any number in the table. “Copy results” gives one line per number, with error lines left empty so they match the order of your Excel rows. Select rows and press Ctrl+P to print a cheque or voucher for each.</sys:String>
+  <sys:String x:Key="Help.Print.Title">Printing and calibrating cheques</sys:String>
+  <sys:String x:Key="Help.Print.Body">Press Ctrl+P and choose Cheque. The first time, press “Test print” and print it on plain paper, lay it over a real cheque against the light, measure in millimetres how far each field is from its place, and type that under “Field offsets (mm)”: a positive X moves right, a positive Y moves down, and “All fields” is for printer margins. Repeat the test print until the fields line up. The calibration is saved in the “Cheque profile”: make one per cheque book or printer.</sys:String>
+  <sys:String x:Key="Help.Print.Overflow">If a red notice appears above the preview, the amount in words does not fit its place and would be cut off: the app will not print until you fix it with one of the suggestions in the notice. To save a PDF, choose the printer “Microsoft Print to PDF”.</sys:String>
+  <sys:String x:Key="Help.Excel.Title">In Excel</sys:String>
+  <sys:String x:Key="Help.Excel.Body">The InstaWords.xlam add-in adds the TAFQIT function to every workbook, offline. Download it from the Excel page on the site, then: file Properties → Unblock, then in Excel: File → Options → Add-ins → Go… → Browse… and choose the file. Then type in any cell:</sys:String>
+  <sys:String x:Key="Help.Excel.Separator">If your Windows settings use semicolons, type ; instead of the comma.</sys:String>
+  <sys:String x:Key="Help.Excel.Experimental">The add-in is experimental: it has not been tried in a real Excel yet. If it does not work for you, copy the cells and press {0}, or paste them on the Bulk tab, and tell us via Feedback.</sys:String>
+  <sys:String x:Key="Help.Excel.Open">Open the Excel page on the site</sys:String>
 
   <sys:String x:Key="Report.OpenGitHub">Open a GitHub issue (needs a GitHub account)</sys:String>
   <sys:String x:Key="Report.Copy">Copy the report</sys:String>
@@ -398,6 +423,8 @@
   <sys:String x:Key="Print.PrintFrameHint">For plain paper. Turn it off when printing on a pre-printed cheque.</sys:String>
   <sys:String x:Key="Print.ShowGrid">Show the calibration grid in the preview</sys:String>
   <sys:String x:Key="Print.ShowGridHint">One small square per millimetre, numbered in centimetres from the top-left corner.</sys:String>
+  <sys:String x:Key="Print.ThirdLine">Third line for the amount in words</sys:String>
+  <sys:String x:Key="Print.ThirdLineHint">For long amounts: printed under the second line. Check with a test print that your cheque has room for it.</sys:String>
   <sys:String x:Key="Print.Offsets">Field offsets (mm)</sys:String>
   <sys:String x:Key="Print.OffsetsHint">Positive X moves right, positive Y moves down. “All fields” is for printer margins.</sys:String>
   <sys:String x:Key="Print.OffsetsReset">Reset the offsets</sys:String>
@@ -434,5 +461,18 @@
   <sys:String x:Key="Print.SentMany">{0} pages were sent to the printer.</sys:String>
   <sys:String x:Key="Print.Failed">Couldn't print: {0}</sys:String>
   <sys:String x:Key="Print.TestSent">Test print sent. Lay it over a real cheque and adjust the offsets.</sys:String>
+  <sys:String x:Key="Print.Overflow.Words">The amount in words is longer than its lines, even at the smallest allowed size, so its end would be cut off on paper. It will not print until it fits.</sys:String>
+  <sys:String x:Key="Print.Overflow.Voucher">The voucher’s text is longer than its space, so part of it would be cut off on paper. It will not print until it fits.</sys:String>
+  <sys:String x:Key="Print.Overflow.Pages">{0} of {1} pages do not fit; the first is page {2}.</sys:String>
+  <sys:String x:Key="Print.Overflow.Blocked">Nothing was printed: some text does not fit its place and would be cut off. See the red notice above the preview.</sys:String>
+  <sys:String x:Key="Print.Fix.Try">Try one of these:</sys:String>
+  <sys:String x:Key="Print.Fix.ThirdLine">Turn on “Third line for the amount in words” under “Paper and calibration”, if your cheque has room under the second line.</sys:String>
+  <sys:String x:Key="Print.Fix.Font">A smaller font size under “Paper and calibration” (now {0} pt).</sys:String>
+  <sys:String x:Key="Print.Fix.Affixes">Shorter text before and after the amount (such as “Only”) in the formatting options.</sys:String>
+  <sys:String x:Key="Print.Fix.ChequePaper">A wider cheque size, or “Custom size” with your real cheque’s width.</sys:String>
+  <sys:String x:Key="Print.Fix.WiderPaper">Wider paper (A4).</sys:String>
+  <sys:String x:Key="Print.Fix.UseVoucher">A receipt or payment voucher: its amount-in-words lines grow as needed.</sys:String>
+  <sys:String x:Key="Print.Fix.ShorterText">Shorter text in the fields: the name, the purpose and the company name.</sys:String>
+  <sys:String x:Key="Print.Fix.BiggerPaper">Larger paper (A4).</sys:String>
 
 </ResourceDictionary>
