@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using InstaWords.Core;
@@ -25,6 +26,10 @@ namespace InstaWords.App.Services
         /// ROUNDED_TO_ZERO); null when there is none.
         /// </summary>
         public string Warning { get; set; }
+        /// <summary>The engine's warning codes (<see cref="TafqitWarningCodes"/>) behind <see cref="Warning"/>; empty when none.</summary>
+        public IReadOnlyList<string> Warnings { get; set; } = Array.Empty<string>();
+        /// <summary>The words say «صفر» for an amount that is not zero (0.004 SAR): the print dialog refuses to print it.</summary>
+        public bool RoundedToZero => Warnings.Contains(TafqitWarningCodes.RoundedToZero);
     }
 
     /// <summary>Thin wrapper over the engine that never throws into the UI.</summary>
@@ -47,6 +52,7 @@ namespace InstaWords.App.Services
                     Warning = r.Ok && r.Warnings.Count > 0
                         ? string.Join(" ", r.Warnings.Select(w => Loc.Warning(w, TafqitResult.WarningMessage(w))))
                         : null,
+                    Warnings = r.Ok ? r.Warnings : Array.Empty<string>(),
                 };
             }
             catch (Exception ex)

@@ -364,6 +364,61 @@ namespace InstaWords.App.Services
         public string Number { get; set; } = "";
         public string Company { get; set; } = "";
         public bool ShowSignature { get; set; } = true;
+        /// <summary>
+        /// The words say «صفر» for an amount that is not zero (0.004 SAR, ROUNDED_TO_ZERO;
+        /// <see cref="ConversionResult.RoundedToZero"/>): the print dialog does not print it (<see cref="PrintZero"/>).
+        /// </summary>
+        public bool RoundedToZero { get; set; }
+    }
+
+    /// <summary>
+    /// Amounts rounded to zero (ROUNDED_TO_ZERO: 0.004 SAR is written «صفر ريال سعودي») are never printed
+    /// silently on a cheque or voucher: like words that would be cut off, the print dialog shows a red
+    /// notice above the preview (with the page numbers in a bulk job) and keeps Print disabled.
+    /// </summary>
+    public static class PrintZero
+    {
+        /// <summary>At most this many page numbers are listed in the notice; the rest is counted.</summary>
+        public const int MaxListed = 10;
+
+        /// <summary>
+        /// 1-based numbers, among the pages that print (those with an amount, as <c>FitReport</c> counts
+        /// them), of the pages whose amount was rounded to zero; empty when there is none.
+        /// </summary>
+        public static IReadOnlyList<int> Pages(IEnumerable<PrintForm> pages)
+        {
+            var list = new List<int>();
+            var n = 0;
+            foreach (var form in pages ?? Enumerable.Empty<PrintForm>())
+            {
+                if (form == null || string.IsNullOrEmpty(form.Cleaned)) continue;
+                n++;
+                if (form.RoundedToZero) list.Add(n);
+            }
+            return list;
+        }
+
+        /// <summary>"3, 7, 12" («3، 7، 12» in Arabic; at most <see cref="MaxListed"/> numbers, then "…").</summary>
+        public static string PageList(IReadOnlyList<int> pages)
+        {
+            if (pages == null || pages.Count == 0) return "";
+            var shown = pages.Take(MaxListed).Select(p => p.ToString("N0", CultureInfo.InvariantCulture));
+            return string.Join(Loc.IsEnglish ? ", " : "، ", shown) + (pages.Count > MaxListed ? "…" : "");
+        }
+
+        /// <summary>
+        /// The notice: the engine's warning (Warn.ROUNDED_TO_ZERO) and that it will not print; for a job of
+        /// several pages, how many and which. Null when no page is affected.
+        /// </summary>
+        public static string Notice(IReadOnlyList<int> pages, int printedPages)
+        {
+            if (pages == null || pages.Count == 0) return null;
+            var text = Loc.T("Warn.ROUNDED_TO_ZERO") + " " + Loc.T("Print.Zero.Notice");
+            if (printedPages > 1)
+                text += " " + Loc.F("Print.Zero.Pages", pages.Count.ToString("N0", CultureInfo.InvariantCulture),
+                    printedPages.ToString("N0", CultureInfo.InvariantCulture), PageList(pages));
+            return text;
+        }
     }
 
     /// <summary>Which fields each template has and how the dialog's fields map onto them.</summary>

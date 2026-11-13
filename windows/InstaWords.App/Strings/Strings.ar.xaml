@@ -483,6 +483,9 @@
   <sys:String x:Key="Print.Overflow.Voucher">نصوص السند أطول من مساحته، فسيُقصّ بعضها على الورق. لن يُطبع حتى تتّسع.</sys:String>
   <sys:String x:Key="Print.Overflow.Pages">لا تتّسع {0} من {1} صفحة، أولها الصفحة {2}.</sys:String>
   <sys:String x:Key="Print.Overflow.Blocked">لم يُطبع شيء: بعض النص لا يتّسع في مكانه وسيُقصّ. انظر التنبيه الأحمر فوق المعاينة.</sys:String>
+  <sys:String x:Key="Print.Zero.Notice">لن يُطبع حتى تصحّح المبلغ أو تختار وحدته الصحيحة.</sys:String>
+  <sys:String x:Key="Print.Zero.Pages">قُرِّب المبلغ إلى صفر في {0} من {1} صفحة: الصفحات {2}.</sys:String>
+  <sys:String x:Key="Print.Zero.Blocked">لم يُطبع شيء: مبلغ قُرِّب إلى صفر. انظر التنبيه الأحمر فوق المعاينة.</sys:String>
   <sys:String x:Key="Print.Fix.Try">جرّب واحداً مما يلي:</sys:String>
   <sys:String x:Key="Print.Fix.ThirdLine">فعّل «سطر ثالث للمبلغ كتابةً» في «الورق والمعايرة»، إن كان في شيكك مكان تحت السطر الثاني.</sys:String>
   <sys:String x:Key="Print.Fix.Font">حجم خط أصغر في «الورق والمعايرة» (الآن {0} نقطة).</sys:String>

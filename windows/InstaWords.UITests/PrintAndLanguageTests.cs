@@ -205,6 +205,17 @@ namespace InstaWords.UITests
                 Assert.Null(dialog.FindFirstDescendant(s.Cf.ByAutomationId("PrintOverflow")));
                 Assert.True(s.Get("PrintNow", dialog).IsEnabled);
 
+                // An amount rounded to zero (0.004 SAR → «صفر») is never printed silently: a red notice, Print disabled.
+                amount.Text = "";
+                amount.Enter("0.004");
+                AppSession.WaitUntil(() => dialog.FindFirstDescendant(s.Cf.ByAutomationId("PrintRoundedZero")) != null, "rounded-to-zero notice");
+                Assert.Contains("صفر", NameOf(s, dialog, "PrintRoundedZero"));
+                Assert.False(s.Get("PrintNow", dialog).IsEnabled);
+                amount.Text = "";
+                amount.Enter("300");
+                AppSession.WaitUntil(() => dialog.FindFirstDescendant(s.Cf.ByAutomationId("PrintRoundedZero")) == null, "zero notice gone at 300");
+                Assert.True(s.Get("PrintNow", dialog).IsEnabled);
+
                 // Words that cannot fit even at the smallest size are never printed cut off (B3): at 24 pt the
                 // words may only shrink to 14.4 pt, too big for the largest amount. A red notice, Print disabled.
                 amount.Text = "";

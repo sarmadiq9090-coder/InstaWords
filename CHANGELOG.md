@@ -21,7 +21,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **رسالة واضحة حين يكون GitHub مشغولاً**: «خدمة GitHub مشغولة الآن فتعذّر التحقق، حاول بعد ساعة» بدلاً من «لا يوجد اتصال».
 - **حدود الاستيراد في «عدة مبالغ»**: ملف حتى 20 ميغابايت و100,000 رقم في المرة الواحدة، مع رسالة واضحة إن زاد (ولا يُحمَّل جزء منه بصمت)؛ وملف Excel ‏(.xlsx) أو ملف غير نصي يُرفض مع إرشاد إلى حفظه بصيغة CSV. ويُقرأ ملف CSV حتى وهو مفتوح في Excel.
 - **لا تخمين في الفواصل**: كانت الفاصلة تُعدّ فاصل آلاف دائماً، فتصير ‎`12,50`‎ يورو 1250، و‎`0,5`‎ دينار 5، و‎`1.250,75`‎ ريال 1.25 بصمت. الآن تُقبل الفاصلة كسراً في التفقيط بالفرنسية (‎`12,50`‎ = 12.50، و‎`1 250,75`‎ و‎`1.250,75`‎ = 1250.75)، وفي العربية والإنجليزية تبقى للآلاف بمجموعات من ثلاث خانات، وكل رقم يحتمل قراءتين يظهر له خطأ جديد يسأل «هل تقصد 12.50 أم 1250؟» بدل التخمين، في التطبيق والموقع وExcel.
-- **تنبيه التقريب إلى صفر**: مبلغ أصغر من أصغر جزء في الوحدة (‎`0.004`‎ ريال) ما زال يُكتب «صفر ريال سعودي»، لكن مع تنبيه في الصفحة الواحدة والتفقيط المتعدد واختصار الحافظة والموقع.
+- **تنبيه التقريب إلى صفر**: مبلغ أصغر من أصغر جزء في الوحدة (‎`0.004`‎ ريال) ما زال يُكتب «صفر ريال سعودي»، لكن مع تنبيه في الصفحة الواحدة والتفقيط المتعدد واختصار الحافظة والموقع. ونافذة الطباعة لا تطبع «صفر» لمبلغ ليس صفراً: تنبيه أحمر فوق المعاينة (مع أرقام الصفحات في الطباعة المتعددة) وزر «طباعة» معطّل حتى يُصحَّح المبلغ.
 - **‎`TAFQIT_CLEAN`‎ في Excel** تقبل معامل اللغة: ‎`=TAFQIT_CLEAN(A1, "fr")`‎.
 
 </div>
@@ -40,7 +40,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **A clear message when GitHub is busy**: "GitHub is busy, try again in an hour" instead of "offline".
 - **Bulk import limits**: files up to 20 MB and 100,000 numbers at a time, with a clear message beyond that (nothing is silently cut); an Excel (.xlsx) or non-text file is refused with advice to save it as CSV. A CSV file can now be read while it is open in Excel.
 - **No guessing on separators**: a comma was always a thousands separator, so `12,50` EUR silently became 1,250 euros, `0,5` TND 5 dinars and `1.250,75` SAR 1.25 riyals. French output now reads the comma as the decimal point (`12,50` = 12.50; `1 250,75` and `1.250,75` = 1250.75); Arabic and English keep it for thousands in groups of three, and any number that reads two ways gets the new error `AMBIGUOUS_SEPARATOR`, which asks “Did you mean 12.50 or 1250?” instead of guessing — in the app, the website and Excel.
-- **Rounded-to-zero warning**: an amount below the unit's smallest part (`0.004` SAR) is still written “zero”, but now with a warning on the single page, the bulk tab, the clipboard shortcut and the website.
+- **Rounded-to-zero warning**: an amount below the unit's smallest part (`0.004` SAR) is still written “zero”, but now with a warning on the single page, the bulk tab, the clipboard shortcut and the website. The print dialog never prints “zero” for an amount that is not zero: a red notice above the preview (with the page numbers in a bulk job) and Print stays disabled until the amount is corrected.
 - **Excel `TAFQIT_CLEAN`** takes the output language: `=TAFQIT_CLEAN(A1, "fr")`.
 
 ## 2.2.0

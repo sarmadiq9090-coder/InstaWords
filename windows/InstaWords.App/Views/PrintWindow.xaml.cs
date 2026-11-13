@@ -429,6 +429,7 @@ namespace InstaWords.App.Views
                     Number = number,
                     Company = Print.CompanyName ?? "",
                     ShowSignature = Profile.ShowSignature,
+                    RoundedToZero = r?.RoundedToZero == true,
                 });
                 number = PrintSettings.Increment(number);
             }
@@ -463,7 +464,10 @@ namespace InstaWords.App.Views
             // Words that would be cut off on paper are never printed silently (B3): a red notice, no Print.
             var fit = PrintRenderer.CheckFit(job);
             ShowOverflow(job, fit);
-            PrintNow.IsEnabled = _validPages > 0 && fit.AllFit;
+            // Nor is «صفر» for an amount that is not zero (0.004 SAR, ROUNDED_TO_ZERO).
+            var zero = PrintZero.Pages(job.Pages);
+            ShowZero(zero);
+            PrintNow.IsEnabled = _validPages > 0 && fit.AllFit && zero.Count == 0;
 
             // A page with empty values still shows the layout while nothing valid is typed.
             if (job.Pages.Count == 0) job.Pages.Add(new PrintForm { Template = _template, Date = DateBox.Text, Party = PartyBox.Text, Company = Print.CompanyName, ShowSignature = Profile.ShowSignature });
@@ -517,6 +521,20 @@ namespace InstaWords.App.Views
                 .Select(k => "• " + (k == "Print.Fix.Font" ? Loc.F(k, Mm.Format(Profile.FontSizePt)) : Loc.T(k)));
             OverflowFixes.Text = Loc.T("Print.Fix.Try") + "\n" + string.Join("\n", fixes);
             OverflowNotice.Visibility = Visibility.Visible;
+        }
+
+        /// <summary>The red notice for amounts rounded to zero (with the page numbers in a bulk job).</summary>
+        private void ShowZero(IReadOnlyList<int> pages)
+        {
+            var notice = PrintZero.Notice(pages, _validPages);
+            if (notice == null)
+            {
+                ZeroNotice.Visibility = Visibility.Collapsed;
+                if (Status.Text == Loc.T("Print.Zero.Blocked")) Status.Text = "";
+                return;
+            }
+            ZeroText.Text = notice;
+            ZeroNotice.Visibility = Visibility.Visible;
         }
 
         private string OverflowMessage(FitReport fit)
@@ -583,6 +601,14 @@ namespace InstaWords.App.Views
                 SetStatus(Loc.T("Print.Overflow.Blocked"), ok: false);
                 return;
             }
+            // Nor print «صفر» for an amount that is not zero.
+            var zero = PrintZero.Pages(job.Pages);
+            if (zero.Count > 0)
+            {
+                ShowZero(zero);
+                SetStatus(Loc.T("Print.Zero.Blocked"), ok: false);
+                return;
+            }
             var title = "InstaWords · " + Loc.T(PrintTemplates.NameKey(_template));
             if (!Send(job, () => forms.Select(f => PrintRenderer.RenderPage(job, f, preview: false)), title)) return;
             if (PrintTemplates.IsVoucher(_template))
@@ -601,7 +627,8 @@ namespace InstaWords.App.Views
         {
             CommitPending();
             var job = BuildJob(out _, out _);
-            var sample = job.Pages.FirstOrDefault(p => p.Cleaned.Length > 0) ?? new PrintForm
+            // An amount rounded to zero is never printed, not even on the test sheet: the sample amount stands in.
+            var sample = job.Pages.FirstOrDefault(p => p.Cleaned.Length > 0 && !p.RoundedToZero) ?? new PrintForm
             {
                 Template = PrintTemplate.Cheque,
                 Cleaned = "1250.75",

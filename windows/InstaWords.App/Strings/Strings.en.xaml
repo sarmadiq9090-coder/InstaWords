@@ -483,6 +483,9 @@
   <sys:String x:Key="Print.Overflow.Voucher">The voucher’s text is longer than its space, so part of it would be cut off on paper. It will not print until it fits.</sys:String>
   <sys:String x:Key="Print.Overflow.Pages">{0} of {1} pages do not fit; the first is page {2}.</sys:String>
   <sys:String x:Key="Print.Overflow.Blocked">Nothing was printed: some text does not fit its place and would be cut off. See the red notice above the preview.</sys:String>
+  <sys:String x:Key="Print.Zero.Notice">It will not print until you correct the amount or choose its right unit.</sys:String>
+  <sys:String x:Key="Print.Zero.Pages">{0} of {1} pages were rounded to zero: pages {2}.</sys:String>
+  <sys:String x:Key="Print.Zero.Blocked">Nothing was printed: an amount was rounded to zero. See the red notice above the preview.</sys:String>
   <sys:String x:Key="Print.Fix.Try">Try one of these:</sys:String>
   <sys:String x:Key="Print.Fix.ThirdLine">Turn on “Third line for the amount in words” under “Paper and calibration”, if your cheque has room under the second line.</sys:String>
   <sys:String x:Key="Print.Fix.Font">A smaller font size under “Paper and calibration” (now {0} pt).</sys:String>

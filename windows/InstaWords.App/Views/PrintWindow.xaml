@@ -264,6 +264,14 @@
               </StackPanel>
             </DockPanel>
           </Border>
+          <!-- An amount rounded to zero (0.004 SAR → «صفر»): printing waits until it is corrected. -->
+          <Border x:Name="ZeroNotice" DockPanel.Dock="Top" Style="{StaticResource ErrorBox}" Margin="16,12,16,0" Visibility="Collapsed">
+            <DockPanel>
+              <ui:Icon DockPanel.Dock="Left" Data="{StaticResource IconAlert}" Foreground="{StaticResource DangerBrush}" Width="20" Height="20" VerticalAlignment="Top" Margin="0,1,10,0" />
+              <TextBlock x:Name="ZeroText" Foreground="{StaticResource DangerBrush}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"
+                         AutomationProperties.AutomationId="PrintRoundedZero" AutomationProperties.LiveSetting="Assertive" />
+            </DockPanel>
+          </Border>
           <ScrollViewer x:Name="PreviewScroll" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="{StaticResource BgSoftBrush}"
                         Focusable="False" SizeChanged="OnPreviewSizeChanged" AutomationProperties.AutomationId="PrintPreview"
                         AutomationProperties.Name="{DynamicResource Print.Preview}">
