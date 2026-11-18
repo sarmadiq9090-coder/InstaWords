@@ -62,6 +62,7 @@
 
   <ItemGroup>
     <Resource Include="Fonts\*.ttf" />
+    <Resource Include="Assets\InstaWords-256.png" />
     <Resource Include="Assets\InstaWords.ico" />
     <!-- «More from FastKiwi»: a copy of the site's data/apps.json (refresh: see windows/README.md). Read by Services/MoreApps.cs; never fetched at run time. -->
     <EmbeddedResource Include="Assets\apps.json" LogicalName="InstaWords.App.apps.json" />
