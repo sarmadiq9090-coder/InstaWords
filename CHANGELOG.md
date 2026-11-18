@@ -38,6 +38,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **إصلاحات**: شعار السند لم يكن يُحمَّل أبداً؛ عمود فارغ في «خيارات الصياغة» حين تكون لغة التفقيط إنجليزية أو فرنسية؛ حقول نافذة الطباعة المقصوصة؛ معاينة الطباعة تعرض الصفحة كاملة.
 - **إضافة Excel** موسومة «تجريبية» حتى تُجرَّب في Excel حقيقي.
 - **الاسم والعلامات التجارية**: المستودع صار `sarmadiq9090-coder/InstaWords` (الروابط القديمة تُحوَّل تلقائياً، والتحديث يعمل كما هو)؛ InstaWords™ وFastKiwi™ باسم FastKiwi (Sarmad)، وmd`).
+- **تصدير قاموس الأرقام العربي المشترك**: الأمر `npm run export:dictionary` يولّد ملف بيانات (كلمات الأرقام والأرقام والفواصل) تشاركه برامج FastKiwi، وهو للمطوّرين ولا يغيّر سلوك البرنامج.
 
 </div>
 
@@ -70,6 +71,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **Fixes**: the voucher logo never loaded; an empty column in "Formatting options" for English/French output; clipped print-window fields; the print preview now shows the whole page.
 - **Excel add-in** labelled experimental until it is tried in a real Excel.
 - **Name and trademarks**: the repository is now `sarmadiq9090-coder/InstaWords` (old links redirect; updates keep working); InstaWords™ and FastKiwi™ of FastKiwi (Sarmad) (see `TRADEMARKS.md`).
+- **Shared Arabic number dictionary export**: `npm run export:dictionary` generates a data file (number words, digits and separators) shared by the FastKiwi apps; for developers, no change in app behaviour.
 
 ## 2.2.0
 

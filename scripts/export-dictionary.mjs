@@ -66,7 +66,8 @@ function digitTables() {
       continue;
     }
     const between = tryNormalize("1" + ch + "5");
-    if (between === "15") (/\s/u.test(ch) ? whitespace : thousands).push(ch);
+    const grouped = tryNormalize("1" + ch + "500"); // 3-digit group: 1,500 is thousands since 3.0.0 (1,5 is ambiguous)
+    if (between === "15" || grouped === "1500") (/\s/u.test(ch) ? whitespace : thousands).push(ch);
     else if (between === "1.5") decimal.push(ch);
   }
   for (const [id] of DIGIT_SETS) if (Object.keys(toLatin[id]).length !== 10) throw new Error(`${id}: not 10 digits`);
