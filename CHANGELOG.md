@@ -27,6 +27,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **تنبيه التقريب إلى صفر**: مبلغ أصغر من أصغر جزء في الوحدة (‎`0.004`‎ ريال) ما زال يُكتب «صفر ريال سعودي»، لكن مع تنبيه في الصفحة الواحدة والتفقيط المتعدد واختصار الحافظة والموقع. ونافذة الطباعة لا تطبع «صفر» لمبلغ ليس صفراً: تنبيه أحمر فوق المعاينة (مع أرقام الصفحات في الطباعة المتعددة) وزر «طباعة» معطّل حتى يُصحَّح المبلغ.
 - **‎`TAFQIT_CLEAN`‎ في Excel** تقبل معامل اللغة: ‎`=TAFQIT_CLEAN(A1, "fr")`‎.
 - **أيقونة على سطح المكتب**: المثبّت يضع أيقونة InstaWords على سطح المكتب افتراضياً، ويمكنك إلغاء الخيار أثناء التثبيت.
+- **نسخة Microsoft Store**: بعد خامس مرة تنسخ فيها مبلغاً بالحروف يسألك البرنامج مرة واحدة فقط «هل يساعدك InstaWords؟» ويفتح نافذة التقييم الخاصة بالمتجر إن اخترت «قيّم في المتجر»، ولا يسأل بعدها أبداً أيّاً كان جوابك. وفي «حول» رابط دائم «قيّم InstaWords في المتجر». لا يظهر في المثبّت ولا في النسخة المحمولة، ولا يُرسل شيئاً.
 
 </div>
 
@@ -48,6 +49,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **Rounded-to-zero warning**: an amount below the unit's smallest part (`0.004` SAR) is still written “zero”, but now with a warning on the single page, the bulk tab, the clipboard shortcut and the website. The print dialog never prints “zero” for an amount that is not zero: a red notice above the preview (with the page numbers in a bulk job) and Print stays disabled until the amount is corrected.
 - **Excel `TAFQIT_CLEAN`** takes the output language: `=TAFQIT_CLEAN(A1, "fr")`.
 - **Desktop shortcut**: the installer now ticks "Create a desktop shortcut" by default; untick it during setup if you prefer.
+- **Microsoft Store copy**: after the fifth amount in words you copy, the app asks once, "Is InstaWords helping you?", and "Rate in the Store" opens the Store's own rating dialog; whatever you answer, it never asks again. About also has a permanent "Rate InstaWords in the Store" link. Not in the installer or portable builds; nothing is sent.
 
 ## 2.2.0
 
