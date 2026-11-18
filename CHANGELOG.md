@@ -31,6 +31,13 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **تثبيت إضافة Excel من المثبّت**: خيار اختياري (غير مفعّل افتراضياً) «تثبيت إضافة Excel» يضع `InstaWords.xlam` في مجلد إضافات Excel ويفعّلها، دون خطوة «إلغاء الحظر»، ويزيلها عند إزالة التثبيت. لا يُغلق المثبّت Excel أبداً.
 - **المزيد من FastKiwi**: بطاقة في «الإعدادات» تعرض برامج FastKiwi الأخرى بروابط تفتح صفحاتها في المتصفح؛ القائمة مضمّنة في البرنامج ولا يُنزَّل شيء لعرضها.
 - **أيقونة جديدة**: ريشة الكتابة على خلفية بنفسجية-وردية (على نمط InstaFind) للبرنامج والمثبّت والموقع.
+- **InstaWords في متجر Microsoft**: حزمة MSIX رسمية تتحدث من المتجر نفسه (المحدّث الداخلي معطّل في نسخة المتجر ويقول «التحديثات تأتي من Microsoft Store»)، وتبدأ مع Windows عبر مهمة بدء التشغيل الخاصة بالحزمة. تحتاج نسخة المتجر Windows 10 الإصدار 2004 (‏10.0.19041) أو أحدث.
+- **المبالغ الصحيحة كما تُكتب في الواقع**: الدينار العراقي والليرة اللبنانية والسورية والريال اليمني تُعرض بلا كسور حين يكون المبلغ صحيحاً (1,750,000 دينار، لا 1,750,000.000)، وبقية العملات بمنازلها (45,750.00). المبلغ ذو الكسر يُعرض بكل منازله. العرض فقط؛ النص بالحروف والتقريب كما هما.
+- **«الإبلاغ عن مشكلة»** يرسل التقرير بالبريد إلى support@fastkiwi.app مباشرة (بلا حاجة إلى حساب GitHub)، ويبقى النسخ وصفحة الدعم لمن لا بريد عنده.
+- **«عدة مبالغ»** بدل «دفعة» اسماً لتبويب تحويل عمود كامل، و«ما نسخته (الحافظة)» بدل «الحافظة».
+- **إصلاحات**: شعار السند لم يكن يُحمَّل أبداً؛ عمود فارغ في «خيارات الصياغة» حين تكون لغة التفقيط إنجليزية أو فرنسية؛ حقول نافذة الطباعة المقصوصة؛ معاينة الطباعة تعرض الصفحة كاملة.
+- **إضافة Excel** موسومة «تجريبية» حتى تُجرَّب في Excel حقيقي.
+- **الاسم والعلامات التجارية**: المستودع صار `sarmadiq9090-coder/InstaWords` (الروابط القديمة تُحوَّل تلقائياً، والتحديث يعمل كما هو)؛ InstaWords™ وFastKiwi™ باسم FastKiwi (Sarmad)، وmd`).
 
 </div>
 
@@ -56,6 +63,13 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **Install the Excel add-in from the installer**: an optional task (unticked by default), "Install the Excel add-in", puts `InstaWords.xlam` in Excel's add-ins folder and enables it, with no "Unblock" step, and removes it on uninstall. Setup never closes Excel.
 - **More from FastKiwi**: a card in Settings lists the other FastKiwi apps, with links that open their pages in your browser; the list is built into the app and nothing is downloaded to show it.
 - **New icon**: the pen nib on a violet-pink tile (InstaFind style) for the app, the installer and the site.
+- **InstaWords on the Microsoft Store**: an official MSIX package that updates through the Store (the in-app updater is off in the Store build and says "Updates come from Microsoft Store") and starts with Windows through the package's startup task. The Store build needs Windows 10 version 2004 (10.0.19041) or later.
+- **Whole amounts as written in practice**: IQD, LBP, SYP and YER show no decimals on a whole amount (1,750,000, not 1,750,000.000); other currencies keep their subunit digits (45,750.00). An amount with a fraction shows every digit. Display only: the words and the rounding are unchanged.
+- **Report a problem** sends the report by email to support@fastkiwi.app (no GitHub account needed); copy and the support page remain for machines without a mail app.
+- **«عدة مبالغ»** is the Arabic name of the bulk tab (was «دفعة»), and the clipboard is now «ما نسخته (الحافظة)».
+- **Fixes**: the voucher logo never loaded; an empty column in "Formatting options" for English/French output; clipped print-window fields; the print preview now shows the whole page.
+- **Excel add-in** labelled experimental until it is tried in a real Excel.
+- **Name and trademarks**: the repository is now `sarmadiq9090-coder/InstaWords` (old links redirect; updates keep working); InstaWords™ and FastKiwi™ of FastKiwi (Sarmad) (see `TRADEMARKS.md`).
 
 ## 2.2.0
 
