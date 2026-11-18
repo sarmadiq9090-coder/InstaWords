@@ -29,6 +29,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **أيقونة على سطح المكتب**: المثبّت يضع أيقونة InstaWords على سطح المكتب افتراضياً، ويمكنك إلغاء الخيار أثناء التثبيت.
 - **نسخة Microsoft Store**: بعد خامس مرة تنسخ فيها مبلغاً بالحروف يسألك البرنامج مرة واحدة فقط «هل يساعدك InstaWords؟» ويفتح نافذة التقييم الخاصة بالمتجر إن اخترت «قيّم في المتجر»، ولا يسأل بعدها أبداً أيّاً كان جوابك. وفي «حول» رابط دائم «قيّم InstaWords في المتجر». لا يظهر في المثبّت ولا في النسخة المحمولة، ولا يُرسل شيئاً.
 - **تثبيت إضافة Excel من المثبّت**: خيار اختياري (غير مفعّل افتراضياً) «تثبيت إضافة Excel» يضع `InstaWords.xlam` في مجلد إضافات Excel ويفعّلها، دون خطوة «إلغاء الحظر»، ويزيلها عند إزالة التثبيت. لا يُغلق المثبّت Excel أبداً.
+- **المزيد من FastKiwi**: بطاقة في «الإعدادات» تعرض برامج FastKiwi الأخرى بروابط تفتح صفحاتها في المتصفح؛ القائمة مضمّنة في البرنامج ولا يُنزَّل شيء لعرضها.
 
 </div>
 
@@ -52,6 +53,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **Desktop shortcut**: the installer now ticks "Create a desktop shortcut" by default; untick it during setup if you prefer.
 - **Microsoft Store copy**: after the fifth amount in words you copy, the app asks once, "Is InstaWords helping you?", and "Rate in the Store" opens the Store's own rating dialog; whatever you answer, it never asks again. About also has a permanent "Rate InstaWords in the Store" link. Not in the installer or portable builds; nothing is sent.
 - **Install the Excel add-in from the installer**: an optional task (unticked by default), "Install the Excel add-in", puts `InstaWords.xlam` in Excel's add-ins folder and enables it, with no "Unblock" step, and removes it on uninstall. Setup never closes Excel.
+- **More from FastKiwi**: a card in Settings lists the other FastKiwi apps, with links that open their pages in your browser; the list is built into the app and nothing is downloaded to show it.
 
 ## 2.2.0
 

@@ -242,6 +242,10 @@
   <sys:String x:Key="Settings.Data">Data</sys:String>
   <sys:String x:Key="Settings.DataHint">Settings and history are stored only on this computer, in two JSON files. The app goes online only to check for updates, if you allow it.</sys:String>
   <sys:String x:Key="Settings.DataHintStore">Settings and history stay on your computer only, in two JSON files inside the private folder Windows keeps for the Store app; they are removed when you uninstall it. This copy does not connect to the internet.</sys:String>
+  <sys:String x:Key="More.Title">More from FastKiwi</sys:String>
+  <sys:String x:Key="More.Hint">Other FastKiwi apps. The links open their pages in your browser; this app downloads nothing.</sys:String>
+  <sys:String x:Key="More.Store">Microsoft Store</sys:String>
+  <sys:String x:Key="More.ComingSoon">Coming soon</sys:String>
   <sys:String x:Key="Settings.OpenFolder">Open folder</sys:String>
   <sys:String x:Key="Settings.OpenFolderFailed">Couldn't open the folder</sys:String>
 

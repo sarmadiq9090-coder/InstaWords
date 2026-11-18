@@ -6,7 +6,7 @@
     interface strings (Strings.ar.xaml / Strings.en.xaml: same keys, every key the app uses), Store mode
     (package detection, install kind, MSIX data folder, startup task states, Store page, when to ask for a rating), the
     single-instance hand-over (version info, who makes way), the crash log (format, size cap),
-    the print layout math (mm/DIP, cheque calibration offsets, word wrap and filler, template fields), and
+    the print layout math (mm/DIP, cheque calibration offsets, word wrap and filler, template fields), the "More from FastKiwi" list, and
     the amount shown with the words (money with its subunit decimals, rounded like the words).
     The source files are linked from InstaWords.App, which itself targets net48.
   -->
@@ -41,6 +41,8 @@
     <Compile Include="..\InstaWords.App\Services\AmountFormat.cs" Link="Linked\AmountFormat.cs" />
     <Compile Include="..\InstaWords.App\Services\Conversion.cs" Link="Linked\Conversion.cs" />
     <Compile Include="..\InstaWords.App\Services\SupportContact.cs" Link="Linked\SupportContact.cs" />
+    <Compile Include="..\InstaWords.App\Services\MoreApps.cs" Link="Linked\MoreApps.cs" />
+    <EmbeddedResource Include="..\InstaWords.App\Assets\apps.json" LogicalName="InstaWords.App.apps.json" Link="Linked\apps.json" />
   </ItemGroup>
 
 </Project>

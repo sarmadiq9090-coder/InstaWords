@@ -123,6 +123,7 @@ pwsh windows/installer/test-xlam-task.ps1 -Setup out\InstaWords_3.0.0_x64-setup.
 | `InstaWords.UITests/` | UI tests (FlaUI/UIA3). `INSTAWORDS_APP_PATH` and `INSTAWORDS_ARTIFACTS` override the exe and screenshot folder |
 | `installer/InstaWords.iss` | Inno Setup script (Arabic + English), with the optional Excel add-in task |
 | `installer/test-xlam-task.ps1` | CI test of that task: silent install, update (add-in locked and free) and uninstall, no Excel needed |
+| `InstaWords.App/Assets/apps.json` | "More from FastKiwi" (Settings, last card): a copy of the site's `data/apps.json`, embedded in the exe and never fetched at run time. Source: sarmadiq9090-coder.github.io commit `2f13a0c`. Refresh: `git -C ../sarmadiq9090-coder.github.io show origin/main:data/apps.json > windows/InstaWords.App/Assets/apps.json`, then update the commit here and run the app tests |
 
 The version comes from the repo `package.json`. CI (`.github/workflows/windows.yml`) runs everything above on every push and uploads the installer, the portable zip, the Excel add-in and the screenshots; a manual run with **release** ticked publishes GitHub Release `v<version>`.
 
