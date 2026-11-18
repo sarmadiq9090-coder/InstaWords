@@ -76,8 +76,8 @@ Checklist (RELEASING.md has the details):
   [ ] 3. Wait for the "Windows (native app)" workflow on that commit to pass (build, UI tests, screenshots).
   [ ] 4. Publish:          Actions → "Windows (native app)" → Run workflow → tick "release"
                            (creates tag ${tag} and the GitHub release with the setup, the portable zip,
-                           SHA256SUMS.txt, winget-manifests.zip and instawords.json; signs them when
-                           SignPath is configured: docs/CODE-SIGNING.md)
+                           SHA256SUMS.txt, winget-manifests.zip and instawords.json; unsigned, see
+                           docs/CODE-SIGNING.md)
   [ ] 5. Check the release page: 5 assets, notes, and (optionally) install over an older version.
   [ ] 6. Website fallback: npm run release:fallback   (site/release-fallback.json v${fallback.version} → ${tag},
                            packaging/ follows), then npm run test:site, commit and push.

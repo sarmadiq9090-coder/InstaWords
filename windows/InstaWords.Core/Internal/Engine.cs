@@ -64,17 +64,20 @@ namespace InstaWords.Core.Internal
             return i;
         }
 
-        internal string Convert(string? input, TafqitOptions? options)
+        internal string Convert(string? input, TafqitOptions? options) => Run(input, options, null);
+
+        /// <summary>tafqit() with the warnings collected in <paramref name="warnings"/> (when not null).</summary>
+        private string Run(string? input, TafqitOptions? options, List<string>? warnings)
         {
             var o = options ?? new TafqitOptions();
             var language = LanguageModule.All[ResolveLanguage(o.Language)];
             var unit = GetUnit(o.Unit);
             // Validated for every language, but only Arabic uses it.
             int hf = ResolveHundreds(o.HundredsForm);
-            var number = Normalizer.Normalize(input);
+            var number = Normalizer.Normalize(input, language.Id == "fr");
             string decimals = o.Decimals ?? "round";
             if (decimals != "round" && decimals != "error") throw new TafqitException(TafqitErrorCodes.InvalidOption, "decimals=" + decimals);
-            string text = Phrase(number, unit, hf, decimals == "error", language);
+            string text = Phrase(number, unit, hf, decimals == "error", language, warnings);
             return JsText.JoinNonEmpty(o.Prefix == null ? "" : JsText.Trim(o.Prefix), text, o.Suffix == null ? "" : JsText.Trim(o.Suffix));
         }
 
@@ -83,7 +86,8 @@ namespace InstaWords.Core.Internal
             string? cleaned = null;
             try
             {
-                cleaned = Normalizer.Normalize(input).Cleaned;
+                // The separator convention of the output language; Arabic's when the language is invalid.
+                cleaned = Normalizer.Normalize(input, options?.Language == "fr").Cleaned;
             }
             catch (TafqitException)
             {
@@ -91,11 +95,13 @@ namespace InstaWords.Core.Internal
             }
             try
             {
-                return new TafqitResult(true, Convert(input, options), cleaned, null, null);
+                var warnings = new List<string>();
+                string text = Run(input, options, warnings);
+                return new TafqitResult(true, text, cleaned, null, null, warnings.AsReadOnly());
             }
             catch (TafqitException e)
             {
-                return new TafqitResult(false, "", cleaned, e.Code, e.Message);
+                return new TafqitResult(false, "", cleaned, e.Code, e.Message, null, e.Readings);
             }
         }
 
@@ -111,7 +117,7 @@ namespace InstaWords.Core.Internal
         }
 
         /// <summary>src/engine.ts phrase: the full phrase without prefix/suffix.</summary>
-        private static string Phrase(NormalizedNumber number, UnitData unit, int hf, bool decimalsError, LanguageModule lang)
+        private static string Phrase(NormalizedNumber number, UnitData unit, int hf, bool decimalsError, LanguageModule lang, List<string>? warnings)
         {
             string integer = number.Integer;
             string fraction = number.Fraction;
@@ -137,6 +143,8 @@ namespace InstaWords.Core.Internal
                     (integer, subDigits) = RoundHalfUp(integer, fraction, d);
                 }
                 sub = Digits.TrimLeadingZeros(subDigits);
+                // A non-zero amount below half the smallest subunit (0.004 SAR) is written «صفر»: say so.
+                if (integer == "0" && sub == "0") warnings?.Add(TafqitWarningCodes.RoundedToZero);
             }
 
             if (sub == "0") return lang.Count(integer, forms, hf);

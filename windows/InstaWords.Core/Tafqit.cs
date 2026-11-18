@@ -26,8 +26,22 @@ namespace InstaWords.Core
         /// Canonical form of a number: digits only, no leading zeros, fraction without trailing zeros
         /// ("٠٠١٬٢٣٤٫٥٠" → "1234.5"); normalizeNumber(input).cleaned in the core.
         /// </summary>
-        /// <exception cref="TafqitException">EMPTY, INVALID_FORMAT, NEGATIVE or TOO_LARGE.</exception>
-        public static string Clean(string input) => Normalizer.Normalize(input).Cleaned;
+        /// <exception cref="TafqitException">EMPTY, INVALID_FORMAT, NEGATIVE, AMBIGUOUS_SEPARATOR or TOO_LARGE.</exception>
+        public static string Clean(string input) => Normalizer.Normalize(input, false).Cleaned;
+
+        /// <summary>
+        /// <see cref="Clean(string)"/> with the separator convention of an output language (normalizeNumber(input, language)):
+        /// for "fr", "12,50" is 12.5; for "ar" and "en" (and null or "") it is AMBIGUOUS_SEPARATOR (docs/SPEC.md §1.1).
+        /// </summary>
+        /// <exception cref="TafqitException">INVALID_OPTION for an unknown language, or as <see cref="Clean(string)"/>.</exception>
+        public static string Clean(string input, string? language)
+        {
+            if (!string.IsNullOrEmpty(language) && language != "ar" && language != "en" && language != "fr")
+            {
+                throw new TafqitException(TafqitErrorCodes.InvalidOption, "language=" + language);
+            }
+            return Normalizer.Normalize(input, language == "fr").Cleaned;
+        }
 
         /// <summary>Every unit of the catalog, in data/units.json order.</summary>
         public static IReadOnlyList<UnitInfo> Units => Default.Units;

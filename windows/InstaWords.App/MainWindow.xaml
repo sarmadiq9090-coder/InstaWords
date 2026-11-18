@@ -42,6 +42,8 @@
                   Click="OnUpdateBadgeClick" AutomationProperties.AutomationId="UpdateBadge" Content="{DynamicResource Main.UpdateAvailable}" />
           <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconMessage}" ui:Ui.MirrorIcon="True" Click="OnReportClick" Content="{DynamicResource Main.Report}"
                   ToolTip="{DynamicResource Main.ReportTip}" AutomationProperties.Name="{DynamicResource Main.ReportTip}" AutomationProperties.AutomationId="ReportButton" />
+          <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconHelp}" Click="OnHelpClick" Margin="4,0,0,0" Padding="8"
+                  ToolTip="{DynamicResource Main.Help}" AutomationProperties.Name="{DynamicResource Main.HelpName}" AutomationProperties.AutomationId="HelpButton" />
           <Button Style="{StaticResource QuietButton}" ui:Ui.Icon="{StaticResource IconInfo}" Click="OnAboutClick" Content="{DynamicResource Main.About}" Margin="4,0,0,0"
                   ToolTip="{DynamicResource Main.AboutTip}" AutomationProperties.Name="{DynamicResource Main.AboutName}" AutomationProperties.AutomationId="AboutButton" />
         </StackPanel>

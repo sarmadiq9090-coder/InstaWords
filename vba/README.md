@@ -6,7 +6,11 @@
 
 ## التثبيت: الإضافة InstaWords.xlam (تجريبية، موصى بها)
 
-الإضافة ملف واحد تثبّته في Excel مرة واحدة، فتعمل الدالة في كل مصنف تفتحه دون استيراد أي شيء ودون حفظ المصنف بصيغة ‎.xlsm. نزّلها من [صفحة Excel في الموقع](https://fastkiwi.app/instawords/excel.html) أو من ملفات [آخر إصدار](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest/download/InstaWords.xlam) (`InstaWords.xlam`).
+الإضافة ملف واحد تثبّته في Excel مرة واحدة، فتعمل الدالة في كل مصنف تفتحه دون استيراد أي شيء ودون حفظ المصنف بصيغة ‎.xlsm.
+
+**أسهل طريقة: اختر «تثبيت إضافة Excel» أثناء تثبيت برنامج InstaWords** (`InstaWords_<الإصدار>_x64-setup.exe`، صفحة «حدد المهام الإضافية»؛ الخيار غير محدد افتراضياً). ينسخ المثبّت `InstaWords.xlam` إلى `%APPDATA%\Microsoft\AddIns` (مجلد إضافات Excel)، والملف الذي يكتبه المثبّت لا يحمل «علامة الويب» فلا حاجة إلى «إلغاء الحظر»، ثم يفعّلها بقيمة `OPEN` أو `OPEN1` أو `OPEN2`… (أول رقم غير مستخدم) في `HKCU\Software\Microsoft\Office\<الإصدار>\Excel\Options` لكل إصدار Excel سبق تشغيله على هذا الحساب، دون تغيير الإضافات الأخرى. لا يحتاج Excel ولا يشغّله، لكن أغلق Excel قبل التثبيت. إن لم يكن Excel قد شُغّل من قبل، أو لم تعمل الدالة بعد فتحه، فحدّد «InstaWords» مرة واحدة في ملف ← خيارات ← الوظائف الإضافية ← انتقال… (تظهر في القائمة لأنها في مجلد الإضافات). ويحدّثها المثبّت مع كل تحديث للبرنامج، وإلغاء التثبيت يحذف الملف وقيمة `OPEN` الخاصة بها فقط. يختبر CI ذلك كله دون Excel (`windows/installer/test-xlam-task.ps1`)، أما التجربة مع Excel حقيقي فهي البند 13 (ج) في [`docs/TESTING-CHECKLIST.md`](../docs/TESTING-CHECKLIST.md): لم تُجرَّب بعد.
+
+**أو يدوياً:** نزّلها من [صفحة Excel في الموقع](https://fastkiwi.app/instawords/excel.html) أو من ملفات [آخر إصدار](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest/download/InstaWords.xlam) (`InstaWords.xlam`).
 
 1. ضع `InstaWords.xlam` في مجلد ثابت لن تحذفه (مثل `المستندات\InstaWords`)، فـ Excel يحمّلها من مكانها كل مرة.
 2. **إلغاء الحظر أولاً:** انقر الملف بزر الفأرة الأيمن ← **خصائص** ← في أسفل تبويب «عام» فعّل **«إلغاء الحظر»** (Unblock) ← **موافق**. يضع Windows على كل ملف منزَّل من الإنترنت «علامة الويب» (Mark of the Web)، ويحظر Excel الماكرو في الملفات التي تحملها، فلا تعمل الدالة دون هذه الخطوة. إن لم يظهر الخيار فالملف غير محظور.
@@ -48,11 +52,12 @@
 =TAFQIT(A1, "SAR", "", "", "Only", "", "en")   → One Thousand Two Hundred Fifty Saudi Riyals ...
 =TAFQIT(A1, "MAD", , , , , "fr")               → mille deux cent cinquante dirhams marocains ...
 =TAFQIT_CLEAN(A1)                              → الرقم بعد التنقية: "١٢٣٫٤٥" ← 123.45
+=TAFQIT_CLEAN(A1, "fr")                        → بعرف الفرنسية: "12,50" ← 12.5
 ```
 
 | المعامل | الوصف |
 |---|---|
-| `Number` | خلية أو نص أو رقم. يقبل الأرقام الهندية والفارسية، و`,` و`٬` فاصلاً للآلاف، و`٫` فاصلة عشرية. |
+| `Number` | خلية أو نص أو رقم. يقبل الأرقام الهندية والفارسية، و`٬` والمسافة فاصلاً للآلاف، و`٫` فاصلة عشرية. وفي **النص**: `.` كسر و`,` فاصل آلاف بمجموعات من ثلاث خانات، إلا مع `"fr"` فالفاصلة `,` كسر (`12,50` = 12.50). وما يحتمل قراءتين (`12,50` بالعربية، `1.250,75`، `1,2,3`) تُرجع الدالة له رسالة خطأ تسأل: «هل تقصد 12.50 أم 1250؟» بدل التخمين (المواصفة 1.1). الخلية الرقمية لا لبس فيها. |
 | `Unit` | معرّف الوحدة أو رمزها أو اسمها أو أي اسم بديل من `data/units.json` (مثل `SAR` أو `ريال سعودي`). الافتراضي بدون وحدة. |
 | `HundredsForm` | `"مائة"` (الافتراضي) أو `"مئة"`، ويقبل أيضاً `1` و`2`. |
 | `Prefix` / `Suffix` | نص قبل التفقيط وبعده، مثل «فقط» و«لا غير». |
@@ -91,7 +96,11 @@ InstaWords' `TAFQIT` spells an amount in words inside Excel, in Arabic, English 
 
 ### Install the add-in (recommended)
 
-`InstaWords.xlam` makes `TAFQIT` available in every workbook, with nothing to import and no .xlsm needed. Download it from the [site's Excel page](https://fastkiwi.app/instawords/excel.html) or the [latest release](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest/download/InstaWords.xlam).
+`InstaWords.xlam` makes `TAFQIT` available in every workbook, with nothing to import and no .xlsm needed.
+
+**Easiest: tick "Install the Excel add-in" while installing the Windows app** (`InstaWords_<version>_x64-setup.exe`, page "Select Additional Tasks"; unchecked by default). Setup copies `InstaWords.xlam` to `%APPDATA%\Microsoft\AddIns` (Excel's add-ins folder); a file written by setup carries no Mark of the Web, so there is no Unblock step. It then enables it with the first free `OPEN`, `OPEN1`, `OPEN2`… value under `HKCU\Software\Microsoft\Office\<version>\Excel\Options` for each Excel version that has run for the user, leaving other add-ins alone. Excel is neither needed nor started, but close it before installing. If Excel has never run, or `TAFQIT` does not work when Excel opens, tick InstaWords once under File → Options → Add-ins → Go… (it is listed because it is in the add-ins folder). App updates refresh it; uninstall removes the file and only its own `OPEN` value (later values move down one, so the list has no gap). CI tests all of this without Excel (`windows/installer/test-xlam-task.ps1`); the real-Excel check is item 13 (c) of [`docs/TESTING-CHECKLIST.md`](../docs/TESTING-CHECKLIST.md), not done yet.
+
+**Or by hand:** download it from the [site's Excel page](https://fastkiwi.app/instawords/excel.html) or the [latest release](https://github.com/sarmadiq9090-coder/InstaWords/releases/latest/download/InstaWords.xlam).
 
 1. Keep the file in a folder you will not delete; Excel loads it from there.
 2. **Unblock it first:** right-click → **Properties** → tick **Unblock** → OK. Windows marks downloaded files (Mark of the Web) and Excel blocks macros in them.
@@ -117,13 +126,16 @@ Import the file; do not copy-paste its text. The module is called `TafqitLib` be
 =TAFQIT(A1, "SAR", "", "", "Only", "", "en")
 =TAFQIT(A1, "EUR", , , , , "fr")
 =TAFQIT_CLEAN(A1)            ' cleaned number, e.g. "١٢٣٫٤٥" -> 123.45
+=TAFQIT_CLEAN(A1, "fr")      ' with the French separators: "12,50" -> 12.5
 ```
 
 - `Unit`: id, code, label or alias from `data/units.json`; matching trims, collapses spaces and lower-cases Latin letters (same as `unitKey` in `src/catalog.ts`). Default: no unit.
 - `HundredsForm`: `"مائة"` (default) or `"مئة"`; `1`/`2` and empty also work.
 - `Decimals`: `"round"` (default, half-up to the subunit) or `"error"`.
 - `Language`: `"ar"` (default), `"en"` or `"fr"`, any case; empty means Arabic. It is the last argument, so existing formulas keep working. `HundredsForm` has no effect outside Arabic.
-- Errors return the Arabic message from `ERROR_MESSAGES` in `src/errors.ts` in every language (including `NO_LANGUAGE_FORMS` when the catalog has no forms for the unit in that language), without the core's `(detail)` suffix. Cell errors such as `#N/A` are passed through.
+- Separators in a **text** cell (docs/SPEC.md §1.1): `.` is the decimal point and `,` separates thousands in groups of three, except with `Language` `"fr"`, where `,` is the decimal point (`12,50` = 12.50, `1.250,75` = 1250.75). A number that reads two ways (`12,50` with Arabic or English output, `1.250,75`, `1,2,3`) returns the `AMBIGUOUS_SEPARATOR` message with the readings, «… (هل تقصد 12.50 أم 1250؟)», never a guess. Numeric cells are never ambiguous.
+- Errors return the Arabic message from `ERROR_MESSAGES` in `src/errors.ts` in every language (including `NO_LANGUAGE_FORMS` when the catalog has no forms for the unit in that language), without the core's `(detail)` suffix, except `AMBIGUOUS_SEPARATOR`, which keeps the question with the readings. Cell errors such as `#N/A` are passed through.
+- Rounding to zero (`0.004` SAR → «صفر ريال سعودي») has no warning in Excel (a cell holds one value): compare with `TAFQIT_CLEAN`, or use `"error"` for `Decimals`.
 
 **Numeric cells:** Excel stores numbers as doubles (15 significant digits). A numeric cell is converted with `CDec` (15 significant digits, what Excel displays) and `Str` (locale-independent), then processed as text; no floating-point arithmetic is done on amounts. For amounts with more than 15 significant digits, enter the number as text.
 

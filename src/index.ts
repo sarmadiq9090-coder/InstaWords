@@ -1,14 +1,14 @@
 // Public API. Zero dependencies; runs in browsers and Node.
 import { Catalog } from "./catalog.ts";
-import { TafqitError } from "./errors.ts";
+import { TafqitError, WARNING_MESSAGES } from "./errors.ts";
 import { phrase } from "./engine.ts";
 import { normalizeNumber } from "./normalize.ts";
 import { isLanguage } from "./lang/index.ts";
 import defaultCatalogData from "./generated/units-data.ts";
-import type { HundredsForm, Language, TafqitOptions, TafqitResult, Unit, UnitCatalog } from "./types.ts";
+import type { HundredsForm, Language, TafqitOptions, TafqitResult, TafqitWarningCode, Unit, UnitCatalog } from "./types.ts";
 
 export type * from "./types.ts";
-export { TafqitError, ERROR_MESSAGES } from "./errors.ts";
+export { TafqitError, ERROR_MESSAGES, WARNING_MESSAGES } from "./errors.ts";
 export { normalizeNumber } from "./normalize.ts";
 export { Catalog } from "./catalog.ts";
 export { LANGUAGES } from "./lang/index.ts";
@@ -42,30 +42,39 @@ function resolveLanguage(v: string | undefined): Language {
 export function createTafqit(catalogData: UnitCatalog = defaultCatalogData): Tafqit {
   const catalog = new Catalog(catalogData);
 
-  const tafqit = (input: string | number | bigint, options: TafqitOptions = {}): string => {
+  const run = (input: string | number | bigint, options: TafqitOptions, warnings: TafqitWarningCode[]): string => {
     const language = resolveLanguage(options.language);
     const unit = catalog.get(options.unit);
     // Validated for every language, but only Arabic uses it.
     const hundredsForm = resolveHundreds(options.hundredsForm);
-    const number = normalizeNumber(input);
+    const number = normalizeNumber(input, language);
     const decimals = options.decimals ?? "round";
     if (decimals !== "round" && decimals !== "error") throw new TafqitError("INVALID_OPTION", `decimals=${decimals}`);
-    const text = phrase({ number, unit, hundredsForm, decimals, language });
+    const text = phrase({ number, unit, hundredsForm, decimals, language, warnings });
     return [options.prefix?.trim(), text, options.suffix?.trim()].filter(Boolean).join(" ");
   };
 
-  const tryTafqit = (input: string | number | bigint, options?: TafqitOptions): TafqitResult => {
+  const tafqit = (input: string | number | bigint, options: TafqitOptions = {}): string => run(input, options, []);
+
+  const tryTafqit = (input: string | number | bigint, options: TafqitOptions = {}): TafqitResult => {
     let cleaned: string | undefined;
     try {
-      cleaned = normalizeNumber(input).cleaned;
+      // The separator convention of the output language; Arabic's when the language is invalid.
+      cleaned = normalizeNumber(input, isLanguage(options.language) ? options.language : "ar").cleaned;
     } catch {
       /* reported below */
     }
     try {
-      return { ok: true, result: tafqit(input, options), cleaned: cleaned! };
+      const warnings: TafqitWarningCode[] = [];
+      const result = run(input, options, warnings);
+      return {
+        ok: true, result, cleaned: cleaned!,
+        ...(warnings.length ? { warnings: warnings.map((code) => ({ code, message: WARNING_MESSAGES[code] })) } : {}),
+      };
     } catch (e) {
       if (e instanceof TafqitError) {
-        return { ok: false, error: { code: e.code, message: e.message }, ...(cleaned !== undefined ? { cleaned } : {}) };
+        const error = { code: e.code, message: e.message, ...(e.readings ? { readings: [...e.readings] } : {}) };
+        return { ok: false, error, ...(cleaned !== undefined ? { cleaned } : {}) };
       }
       throw e;
     }

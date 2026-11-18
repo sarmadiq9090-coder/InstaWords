@@ -94,5 +94,25 @@ namespace InstaWords.App.Services
             if (Has(key)) return T(key);
             return string.IsNullOrEmpty(engineMessage) ? T("Err.Generic") : engineMessage;
         }
+
+        /// <summary>
+        /// AMBIGUOUS_SEPARATOR (docs/SPEC.md §1.1): «هل تقصد 12.50 أم 1250؟» from the engine's readings, then
+        /// the advice (<see cref="Error"/>), so the user sees both readings and is never given a guess.
+        /// </summary>
+        public static string Ambiguous(string code, string engineMessage, IReadOnlyList<string> readings)
+        {
+            var advice = Error(code, engineMessage);
+            if (readings == null || readings.Count == 0) return advice;
+            var question = readings.Count == 1 ? F("Err.Ambiguous.One", readings[0]) : F("Err.Ambiguous.Two", readings[0], readings[1]);
+            return question + " " + advice;
+        }
+
+        /// <summary>A warning code («Warn.CODE» in English; the engine's message in Arabic, as for errors).</summary>
+        public static string Warning(string code, string engineMessage)
+        {
+            if (!IsEnglish && !string.IsNullOrEmpty(engineMessage)) return engineMessage;
+            var key = "Warn." + (code ?? "");
+            return Has(key) ? T(key) : engineMessage ?? "";
+        }
     }
 }

@@ -110,7 +110,10 @@ export interface TafqitOptions {
   suffix?: string;
   /** Extra fraction digits: "round" half-up to the subunit (default) or "error". */
   decimals?: DecimalsPolicy;
-  /** Output language. Default: "ar". hundredsForm is ignored for "en" and "fr". */
+  /**
+   * Output language. Default: "ar". hundredsForm is ignored for "en" and "fr". It also picks the
+   * separator convention of a text input: "," is the decimal point in "fr" (docs/SPEC.md §1.1).
+   */
   language?: Language;
 }
 
@@ -133,8 +136,20 @@ export type TafqitErrorCode =
   | "UNKNOWN_UNIT"
   | "INVALID_OPTION"
   | "INVALID_CATALOG"
-  | "NO_LANGUAGE_FORMS";
+  | "NO_LANGUAGE_FORMS"
+  | "AMBIGUOUS_SEPARATOR";
+
+/** Warnings of a successful conversion (docs/SPEC.md §13). */
+export type TafqitWarningCode = "ROUNDED_TO_ZERO";
+
+export interface TafqitWarning {
+  code: TafqitWarningCode;
+  /** Arabic message (WARNING_MESSAGES). */
+  message: string;
+}
 
 export type TafqitResult =
-  | { ok: true; result: string; cleaned: string }
-  | { ok: false; error: { code: TafqitErrorCode; message: string }; cleaned?: string };
+  /** `warnings` is present only when there is at least one. */
+  | { ok: true; result: string; cleaned: string; warnings?: TafqitWarning[] }
+  /** `readings` (AMBIGUOUS_SEPARATOR only): what the input could mean, e.g. ["12.50", "1250"]. */
+  | { ok: false; error: { code: TafqitErrorCode; message: string; readings?: string[] }; cleaned?: string };

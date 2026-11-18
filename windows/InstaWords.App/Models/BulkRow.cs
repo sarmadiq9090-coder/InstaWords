@@ -37,6 +37,7 @@ namespace InstaWords.App.Models
         /// <summary>The amount used (ConversionResult.Amount: 45750.50 SAR), or the cleaned input of a failed row; also the CSV «cleaned» column.</summary>
         public string Cleaned => _cleaned;
         public string Text => _text;
+        /// <summary>The error of a failed row, or the warning of a converted one (ROUNDED_TO_ZERO); "" when none.</summary>
         public string Error => _error;
         public bool Ok => _ok;
         public FlowDirection TextFlow => _textFlow;

@@ -190,6 +190,12 @@
                     <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Print.PrintFrameHint}" />
                   </StackPanel>
                 </CheckBox>
+                <CheckBox x:Name="ThirdLineBox" Margin="0,12,0,0" Click="OnProfileOptionClick" AutomationProperties.AutomationId="PrintThirdLine">
+                  <StackPanel>
+                    <TextBlock Text="{DynamicResource Print.ThirdLine}" />
+                    <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Print.ThirdLineHint}" />
+                  </StackPanel>
+                </CheckBox>
                 <CheckBox x:Name="GridBox" Margin="0,12,0,0" Checked="OnGridClick" Unchecked="OnGridClick" AutomationProperties.AutomationId="PrintShowGrid">
                   <StackPanel>
                     <TextBlock Text="{DynamicResource Print.ShowGrid}" />
@@ -244,6 +250,26 @@
                 <TextBlock x:Name="PageInfo" Style="{StaticResource HintText}" Margin="12,0,0,0" VerticalAlignment="Center" FontSize="13"
                            AutomationProperties.AutomationId="PrintPageInfo" />
               </StackPanel>
+            </DockPanel>
+          </Border>
+          <!-- Words (or a voucher's text) that would be cut off on paper: printing waits until this is fixed. -->
+          <Border x:Name="OverflowNotice" DockPanel.Dock="Top" Style="{StaticResource ErrorBox}" Margin="16,12,16,0" Visibility="Collapsed">
+            <DockPanel>
+              <ui:Icon DockPanel.Dock="Left" Data="{StaticResource IconAlert}" Foreground="{StaticResource DangerBrush}" Width="20" Height="20" VerticalAlignment="Top" Margin="0,1,10,0" />
+              <StackPanel>
+                <TextBlock x:Name="OverflowText" Foreground="{StaticResource DangerBrush}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"
+                           AutomationProperties.AutomationId="PrintOverflow" AutomationProperties.LiveSetting="Assertive" />
+                <TextBlock x:Name="OverflowFixes" Foreground="{StaticResource TextBrush}" FontSize="13" TextWrapping="Wrap" Margin="0,4,0,0" LineHeight="21"
+                           AutomationProperties.AutomationId="PrintOverflowFixes" />
+              </StackPanel>
+            </DockPanel>
+          </Border>
+          <!-- An amount rounded to zero (0.004 SAR → «صفر»): printing waits until it is corrected. -->
+          <Border x:Name="ZeroNotice" DockPanel.Dock="Top" Style="{StaticResource ErrorBox}" Margin="16,12,16,0" Visibility="Collapsed">
+            <DockPanel>
+              <ui:Icon DockPanel.Dock="Left" Data="{StaticResource IconAlert}" Foreground="{StaticResource DangerBrush}" Width="20" Height="20" VerticalAlignment="Top" Margin="0,1,10,0" />
+              <TextBlock x:Name="ZeroText" Foreground="{StaticResource DangerBrush}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"
+                         AutomationProperties.AutomationId="PrintRoundedZero" AutomationProperties.LiveSetting="Assertive" />
             </DockPanel>
           </Border>
           <ScrollViewer x:Name="PreviewScroll" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="{StaticResource BgSoftBrush}"

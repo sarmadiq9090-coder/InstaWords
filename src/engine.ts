@@ -4,7 +4,7 @@ import { TafqitError } from "./errors.ts";
 import { MAX_INTEGER_DIGITS } from "./lexicon.ts";
 import { LANGUAGE_MODULES } from "./lang/index.ts";
 import { normalizeNumber } from "./normalize.ts";
-import type { DecimalsPolicy, HundredsForm, Language, NormalizedNumber, Unit } from "./types.ts";
+import type { DecimalsPolicy, HundredsForm, Language, NormalizedNumber, TafqitWarningCode, Unit } from "./types.ts";
 
 export interface PhraseInput {
   number: NormalizedNumber;
@@ -13,6 +13,8 @@ export interface PhraseInput {
   decimals: DecimalsPolicy;
   /** Default: "ar". */
   language?: Language;
+  /** Warnings are pushed here (ROUNDED_TO_ZERO). */
+  warnings?: TafqitWarningCode[];
 }
 
 /** Add one to a digit string. */
@@ -35,7 +37,7 @@ export function roundHalfUp(integer: string, fraction: string, d: number): [stri
 }
 
 /** Full phrase without prefix/suffix. */
-export function phrase({ number, unit, hundredsForm: hf, decimals, language = "ar" }: PhraseInput): string {
+export function phrase({ number, unit, hundredsForm: hf, decimals, language = "ar", warnings }: PhraseInput): string {
   const lang = LANGUAGE_MODULES[language];
   let { integer } = number;
   const { fraction } = number;
@@ -58,6 +60,8 @@ export function phrase({ number, unit, hundredsForm: hf, decimals, language = "a
       [integer, subDigits] = roundHalfUp(integer, fraction, d);
     }
     sub = subDigits.replace(/^0+/, "") || "0";
+    // A non-zero amount below half the smallest subunit (0.004 SAR) is written «صفر»: say so.
+    if (integer === "0" && sub === "0") warnings?.push("ROUNDED_TO_ZERO");
   }
 
   if (sub === "0") return lang.count(integer, forms, hf);

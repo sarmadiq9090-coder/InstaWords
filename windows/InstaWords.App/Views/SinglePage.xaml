@@ -82,12 +82,19 @@
                        FlowDirection="{Binding ResultFlow}" Visibility="Collapsed"
                        AutomationProperties.AutomationId="ResultText" AutomationProperties.Name="{DynamicResource Single.InWords}" />
 
+              <!-- A warning about the words (e.g. 0.004 rounded to zero); hidden when there is none -->
+              <DockPanel x:Name="WarningBox" Margin="0,8,0,0" Visibility="Collapsed">
+                <ui:Icon Data="{StaticResource IconAlert}" Foreground="{StaticResource DangerBrush}" Width="16" Height="16" VerticalAlignment="Top" Margin="0,1,8,0" />
+                <TextBlock x:Name="WarningText" Foreground="{StaticResource DangerBrush}" FontSize="13.5" FontWeight="SemiBold" TextWrapping="Wrap"
+                           AutomationProperties.AutomationId="WarningText" AutomationProperties.LiveSetting="Polite" />
+              </DockPanel>
+
               <StackPanel x:Name="EmptyState" Margin="0,12,0,4">
                 <TextBlock Text="{DynamicResource Single.Empty}" FontSize="17" Foreground="{StaticResource SubtleBrush}" />
                 <WrapPanel Margin="0,12,0,0">
                   <TextBlock Style="{StaticResource HintText}" Text="{DynamicResource Single.Try}" VerticalAlignment="Center" Margin="0,0,8,0" />
                   <Button Style="{StaticResource ChipButton}" Content="1250.75" Tag="1250.75" Click="OnSampleClick" Margin="0,0,6,0" />
-                  <Button Style="{StaticResource ChipButton}" Content="15,000" Tag="15,000" Click="OnSampleClick" Margin="0,0,6,0" />
+                  <Button Style="{StaticResource ChipButton}" Content="15,000" Tag="15000" Click="OnSampleClick" Margin="0,0,6,0" />
                   <Button Style="{StaticResource ChipButton}" Content="٢٠٠" Tag="٢٠٠" Click="OnSampleClick" Margin="0,0,6,0" />
                   <Button Style="{StaticResource ChipButton}" Content="1500.125" Tag="1500.125" Click="OnSampleClick" />
                 </WrapPanel>

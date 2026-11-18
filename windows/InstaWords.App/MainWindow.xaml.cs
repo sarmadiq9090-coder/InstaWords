@@ -27,7 +27,8 @@ namespace InstaWords.App
             InputBindings.Add(new KeyBinding(new RelayCommand(() => SelectTab(TabSingle)), Key.NumPad1, ModifierKeys.Control));
             InputBindings.Add(new KeyBinding(new RelayCommand(() => SelectTab(TabBulk)), Key.NumPad2, ModifierKeys.Control));
             InputBindings.Add(new KeyBinding(new RelayCommand(() => SelectTab(TabSettings)), Key.NumPad3, ModifierKeys.Control));
-            InputBindings.Add(new KeyBinding(new RelayCommand(ShowAbout), Key.F1, ModifierKeys.None));
+            // F1: «كيف أستخدمه؟» (About has its own button).
+            InputBindings.Add(new KeyBinding(new RelayCommand(ShowHelp), Key.F1, ModifierKeys.None));
             // Ctrl+P: print the current amount, or the bulk tab's selected rows.
             InputBindings.Add(new KeyBinding(new RelayCommand(PrintCurrent), Key.P, ModifierKeys.Control));
 
@@ -85,6 +86,8 @@ namespace InstaWords.App
             about.ShowDialog();
         }
 
+        public void ShowHelp() => HelpWindow.ShowFor(this);
+
         public void ShowReport()
         {
             var report = new ReportWindow { Owner = IsVisible ? this : null };
@@ -92,7 +95,17 @@ namespace InstaWords.App
             report.ShowDialog();
         }
 
+        /// <summary>The one-time «هل يساعدك InstaWords؟» (Store copy, App.NoteCopied); «قيّم في المتجر» opens the Store's dialog.</summary>
+        public void ShowRatingRequest()
+        {
+            if (!IsVisible) return;
+            var ask = new RatingWindow { Owner = this };
+            ask.ShowDialog();
+            if (ask.WantsToRate) _ = StoreRating.RequestAsync(this);
+        }
+
         private void OnAboutClick(object sender, RoutedEventArgs e) => ShowAbout();
+        private void OnHelpClick(object sender, RoutedEventArgs e) => ShowHelp();
         private void OnReportClick(object sender, RoutedEventArgs e) => ShowReport();
         private void OnUpdateBadgeClick(object sender, RoutedEventArgs e) => App.Current.Updates.ShowAvailableUpdate(this);
 

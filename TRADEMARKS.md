@@ -6,7 +6,7 @@
 
 **InstaWords™** و**FastKiwi™** علامتان تجاريتان لـ FastKiwi (Sarmad)، وكذلك اسم البرنامج وأيقونته وشعار FastKiwi.
 
-**الكود حر، والاسم ليس كذلك.** رخصة MIT في [`LICENSE`](LICENSE) تتيح لك استخدام الكود ونسخه وتعديله ونشره، حتى تجارياً، لكنها **لا تمنح أي حق في العلامات التجارية**.
+**الاسم ليس مرخّصاً.** [`LICENSE`](LICENSE) **لا تمنح أي حق في العلامات التجارية**.
 
 إن نشرت نسخة معدّلة (fork) أو أعدت توزيع البرنامج بعد تغييره:
 
@@ -35,7 +35,7 @@
 
 **InstaWords™** and **FastKiwi™** are trademarks of FastKiwi (Sarmad), as are the app's name and icon and the FastKiwi logo.
 
-**The code is free; the name is not.** The MIT licence in [`LICENSE`](LICENSE) lets you use, copy, modify and distribute the code, commercially too, but it **grants no trademark rights**.
+**The names are not licensed.** [`LICENSE`](LICENSE) **grants no trademark rights**.
 
 If you publish a fork or redistribute a modified version:
 

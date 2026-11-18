@@ -218,7 +218,18 @@ namespace InstaWords.UITests
                 AppSession.WaitUntil(() => (s.Get("HotkeyStatus").Name ?? "").Contains("Ctrl+Alt+T"), "hotkey status");
                 s.Screenshot(s.Window, "08-settings");
 
+                // F1: «كيف أستخدمه؟», with the comma rule and the current clipboard shortcut.
                 Keyboard.Press(VirtualKeyShort.F1);
+                var help = s.GetTopLevel("HelpWindow");
+                Assert.Equal("كيف أستخدمه؟", help.FindFirstDescendant(s.Cf.ByAutomationId("HelpTitle")).Name);
+                Assert.Contains("Ctrl+Alt+T", help.FindFirstDescendant(s.Cf.ByAutomationId("HelpHotkey")).Name);
+                Assert.Contains("ثلاثة أرقام", help.FindFirstDescendant(s.Cf.ByAutomationId("HelpNumbers")).Name);
+                s.Screenshot(help, "09a-help");
+                help.FindFirstDescendant(s.Cf.ByAutomationId("HelpClose")).AsButton().Invoke();
+                AppSession.WaitUntil(() => !s.App.GetAllTopLevelWindows(s.Automation).Any(w => { try { return w.AutomationId == "HelpWindow"; } catch { return false; } }), "help closed");
+                Thread.Sleep(300);
+
+                s.Get("AboutButton").Click();
                 var about = s.GetTopLevel("AboutWindow");
                 Assert.Contains("الإصدار", about.FindFirstDescendant(s.Cf.ByAutomationId("AboutVersion")).Name);
                 s.Screenshot(about, "09-about");

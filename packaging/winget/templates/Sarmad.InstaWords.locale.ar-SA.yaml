@@ -10,9 +10,9 @@ PublisherSupportUrl: https://github.com/sarmadiq9090-coder/InstaWords/issues
 Author: Sarmad
 PackageName: "InstaWords — تفقيط"
 PackageUrl: https://fastkiwi.app/instawords/
-License: MIT
+License: Proprietary (free)
 LicenseUrl: https://github.com/sarmadiq9090-coder/InstaWords/blob/HEAD/LICENSE
-Copyright: "© 2026 FastKiwi (Sarmad) · MIT License"
+Copyright: "© 2026 FastKiwi (Sarmad) · All rights reserved"
 ShortDescription: "تفقيط المبالغ بالحروف للشيكات والفواتير، بالعربية والإنجليزية والفرنسية."
 Description: |-
   برنامج Windows أصلي يكتب المبالغ بالحروف للشيكات والفواتير والسندات، بالعربية والإنجليزية والفرنسية، بأكثر من 100 عملة ووحدة مع الهللات والفلوس.
@@ -20,7 +20,7 @@ Description: |-
   تبويب «دفعة»: الصق عموداً كاملاً من Excel أو استورد CSV، ثم انسخ النتائج أو صدّرها CSV بترميز UTF-8.
   Ctrl+Alt+T من أي برنامج: يصبح الرقم المنسوخ في الحافظة مبلغاً مكتوباً بالحروف جاهزاً للصق.
   أيقونة بجانب الساعة، وتشغيل مع Windows اختياري، وتحديثات من داخل البرنامج يُتحقق من بصمتها SHA-256. يعمل كله دون إنترنت ولا يُرسل أي رقم.
-  لا يحتاج تثبيت أي شيء إضافي على Windows 10 و11 ولا صلاحيات المسؤول. مجاني ومفتوح المصدر (MIT).
+  لا يحتاج تثبيت أي شيء إضافي على Windows 10 و11 ولا صلاحيات المسؤول. برنامج ويندوز مجاني.
 Tags:
 - تفقيط
 - المبلغ-بالحروف

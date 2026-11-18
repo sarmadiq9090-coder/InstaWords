@@ -228,6 +228,19 @@ try {
   check("decimals=error shows error", (await page.getAttribute("#result", "class")).includes("is-error"), await page.textContent("#result"));
   await page.check('input[name="decimals"][value="round"]');
 
+  // Separators (SPEC §1.1): a comma that reads two ways asks instead of guessing; 0.004 warns.
+  await page.fill("#number", "12,50");
+  await waitText(page, "#result", tryMessage("12,50", { unit: "SAR" }), "12,50 → AMBIGUOUS_SEPARATOR with both readings");
+  check("ambiguous comma shows both readings", (await page.textContent("#result")).includes("هل تقصد 12.50 أم 1250؟"));
+  check("no cleaned number for an ambiguous input", !(await page.isVisible("#cleaned-box")));
+  await page.fill("#number", "0.004");
+  await waitText(page, "#result", "صفر ريال سعودي", "0.004 SAR is written as zero");
+  check("rounding to zero shows a warning", await page.isVisible("#result-warning")
+    && (await page.textContent("#result-warning")).includes("قُرِّب إلى صفر"), await page.textContent("#result-warning"));
+  await page.fill("#number", "0.01");
+  await waitText(page, "#result", "هللة واحدة", "0.01 SAR");
+  check("warning hidden again", !(await page.isVisible("#result-warning")));
+
   await page.fill("#number", "abc");
   await page.waitForTimeout(50);
   const errText = await page.textContent("#result");
@@ -374,6 +387,12 @@ try {
   check("install steps: Unblock, Add-ins dialog, Trusted Location", await page.evaluate(() => {
     const t = document.querySelector("#install").textContent;
     return ["إلغاء الحظر", "الوظائف الإضافية", "استعراض", "مركز التوثيق", "المواقع الموثوقة"].every((w) => t.includes(w));
+  }));
+  check("easiest way first: the installer's «تثبيت إضافة Excel» option, with a link to the installer", await page.evaluate(() => {
+    const easy = document.querySelector("#install-easy");
+    const steps = document.querySelector("#install ol.steps");
+    return !!easy && !!steps && easy.textContent.includes("تثبيت إضافة Excel") && !!easy.querySelector("a[data-windows-download]") &&
+      (easy.compareDocumentPosition(steps) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
   }));
   check("no download link sends the user to a GitHub page", await page.$$eval("a[download]", (as) => as.every((a) => !/github\.com/.test(a.href))));
   check("formula shown", (await page.textContent("#formula")).includes('=TAFQIT(A1, "ريال سعودي", "مائة", "فقط", "لا غير")'));

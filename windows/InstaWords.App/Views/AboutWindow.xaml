@@ -9,7 +9,7 @@
     <ContentControl Style="{StaticResource Card}" Padding="26,24">
       <StackPanel>
         <StackPanel Orientation="Horizontal">
-          <Image Source="{StaticResource LogoImage}" Width="64" Height="64" FlowDirection="LeftToRight" />
+          <Image Source="{StaticResource LogoImage}" RenderOptions.BitmapScalingMode="HighQuality" Width="64" Height="64" FlowDirection="LeftToRight" />
           <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
             <TextBlock FontSize="24" FontWeight="Bold"><Run Text="InstaWords" /><Run Text="{DynamicResource About.TitleSuffix}" Foreground="{StaticResource AccentTextBrush}" /></TextBlock>
             <TextBlock x:Name="VersionText" Style="{StaticResource HintText}" FontSize="13.5" Margin="0,2,0,0" AutomationProperties.AutomationId="AboutVersion" />
@@ -22,8 +22,10 @@
         <StackPanel Margin="0,16,0,0">
           <TextBlock Margin="0,0,0,6"><Hyperlink NavigateUri="https://fastkiwi.app/instawords/" RequestNavigate="OnLink">fastkiwi.app/instawords</Hyperlink>
             <Run Text="{DynamicResource About.ByFastKiwi}" Foreground="{StaticResource MutedBrush}" /></TextBlock>
-          <TextBlock Margin="0,0,0,6"><Hyperlink NavigateUri="https://github.com/sarmadiq9090-coder/InstaWords" RequestNavigate="OnLink"><Run Text="{DynamicResource About.Source}" /></Hyperlink></TextBlock>
-          <TextBlock Margin="0,0,0,6"><Run Text="{DynamicResource About.License1}" /><Hyperlink NavigateUri="https://github.com/sarmadiq9090-coder/InstaWords/blob/HEAD/LICENSE" RequestNavigate="OnLink">MIT</Hyperlink><Run Text="{DynamicResource About.License2}" /></TextBlock>
+          <TextBlock Margin="0,0,0,6"><Hyperlink NavigateUri="https://github.com/sarmadiq9090-coder/InstaWords/releases" RequestNavigate="OnLink"><Run Text="{DynamicResource About.Source}" /></Hyperlink></TextBlock>
+          <TextBlock Margin="0,0,0,6"><Run Text="{DynamicResource About.License1}" /><Hyperlink NavigateUri="https://github.com/sarmadiq9090-coder/InstaWords/blob/HEAD/LICENSE" RequestNavigate="OnLink">LICENSE</Hyperlink><Run Text="{DynamicResource About.License2}" /></TextBlock>
+          <!-- Store copy only (AboutWindow.xaml.cs): the Store's rating dialog. -->
+          <TextBlock x:Name="RateLine" Margin="0,0,0,6" Visibility="Collapsed"><Hyperlink Click="OnRateClick" AutomationProperties.AutomationId="AboutRate"><Run Text="{DynamicResource About.Rate}" /></Hyperlink></TextBlock>
         </StackPanel>
 
         <Border Style="{StaticResource Rule}" Margin="0,14" />

@@ -19,6 +19,12 @@ namespace InstaWords.App
         /// <summary>Started with --tray (Windows startup): stay in the notification area.</summary>
         public bool StartHidden { get; set; }
 
+        /// <summary>Started by the installer after a silent in-app update (--updated).</summary>
+        public bool AfterUpdate { get; set; }
+
+        /// <summary>Started again by the installer because a silent update did not finish (--update-failed).</summary>
+        public bool AfterFailedUpdate { get; set; }
+
         public AppSettings Settings { get; private set; }
         public ConversionState State { get; } = new ConversionState();
         public HistoryStore History { get; } = new HistoryStore();
@@ -58,6 +64,12 @@ namespace InstaWords.App
             _tray.ExitRequested += (s, a) => ExitApp();
             _tray.UpdateRequested += async (s, a) =>
             {
+                // The Store copy: «التحقق من وجود تحديث» opens its page in Microsoft Store.
+                if (!UpdateService.IsEnabled)
+                {
+                    UpdateService.OpenStorePage();
+                    return;
+                }
                 ShowMainWindow();
                 await Updates.CheckAsync(interactive: true, owner: AppWindow);
             };
@@ -75,6 +87,17 @@ namespace InstaWords.App
             MainWindow = window;
             if (!StartHidden) window.Show();
             Updates.CheckOnStartup();
+
+            if (AfterUpdate || AfterFailedUpdate)
+            {
+                // The installer started this copy: say whether the update went through.
+                var failed = AfterFailedUpdate;
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (failed) ToastWindow.ShowMessage(false, Loc.T("Update.FailedTitle"), Loc.F("Update.FailedBody", UpdateService.CurrentVersionText));
+                    else ToastWindow.ShowMessage(true, Loc.F("Update.DoneTitle", UpdateService.CurrentVersionText), Loc.T("Update.DoneBody"));
+                }), DispatcherPriority.ApplicationIdle);
+            }
 
             if (!hotkeyOk && Settings.HotkeyEnabled)
             {
@@ -161,7 +184,10 @@ namespace InstaWords.App
                     return;
                 }
                 History.Add(values[0], r.Cleaned, options.Unit, options.Language, r.Text);
-                Notify(true, Loc.F("Clip.CopiedTitle", Conversion.Grouped(r.Amount)), r.Text, Catalog.FlowFor(options.Language));
+                // A warning (0.004 → «صفر») is always shown, even with toasts turned off.
+                if (r.Warning != null) Notify(false, Loc.F("Clip.CopiedWarnTitle", Conversion.Grouped(r.Amount)), r.Warning);
+                else Notify(true, Loc.F("Clip.CopiedTitle", Conversion.Grouped(r.Amount)), r.Text, Catalog.FlowFor(options.Language));
+                NoteCopied(inWindow: false);
                 return;
             }
 
@@ -183,7 +209,39 @@ namespace InstaWords.App
                 Notify(false, Loc.T("Clip.WriteFailedTitle"), Loc.T("Clip.TryAgain"));
                 return;
             }
+            var firstWarning = results.FindIndex(r => r.Warning != null);
+            if (firstWarning >= 0)
+            {
+                Notify(false, Loc.F("Clip.CopiedManyWarnTitle", Conversion.FormatCount(results.Count), firstWarning + 1), results[firstWarning].Warning);
+                return;
+            }
             Notify(true, Loc.F("Clip.CopiedManyTitle", Conversion.FormatCount(results.Count)), results[0].Text + "\n…", Catalog.FlowFor(options.Language));
+            NoteCopied(inWindow: false);
+        }
+
+        /// <summary>
+        /// An amount in words was copied: «نسخ» / Ctrl+Enter / «نسخ الكل» in the window, or the hotkey.
+        /// Store copy only: counts it, and once enough copies were made asks ONCE for a rating
+        /// (StoreLogic.RatingDue), never over another program. Marked as asked before the dialog shows,
+        /// so either answer, or closing it, means it never asks again.
+        /// </summary>
+        public void NoteCopied(bool inWindow)
+        {
+            var kind = AppPackage.Kind;
+            if (!StoreLogic.CanRate(kind)) return;
+            var count = StoreLogic.CountCopy(kind, Settings.RatingAsked, Settings.CopyCount);
+            if (count != Settings.CopyCount)
+            {
+                Settings.CopyCount = count;
+                SaveSettingsSoon();
+            }
+            var w = AppWindow;
+            var active = inWindow && w != null && w.IsVisible && w.IsActive;
+            if (!StoreLogic.RatingDue(kind, Settings.RatingAsked, Settings.CopyCount, active)) return;
+            Settings.RatingAsked = true;
+            SaveSettings();
+            // After the «تم النسخ» feedback has drawn.
+            Dispatcher.BeginInvoke(new Action(() => w.ShowRatingRequest()), DispatcherPriority.ApplicationIdle);
         }
 
         public string CurrentHotkeyText => (HotkeyGesture.Parse(Settings.Hotkey) ?? HotkeyGesture.Default).ToString();
@@ -217,8 +275,12 @@ namespace InstaWords.App
             _exiting = true;
             try
             {
-                SaveSettings();
-                History.Save();
+                // Settings is null only if asked to exit before startup finished: nothing to save then.
+                if (Settings != null)
+                {
+                    SaveSettings();
+                    History.Save();
+                }
             }
             finally
             {

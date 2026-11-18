@@ -9,8 +9,8 @@
     - the package family name is the one Partner Center gave (identity.json PackageFamilyName);
     - with -ExpectVersion x.y.z: the package version is x.y.z.0 and About shows x.y.z;
     - the app starts from the package (path under WindowsApps) and shows its window;
-    - Store mode: Settings shows "Updates come from Microsoft Store" with no update check button
-      and no auto-update box; "Start with Windows" reads the startup task and can switch it on and off;
+    - Store mode: Settings shows "Updates come from Microsoft Store", a "Check for updates" button (in the
+      Store copy it opens the Store page; not clicked here) and no auto-update box; "Start with Windows" reads the startup task and can switch it on and off;
     - a setting changed in the app is written where MSIX redirects %APPDATA% (LocalCache\Roaming).
   Leaves <OutDir>\InstaWords-test-signed.msix and the trusted certificate for the App Certification Kit
   step, plus screenshots and a log in <OutDir>. Never run this on your own PC: it trusts a new certificate.
@@ -130,7 +130,8 @@ Start-Sleep -Seconds 1
 $status = Find-Id $window "UpdateStatus"
 $statusText = if ($status) { $status.Current.Name } else { "" }
 Check ($statusText -eq "Updates come from Microsoft Store" -or $statusText -eq "التحديثات تأتي من Microsoft Store") "update status says the Store updates it: «$statusText»"
-Check ($null -eq (Find-Id $window "CheckUpdate" 1500)) "no 'Check for updates' button"
+# In the Store copy the button opens InstaWords' Store page (not clicked: the Store app is not part of this test).
+Check ($null -ne (Find-Id $window "CheckUpdate" 3000)) "'Check for updates' button shown (opens the Store page)"
 Check ($null -eq (Find-Id $window "AutoUpdate" 1500)) "no automatic update check box"
 
 $startup = Find-Id $window "StartWithWindows"
@@ -169,7 +170,7 @@ $classic = Join-Path $env:APPDATA "FastKiwi\InstaWords\settings.json"
 Write-Host "settings.json: LocalCache=$(Test-Path $redirected) classic=$(Test-Path $classic)"
 Check (Test-Path $redirected) "settings saved under the package's LocalCache\Roaming (what 'Open data folder' opens)"
 
-# About: no check button, the Store note instead of the GitHub one. (A dialog: a separate top-level window.)
+# About: the check button (opens the Store page), the Store note instead of the GitHub one. (A dialog: a separate top-level window.)
 $about = Find-Id $window "AboutButton"
 if ($about) { $about.GetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern).Invoke() }
 $aboutWindow = $null
@@ -184,7 +185,7 @@ if ($aboutWindow) {
   $aboutStatus = Find-Id $aboutWindow "AboutUpdateStatus"
   $aboutText = if ($aboutStatus) { $aboutStatus.Current.Name } else { "" }
   Check ($aboutText -eq $statusText) "About says the Store updates it: «$aboutText»"
-  Check ($null -eq (Find-Id $aboutWindow "AboutCheckUpdate" 1500)) "About: no 'Check for updates' button"
+  Check ($null -ne (Find-Id $aboutWindow "AboutCheckUpdate" 3000)) "About: 'Check for updates' button shown (opens the Store page)"
   if ($ExpectVersion) {
     $aboutVersion = Find-Id $aboutWindow "AboutVersion"
     $versionText = if ($aboutVersion) { $aboutVersion.Current.Name } else { "" }

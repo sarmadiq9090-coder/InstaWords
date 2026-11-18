@@ -10,10 +10,12 @@
 // (undefined / null); any other field is a string in which "\", "~", TAB, controls,
 // surrogates and other invisible characters are written \uXXXX (and "\" as \\).
 //   # <comment>                                     header lines
-//   T cat input unit hf prefix suffix decimals lang ok out message cleaned
+//   T cat input unit hf prefix suffix decimals lang ok out message cleaned warnings readings
 //       cat 0 = bundled catalog, 1 = CUSTOM catalog (see customCatalog below);
 //       ok 1: out = words; ok 0: out = error code, message = e.message (with detail)
-//   C input ok out                                  normalizeNumber: ok 1 → cleaned, 0 → error code
+//       warnings: tryTafqit warning codes joined by "," (~ when none)
+//       readings: error.readings joined by "|" (~ when absent)
+//   C input lang ok out                             normalizeNumber(input, lang): ok 1 → cleaned, 0 → error code
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -198,6 +200,24 @@ function buildCorpus() {
     "٠", "۰۰", "١٢٣", "𝟏𝟐", "١‏٢", "1 000 000", "−−", "+−5", "1-", "1+", "NaN", "Infinity",
     "1_000", "1'000", "١٬٠٠٠٬٠٠٠٫٥٠", "999,999,999,999,999.99", "9".repeat(15) + ".5", "9".repeat(15) + ".995"];
   for (const s of bad) for (const unit of ["none", "SAR", "piece", "KWD", "nope", "BTC"]) add({ input: s, unit, lang: pick(LANGS) });
+  // separators (SPEC §1.1): every shape in every language, and rounding to zero
+  const sepInputs = ["12,50", "0,5", "1,250", "1.250", "1250,75", "1.250,75", "1,250.75", "1 250,75", "1 250.75", "1,250,000",
+    "1.250.000", "1,2,3", "1,00,000", "0,250", "0.250", ",5", "5,", "1, 250", "1 ,250", "١٢٬٥٠", "١٬٢٥٠٫٧٥", "1٬250,000",
+    "1,250 000", "1.5 000", "1,250.000,5", "12 50", "1234 567", "001,234", "1,,2", "1.,2", "1٫2,5", "1.2٫5", "1٫2٫3",
+    "+ 12,50", "- 1,5", "12,50a", "1\u00a0250,75", "1\u202f250\u202f000", "1,000,000,000,000,000", "999,999,999,999,999.995",
+    "0,004", "0.004", "0,0004", "0.0004", "0.000000004", "١٢٫٥٠", "١٢,٥٠", "۱٬۲۵۰", "1.25.000", "12 50,5", "1.250 000", "1,2500",
+    "1.2500", "1\u3000250", "1_250,5", "1'250.5"];
+  for (const s of sepInputs) {
+    for (const lang of [undefined, "", ...LANGS, "de"]) for (const unit of ["SAR", "KWD", "none", "BTC"]) add({ input: s, unit, lang });
+  }
+  for (let i = 0; i < 6000; i++) {
+    const ip = digits(1 + int(10));
+    const t = pick([",", ".", " ", "٬", "\u00a0", ""]);
+    let s = t ? group(ip, t) : ip;
+    if (rand() < 0.15) s = s.replace(/(\d)(?=\d)/, (d) => d + pick([",", ".", " "])); // irregular
+    if (rand() < 0.6) s += pick([".", ",", "٫"]) + digits(1 + int(4), false);
+    add({ input: s, unit: pick(["SAR", "KWD", "EUR", "none", "TND", "piece"]), lang: pick([undefined, ...LANGS]), decimals: pick([undefined, "error"]) });
+  }
   for (const unit of ["", " ", "XYZ", "ريالات", "sar ", " Sar", "S A R", "KM/H", "km/h", "Kg", "KG", "ＳＡＲ", "riyal​",
     "none", "None", "NONE", "بدون", "بدون  وحدة", "\u0085none", "﻿none", "᠎none", "sAr", "kWd", "ريال سعودي", "ريال سعودي",
     "ريال\u0085سعودي", "riyal ", "İ", "KİLOGRAM", undefined]) {
@@ -253,17 +273,20 @@ function run(c) {
       message = e.message;
     }
   }
+  const warnings = r.ok && r.warnings ? r.warnings.map((w) => w.code).join(",") : undefined;
+  const readings = !r.ok && r.error.readings ? r.error.readings.join("|") : undefined;
   return [
     "T", c.custom ? "1" : "0", enc(c.input), enc(c.unit), enc(c.hf), enc(c.prefix), enc(c.suffix), enc(c.decimals), enc(c.lang),
-    r.ok ? "1" : "0", enc(r.ok ? r.result : r.error.code), r.ok ? "~" : enc(message), enc(r.cleaned),
+    r.ok ? "1" : "0", enc(r.ok ? r.result : r.error.code), r.ok ? "~" : enc(message), enc(r.cleaned), enc(warnings), enc(readings),
   ].join("\t");
 }
 
-function clean(input) {
+/** normalizeNumber(input, lang); lang undefined = Tafqit.Clean(input). */
+function clean(input, lang) {
   try {
-    return ["C", enc(input), "1", enc(normalizeNumber(input).cleaned)].join("\t");
+    return ["C", enc(input), enc(lang), "1", enc(normalizeNumber(input, lang).cleaned)].join("\t");
   } catch (e) {
-    return ["C", enc(input), "0", enc(e.code)].join("\t");
+    return ["C", enc(input), enc(lang), "0", enc(e.code)].join("\t");
   }
 }
 
@@ -272,7 +295,7 @@ const extra = customCorpus();
 const all = [...main, ...extra];
 const lines = all.map(run);
 const inputs = [...new Set(all.map((c) => c.input))];
-const cleanLines = inputs.map(clean);
+const cleanLines = inputs.flatMap((input) => [undefined, "en", "fr"].map((lang) => clean(input, lang)));
 const { sourceHash } = buildDotnet(JSON.parse(readFileSync(root + "data/units.json", "utf8")));
 
 const header = [

@@ -33,7 +33,7 @@
     <Description>Amounts in words (tafqit) for cheques and invoices, in Arabic, English and French.</Description>
     <Company>FastKiwi</Company>
     <Authors>FastKiwi</Authors>
-    <Copyright>© 2026 FastKiwi (Sarmad). MIT License. InstaWords and FastKiwi are trademarks of FastKiwi (Sarmad).</Copyright>
+    <Copyright>© 2026 FastKiwi (Sarmad). All rights reserved. InstaWords and FastKiwi are trademarks of FastKiwi (Sarmad).</Copyright>
     <NeutralLanguage>ar</NeutralLanguage>
   </PropertyGroup>
 
@@ -41,7 +41,7 @@
   <PropertyGroup Condition="'$(Version)' == '' Or '$(Version)' == '1.0.0'">
     <_PackageJson>$(MSBuildThisFileDirectory)..\..\package.json</_PackageJson>
     <Version Condition="Exists('$(_PackageJson)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(_PackageJson)')), '"version"\s*:\s*"([0-9][^"]*)"').Groups[1].Value)</Version>
-    <Version Condition="'$(Version)' == ''">2.2.0</Version>
+    <Version Condition="'$(Version)' == ''">3.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -51,8 +51,8 @@
     <Reference Include="ReachFramework" />
     <Reference Include="System.Printing" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
-    <!-- WinRT metadata only (nothing is copied to bin/): the Store copy's startup task (StartupService).
-         Windows 10/11 provide the runtime; unpackaged copies never call it. -->
+    <!-- WinRT metadata only (nothing is copied to bin/): the Store copy's startup task (StartupService)
+         and rating dialog (StoreRating). Windows 10/11 provide the runtime; unpackaged copies never call it. -->
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.19041.1" />
   </ItemGroup>
 
@@ -62,7 +62,10 @@
 
   <ItemGroup>
     <Resource Include="Fonts\*.ttf" />
+    <Resource Include="Assets\InstaWords-256.png" />
     <Resource Include="Assets\InstaWords.ico" />
+    <!-- «More from FastKiwi»: a copy of the site's data/apps.json (refresh: see windows/README.md). Read by Services/MoreApps.cs; never fetched at run time. -->
+    <EmbeddedResource Include="Assets\apps.json" LogicalName="InstaWords.App.apps.json" />
     <None Update="Fonts\OFL.txt" CopyToOutputDirectory="PreserveNewest" Link="Licenses\IBM-Plex-Sans-Arabic-OFL.txt" />
     <None Include="..\..\LICENSE" CopyToOutputDirectory="PreserveNewest" Link="Licenses\InstaWords-LICENSE.txt" />
   </ItemGroup>

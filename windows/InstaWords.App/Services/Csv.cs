@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,84 @@ namespace InstaWords.App.Services
     /// </summary>
     public static class Csv
     {
+        /// <summary>Largest file the bulk tab imports (it is read into memory whole).</summary>
+        public const long MaxImportBytes = 20L * 1024 * 1024;
+        /// <summary>Most numbers the bulk tab loads at once, from a file, a paste or a drop.</summary>
+        public const int MaxImportRows = 100000;
+        /// <summary>How much of a file <see cref="Inspect"/> looks at.</summary>
+        public const int HeadBytes = 4096;
+
+        /// <summary>Why a file is not imported (checked before it is read).</summary>
+        public enum ImportProblem
+        {
+            None,
+            /// <summary>An Excel/Calc workbook (.xlsx, .xls…): it must be saved as CSV first.</summary>
+            Spreadsheet,
+            /// <summary>Larger than <see cref="MaxImportBytes"/>.</summary>
+            TooLarge,
+            /// <summary>Not text (a zip, PDF or other binary file), which would be read as garbage.</summary>
+            NotText,
+        }
+
+        private static readonly HashSet<string> SpreadsheetExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ".xlsx", ".xlsm", ".xlsb", ".xltx", ".xltm", ".xls", ".xlt", ".ods", ".numbers",
+        };
+
+        /// <summary>From the file name, its size and its first bytes (<see cref="ReadHead"/>).</summary>
+        public static ImportProblem Inspect(string fileName, long size, byte[] head)
+        {
+            if (SpreadsheetExtensions.Contains(Path.GetExtension(fileName ?? "") ?? "")) return ImportProblem.Spreadsheet;
+            if (size > MaxImportBytes) return ImportProblem.TooLarge;
+            return LooksBinary(head) ? ImportProblem.NotText : ImportProblem.None;
+        }
+
+        /// <summary>
+        /// Text files have no NUL bytes, except UTF-16 (which starts with its BOM). Zip (xlsx, docx), OLE (xls, doc)
+        /// and PDF files are recognised by their signature even when renamed to .csv.
+        /// </summary>
+        public static bool LooksBinary(byte[] head)
+        {
+            if (head == null || head.Length == 0) return false;
+            if (head.Length >= 2 && ((head[0] == 0xFF && head[1] == 0xFE) || (head[0] == 0xFE && head[1] == 0xFF))) return false;
+            if (StartsWith(head, 0x50, 0x4B, 0x03, 0x04) || StartsWith(head, 0xD0, 0xCF, 0x11, 0xE0) || StartsWith(head, 0x25, 0x50, 0x44, 0x46)) return true;
+            return Array.IndexOf(head, (byte)0) >= 0;
+        }
+
+        private static bool StartsWith(byte[] bytes, params byte[] prefix)
+        {
+            if (bytes.Length < prefix.Length) return false;
+            for (var i = 0; i < prefix.Length; i++)
+                if (bytes[i] != prefix[i]) return false;
+            return true;
+        }
+
+        /// <summary>"20" or "35.2": a size in megabytes for messages (MB = 1,048,576 bytes).</summary>
+        public static string Megabytes(long bytes) =>
+            (bytes / 1048576.0).ToString("0.#", CultureInfo.InvariantCulture);
+
+        /// <summary>The first <paramref name="count"/> bytes of a file (fewer if it is shorter).</summary>
+        public static byte[] ReadHead(string path, int count)
+        {
+            using (var fs = OpenShared(path))
+            {
+                var buffer = new byte[(int)Math.Min(count, fs.Length)];
+                var read = 0;
+                while (read < buffer.Length)
+                {
+                    var n = fs.Read(buffer, read, buffer.Length - read);
+                    if (n <= 0) break;
+                    read += n;
+                }
+                if (read < buffer.Length) Array.Resize(ref buffer, read);
+                return buffer;
+            }
+        }
+
+        /// <summary>Reading only, and still allowed while Excel has the file open.</summary>
+        private static FileStream OpenShared(string path) =>
+            new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+
         public static List<List<string>> Parse(string text, char delimiter)
         {
             text = text ?? "";
@@ -134,7 +213,20 @@ namespace InstaWords.App.Services
         /// </summary>
         public static string ReadText(string path)
         {
-            var bytes = File.ReadAllBytes(path);
+            byte[] bytes;
+            using (var fs = OpenShared(path))
+            {
+                if (fs.Length > MaxImportBytes) throw new IOException("larger than " + Megabytes(MaxImportBytes) + " MB");
+                bytes = new byte[fs.Length];
+                var read = 0;
+                while (read < bytes.Length)
+                {
+                    var n = fs.Read(bytes, read, bytes.Length - read);
+                    if (n <= 0) break;
+                    read += n;
+                }
+                if (read < bytes.Length) Array.Resize(ref bytes, read);
+            }
             if (bytes.Length >= 2 && ((bytes[0] == 0xFF && bytes[1] == 0xFE) || (bytes[0] == 0xFE && bytes[1] == 0xFF)) ||
                 bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF)
             {

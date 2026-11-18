@@ -121,8 +121,68 @@ namespace InstaWords.Core.Tests
             var publicCodes = typeof(TafqitErrorCodes).GetFields(BindingFlags.Public | BindingFlags.Static)
                 .Where(f => f.IsLiteral).Select(f => (string)f.GetRawConstantValue()!).ToArray();
             Assert.Equal(ErrorMessages.Codes, publicCodes);
-            Assert.Equal(10, publicCodes.Length);
+            Assert.Equal(11, publicCodes.Length);
             foreach (var code in publicCodes) Assert.False(string.IsNullOrWhiteSpace(ErrorMessages.Get(code)));
+            var warningCodes = typeof(TafqitWarningCodes).GetFields(BindingFlags.Public | BindingFlags.Static)
+                .Where(f => f.IsLiteral).Select(f => (string)f.GetRawConstantValue()!).ToArray();
+            Assert.Equal(ErrorMessages.WarningCodes, warningCodes);
+            foreach (var code in warningCodes) Assert.Equal(ErrorMessages.GetWarning(code), TafqitResult.WarningMessage(code));
+        }
+
+        /// <summary>docs/SPEC.md §1.1: «,» is the decimal point in French; anything that reads two ways is an error.</summary>
+        [Theory]
+        [InlineData("12,50", "EUR", "fr", "douze euros et cinquante centimes", "12.5")]
+        [InlineData("1 250,75", "EUR", "fr", "mille deux cent cinquante euros et soixante-quinze centimes", "1250.75")]
+        [InlineData("1.250,75", "SAR", "fr", "mille deux cent cinquante riyals saoudiens et soixante-quinze halalas", "1250.75")]
+        [InlineData("0,5", "TND", "fr", "cinq cents millimes", "0.5")]
+        [InlineData("1,250,000", "SAR", "ar", "مليون ومائتان وخمسون ألف ريال سعودي", "1250000")]
+        [InlineData("1\u00a0250.75", "SAR", "en", "One Thousand Two Hundred Fifty Saudi Riyals and Seventy-Five Halalas", "1250.75")]
+        public void Separators_by_output_language(string input, string unit, string language, string words, string cleaned)
+        {
+            var r = Tafqit.TryConvert(input, new TafqitOptions { Unit = unit, Language = language });
+            Assert.True(r.Ok, r.ErrorCode);
+            Assert.Equal(words, r.Text);
+            Assert.Equal(cleaned, r.Cleaned);
+            Assert.Equal(cleaned, Tafqit.Clean(input, language));
+            Assert.Empty(r.Warnings);
+            Assert.Empty(r.ErrorReadings);
+        }
+
+        [Theory]
+        [InlineData("12,50", "EUR", "ar", "12.50|1250")]
+        [InlineData("0,5", "TND", "", "0.5|5")]
+        [InlineData("1.250,75", "SAR", "en", "1250.75|1.25075")]
+        [InlineData("1250,75", "MAD", "ar", "1250.75|125075")]
+        [InlineData("1,2,3", "none", "ar", "123")]
+        [InlineData("1.25.000", "SAR", "fr", "125000")]
+        public void Ambiguous_separators_are_errors_with_readings(string input, string unit, string language, string readings)
+        {
+            var options = new TafqitOptions { Unit = unit, Language = language };
+            var r = Tafqit.TryConvert(input, options);
+            Assert.False(r.Ok);
+            Assert.Equal(TafqitErrorCodes.AmbiguousSeparator, r.ErrorCode);
+            Assert.Equal(readings, string.Join("|", r.ErrorReadings));
+            Assert.Null(r.Cleaned);
+            Assert.Equal(ErrorMessages.Get(TafqitErrorCodes.AmbiguousSeparator), r.ErrorMessage);
+            var e = Assert.Throws<TafqitException>(() => Tafqit.Convert(input, options));
+            Assert.Equal("هل تقصد " + string.Join(" أم ", readings.Split('|')) + "؟", e.Detail);
+            Assert.Equal(r.ErrorReadings, e.Readings);
+            Assert.Equal(TafqitErrorCodes.AmbiguousSeparator, Assert.Throws<TafqitException>(() => Tafqit.Clean(input, language)).Code);
+        }
+
+        [Fact]
+        public void Rounding_to_zero_is_a_warning()
+        {
+            var r = Tafqit.TryConvert("0.004", new TafqitOptions { Unit = "SAR" });
+            Assert.True(r.Ok);
+            Assert.Equal("صفر ريال سعودي", r.Text);
+            Assert.Equal(new[] { TafqitWarningCodes.RoundedToZero }, r.Warnings);
+            Assert.Equal("المبلغ أصغر من أصغر جزء في الوحدة، فقُرِّب إلى صفر.", TafqitResult.WarningMessage(r.Warnings[0]));
+            Assert.Empty(Tafqit.TryConvert("0.00", new TafqitOptions { Unit = "SAR" }).Warnings);
+            Assert.Empty(Tafqit.TryConvert("0.005", new TafqitOptions { Unit = "SAR" }).Warnings);
+            Assert.Equal(TafqitErrorCodes.TooManyDecimals,
+                Tafqit.TryConvert("0.004", new TafqitOptions { Unit = "SAR", Decimals = "error" }).ErrorCode);
+            Assert.Equal(TafqitErrorCodes.InvalidOption, Assert.Throws<TafqitException>(() => Tafqit.Clean("5", "de")).Code);
         }
 
         [Fact]
@@ -262,7 +322,7 @@ namespace InstaWords.Core.Tests
             Assert.Equal(new[]
             {
                 "InstaWords.Core.LanguageInfo", "InstaWords.Core.Tafqit", "InstaWords.Core.TafqitErrorCodes", "InstaWords.Core.TafqitException",
-                "InstaWords.Core.TafqitOptions", "InstaWords.Core.TafqitResult", "InstaWords.Core.UnitInfo",
+                "InstaWords.Core.TafqitOptions", "InstaWords.Core.TafqitResult", "InstaWords.Core.TafqitWarningCodes", "InstaWords.Core.UnitInfo",
             }, types);
             Assert.All(typeof(TafqitResult).GetProperties(), p => Assert.Null(p.SetMethod));
             Assert.All(typeof(UnitInfo).GetProperties(), p => Assert.Null(p.SetMethod));
