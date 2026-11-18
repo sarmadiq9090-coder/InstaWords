@@ -1,5 +1,5 @@
 {
-    "version": "2.2.0",
+    "version": "3.0.0",
     "description": "InstaWords (تفقيط): amounts in words for cheques and invoices, in Arabic, English and French.",
     "homepage": "https://fastkiwi.app/instawords/",
     "license": {
@@ -12,8 +12,8 @@
         "Settings and history live in %APPDATA%\\FastKiwi\\InstaWords (not in the Scoop folder);",
         "delete that folder yourself to remove all data."
     ],
-    "url": "https://github.com/sarmadiq9090-coder/InstaWords/releases/download/v2.2.0/InstaWords_2.2.0_x64-portable.zip",
-    "hash": "d203ff70fa729b1ee6a54a1034d6662dcadfa0c6e69086c09a375ad65ddcb788",
+    "url": "https://github.com/sarmadiq9090-coder/InstaWords/releases/download/v3.0.0/InstaWords_3.0.0_x64-portable.zip",
+    "hash": "dd91fea7c6b2d8f4c50f4aaa2d9a8cfaa2665e3a8479acf7064f179a1931f4f2",
     "extract_dir": "InstaWords",
     "bin": "InstaWords.exe",
     "shortcuts": [
