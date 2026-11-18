@@ -107,8 +107,6 @@ namespace InstaWords.App.Services
 
         // ---------- «قيّم InstaWords»: the one-time rating request (Store copy only) ----------
 
-        /// <summary>The Store's product ID: must match "StoreId" in windows/packaging/msix/identity.json.</summary>
-        public const string StoreProductId = "9P62P4WQSQNK";
 
         /// <summary>The app's «Ratings and reviews» page in the Microsoft Store app (the fallback).</summary>
         public const string ReviewUri = "ms-windows-store://review/?ProductId=" + StoreProductId;
