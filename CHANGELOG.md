@@ -28,6 +28,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **‎`TAFQIT_CLEAN`‎ في Excel** تقبل معامل اللغة: ‎`=TAFQIT_CLEAN(A1, "fr")`‎.
 - **أيقونة على سطح المكتب**: المثبّت يضع أيقونة InstaWords على سطح المكتب افتراضياً، ويمكنك إلغاء الخيار أثناء التثبيت.
 - **نسخة Microsoft Store**: بعد خامس مرة تنسخ فيها مبلغاً بالحروف يسألك البرنامج مرة واحدة فقط «هل يساعدك InstaWords؟» ويفتح نافذة التقييم الخاصة بالمتجر إن اخترت «قيّم في المتجر»، ولا يسأل بعدها أبداً أيّاً كان جوابك. وفي «حول» رابط دائم «قيّم InstaWords في المتجر». لا يظهر في المثبّت ولا في النسخة المحمولة، ولا يُرسل شيئاً.
+- **تثبيت إضافة Excel من المثبّت**: خيار اختياري (غير مفعّل افتراضياً) «تثبيت إضافة Excel» يضع `InstaWords.xlam` في مجلد إضافات Excel ويفعّلها، دون خطوة «إلغاء الحظر»، ويزيلها عند إزالة التثبيت. لا يُغلق المثبّت Excel أبداً.
 
 </div>
 
@@ -50,6 +51,7 @@ Each version's section is copied into its GitHub release notes by the release wo
 - **Excel `TAFQIT_CLEAN`** takes the output language: `=TAFQIT_CLEAN(A1, "fr")`.
 - **Desktop shortcut**: the installer now ticks "Create a desktop shortcut" by default; untick it during setup if you prefer.
 - **Microsoft Store copy**: after the fifth amount in words you copy, the app asks once, "Is InstaWords helping you?", and "Rate in the Store" opens the Store's own rating dialog; whatever you answer, it never asks again. About also has a permanent "Rate InstaWords in the Store" link. Not in the installer or portable builds; nothing is sent.
+- **Install the Excel add-in from the installer**: an optional task (unticked by default), "Install the Excel add-in", puts `InstaWords.xlam` in Excel's add-ins folder and enables it, with no "Unblock" step, and removes it on uninstall. Setup never closes Excel.
 
 ## 2.2.0
 
